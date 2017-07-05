@@ -1,0 +1,2 @@
+class SmallSort:
+    pass
