@@ -6,7 +6,7 @@
 
                                     项目启动日期：2017年7月6日
                                     项目经理：
-                                    项目启动标识：IRPORT OF EZHOU'S PROJECT  -- HZ
+                                    项目启动标识：AIRPORT OF EZHOU'S PROJECT  -- HZ
                                     ===========================================
                                     代码创建日期：2017年7月6日
                                     代码创建工程师：
@@ -43,7 +43,7 @@ def main_test():
     # init
     # env = simpy.Environment()
     print('\n\n\n\n\n'
-          '                                                          Hello AIRPORT OF EZHOUS PROJECT  -- HZ !'
+          "                                      Hello AIRPORT OF EZHOU'S PROJECT  -- HZ !"
           ''
           ''
           '\n\n\n\n\n\n\n\n\n\n')
