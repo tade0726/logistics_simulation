@@ -118,3 +118,6 @@ test/
 # 忽略xls
 *.xlsx
 *.txt
+
+# mac folder file
+.DS_Store
