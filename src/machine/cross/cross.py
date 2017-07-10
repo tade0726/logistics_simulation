@@ -16,7 +16,7 @@
                                     代码整体功能描述：汇流点机器
                                                       1、二入一出模型， 本次只需要一个入口一个出口；
                                                       2、无延时处理过程；
-                                                      3、每个入口无服务受限；
+                                                      3、每个入口\出口无服务受限；
 =====================================================================================================
 """
 
@@ -44,7 +44,8 @@ class Cross(object):
             id_x: Cross machine id.
             input_dic: A simpy.PriorityStore which was put from ahead machine.
             out_put: out .
-
+        Raises:
+            RuntimeError: An error occurred when input_dic not initialized before.
         """
         self.env = env
         self.id_x = id_x
@@ -54,8 +55,10 @@ class Cross(object):
 
     def _get_package_queue(self):
         """
+        获取输入队列功能单元
         """
         if self.input_dic:
+            #  根据input_dic={}中key, value 对的数目， 分别创建process
             for queue_id, get_package_queue in self.input_dic.items():
                 self.env.process(self._get_packages(queue_id, get_package_queue))
         else:
