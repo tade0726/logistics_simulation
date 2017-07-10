@@ -1,10 +1,23 @@
 # -*- coding: utf-8 -*-
 
 """
-作者：kissf lu
-日期：2017/7/7
-说明：杭州项目，汇流点类模块
+======================================================================================================
+                                                     杭州HUB仿真项目
 
+                                    项目启动日期：2017年7月6日
+                                    项目启动标识：AIRPORT OF EZHOU'S PROJECT  -- HZ
+                                    ===========================================
+                                    代码创建日期：2017年7月6日
+                                    代码创建工程师：卢健
+                                    代码版本：1.0
+                                    版本更新日期：2017年7月6日
+                                    版本更新工程师：卢健
+
+                                    代码整体功能描述：汇流点机器
+                                                      1、二入一出模型， 本次只需要一个入口一个出口；
+                                                      2、无延时处理过程；
+                                                      3、每个入口无服务受限；
+=====================================================================================================
 """
 
 
@@ -22,7 +35,6 @@ class Cross(object):
          .       |    Cross    |- ->output
      input_i - ->|             |
                  |_ _ _ _ _ _ _|
-
     """
     def __init__(self, env, id_x, input_dic: dict=None, out_put=None):
         """
@@ -44,22 +56,21 @@ class Cross(object):
         """
         """
         if self.input_dic:
-            print('in get package queue')
-            for get_package_queue in self.input_dic.values():
-                self.env.process(self._get_packages(get_package_queue))
+            for queue_id, get_package_queue in self.input_dic.items():
+                self.env.process(self._get_packages(queue_id, get_package_queue))
         else:
             raise RuntimeError('Please Initial input port Queue for Cross instance First!')
 
-    def _get_packages(self, get_package_queue):
+    def _get_packages(self, queue_id, get_package_queue):
         """
         """
         while True:
             packages = yield get_package_queue.get()
+            print(f"------->package {packages.item['package_id']}", 'was push to next queue at', self.env.now)
             self.env.process(self._put_packages_into_out_queue(packages))
 
     def _put_packages_into_out_queue(self, package):
         """
         """
-        while True:
-            yield self.out_put.put(PriorityItem(priority=self.env.now, item=package))
+        yield self.out_put.put(PriorityItem(priority=self.env.now, item=package))
 
