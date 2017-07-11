@@ -178,7 +178,7 @@ class UnloadR:
 
     def empty_queue(self):
         while True:
-            if (not self.tmp_queue.items and not self.wait_queue.items):
+            if not self.tmp_queue.items and not self.wait_queue.items:
                 self.empty.succeed()
                 self.empty = self.env.event()
             yield self.env.timeout(100)
