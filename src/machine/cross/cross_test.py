@@ -83,7 +83,8 @@ def cross_sim():
                             'x1_in2': PriorityStore(env=env)})
     generator_queue_res = Resource(env=env, capacity=NUM_PORT_ABLE)
     generator_package_res = Resource(env=env, capacity=NUM_PORT_ABLE)
-    packages(env=env, generator_package_res=generator_package_res,
+    packages(env=env,
+             generator_package_res=generator_package_res,
              generator_queue_res=generator_queue_res)
 
     OUTPUT_QUEUE = PriorityStore(env)
