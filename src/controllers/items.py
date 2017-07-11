@@ -11,7 +11,7 @@
 
 __all__ = ["", "", ""]
 
-class Controller:
+class Truck_controller:
     pass
 
 class Monitor:
