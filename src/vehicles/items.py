@@ -28,21 +28,21 @@ class Package:
         self.next_position = next_position
 
         self.attr = attr
-        self.check = False
-        self.customs = False
 
         # record of the path of the package,
         # element will be a dict {'now_position': 'some where', 'next_position', 'some where', 'last_timestamp': 1000}
-        self.path = []
+        # for record
+        self.path = ()
+        # for popping
         self.plan_path = []
+        # for time
+        self.time_records = []
 
     def __str__(self):
         """
         :return:
         """
         display_dct = dict(self.attr)
-        display_dct['check'] = self.check
-        display_dct['customs'] = self.customs
 
         return f"<package attr:{dict(display_dct)}>"
 
