@@ -79,7 +79,7 @@ class Pipeline:
     def __init__(self,
                  env: simpy.Environment,
                  delay_time: float,
-                 pipeline_id: str,
+                 last_pipeline_id: str,
                  next_pipline_id: str,
                  queue_id: str,
                  ):
@@ -88,9 +88,10 @@ class Pipeline:
         self.delay = delay_time
         self.queue = simpy.PriorityStore(env)
 
-        self.pipeline_id = pipeline_id
-        self.next_pipline_id = next_pipline_id
+        # self.last_pipeline_id = last_pipeline_id
+        # self.next_pipline_id = next_pipline_id
 
+        self.pipeline_id = (last_pipeline_id, next_pipline_id)
         self.queue_id = queue_id
         self.package_counts = 0
         self.package_counts_time = []
