@@ -13,9 +13,8 @@
                                     版本更新日期：2017年7月6日
                                     版本更新工程师：韩蓝毅
 
-                                    代码整体功能描述：程序的启动文件，
-                                                      1、所有机器参数、全局参数初始化；
-                                                      2、模拟终分拣及捷径线队列；
+                                    代码整体功能描述：终分拣模块，
+                                                      1、终分拣模拟
 
 
 
@@ -26,34 +25,31 @@
 import simpy
 
 
-class SecondarySort:
-    def __init__(self, env, machine_id, queue, logger):
+class SecondarySort(object):
+    def __init__(self, env: simpy.Environment(),
+            queue: simpy.PriorityStore,
+            machine_id: str, cart_num: int):
         self.env = env
         self.machine_id = machine_id
         self.queue = queue
+        # 资源池小车数量
+        self.cart_num = cart_num
+        # todo @lanyi：口对应设备，查code
+        self.cart = "外面的对象"
 
-        self.log_error = logger(log_name=f"error_{self.machine_id}")
+        self.tmp_queue = simpy.PriorityStore(self.env)
 
-        self.wait_queue = simpy.PriorityStore(self.env)
-
-    def machine(self, time):
+    def secondary_machine(self):
+        """
+        终分拣逻辑
+        """
         while True:
-            yield self.env.timeout(time)
+            with self.cart.request() as req:
+                package = yield self.queue.get()
+                package = package.item
+                #管道功能：指引包裹
+                pipeline_id = package.ret_pop_mark()
+                # todo @lanyi: 预留装车位置
 
-    def shortcut(self, time):
-        while True:
-            #todo @lanyi: deal with pipeline
-            pass
-
-    def run(self):
-        while True:
-            package = yield self.wait_queue.get()
-            package = package.item
-            destination = package.attr['dest_code']
-            process_time = package.attr['time']
-            self.shortcut(process_time)
-            #todo @lanyi will be replaced with a function
-            if destination in ['c1']:
-                #todo @lanyi shortcut function
-                pass
-            self.env.process(self.machine(process_time))
+                self.tmp_queue.put(simpy.PriorityItem(priority=self.env.now,
+                                                      item=package))

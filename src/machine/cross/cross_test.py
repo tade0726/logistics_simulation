@@ -13,8 +13,8 @@
                                     版本更新日期：2017年7月6日
                                     版本更新工程师：卢健
 
-                                    代码整体功能描述：汇流点机器测试单元
-                                                      1、用于测试cross类模块；
+                                    代码整体功能描述：汇流点机器测试单元, 不用任何配置可以直接测试
+                                                      1、用于测试cross类模块的逻辑正确性；
 
 
 =====================================================================================================
@@ -83,7 +83,8 @@ def cross_sim():
                             'x1_in2': PriorityStore(env=env)})
     generator_queue_res = Resource(env=env, capacity=NUM_PORT_ABLE)
     generator_package_res = Resource(env=env, capacity=NUM_PORT_ABLE)
-    packages(env=env, generator_package_res=generator_package_res,
+    packages(env=env,
+             generator_package_res=generator_package_res,
              generator_queue_res=generator_queue_res)
 
     OUTPUT_QUEUE = PriorityStore(env)
