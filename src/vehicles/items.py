@@ -11,64 +11,91 @@ Uld class
 
 """
 import simpy
+import pandas as pd
+from collections import
 
-__all__ = ["Package", "Truck", "Uld"]
+__all__ = ["Package", "Truck", "Uld", "SmallBag", "SmallPackage", "Pipeline"]
+
+
+# todo: add test instance in the end of the file, using path generator
 
 
 class Package:
 
-    def __init__(self, attr, now_position: str=None, next_position: str=None):
-        """
-        :param attr: package records
-        :param now_position: position of last machine(pipeline)
-        :param next_position: position of next machine(pipeline)
-        """
-        # using for pipeline length calculations
-        self.now_position = now_position
-        self.next_position = next_position
+    def __init__(self, env: simpy.Environment, attr: pd.Series, item_id : str, path: tuple, ):
 
         self.attr = attr
-        self.check = False
-        self.customs = False
+        # id
+        self.item_id = item_id
+        # env
+        self.env = env
+        # for record
+        self.plan_path = path
+        # for popping
+        self.path = list(path)
+        # for time
+        self.time_records = []
 
-        # record of the path of the package,
-        # element will be a dict {'now_position': 'some where', 'next_position', 'some where', 'last_timestamp': 1000}
-        self.path = []
-        self.plan_path = []
+
+    def ret_pop_mark(self):
+
+        """return next pipeline id, pop the first element of plan_path, marking the time"""
+
+        if len(self.plan_path) >= 2:
+            now_loc = self.plan_path[0]
+            next_loc = self.plan_path[1]
+        else:
+            raise ValueError('The path have been empty!')
+
+        pop_loc = self.plan_path.pop(0)
+        self.time_records.append((pop_loc, self.env.now))
+
+        return now_loc, next_loc
+
 
     def __str__(self):
-        """
-        :return:
-        """
         display_dct = dict(self.attr)
-        display_dct['check'] = self.check
-        display_dct['customs'] = self.customs
+        return f"<package attr:{dict(display_dct)}, path: {self.plan_path}>"
 
-        return f"<package attr:{dict(display_dct)}>"
+
+class SmallBag(Package):
+
+    def __str__(self):
+        display_dct = dict(self.attr)
+        return f"<SmallBag attr:{dict(display_dct)}, path: {self.plan_path}>"
+
+
+class SmallPackage(Package):
+
+    def __str__(self):
+        display_dct = dict(self.attr)
+        return f"<SmallBag attr:{dict(display_dct)}, path: {self.plan_path}>"
+
+
 
 # vehicles
 
-
 class Truck:
 
-    def __init__(self, truck_id, come_time, packages:pd.DataFrame):
+    def __init__(self, env: simpy.Environment, item_id, come_time, packages:pd.DataFrame):
         """
         :param truck_id: self explain
         :param come_time: self explain
         :param packages: a dataframe contain all packages
         """
-        self.truck_id = truck_id
+        self.item_id = item_id
         self.come_time = come_time
         self.store = packages
+        self.env = env
 
     def __str__(self):
         """
         :return:
         """
-        return f"<truck_id: {self.truck_id}, come_time: {self.come_time}, store_size:{len(self.store)}>"
+        return f"<truck_id: {self.item_id}, come_time: {self.come_time}, store_size:{len(self.store)}>"
 
 
-class Uld:
+class Uld(Truck):
     pass
 
 
@@ -79,18 +106,14 @@ class Pipeline:
     def __init__(self,
                  env: simpy.Environment,
                  delay_time: float,
-                 pipeline_id: str,
-                 next_pipline_id: str,
+                 pipeline_id: tuple,
                  queue_id: str,
                  ):
 
         self.env = env
         self.delay = delay_time
         self.queue = simpy.PriorityStore(env)
-
         self.pipeline_id = pipeline_id
-        self.next_pipline_id = next_pipline_id
-
         self.queue_id = queue_id
         self.package_counts = 0
         self.package_counts_time = []
@@ -116,3 +139,6 @@ class Pipeline:
     def get(self):
         self.package_counts -= 1
         return self.queue.get()
+
+    def __str__(self):
+        return f"<Pipeline: {self.pipeline_id}, delay: {self.delay}, package_counts: {self.package_counts}>"
