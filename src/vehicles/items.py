@@ -80,7 +80,7 @@ class SmallBag(Package):
 
 class Truck:
     """货车"""
-    def __init__(self, env: simpy.Environment, item_id, come_time, packages:pd.DataFrame):
+    def __init__(self, env: simpy.Environment, item_id: str, come_time: int, truck_type: str, packages:pd.DataFrame):
         """
         :param truck_id: self explain
         :param come_time: self explain
@@ -90,7 +90,7 @@ class Truck:
         self.come_time = come_time
         self.store = packages
         self.store_size = len(self.store)
-
+        self.truck_type = truck_type
         self.env = env
 
     def __str__(self):
