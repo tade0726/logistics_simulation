@@ -10,7 +10,7 @@
                                     代码创建日期：2017年7月12日
                                     代码创建工程师：元方
                                     代码版本：1.0
-                                    版本更新日期：2017年7月12日
+                                    版本更新日期：2017年7月13日
                                     版本更新工程师：元方
 
                                     代码整体功能描述：预分拣机器测试单元
@@ -21,8 +21,7 @@
 
 import simpy
 import random
-
-# from src.machine.presort import Presort
+from src.machine.presort import Presort
 
 
 RANDOM_SEED = 42
@@ -87,8 +86,13 @@ def generate_package():
 
 
 # 生成输入队列
-def generate_queue():
-    pass
+def generate_queue(env, machine_id):
+    package_queue = simpy.PriorityStore(env)
+    for i in range(len(ALL_PACKAGES[machine_id])):
+        item = ALL_PACKAGES[machine_id].pop(0)
+        package_queue.put(
+            simpy.PriorityItem(priority=item.time_list[0], item=item))
+    INPUT_QUEUE_DICT[machine_id] = package_queue
 
 
 if __name__ == '__main__':
@@ -99,10 +103,21 @@ if __name__ == '__main__':
     env = simpy.Environment()
     for did in dest_id_list:
         OUTPUT_QUEUE_DICT[did] = simpy.PriorityStore(env)
-
+    for mid in MACHINE_ID:
+        generate_queue(env, mid)
+        input_queue = INPUT_QUEUE_DICT[mid]
+        time = process_time()
+        presort_machine = Presort(env, mid, time, WORKER_NUM, input_queue,
+                                  OUTPUT_QUEUE_DICT)
+        machine_dict[mid] = presort_machine
+        env.process(presort_machine.run())
     env.run()
-    for machine_id in MACHINE_ID:
-        for item in ALL_PACKAGES[machine_id]:
+    for _, next_queue in OUTPUT_QUEUE_DICT.items():
+        for item in next_queue.items:
+            package = item.item
             print(
-                f'Package {item.package_id} go to {machine_id} at {item.time_list[0]}')
+                f'Package {package.package_id} go to {package.plan_path[0]} at {package.time_list[0]}')
+            print(
+                f'Package {package.package_id} go to {package.plan_path[1]} at {package.time_list[1]}')
     print("End")
+
