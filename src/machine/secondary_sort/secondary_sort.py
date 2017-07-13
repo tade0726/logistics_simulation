@@ -37,7 +37,21 @@ class SecondarySort(object):
         # todo @lanyi：口对应设备，查code
         self.cart = "外面的对象"
 
+        # check empty
+        self.empty = self.env.event()
+        self.env.process(self.empty_queue())
+
         self.tmp_queue = simpy.PriorityStore(self.env)
+
+    def empty_queue(self):
+        """
+        达到特定条件的时候，证明机器为空
+        """
+        while True:
+            if not self.queue.items:
+                self.empty.succeed()
+                self.empty = self.env.event()
+            yield self.env.timeout(100)
 
     def secondary_machine(self):
         """
@@ -47,7 +61,7 @@ class SecondarySort(object):
             with self.cart.request() as req:
                 package = yield self.queue.get()
                 package = package.item
-                #管道功能：指引包裹
+                #pipeline功能：指引包裹
                 pipeline_id = package.ret_pop_mark()
                 # todo @lanyi: 预留装车位置
 
