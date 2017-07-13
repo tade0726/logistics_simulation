@@ -115,7 +115,7 @@ class Pipeline:
 
         self.env = env
         self.delay = delay_time
-        self.queue = simpy.PriorityStore(env)
+        self.queue = simpy.Store(env)
         self.pipeline_id = pipeline_id
         self.queue_id = queue_id
         # 传送带上货物的计数
@@ -137,7 +137,7 @@ class Pipeline:
         """模拟传送时间"""
         self.latency_counts += 1
         yield self.env.timeout(self.delay)
-        self.queue.put(simpy.PriorityItem(priority=self.env.now, item=item))
+        self.queue.put(item)
         self.latency_counts -= 1
 
     def put(self, item: Package):
@@ -147,7 +147,7 @@ class Pipeline:
         return self.queue.get()
 
     def __str__(self):
-        return f"<Pipeline: {self.pipeline_id}, delay: {self.delay}, package_counts: {self.package_counts}>"
+        return f"<Pipeline: {self.pipeline_id}, delay: {self.delay}, package_counts: {self.latency_counts}>"
 
 
 
