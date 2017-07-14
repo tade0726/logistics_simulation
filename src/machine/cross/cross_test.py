@@ -31,11 +31,11 @@ from numpy.random import choice
 
 RANDOM_SEED = 42
 NUM_PORT_ABLE = 2
-NUM_PACKAGES = 1000
+NUM_PACKAGES = 10
 QUEUE_GENERATOR_GAP = 10
-INPUT_QUEUE_ID = ['x1_in1', 'x1_in2']
+INPUT_QUEUE_ID = ['x1_in1']
 INPUT_QUEUE_DIC = {}
-OUTPUT_QUEUE = None
+OUTPUT_QUEUE = PriorityStore(Environment())
 CROSS_ID = 'x1'
 NUM_RUN_TIME = 5
 rd.seed(RANDOM_SEED)
@@ -79,19 +79,19 @@ def cross_sim():
     cross module test: Cross 模块测试单元
     """
     env = Environment()
-    INPUT_QUEUE_DIC.update({'x1_in1': PriorityStore(env=env),
-                            'x1_in2': PriorityStore(env=env)})
+    INPUT_QUEUE_DIC.update(
+        {
+            'x1_in1': PriorityStore(env=env),
+            # 'x1_in2': PriorityStore(env=env)
+                            }
+                           )
     generator_queue_res = Resource(env=env, capacity=NUM_PORT_ABLE)
     generator_package_res = Resource(env=env, capacity=NUM_PORT_ABLE)
     packages(env=env,
              generator_package_res=generator_package_res,
              generator_queue_res=generator_queue_res)
-
-    OUTPUT_QUEUE = PriorityStore(env)
-    cross = Cross(env=env,
-                  id_x=CROSS_ID,
-                  input_dic=INPUT_QUEUE_DIC,
-                  out_put=OUTPUT_QUEUE)
+    Cross(env=env, id_x=CROSS_ID, input_dic=INPUT_QUEUE_DIC,
+          out_put=OUTPUT_QUEUE)
 
     env.run()
 
