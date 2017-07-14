@@ -76,7 +76,7 @@ def machine_queue_input(env, generator_queue_res, package_id):
 
 def cross_sim():
     """
-    cross module test: Cross 模块测试单元,测试单元代码
+    cross module test: Cross 模块测试单元,测试单元代码，更新
     """
     env = Environment()
     INPUT_QUEUE_DIC.update(
