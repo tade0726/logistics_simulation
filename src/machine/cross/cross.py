@@ -69,11 +69,12 @@ class Cross(object):
         """
         while True:
             packages = yield get_package_queue.get()
-            print(f"------->package {packages.item['package_id']}", 'was push to next queue at', self.env.now)
-            self.env.process(self._put_packages_into_out_queue(packages))
+            # 判断取没取到货物
+            if packages:
+                print(f"------->package {packages.item['package_id']}", 'was push to next queue at', self.env.now)
+                self.env.process(self._put_packages_into_out_queue(packages))
 
     def _put_packages_into_out_queue(self, package):
         """
         """
         yield self.out_put.put(PriorityItem(priority=self.env.now, item=package))
-
