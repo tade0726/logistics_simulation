@@ -28,7 +28,10 @@ class Cross(object):
     """
     Cross obj:
     sim one machine that have more than one input ports and one out put port.
-    input_i wrapped in a dict: input_dic = {'x1_in1': queue, ..., 'x1_ini': queue}.
+    input_i wrapped in a dict: input_dic =
+    {
+    'x1_in1': queue, ...,
+    'x1_ini': queue}.
                   _ _ _ _ _ _ _
                  |             |
      input_1 - ->|             |
@@ -45,7 +48,8 @@ class Cross(object):
             input_dic: A simpy.PriorityStore which was put from ahead machine.
             out_put: out .
         Raises:
-            RuntimeError: An error occurred when input_dic not initialized before.
+            RuntimeError: An error occurred when input_dic
+            not initialized before.
         """
         self.env = env
         self.id_x = id_x
@@ -60,9 +64,11 @@ class Cross(object):
         if self.input_dic:
             #  根据input_dic={}中key, value 对的数目， 分别创建process
             for queue_id, get_package_queue in self.input_dic.items():
-                self.env.process(self._get_packages(queue_id, get_package_queue))
+                self.env.process(self._get_packages(queue_id,
+                                                    get_package_queue))
         else:
-            raise RuntimeError('Please Initial input port Queue for Cross instance First!')
+            raise RuntimeError('Please Initial input port '
+                               'Queue for Cross instance First!')
 
     def _get_packages(self, queue_id, get_package_queue):
         """
@@ -71,10 +77,12 @@ class Cross(object):
             packages = yield get_package_queue.get()
             # 判断取没取到货物
             if packages:
-                print(f"------->package {packages.item['package_id']}", 'was push to next queue at', self.env.now)
+                print(f"------->package {packages.item['package_id']}",
+                      'was push to next queue at', self.env.now)
                 self.env.process(self._put_packages_into_out_queue(packages))
 
     def _put_packages_into_out_queue(self, package):
         """
         """
-        yield self.out_put.put(PriorityItem(priority=self.env.now, item=package))
+        yield self.out_put.put(PriorityItem(priority=self.env.now,
+                                            item=package))
