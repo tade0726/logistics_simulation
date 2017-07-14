@@ -14,6 +14,7 @@ data will be store into dictionary
 import pandas as pd
 from sqlalchemy import create_engine
 from os.path import realpath, join, split
+from collections import defaultdict
 
 
 class MySQLConfig:
@@ -78,7 +79,7 @@ def get_trucks(is_test: bool=False, is_local: bool=False):
         land_list = land_list[: 1000]
 
     # add truck type: LL/LA/AL/AA
-    land_list['truck_type'] = land_list['orgin_type'] + land_list['dest_code']
+    land_list['truck_type'] = land_list['origin_type'] + land_list['dest_type']
     truck_dict = dict(list(land_list.groupby(['plate_num', ' arrive_time', 'truck_type'])))
     return truck_dict
 
@@ -86,9 +87,24 @@ def get_trucks(is_test: bool=False, is_local: bool=False):
 def get_ulds(is_local: bool=False):
     pass
 
-# todo
+
 def get_unload_setting(is_local: bool=False):
-    pass
+    """返回 reload port 和 truck 类型（LL， LA， AL ，AA） 的映射"""
+
+    table_name = "i_unload_setting"
+
+    if is_local:
+        table = load_from_local(table_name)
+    else:
+        table = load_from_mysql(table_name)
+
+    # add truck type: LL/LA/AL/AA
+    table['truck_type'] = table['origin_type'] + table['dest_type']
+
+    table_dict = defaultdict(list)
+    for _, row in table.iterrows():
+        table_dict[row['equipment_port']].append(row['truck_type'])
+    return table_dict
 
 # todo
 def get_reload_setting(is_local: bool=False):
@@ -149,5 +165,5 @@ def get_machine_parameters(is_local: bool=False):
 
 
 if __name__ == '__main__':
-    test = get_machine_parameters(is_local=True)
+    test = get_unload_setting(is_local=True)
     print(test)
