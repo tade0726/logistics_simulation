@@ -12,7 +12,6 @@ data will be store into dictionary
 """
 
 import pandas as pd
-import pickle
 from sqlalchemy import create_engine
 from os.path import realpath, join, split
 
@@ -58,7 +57,7 @@ def load_from_mysql(table_name: str):
     return table
 
 
-def get_trucks(is_test: bool=True, is_local: bool=True):
+def get_trucks(is_test: bool=False, is_local: bool=False):
 
     """
     :param is_test:
@@ -78,76 +77,25 @@ def get_trucks(is_test: bool=True, is_local: bool=True):
     if is_test:
         land_list = land_list[: 1000]
 
-    truck_dict = dict(list(land_list.groupby(['plate_num', ' arrive_time'])))
-
+    # add truck type: LL/LA/AL/AA
+    land_list['truck_type'] = land_list['orgin_type'] + land_list['dest_code']
+    truck_dict = dict(list(land_list.groupby(['plate_num', ' arrive_time', 'truck_type'])))
     return truck_dict
 
 
-def get_ulds(is_local: bool=True):
+def get_ulds(is_local: bool=False):
+    pass
+
+# todo
+def get_unload_setting(is_local: bool=False):
+    pass
+
+# todo
+def get_reload_setting(is_local: bool=False):
     pass
 
 
-def get_machine_vars(is_local: bool=True):
-    """
-    :param is_local:
-    :return: dict of dict of parameters
-
-    des: getting machine var
-    """
-    table_name = "i_equipment_parameter"
-
-    if is_local:
-        parameter_list = load_from_local(table_name)
-    else:
-        parameter_list = load_from_mysql(table_name)
-
-    parameter_dict = \
-        {key: dict(list(val.groupby('parameter_id'))) for key, val in list(parameter_list.groupby('equipment_id'))}
-
-    return parameter_dict
-
-
-def get_io_rules(is_local: bool=True):
-
-    table_queue_io = 'i_queue_io'
-    table_equipment_io = 'i_equipment_io'
-
-    if is_local:
-        df_queue_io = load_from_local(table_queue_io)
-        df_equipment_io = load_from_local(table_equipment_io)
-    else:
-        df_queue_io = load_from_mysql(table_queue_io)
-        df_equipment_io = load_from_mysql(table_equipment_io)
-
-    try:
-        df_io_rules = df_queue_io.rename(columns={'process_time': 'delay_time', }).merge(
-            df_equipment_io[['equipment_in_port', 'equipment_out_port', 'process_time']],
-            left_on='queue_in_port',
-            right_on='equipment_out_port', how='left')
-
-    except Exception as exc:
-        raise exc
-
-    return df_io_rules
-
-
-def get_equipment_io(is_local: bool=True):
-
-    table_equipment_io = 'i_equipment_io'
-
-    if is_local:
-        df_equipment_io = load_from_local(table_equipment_io)
-    else:
-        df_equipment_io = load_from_mysql(table_equipment_io)
-
-    return df_equipment_io
-
-
-def get_unload_setting(is_local: bool=True):
-    pass
-
-
-def get_resource_table(is_local: bool = True):
+def get_resource_table(is_local: bool=False):
     """
     :param is_local:
     :return: dict of resource {'equipment_in_port': dataframe.series}
@@ -175,7 +123,31 @@ def get_resource_table(is_local: bool = True):
 
     return resource_table_dict
 
+# todo
+def get_pipeline(is_local: bool=False):
+    pass
+
+def get_machine_parameters(is_local: bool=False):
+    """
+    :param is_local:
+    :return: dict of dict of parameters
+
+    des: getting machine var
+    """
+    table_name = "i_equipment_parameter"
+
+    if is_local:
+        parameter_list = load_from_local(table_name)
+    else:
+        parameter_list = load_from_mysql(table_name)
+
+    parameter_dict = \
+        {key: dict(list(val.groupby('parameter_id'))) for key, val in list(parameter_list.groupby('equipment_id'))}
+
+    return parameter_dict
+
+
 
 if __name__ == '__main__':
-    table = load_from_local('i_unload_setting')
-    print(table.info())
+    test = get_machine_parameters(is_local=True)
+    print(test)
