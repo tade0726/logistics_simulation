@@ -114,6 +114,7 @@ def get_reload_setting(is_local: bool=False):
     """"""
     pass
 
+
 def get_resource_limit(is_local: bool=False):
     """返回资源表，包含了单个资源处理时间"""
     table_name1 = "i_resource_limit"
@@ -133,6 +134,7 @@ def get_resource_limit(is_local: bool=False):
                 .merge(table3[['equipment_id', 'process_time']], how='left', on='equipment_id')
 
     return table
+
 
 def get_pipeline(is_local: bool=False):
 
