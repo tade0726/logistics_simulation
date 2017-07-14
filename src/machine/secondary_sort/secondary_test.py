@@ -29,7 +29,7 @@ from src.vehicles.items import Package
 
 RANDOM_SEED = 42
 CART_NUM = 300
-MACHINE_ID = ["i2-1", "i2-2", "i2-3", "i2-4"]
+MACHINE_ID = ["i2-1", "i2-2", "i2-3"]
 DEST_NUM = 3
 DEST_ID = {}
 ALL_PACKAGES = {}
@@ -96,7 +96,7 @@ def generate_package():
         ALL_PACKAGES[mid] = []
         for i in range(package_num()):
             ALL_PACKAGES[mid].append(
-                PackageSecondary(f'package{mid}', path, interval * i, simpy.Environment()))
+                PackageSecondary(f'package{mid}-{i+1}', path, interval * i, simpy.Environment()))
 
 
 # 生成输入队列

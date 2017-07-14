@@ -70,4 +70,3 @@ class SecondarySort(object):
                 # todo @lanyi: 最终代码没有以下代码
                 if package:
                     print(f"{package.package_id} go to {package.plan_path[0]} at {package.time_list[0]}")
-                    print(f"with cart{self.cart}")
