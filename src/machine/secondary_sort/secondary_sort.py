@@ -28,30 +28,30 @@ import simpy
 class SecondarySort(object):
     def __init__(self, env: simpy.Environment(),
             queue: simpy.PriorityStore,
-            machine_id: str, cart_num: int):
+            machine_id: str, cart_num: int, output_queue_dict):
         self.env = env
         self.machine_id = machine_id
         self.queue = queue
         # 资源池小车数量
         self.cart_num = cart_num
         # todo @lanyi：口对应设备，查code
-        self.cart = "外面的对象"
+        self.cart = simpy.Resource(self.env, self.cart_num)
 
         # check empty
         self.empty = self.env.event()
-        self.env.process(self.empty_queue())
+        # self.env.process(self.empty_queue())
 
-        self.tmp_queue = simpy.PriorityStore(self.env)
+        self.tmp_queue = simpy.Store(self.env)
 
-    def empty_queue(self):
-        """
-        达到特定条件的时候，证明机器为空
-        """
-        while True:
-            if not self.queue.items:
-                self.empty.succeed()
-                self.empty = self.env.event()
-            yield self.env.timeout(100)
+    # def empty_queue(self):
+    #     """
+    #     达到特定条件的时候，证明机器为空
+    #     """
+    #     while True:
+    #         if not self.queue.items:
+    #             self.empty.succeed()
+    #             self.empty = self.env.event()
+    #         yield self.env.timeout(100)
 
     def secondary_machine(self):
         """
@@ -65,5 +65,9 @@ class SecondarySort(object):
                 pipeline_id = package.ret_pop_mark()
                 # todo @lanyi: 预留装车位置
 
-                self.tmp_queue.put(simpy.PriorityItem(priority=self.env.now,
-                                                      item=package))
+                yield self.tmp_queue.put(package)
+
+                # todo @lanyi: 最终代码没有以下代码
+                if package:
+                    print(f"{package.package_id} go to {package.plan_path[0]} at {package.time_list[0]}")
+                    print(f"with cart{self.cart}")
