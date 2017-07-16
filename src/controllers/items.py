@@ -14,7 +14,7 @@ from src.vehicles import Truck
 from src.db import get_trucks
 
 
-__all__ = ["truck_controller", "", ""]
+__all__ = ["truck_controller", ]
 
 
 def truck_controller(env: simpy.Environment, trucks: simpy.FilterStore):
