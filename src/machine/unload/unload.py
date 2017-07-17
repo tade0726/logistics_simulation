@@ -50,7 +50,6 @@ class Unload:
 
         with self.resource.request() as req:
             yield req
-            package.pop_mark()
             next_pipeline = package.next_pipeline
             yield self.env.timeout(self.process_time)
             self.pipelines_dict[next_pipeline].put(package)
