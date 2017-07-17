@@ -14,33 +14,32 @@ from src.vehicles import Truck
 from src.db import get_trucks
 
 
-__all__ = ["truck_controller", ]
+__all__ = ["TruckController", ]
 
 
-def truck_controller(env: simpy.Environment, trucks: simpy.FilterStore):
-    """
-    des: 使用 FilterStore 特定的车辆筛选进不同的 r 入口
-    """
-    trucks_dict = get_trucks()
-    time_table = set(trucks_dict.keys())
-    time_lst = [x[1] for x in time_table]
+class TruckController:
 
-    while True:
-        if env.now in time_lst:
-            time_lst.remove(env.now)
-            trucks_tmp = [t for t in time_table if t[1] == env.now]  # when env at 10, filter out truck come at 10
-            time_table = set(time_table) - set(trucks_tmp)
-            for truck_key in trucks_tmp:
-                (truck_id, come_time, truck_type) = truck_key
-                trucks.put(
-                    Truck(item_id=truck_id,
-                          come_time=come_time,
-                          packages=trucks_dict[truck_key],
-                          truck_type=truck_type,)
-                )
-        # like a clock, run every second
-        yield env.timeout(1)
+    def __init__(self, env: simpy.Environment, trucks: simpy.FilterStore):
 
+        self.env = env
+        self.trucks = trucks
+
+    def latency(self, come_time, item: Truck):
+        """模拟货车到达时间"""
+        yield self.env.timeout(come_time)
+        self.trucks.put(item)
+
+    def controller(self):
+        """
+        des: 使用 FilterStore 特定的车辆筛选进不同的 r 入口
+        """
+        trucks_dict = get_trucks()
+
+        for (truck_id, come_time, truck_type), packages in trucks_dict:
+            truck = Truck(item_id=truck_id, come_time=come_time,
+                          packages=packages, truck_type=truck_type, )
+
+            self.env.process(self.latency(come_time, truck))
 
 if  __name__ == '__main__':
     pass
