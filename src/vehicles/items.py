@@ -31,8 +31,10 @@ class Package:
         self.path = list(path)
         # for time
         self.time_records = []
+        # next pipeline_id
+        self.next_pipeline = ()
 
-    def ret_pop_mark(self):
+    def pop_mark(self):
         """返回下一个pipeline id: (now_loc, next_loc)， 删去第一个节点，记录当前的时间点"""
 
         if len(self.path) >= 2:
@@ -45,7 +47,7 @@ class Package:
         # remove the now_loc
         pop_loc = self.path.pop(0)
         self.time_records.append((pop_loc, self.env.now))
-        return now_loc, next_loc
+        self.next_pipeline = now_loc, next_loc
 
     def __str__(self):
         display_dct = dict(self.attr)
@@ -111,6 +113,7 @@ class Pipeline:
                  delay_time: float,
                  pipeline_id: tuple,
                  queue_id: str,
+                 machine_type: str,
                  ):
 
         self.env = env
@@ -118,11 +121,10 @@ class Pipeline:
         self.queue = simpy.Store(env)
         self.pipeline_id = pipeline_id
         self.queue_id = queue_id
+        self.machine_type = machine_type
         # 传送带上货物的计数
         self.latency_counts = 0
         self.latency_counts_time = []
-        # 等待队列上的计数
-        self.queue_counts_time = []
         # 加入计数器
         self.env.process(self.get_counts())
 
@@ -130,8 +132,7 @@ class Pipeline:
         """计数器"""
         while True:
             self.latency_counts_time.append((self.env.now, self.latency_counts))
-            self.queue_counts_time.append((self.env.now, len(self.queue.items)))
-            self.env.timeout(1)
+            yield self.env.timeout(1)
 
     def latency(self, item: Package):
         """模拟传送时间"""
@@ -149,5 +150,6 @@ class Pipeline:
     def __str__(self):
         return f"<Pipeline: {self.pipeline_id}, delay: {self.delay}, package_counts: {self.latency_counts}>"
 
-
+if __name__ == '__main__':
+    pass
 
