@@ -188,14 +188,18 @@ def get_queue_io(is_local: bool):
 
 if __name__ == '__main__':
 
-    test1 = get_unload_setting(is_local=True)
-    test2 = get_resource_limit(is_local=True)
-    test3 = get_pipelines(is_local=True)
-    test4 = get_queue_io(is_local=True)
+    # test1 = get_unload_setting(is_local=True)
+    # test2 = get_resource_limit(is_local=True)
+    # test3 = get_pipelines(is_local=True)
+    # test4 = get_queue_io(is_local=True)
     test5 = get_reload_setting(is_local=True)
 
-    # this a test
-    with open('tools.py.txt', 'at') as file:
-        for obj in [test1, test2, test3, test4, test5]:
-            file.writelines(obj.__str__() + "\n")
-            file.writelines("\n" + "=" * 60 + "\n")
+    # # this a test
+    # with open('tools.py.txt', 'at') as file:
+    #     for obj in [test1, test2, test3, test4, test5]:
+    #         file.writelines(obj.__str__() + "\n")
+    #         file.writelines("\n" + "=" * 60 + "\n")
+
+    for key, val in test5.items():
+        if len(val) >= 2:
+            print(key, val)
