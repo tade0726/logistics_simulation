@@ -127,7 +127,7 @@ def get_reload_setting(is_local: bool=False):
 
     table_dict = defaultdict(list)
     for _, row in table.iterrows():
-        table_dict[row['dest_code']].append(row['equipment_port'])
+        table_dict[(row['dest_code'], row["dest_type"])].append(row['equipment_port'])
     return table_dict
 
 
@@ -199,6 +199,7 @@ if __name__ == '__main__':
     #     for obj in [test1, test2, test3, test4, test5]:
     #         file.writelines(obj.__str__() + "\n")
     #         file.writelines("\n" + "=" * 60 + "\n")
+
 
     for key, val in test5.items():
         if len(val) >= 2:
