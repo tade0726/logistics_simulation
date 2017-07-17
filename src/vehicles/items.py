@@ -33,6 +33,9 @@ class Package:
         self.time_records = []
         # next pipeline_id
         self.next_pipeline = ()
+        # add origin type, dest_type
+        self.origin_type = attr["origin_type"]
+        self.dest_type = attr["dest_type"]
 
     def pop_mark(self):
         """返回下一个pipeline id: (now_loc, next_loc)， 删去第一个节点，记录当前的时间点"""
