@@ -22,12 +22,12 @@
 import simpy
 import random
 from src.machine.presort import Presort
-from src.vehicles.items import Package
+from src.vehicles.items import Package, Pipeline
 
 
 RANDOM_SEED = 42
 WORKER_NUM = 2
-MACHINE_ID = ["m1-1", "m1-2", "m1-3", "m1-4"]
+MACHINE_ID = ["m1-1"]
 DEST_NUM = 3
 DEST_ID = {}
 ALL_PACKAGES = {}
@@ -41,15 +41,17 @@ def package_time_interval():
     # return random.uniform(40, 60)
     return random.randint(2, 10)
 
+
 # 生成单个入口包裹队列的长度
 def package_num():
-    return random.randint(5, 10)
+    return random.randint(100, 200)
 
 
 # 生成一个入口到一个出口的处理时间
 def process_time():
     # return random.uniform(40, 200)
-    return 10 #random.randint(10, 30)
+    return 10  # random.randint(10, 30)
+
 
 # 生成出口编号
 def generate_dest_id():
@@ -61,6 +63,7 @@ def generate_dest_id():
         dest_list += DEST_ID[mid]
     return list(set(dest_list))
 
+
 # 生成货物的process
 def generate_package(env, mid):
     package_queue = INPUT_QUEUE_DICT[mid]
@@ -70,7 +73,9 @@ def generate_package(env, mid):
         dest_id = random.choice(DEST_ID[mid])
         path = (mid, dest_id)
         item = Package(env, None, f'{mid}-{i+1}', path)
-        item.time_records.append((path[0], env.now)) # 货物到达机器的时间
+        item.next_pipeline = path
+        item.time_records.append((path[0], env.now))  # 货物到达机器的时间
+        # print(f"package come at {env.now}")
         package_queue.put(item)
 
 
@@ -89,10 +94,9 @@ if __name__ == '__main__':
     for mid in MACHINE_ID:
         # 生成货物
         env.process(generate_package(env, mid))
-
         # 生成机器
         input_queue = INPUT_QUEUE_DICT[mid]
-        time = 10 #process_time()
+        time = process_time()
         presort_machine = Presort(env, mid, time, WORKER_NUM, input_queue,
                                   OUTPUT_QUEUE_DICT)
         machine_dict[mid] = presort_machine
