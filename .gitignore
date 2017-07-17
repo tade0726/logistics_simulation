@@ -116,7 +116,10 @@ log/
 test/
 
 # 忽略xls
-*.xlsx
+data/path
+data/*.csv
+data/*.txt
+docs/
 *.txt
 
 # mac folder file
