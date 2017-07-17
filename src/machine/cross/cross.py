@@ -22,6 +22,8 @@
 
 
 from simpy import PriorityItem
+from src.vehicles.items import Pipeline
+from src.vehicles.items import Package
 
 
 class Cross(object):
@@ -39,38 +41,47 @@ class Cross(object):
      input_i - ->|             |
                  |_ _ _ _ _ _ _|
     """
-    def __init__(self, env, id_x, input_dic: dict=None, out_put=None):
+    def __init__(self,
+                 env,
+                 machine_id,
+                 equipment_id,
+                 input_pip_line=None,
+                 pipelines_dict=None,
+                 resource_dict=None):
         """
         init class self args:
         Args:
             env: A simpy.Environment instance.
-            id_x: Cross machine id.
-            input_dic: A simpy.PriorityStore which was put from ahead machine.
-            out_put: out .
+            machine_id: Cross machine id.
+            equipment_id: 预留参数
+            input_pip_line: A simpy.PriorityStore which was put from
+                            ahead machine.
+            pipelines_dict: pip line 字典
+            resource_dict: 资源查询字典
         Raises:
             RuntimeError: An error occurred when input_dic
             not initialized before.
         """
         self.env = env
-        self.id_x = id_x
-        self.input_dic = input_dic
-        self.out_put = out_put
+        self.machine_id = machine_id
+        self.equipment_id = equipment_id
+        self.input_pip_line = input_pip_line
+        self.pipelines_dict = pipelines_dict
+        self.resource_dict = resource_dict
         self.process = self._get_package_queue()
 
     def _get_package_queue(self):
         """
         获取输入队列功能单元
         """
-        if self.input_dic:
-            #  根据input_dic={}中key, value 对的数目， 分别创建process
-            for queue_id, get_package_queue in self.input_dic.items():
-                self.env.process(self._get_packages(queue_id,
-                                                    get_package_queue))
+        if self.input_pip_line:
+            if isinstance(self.input_pip_line, Pipeline):
+                self.env.process(self._get_packages(self.input_pip_line))
         else:
-            raise RuntimeError('Please Initial input port '
+            raise RuntimeError('Please Initial input pip line '
                                'Queue for Cross instance First!')
 
-    def _get_packages(self, queue_id, get_package_queue):
+    def _get_packages(self, get_package_queue):
         """
         """
         while True:
@@ -84,5 +95,6 @@ class Cross(object):
     def _put_packages_into_out_queue(self, package):
         """
         """
-        yield self.out_put.put(PriorityItem(priority=self.env.now,
-                                            item=package))
+        if isinstance(package, Package):
+            id_output_pip_line = package.next_pipeline
+            yield self.pipelines_dict[id_output_pip_line].put(package)
