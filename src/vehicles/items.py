@@ -129,13 +129,27 @@ class Pipeline:
         # 传送带上货物的计数
         self.latency_counts = 0
         self.latency_counts_time = []
+        # 机器等待区， 队列的计数
+        self.machine_waiting_counts_time = []
+
         # 加入计数器
         self.env.process(self.get_counts())
 
     def get_counts(self):
         """计数器"""
         while True:
-            self.latency_counts_time.append((self.env.now, self.latency_counts))
+
+            latency_dict = dict(pipeline_id=self.pipeline_id,
+                                 timestamp=self.env.now,
+                                 counts=self.latency_counts)
+
+            wait_dict = dict(pipeline_id=self.pipeline_id,
+                             timestamp=self.env.now,
+                             counts=len(self.queue.items))
+
+            self.latency_counts_time.append(latency_dict)
+            self.machine_waiting_counts_time.append(wait_dict)
+
             yield self.env.timeout(1)
 
     def latency(self, item: Package):
