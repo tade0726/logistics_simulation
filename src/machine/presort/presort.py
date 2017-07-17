@@ -54,16 +54,19 @@ class Presort(object):
         # 人力资源
         self.workers = simpy.Resource(self.env, self.worker_num)
 
-        # check empty
-        # self.empty = self.env.event()
+        # 检查队列是否为空， TODO 为了跑测试程序，将第二行注释，正式程序需去掉注释
+        self.empty = self.env.event()
         # self.env.process(self.empty_queue())
 
-    # def empty_queue(self):
-    #     while True:
-    #         if not self.last_queue.items:
-    #             self.empty.succeed()
-    #             self.empty = self.env.event()
-    #         yield self.env.timeout(100)
+    def empty_queue(self):
+        """
+        实时判断，如果连接此机器的队列为空，则触发self.empty事件
+        """
+        while True:
+            if not self.last_queue.items:
+                self.empty.succeed()
+                self.empty = self.env.event()
+            yield self.env.timeout(100)
 
     def run(self):
         while True:
@@ -73,20 +76,19 @@ class Presort(object):
 
                 # 获取一件货物
                 package = yield self.last_queue.get()
-                package = package.item
-                last_position = package.path[0]
-                next_position = package.path[1]
 
-                # 处理
+                # 获取当前位置、下一步位置，增加时间记录
+                now_loc, next_loc = package.ret_pop_mark()
+
+                # 增加处理时间
                 yield self.env.timeout(self.process_time)
-                package.path.pop(0)
-
-                # 记录处理完的时间
-                package.time_list.append(self.env.now)
 
                 # 放入下一步的传送带
-                self.next_queue[next_position].put(
-                    simpy.PriorityItem(self.env.now, package))
+                self.next_queue[next_loc].put(package)
 
-                # print(
-                #     f'Package {package.package_id} go to {next_position} from {last_position} at {self.env.now}')
+                print(
+                    f'Package {package.item_id} arrive in {package.time_records[0][0]} at {package.time_records[0][1]}' +
+                    f', processed at {package.time_records[1][1]}' +
+                    f', wait {package.time_records[1][1] - package.time_records[0][1]}' +
+                    f', next to {package.path[0]}'
+                )
