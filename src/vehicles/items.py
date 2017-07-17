@@ -138,6 +138,8 @@ class Pipeline:
         """模拟传送时间"""
         self.latency_counts += 1
         yield self.env.timeout(self.delay)
+        # 在 package 添加数据记录
+        item.pop_mark()
         self.queue.put(item)
         self.latency_counts -= 1
 
