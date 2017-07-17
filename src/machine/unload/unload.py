@@ -15,7 +15,7 @@ import random
 
 
 # todo: wait for yuanfang
-from src.controllers import path_generator
+from src.controllers import paths
 
 TRUCK_CONVERT_TIME = 300
 

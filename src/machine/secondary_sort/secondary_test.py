@@ -47,6 +47,11 @@ def package_num():
     return random.randint(5, 10)
 
 
+# 生成一个入口到一个出口的处理时间
+def process_time():
+    return random.uniform(40, 200)
+
+
 # 生成出口编号
 def generate_dest_id():
     dest_list = []
@@ -96,7 +101,7 @@ def generate_package():
         ALL_PACKAGES[mid] = []
         for i in range(package_num()):
             ALL_PACKAGES[mid].append(
-                PackageSecondary(f'package{mid}-{i+1}', path, interval * i, simpy.Environment()))
+                PackageSecondary(f'package:{mid}-{i+1}', path, interval * i, simpy.Environment()))
 
 
 # 生成输入队列
@@ -114,19 +119,28 @@ def secondary_sim():
     generate_package()
     machine_dict = {}
     env = simpy.Environment()
+    for mid in MACHINE_ID:
+        INPUT_QUEUE_DICT[mid] = simpy.Store(env)
     for did in dest_id_list:
-        OUTPUT_QUEUE_DICT[did] = simpy.PriorityStore(env)
+        OUTPUT_QUEUE_DICT[did] = simpy.Store(env)
+
     for mid in MACHINE_ID:
         generate_queue(env, mid)
         input_queue = INPUT_QUEUE_DICT[mid]
-        secondary_machine = SecondarySort(env, input_queue, mid, CART_NUM,
-                                  OUTPUT_QUEUE_DICT)
+        secondary_machine = SecondarySort(env=env,
+                                          machine_id=mid,
+                                          process_time=process_time(),
+                                          cart_num=CART_NUM,
+                                          input_queue=input_queue,
+                                          output_queue=OUTPUT_QUEUE_DICT)
         machine_dict[mid] = secondary_machine
-        env.process(secondary_machine.secondary_machine())
+        env.process(secondary_machine.secondary_machine(ALL_PACKAGES))
     env.run()
 
 
 if __name__ == '__main__':
     print("start")
-    secondary_sim()
+    # secondary_sim()
+    generate_package()
+    print(ALL_PACKAGES)
     print("End")

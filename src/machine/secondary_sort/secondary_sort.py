@@ -23,25 +23,33 @@
 
 
 import simpy
+from src.vehicles.items import Package
 
 
 class SecondarySort(object):
-    def __init__(self, env: simpy.Environment(),
-            queue: simpy.PriorityStore,
-            machine_id: str, cart_num: int, output_queue_dict):
+    def __init__(self,
+                 env: simpy.Environment(),
+                 machine_id: str,
+                 process_time: float,
+                 cart_num: int,
+                 input_queue: simpy.PriorityStore,
+                 output_queue):
         self.env = env
         self.machine_id = machine_id
-        self.queue = queue
-        # 资源池小车数量
+        self.process_time = process_time
         self.cart_num = cart_num
-        # todo @lanyi：口对应设备，查code
+
+        self.last_queue = input_queue
+
+        self.next_queue = output_queue
+
         self.cart = simpy.Resource(self.env, self.cart_num)
 
         # check empty
-        self.empty = self.env.event()
+        # self.empty = self.env.event()
         # self.env.process(self.empty_queue())
 
-        self.tmp_queue = simpy.Store(self.env)
+        self.package_count = 0
 
     # def empty_queue(self):
     #     """
@@ -53,20 +61,27 @@ class SecondarySort(object):
     #             self.empty = self.env.event()
     #         yield self.env.timeout(100)
 
-    def secondary_machine(self):
+    def secondary_machine(self, package:Package):
         """
         终分拣逻辑
         """
         while True:
             with self.cart.request() as req:
-                package = yield self.queue.get()
-                package = package.item
+                yield req
+
                 #pipeline功能：指引包裹
                 pipeline_id = package.ret_pop_mark()
-                # todo @lanyi: 预留装车位置
 
-                yield self.tmp_queue.put(package)
+                yield self.env.timeout(self.process_time)
 
-                # todo @lanyi: 最终代码没有以下代码
-                if package:
-                    print(f"{package.package_id} go to {package.plan_path[0]} at {package.time_list[0]}")
+                self.next_queue[pipeline_id].put(package)
+
+                self.package_count -= 1
+
+                print(f'{pipeline_id}')
+
+    def run(self):
+        while True:
+            package = yield self.last_queue.get()
+            self.package_count += 1
+            self.env.process(self.secondary_machine(package))
