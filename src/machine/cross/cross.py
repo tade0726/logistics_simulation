@@ -19,9 +19,6 @@
                                                       3、每个入口\出口无服务受限；
 =====================================================================================================
 """
-
-
-from simpy import PriorityItem
 from src.vehicles.items import Pipeline
 from src.vehicles.items import Package
 

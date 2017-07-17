@@ -24,6 +24,8 @@ from simpy import Environment
 from simpy import PriorityStore
 from simpy import PriorityItem
 from simpy import Resource
+from src.vehicles import Pipeline
+from src.vehicles import Package
 from src.machine.cross import Cross
 import random as rd
 from numpy.random import choice
