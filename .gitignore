@@ -117,7 +117,7 @@ test/
 
 # 忽略xls
 data/path
-data/*.csv
+#data/*.csv
 data/*.txt
 docs/
 *.txt
