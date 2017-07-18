@@ -15,13 +15,15 @@ import pandas as pd
 from sqlalchemy import create_engine
 from os.path import realpath, join, split
 from collections import defaultdict
+from datetime import datetime
+
 
 class MySQLConfig:
 
-    HOST = ""
-    USER = ""
-    PASS = ""
-    DB = ""
+    HOST = "10.0.149.36"
+    USER = "developer"
+    PASS = "developer"
+    DB = "hangzhouhubqa"
     CHARSET = 'utf8'
 
     engine = create_engine(
@@ -34,6 +36,10 @@ class SaveConfig:
     DATA_DIR = join( split(split(split(realpath(__file__))[0])[0])[0], 'data')
     DATA_FILE = 'tables.csv'
     DATA_PATH = join(DATA_DIR, DATA_FILE)
+
+
+class TimeConfig:
+    ZERO_TIMESTAMP = datetime(2017, 6, 15, 22)
 
 
 def load_from_local(table_name: str):
@@ -62,7 +68,11 @@ def get_trucks(is_test: bool=False, is_local: bool=False):
     if is_test:
         table = table.head(1000)
     # add path_type: LL/LA/AL/AA
-    table['path_type'] = table['origin_type'] + table['dest_type']
+    table['path_type'] = table['src_type'] + table['dest_type']
+    # convert datetime to seconds
+
+    table["arrive_time"] = (table["arrive_time"] - TimeConfig.ZERO_TIMESTAMP)\
+        .apply(lambda x: x.total_seconds() if x.total_seconds() > 0 else 0)
     # 'plate_num' 是货车／飞机／的编号
     return dict(list(table.groupby(['plate_num', 'arrive_time', 'path_type'])))
 
@@ -146,9 +156,20 @@ def get_resource_limit(is_local: bool=False):
         table2 = load_from_mysql(table_name2)
         table3 = load_from_mysql(table_name3)
 
-    table = table1.merge(table2[['resource_id', 'equipment_id']], how='left', on='resource_id')\
-                .merge(table3[['equipment_id', 'process_time']], how='left', on='equipment_id')
+    table2 = table2[["resource_id", "equipment_id"]].drop_duplicates()
+    table3 = table3[["equipment_id", "process_time"]].drop_duplicates()
 
+    table_temp = table2.merge(table3, how="left", on="equipment_id")
+    table_temp = table_temp
+
+    table_temp2 = table_temp.groupby(["resource_id"])["process_time"].unique().apply(
+        lambda x: x[0] if len(x) == 1 else None)
+    table_temp2 = table_temp2.to_frame("process_time").reset_index()
+
+    table = table1.merge(table_temp2, how="left", on="resource_id")
+
+    # checking merge correct
+    assert table1.shape[0] == table.shape[0]
     return table
 
 
@@ -173,6 +194,10 @@ def get_pipelines(is_local: bool=False):
 
     table = table[['equipment_port_last', 'equipment_port_next', 'sorter_zone', 'process_time', 'queue_id']]
     table['machine_type'] = table['sorter_zone'].apply(lambda x: x[:2]).replace(machine_dict)
+
+    ind_cross = table.equipment_port_next.str.startswith('e') | table.equipment_port_next.str.startswith('x')
+    table.loc[ind_cross, "machine_type"] = "cross"
+
     return table
 
 
@@ -186,7 +211,7 @@ def get_queue_io(is_local: bool):
     return io_list
 
 
-if __name__ == '__main__':
+if __name__ == 0:
 
     # test1 = get_unload_setting(is_local=True)
     # test2 = get_resource_limit(is_local=True)
@@ -205,3 +230,7 @@ if __name__ == '__main__':
     for key, val in test5.items():
         if len(val) >= 2:
             print(key, val)
+
+if __name__ == "__main__":
+    test = get_pipelines()
+    print(test.head())
