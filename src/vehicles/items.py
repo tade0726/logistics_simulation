@@ -114,10 +114,10 @@ class Pipeline:
 
     def __init__(self,
                  env: simpy.Environment,
-                 delay_time: float,
-                 pipeline_id: tuple,
-                 queue_id: str,
-                 machine_type: str,
+                 delay_time: float=0,
+                 pipeline_id: tuple=None,
+                 queue_id: str=None,
+                 machine_type: str=None,
                  ):
 
         self.env = env
