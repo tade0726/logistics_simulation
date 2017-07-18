@@ -177,7 +177,7 @@ class Pipeline:
         yield self.env.timeout(self.delay)
         # 加入数据点
         item.pop_mark()
-        item.add_pipeline_id()
+        item.add_machine_id()
         self.queue.put(item)
         self.latency_counts -= 1
 
