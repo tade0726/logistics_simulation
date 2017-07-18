@@ -149,13 +149,9 @@ class PathGenerator(object):
                 print(exc)
                 self.all_paths = None
 
-    def path_generator(self, start_node, dest_code, parcel_type, dest_type):
+    def path_generator(self, start_node, end_node,):
 
         # TODO: 确认/db/tools/get_reload_setting 函数中返回字典key元组的变量顺序
-        end_node = random.choice(
-            self.reload_setting[(dest_code, parcel_type, dest_type)])
-
-        # end_node = dest_code
 
         if self.all_paths is not None:
             paths = self.all_paths[(start_node, end_node)]

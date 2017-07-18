@@ -115,7 +115,7 @@ def get_reload_setting(is_local: bool=False):
     返回字典形式：
         dest_code 和 reload port 类型的映射
     examples:
-        { （"571J"， "L"): ["c1_1", ],  （"571K"， "L"): ["c2_3", "c2_5"] }
+        { （"571J"， "L" , "reload"): ["c1_1", ],  （"571K"， "L", "small_sort"): ["c2_3", "c2_5"] }
     """
 
     table_name = "i_reload_setting"
@@ -127,7 +127,7 @@ def get_reload_setting(is_local: bool=False):
 
     table_dict = defaultdict(list)
     for _, row in table.iterrows():
-        table_dict[(row['dest_code'], row["dest_type"])].append(row['equipment_port'])
+        table_dict[(row['dest_code'], row["dest_type"], row["sort_type"])].append(row['equipment_port'])
     return table_dict
 
 

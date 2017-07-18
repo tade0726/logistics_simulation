@@ -18,8 +18,13 @@ __all__ = ["Package", "Truck", "Uld", "SmallBag", "SmallPackage", "Pipeline"]
 
 class Package:
     """包裹"""
-    def __init__(self, env: simpy.Environment, attr: pd.Series, item_id : str, path: tuple, ):
+    def __init__(self,
+                 env: simpy.Environment,
+                 attr: pd.Series,
+                 item_id : str,
+                 path: tuple, ):
 
+        # 包裹的所有信息都在 attr
         self.attr = attr
         # id
         self.item_id = item_id
@@ -33,13 +38,23 @@ class Package:
         self.time_records = []
         # next pipeline_id
         self.next_pipeline = ()
-        # add origin type, dest_type
-        self.origin_type = attr["origin_type"]
-        self.dest_type = attr["dest_type"]
+        # record for package enter machine
+        self.package_record = dict(package_id=item_id)
+
+    def add_machine_id(self, machine_id):
+        self.package_record["machine_id"] = machine_id
+
+    def start_wait(self):
+        self.package_record["start_wait"] = self.env.now
+
+    def start_serve(self):
+        self.package_record["start_serve"] = self.env.now
+
+    def end_serve(self):
+        self.package_record["end_serve"] = self.env.now
 
     def pop_mark(self):
         """返回下一个pipeline id: (now_loc, next_loc)， 删去第一个节点，记录当前的时间点"""
-
         if len(self.path) >= 2:
             now_loc, next_loc = self.path[0: 2]
         # 当 package 去到 reload（终分拣）， 终分拣的队列 id 只有一个值
@@ -114,10 +129,10 @@ class Pipeline:
 
     def __init__(self,
                  env: simpy.Environment,
-                 delay_time: float,
-                 pipeline_id: tuple,
-                 queue_id: str,
-                 machine_type: str,
+                 delay_time: float=0,
+                 pipeline_id: tuple=None,
+                 queue_id: str=None,
+                 machine_type: str=None,
                  ):
 
         self.env = env
@@ -129,25 +144,45 @@ class Pipeline:
         # 传送带上货物的计数
         self.latency_counts = 0
         self.latency_counts_time = []
+        # 机器等待区， 队列的计数
+        self.machine_waiting_counts_time = []
+
         # 加入计数器
         self.env.process(self.get_counts())
 
     def get_counts(self):
         """计数器"""
         while True:
-            self.latency_counts_time.append((self.env.now, self.latency_counts))
+            # todo
+            latency_dict = dict(pipeline_id=self.pipeline_id,
+                                timestamp=self.env.now,
+                                counts=self.latency_counts)
+
+            wait_dict = dict(pipeline_id=self.pipeline_id,
+                             timestamp=self.env.now,
+                             counts=len(self.queue.items))
+
+            self.latency_counts_time.append(latency_dict)
+            self.machine_waiting_counts_time.append(wait_dict)
+
+            # fixme: if statement add for test
+            if len(self.queue.items) == 3000:
+                self.env.exit()
+
             yield self.env.timeout(1)
 
     def latency(self, item: Package):
         """模拟传送时间"""
         self.latency_counts += 1
         yield self.env.timeout(self.delay)
-        # 在 package 添加数据记录
+        # 加入数据点
         item.pop_mark()
+        item.add_pipeline_id()
         self.queue.put(item)
         self.latency_counts -= 1
 
     def put(self, item: Package):
+        item.start_wait = self.env.now
         self.env.process(self.latency(item))
 
     def get(self):
