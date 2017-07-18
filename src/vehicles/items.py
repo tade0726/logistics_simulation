@@ -153,7 +153,7 @@ class Pipeline:
     def get_counts(self):
         """计数器"""
         while True:
-            # todo
+
             latency_dict = dict(pipeline_id=self.pipeline_id,
                                 timestamp=self.env.now,
                                 counts=self.latency_counts)
@@ -164,10 +164,6 @@ class Pipeline:
 
             self.latency_counts_time.append(latency_dict)
             self.machine_waiting_counts_time.append(wait_dict)
-
-            # fixme: if statement add for test
-            if len(self.queue.items) == 3000:
-                self.env.exit()
 
             yield self.env.timeout(1)
 
