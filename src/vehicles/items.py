@@ -41,8 +41,8 @@ class Package:
         # record for package enter machine
         self.package_record = dict(package_id=item_id)
 
-    def add_pipeline_id(self):
-        self.package_record["pipeline_id"] = self.next_pipeline
+    def add_machine_id(self, machine_id):
+        self.package_record["machine_id"] = machine_id
 
     def start_wait(self):
         self.package_record["start_wait"] = self.env.now
