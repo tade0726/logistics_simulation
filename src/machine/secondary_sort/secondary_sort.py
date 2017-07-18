@@ -45,21 +45,7 @@ class SecondarySort(object):
 
         self.cart = simpy.Resource(self.env, self.cart_num)
 
-        # check empty
-        # self.empty = self.env.event()
-        # self.env.process(self.empty_queue())
-
         self.package_count = 0
-
-    # def empty_queue(self):
-    #     """
-    #     达到特定条件的时候，证明机器为空
-    #     """
-    #     while True:
-    #         if not self.queue.items:
-    #             self.empty.succeed()
-    #             self.empty = self.env.event()
-    #         yield self.env.timeout(100)
 
     def secondary_machine(self, package:Package):
         """
@@ -69,19 +55,16 @@ class SecondarySort(object):
             with self.cart.request() as req:
                 yield req
 
+                package.start_serve()
                 #pipeline功能：指引包裹
-                pipeline_id = package.ret_pop_mark()
+                pipeline_id = package.pop_mark()
 
                 yield self.env.timeout(self.process_time)
+                package.end_serve()
 
                 self.next_queue[pipeline_id].put(package)
-
-                self.package_count -= 1
-
-                print(f'{pipeline_id}')
-
+                
     def run(self):
         while True:
             package = yield self.last_queue.get()
-            self.package_count += 1
             self.env.process(self.secondary_machine(package))
