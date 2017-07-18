@@ -2,6 +2,11 @@ import simpy
 import random
 from collections import defaultdict
 import pickle
+from os.path import join
+
+from src.vehicles import Pipeline
+from src.db import SaveConfig
+
 
 class Truck:
 
@@ -19,7 +24,7 @@ def truck_controllers(env: simpy.Environment, truck_q: simpy.Store):
 
 class Unload:
 
-    def __init__(self, env: simpy.Environment, machine_id: int, truck_q: simpy.Store, next_q: simpy.Store):
+    def __init__(self, env: simpy.Environment, machine_id: str, truck_q: simpy.Store, next_q: Pipeline):
 
         self.env = env
         self.machine_id = machine_id
@@ -47,9 +52,9 @@ class Unload:
 
             print(f"{package} end processing unload_{self.machine_id} at {self.env.now}")
             self.package_records[package]["end_process"] = self.env.now
-
             self.package_records[package]["machine_id"] = self.machine_id
             self.package_records[package]["package_id"] = package
+
             self.next_q.put(package)
             self.packages_processed[idx].succeed()
 
@@ -75,6 +80,7 @@ class Unload:
             self.truck_records[truck.truck_id]["leave_machine"] = self.env.now
             self.truck_records[truck.truck_id]["machine_id"] = self.machine_id
             self.truck_records[truck.truck_id]["truck_id"] = truck.truck_id
+
             yield self.env.timeout(self.truck_convert_time)
             self.truck_counts += 1
 
@@ -83,25 +89,35 @@ if __name__ == "__main__":
 
     env = simpy.Environment()
     truck_q = simpy.Store(env)
-    next_q = simpy.Store(env)
+    next_q = Pipeline(env, delay_time=5, )
 
     unload_machines = [Unload(env, f"unload_{i}", truck_q, next_q) for i in range(2)]
 
     for machine in unload_machines:
         env.process(machine.run())
-    env.process(truck_controllers(env, truck_q))
 
+    env.process(truck_controllers(env, truck_q))
     env.run()
 
     # loading data
     truck_records = dict()
     package_records = dict()
+
     for machine in unload_machines:
         truck_records.update(machine.truck_records)
         package_records.update(machine.package_records)
 
-    with open("truck_records.dict", "wb") as file:
+    pipeline_on_con_records = next_q.latency_counts_time
+    pipeline_on_wait_records = next_q.machine_waiting_counts_time
+
+    with open(join(SaveConfig.DATA_DIR, "truck_records.dict"), "wb") as file:
         pickle.dump(truck_records, file)
 
-    with open("package_records.dict", "wb") as file:
+    with open(join(SaveConfig.DATA_DIR, "package_records.dict"), "wb") as file:
         pickle.dump(package_records, file)
+
+    with open(join(SaveConfig.DATA_DIR, "pipeline_on_con_records.list"), "wb") as file:
+        pickle.dump(pipeline_on_con_records, file)
+
+    with open(join(SaveConfig.DATA_DIR, "pipeline_on_wait_records.list"), "wb") as file:
+        pickle.dump(pipeline_on_wait_records, file)
