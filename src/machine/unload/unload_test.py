@@ -15,6 +15,9 @@ class Truck:
         self.truck_record = \
             dict(truck_id=truck_id)
 
+    def add_machine_id(self, machine_id):
+        self.truck_record["machine_id"] = machine_id
+
     def start_wait(self):
         self.truck_record["start_wait"] = self.env.now
 
@@ -71,10 +74,12 @@ class Unload:
 
             truck = yield self.truck_q.get()
             truck.start_serve()
+            truck.add_machine_id(machine_id=self.machine_id)
 
             for idx, package in enumerate(truck.packages):
 
                 package.start_wait()
+                package.add_machine_id(self.machine_id)
                 self.packages_processed[idx] = self.env.event()
                 self.env.process(self.processing(idx, package))
 
