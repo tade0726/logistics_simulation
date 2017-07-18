@@ -15,7 +15,7 @@ import random
 
 
 # todo: wait for yuanfang
-from src.controllers import paths
+from src.controllers import PathGenerator
 
 TRUCK_CONVERT_TIME = 300
 
@@ -72,7 +72,7 @@ class Unload:
                 # random choice if package_ends more than 1
                 package_end = random.choice(package_ends)
                 # init package
-                package = Package(env=self.env, attr=package_record, path=path_generator(package_start, package_end))
+                package = Package(env=self.env, attr=package_record, path=PathGenerator().path_generator(package_start, package_end))
                 # need request resource for processing
                 self.packages_processed[process_idx] = self.env.event()
                 self.env.process(self.process_package(process_idx, package))
