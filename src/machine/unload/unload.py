@@ -86,7 +86,11 @@ class Unload:
 
                 package_start = self.machine_id
                 # building key
-                reload_key = (package_record["dest_code"], "L", "reload")
+                dest_code = package_record["dest_code"]
+                dest_type = package_record["dest_type"]
+                parcel_type = package_record["parcel_type"]
+                small_label = "reload" if parcel_type == "parcel" else "smart_sort"
+                reload_key = (dest_code, dest_type, small_label)
                 # look up the c-port for different destination
                 package_ends = self.reload_setting_dict.get(reload_key)
                 # random choice if package_ends more than 1
