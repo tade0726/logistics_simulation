@@ -20,6 +20,7 @@ class Package:
     """包裹"""
     def __init__(self, env: simpy.Environment, attr: pd.Series, item_id : str, path: tuple, ):
 
+        # 包裹的所有信息都在 attr
         self.attr = attr
         # id
         self.item_id = item_id
@@ -33,9 +34,8 @@ class Package:
         self.time_records = []
         # next pipeline_id
         self.next_pipeline = ()
-        # add origin type, dest_type
-        self.origin_type = attr["origin_type"]
-        self.dest_type = attr["dest_type"]
+        # start_wait
+        self.start_wait = 0
 
     def pop_mark(self):
         """返回下一个pipeline id: (now_loc, next_loc)， 删去第一个节点，记录当前的时间点"""
@@ -140,8 +140,8 @@ class Pipeline:
         while True:
 
             latency_dict = dict(pipeline_id=self.pipeline_id,
-                                 timestamp=self.env.now,
-                                 counts=self.latency_counts)
+                                timestamp=self.env.now,
+                                counts=self.latency_counts)
 
             wait_dict = dict(pipeline_id=self.pipeline_id,
                              timestamp=self.env.now,
@@ -150,18 +150,25 @@ class Pipeline:
             self.latency_counts_time.append(latency_dict)
             self.machine_waiting_counts_time.append(wait_dict)
 
+            # fixme: if statement add for test
+            if len(self.queue.items) == 3000:
+                self.env.exit()
+
             yield self.env.timeout(1)
 
     def latency(self, item: Package):
         """模拟传送时间"""
         self.latency_counts += 1
         yield self.env.timeout(self.delay)
+        # fixme: if statement add for testing
         # 在 package 添加数据记录
-        item.pop_mark()
+        if isinstance(item, Package):
+            item.pop_mark()
         self.queue.put(item)
         self.latency_counts -= 1
 
     def put(self, item: Package):
+        item.start_wait = self.env.now
         self.env.process(self.latency(item))
 
     def get(self):
