@@ -135,9 +135,12 @@ def get_reload_setting(is_local: bool=False):
     else:
         table = load_from_mysql(table_name)
 
+    # table adding new data
+    table.loc[table.equipment_id.isin([f"c{i}" for i in range(5, 13)]), "sort_type"] = "small_sort"
+    table.loc[~table.equipment_id.isin([f"c{i}" for i in range(5, 13)]), "sort_type"] = "reload"
     table_dict = defaultdict(list)
     for _, row in table.iterrows():
-        table_dict[(row['dest_code'], row["dest_type"], row["sort_type"])].append(row['equipment_port'])
+        table_dict[(row['dest_code'], row["sort_type"], row["dest_type"],)].append(row['equipment_port'])
     return table_dict
 
 
