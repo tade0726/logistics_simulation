@@ -127,7 +127,6 @@ class Truck:
     def end_serve(self):
         self.truck_record["end_serve"] = self.env.now
 
-
     def __str__(self):
         return f"<truck_id: {self.item_id}, come_time: {self.come_time}, store_size:{self.store_size}>"
 
@@ -162,7 +161,8 @@ class Pipeline:
         self.machine_waiting_counts_time = []
 
         # 加入计数器
-        self.env.process(self.get_counts())
+        # fixme: it is slow add time like this, find a better way to get the data
+        # self.env.process(self.get_counts())
 
     def get_counts(self):
         """计数器"""

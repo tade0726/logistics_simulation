@@ -29,18 +29,21 @@ class Unload:
                  trucks_q: simpy.FilterStore,
                  pipelines_dict: defaultdict,
                  resource_dict: defaultdict,
+                 equipment_resource_dict:dict,
                  path_generator: PathGenerator,
                  ):
 
         self.env = env
         self.machine_id = machine_id
-        self.equipment_id = equipment_id
+        self.equipment_id = equipment_id # pipeline id last value, for other machines
         self.truck_types = unload_setting_dict[equipment_id]
         self.reload_setting_dict = reload_setting_dict
         self.trucks_q = trucks_q
         self.pipelines_dict = pipelines_dict
-        self.resource = resource_dict[equipment_id]
-        self.process_time = resource_dict['process_time']
+
+        self.resource_id = equipment_resource_dict[equipment_id]
+        self.resource = resource_dict[self.resource_id]['resource']
+        self.process_time = resource_dict[self.resource_id]['process_time']
 
         self.num_of_truck = 0
         self.packages_processed = dict()
@@ -62,7 +65,6 @@ class Unload:
             package.start_serve()
             yield self.env.timeout(self.process_time)
             package.end_serve()
-
             self.pipelines_dict[next_pipeline].put(package)
             self.packages_processed[process_idx].succeed()
             self.package_records.append(package.package_record)
@@ -72,6 +74,9 @@ class Unload:
         while True:
             # filter out the match truck(LL/LA/AL/AA)
             truck = yield self.trucks_q.get(lambda x: x.truck_type in self.truck_types)
+
+            print(f"truck {truck.item_id} start process at {self.env.now}")
+
             # add data
             truck.start_serve()
             truck.add_machine_id(machine_id=self.machine_id)
@@ -79,23 +84,32 @@ class Unload:
             # init packages_processed empty
             self.packages_processed = dict()
 
-            for process_idx, package_record in truck.store.itterrows():
+            for process_idx, package_record in truck.store.iterrows():
 
                 package_start = self.machine_id
                 # building key
-                dest_code = package_record["dest_code"]
+                dest_code = package_record["dest_zone_code"]
                 dest_type = package_record["dest_type"]
                 parcel_type = package_record["parcel_type"]
                 sort_type = "reload" if parcel_type == "parcel" else "small_sort"
+
+                try:
+                    plan_path = self.path_generator(package_start, dest_code, sort_type,dest_type)
+                except Exception as exc:
+                    print(exc)
+                    break # jump out of the loop
+
                 # init package
                 package = Package(env=self.env,
                                   item_id=package_record["parcel_id"],
                                   attr=package_record,
-                                  path=self.path_generator(package_start, dest_code, sort_type,dest_type),
+                                  path=plan_path,
                                   )
-
+                print(f"package {package.item_id} unloaded..")
                 # package add data
                 package.start_wait()
+                # pop and mark
+                package.pop_mark()
                 # need request resource for processing
                 self.packages_processed[process_idx] = self.env.event()
                 self.env.process(self.process_package(process_idx, package))

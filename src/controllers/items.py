@@ -35,13 +35,15 @@ class TruckController:
         """
         des: 使用 FilterStore 特定的车辆筛选进不同的 r 入口
         """
-        trucks_dict = get_trucks()
+        trucks_dict = get_trucks(is_test=True)
 
-        for (truck_id, come_time, truck_type), packages in trucks_dict:
+        for keys, packages in trucks_dict.items():
+            (truck_id, come_time, truck_type) = keys
             truck = Truck(env=self.env, item_id=truck_id, come_time=come_time,
                           packages=packages, truck_type=truck_type,
                           )
             self.env.process(self.latency(come_time, truck))
 
-if  __name__ == '__main__':
+
+if __name__ == '__main__':
     pass
