@@ -13,6 +13,7 @@ import simpy
 
 from src.db import *
 from src.controllers import TruckController, PathGenerator
+from src.utils import PipelineRecord, TruckRecord, PackageRecord
 from src.vehicles import Pipeline
 from src.machine import Unload
 
@@ -88,18 +89,32 @@ if __name__ == "__main__":
     env.run()
     t_end = datetime.now()
     # checking data
-    package_data = []
     truck_data = []
+
     for machine in machines:
-        package_data.extend(machine.package_records)
-        truck_data.extend(machine.truck_records)
+        for truck in machine.done_trucks.items:
+            truck_data.extend(truck.truck_data)
 
     total_time = t_end - t_start
 
     print(f"total time: {total_time.total_seconds()} s")
 
-    package_table = pd.DataFrame.from_records(package_data)
-    truck_table = pd.DataFrame.from_records(truck_data)
+    presort_pipelines = list(
+        filter(lambda x: True if x.machine_type == "presort" else False, pipelines_dict.values())
+    )
 
-    package_table.to_csv(join(SaveConfig.DATA_DIR, "package_records.csv"), index=0)
+    pipeline_data = []
+    machine_data = []
+
+    for pipeline in presort_pipelines:
+        for package in pipeline.queue.items:
+            pipeline_data.extend(package.pipeline_data)
+            machine_data.extend(package.machine_data)
+
+    truck_table = pd.DataFrame.from_records(truck_data, columns=TruckRecord._fields,)
+    pipeline_table = pd.DataFrame.from_records(pipeline_data, columns=PipelineRecord._fields,)
+    machine_table = pd.DataFrame.from_records(machine_data, columns=PackageRecord._fields,)
+
     truck_table.to_csv(join(SaveConfig.DATA_DIR, "truck_table.csv"), index=0)
+    pipeline_table.to_csv(join(SaveConfig.DATA_DIR, "pipeline_table.csv"), index=0)
+    machine_table.to_csv(join(SaveConfig.DATA_DIR, "machine_table.csv"), index=0)

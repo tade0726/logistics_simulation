@@ -12,8 +12,8 @@ import simpy
 from collections import defaultdict
 from src.vehicles import Package
 import random
-
 from src.controllers import PathGenerator
+from src.utils import TruckRecord, PackageRecord
 
 TRUCK_CONVERT_TIME = 300
 
@@ -29,7 +29,7 @@ class Unload:
                  trucks_q: simpy.FilterStore,
                  pipelines_dict: dict,
                  resource_dict: defaultdict,
-                 equipment_resource_dict:dict,
+                 equipment_resource_dict: dict,
                  path_generator: PathGenerator,
                  ):
 
@@ -49,25 +49,38 @@ class Unload:
         self.packages_processed = dict()
         self.done_trucks = simpy.Store(env)
 
-        # store data
-        self.package_records = []
-        self.truck_records = []
-
         # path generator
         self.path_generator = path_generator.path_generator
+
+        # data store
+        self.truck_records = []
+        self.package_records = []
 
     def process_package(self, process_idx, package: Package):
 
         with self.resource.request() as req:
             yield req
             next_pipeline = package.next_pipeline
-            package.start_serve()
+
+            package.instert_data(
+                PackageRecord(
+                    machine_id=self.machine_id,
+                    package_id=package.item_id,
+                    time_stamp=self.env.now,
+                    action="start",))
+
             yield self.env.timeout(self.process_time)
-            package.end_serve()
-            package.add_machine_id(self.machine_id)
+
+            package.instert_data(
+                PackageRecord(
+                    machine_id=self.machine_id,
+                    package_id=package.item_id,
+                    time_stamp=self.env.now,
+                    action="end",))
+
+
             self.pipelines_dict[next_pipeline].put(package)
             self.packages_processed[process_idx].succeed()
-            self.package_records.append(package.package_record.copy())
 
     def run(self):
 
@@ -75,11 +88,14 @@ class Unload:
             # filter out the match truck(LL/LA/AL/AA)
             truck = yield self.trucks_q.get(lambda x: x.truck_type in self.truck_types)
 
-            print(f"truck {truck.item_id} start process at {self.env.now}")
+            truck.instert_data(
+                TruckRecord(
+                    machine_id=self.machine_id,
+                    truck_id=truck.item_id,
+                    time_stamp=self.env.now,
+                    action="start", ))
 
-            # add data
-            truck.start_serve()
-            truck.add_machine_id(machine_id=self.machine_id)
+            print(f"truck {truck.item_id} start process at {self.env.now}")
 
             # init packages_processed empty
             self.packages_processed = dict()
@@ -106,9 +122,15 @@ class Unload:
                                   attr=package_record,
                                   path=plan_path,
                                   )
+
+                package.instert_data(
+                    PackageRecord(
+                        machine_id=self.machine_id,
+                        package_id=package.item_id,
+                        time_stamp=truck.come_time,
+                        action="wait", ))
+
                 print(f"package {package.item_id} unloaded..")
-                # package add data
-                package.start_wait()
                 # pop and mark
                 package.pop_mark()
                 # need request resource for processing
@@ -117,14 +139,19 @@ class Unload:
 
             # all the package are processed
             yield self.env.all_of(self.packages_processed.values())
-            # truck add data
-            truck.end_serve()
-            self.truck_records.append(truck.truck_record.copy())
+
+            # insert data
+            truck.instert_data(
+                TruckRecord(
+                    machine_id=self.machine_id,
+                    truck_id=truck.item_id,
+                    time_stamp=self.env.now,
+                    action="end", ))
+
             # truck is out
             self.done_trucks.put(truck)
             # truck convert time
             yield self.env.timeout(TRUCK_CONVERT_TIME)
-            self.num_of_truck += 1
 
 
 

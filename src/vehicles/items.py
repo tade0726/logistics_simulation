@@ -13,6 +13,8 @@ Uld class
 import simpy
 import pandas as pd
 
+from collections import namedtuple
+from src.utils import PackageRecord, PipelineRecord, TruckRecord
 
 __all__ = ["Package", "Truck", "Uld", "SmallBag", "SmallPackage", "Pipeline"]
 
@@ -37,6 +39,18 @@ class Package:
         self.path = list(path)
         # next pipeline_id
         self.next_pipeline = ()
+
+        self.machine_data = []
+        self.pipeline_data = []
+
+    def instert_data(self, record: namedtuple):
+
+        if isinstance(record, PackageRecord):
+            self.machine_data.append(record)
+        elif isinstance(record, PipelineRecord):
+            self.pipeline_data.append(record)
+        else:
+            raise ValueError("Wrong type of record")
 
     def pop_mark(self):
         """返回下一个pipeline id: (now_loc, next_loc)， 删去第一个节点，记录当前的时间点"""
@@ -98,6 +112,15 @@ class Truck:
         self.truck_type = truck_type
         self.env = env
 
+        self.truck_data = []
+
+    def instert_data(self, record: namedtuple):
+
+        if isinstance(record, TruckRecord):
+            self.truck_data.append(record)
+        else:
+            raise ValueError("Wrong type of record")
+
     def __str__(self):
         return f"<truck_id: {self.item_id}, come_time: {self.come_time}, store_size:{self.store_size}>"
 
@@ -129,13 +152,35 @@ class Pipeline:
     def latency(self, item: Package):
         """模拟传送时间"""
         yield self.env.timeout(self.delay)
-        # 加入数据点
+        # cutting path
         item.pop_mark()
-        item.add_machine_id(machine_id=self.pipeline_id)
-        item.start_wait()
+        # insert data
+
+        item.instert_data(
+            PackageRecord(
+                machine_id=self.pipeline_id,
+                package_id=item.item_id,
+                time_stamp=self.env.now,
+                action="wait", ))
+
+        item.instert_data(
+            PipelineRecord(
+                pipeline_id=self.pipeline_id,
+                package_id=item.item_id,
+                time_stamp=self.env.now,
+                action="end", ))
+
         self.queue.put(item)
 
     def put(self, item: Package):
+
+        item.instert_data(
+            PipelineRecord(
+                pipeline_id=self.pipeline_id,
+                package_id=item.item_id,
+                time_stamp=self.env.now,
+                action="start", ))
+
         self.env.process(self.latency(item))
 
     def get(self):

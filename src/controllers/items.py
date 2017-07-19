@@ -11,6 +11,7 @@
 import simpy
 
 from src.vehicles import Truck
+from src.utils import TruckRecord
 from src.db import get_trucks
 
 
@@ -27,6 +28,14 @@ class TruckController:
     def latency(self, come_time, item: Truck):
         """模拟货车到达时间"""
         yield self.env.timeout(come_time)
+
+        item.instert_data(
+            TruckRecord(
+                machine_id="new",
+                truck_id=item.item_id,
+                time_stamp=self.env.now,
+                action="wait", ))
+
         # truck start enter
         self.trucks.put(item)
 
