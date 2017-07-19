@@ -91,10 +91,10 @@ class Unload:
                 dest_code = package_record["dest_zone_code"]
                 dest_type = package_record["dest_type"]
                 parcel_type = package_record["parcel_type"]
-                sort_type = "reload" if parcel_type == "parcel" else "small_sort"
+                sorter_type = "reload" if parcel_type == "parcel" else "small_sort"
 
                 try:
-                    plan_path = self.path_generator(package_start, dest_code, sort_type,dest_type)
+                    plan_path = self.path_generator(package_start, dest_code, sorter_type, dest_type)
                 except Exception as exc:
                     print(exc)
                     break # jump out of the loop
