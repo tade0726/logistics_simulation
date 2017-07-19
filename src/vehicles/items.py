@@ -66,7 +66,7 @@ class Package:
         pop_loc = self.path.pop(0)
         self.time_records.append((pop_loc, self.env.now))
         # 改变下一个 pipeline id
-        self.next_pipeline = now_loc, next_loc
+        self.next_pipeline = now_loc if is_first else (now_loc, next_loc)
 
     def __str__(self):
         display_dct = dict(self.attr)
