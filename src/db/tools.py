@@ -67,6 +67,10 @@ def get_trucks(is_test: bool=False, is_local: bool=False):
         table = load_from_mysql(table_name)
     if is_test:
         table = table.head(1000)
+
+    # only L to L
+    table = table[(table["dest_type"] == "L") & (table["src_type"] == "L")]
+
     # add path_type: LL/LA/AL/AA
     table['path_type'] = table['src_type'] + table['dest_type']
     # convert datetime to seconds
@@ -189,7 +193,7 @@ def get_resource_equipment_dict(is_local: bool=False):
     return table_dict
 
 
-def get_pipelines(is_local: bool=False):
+def get_pipelines(is_local: bool=False, is_filter: bool=True):
 
     """返回队列的表， 包含了每个队列对应的功能区域和传送时间"""
 
@@ -200,11 +204,13 @@ def get_pipelines(is_local: bool=False):
     tab_equipment_io = load_from_local(tab_n_equipment_io) if is_local else load_from_mysql(tab_n_equipment_io)
 
     # need to filter out the port been closed
-    open_equipments = list(tab_equipment_io[tab_equipment_io.equipment_status == 1].equipment_port.unique())
 
-    tab_queue_io = tab_queue_io[
-        tab_queue_io.equipment_port_last.isin(open_equipments) & tab_queue_io.equipment_port_next.isin(open_equipments)
-    ]
+    if is_filter:
+        open_equipments = list(tab_equipment_io[tab_equipment_io.equipment_status == 1].equipment_port.unique())
+
+        tab_queue_io = tab_queue_io[
+            tab_queue_io.equipment_port_last.isin(open_equipments) & tab_queue_io.equipment_port_next.isin(open_equipments)
+        ]
 
     machine_dict = \
     {'LM': 'presort',
