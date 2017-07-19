@@ -188,11 +188,11 @@ class Pipeline:
         # 加入数据点
         item.pop_mark()
         item.add_machine_id(machine_id=self.pipeline_id)
+        item.start_wait = self.env.now
         self.queue.put(item)
         self.latency_counts -= 1
 
     def put(self, item: Package):
-        item.start_wait = self.env.now
         self.env.process(self.latency(item))
 
     def get(self):
