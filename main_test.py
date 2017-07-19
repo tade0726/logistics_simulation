@@ -78,16 +78,6 @@ for machine_id, truck_types in unload_setting_dict.items():
 for machine in machines:
     env.process(machine.run())
 
-presort_pipelines = [pipeline for _, pipeline in pipelines_dict.items() if pipeline.machine_type == "presort"]
-
-# todo
-def pipelines_checker(env, end_event: simpy.Event):
-
-    while True:
-        for pipeline in presort_pipelines:
-            package_counts += len(pipeline.queue.items)
-
-
 if __name__ == "__main__":
     import pandas as pd
     from datetime import datetime
@@ -95,10 +85,8 @@ if __name__ == "__main__":
     t_start = datetime.now()
 
     print("sim start..")
-    env.run(10000)
-
+    env.run()
     t_end = datetime.now()
-
     # checking data
     package_data = []
     truck_data = []
