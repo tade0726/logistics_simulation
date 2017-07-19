@@ -41,7 +41,7 @@ class Package:
         # record for package enter machine
         self.package_record = dict(package_id=item_id)
 
-    def add_machine_id(self, machine_id):
+    def add_machine_id(self, machine_id: tuple):
         self.package_record["machine_id"] = machine_id
 
     def start_wait(self):
@@ -113,6 +113,20 @@ class Truck:
         self.store_size = len(self.store)
         self.truck_type = truck_type
         self.env = env
+        self.truck_record = dict(truck_id=item_id)
+
+    def add_machine_id(self, machine_id: tuple):
+        self.truck_record["machine_id"] = machine_id
+
+    def start_wait(self):
+        self.truck_record["start_wait"] = self.env.now
+
+    def start_serve(self):
+        self.truck_record["start_serve"] = self.env.now
+
+    def end_serve(self):
+        self.truck_record["end_serve"] = self.env.now
+
 
     def __str__(self):
         return f"<truck_id: {self.item_id}, come_time: {self.come_time}, store_size:{self.store_size}>"
