@@ -60,14 +60,11 @@ class Unload:
             next_pipeline = package.next_pipeline
 
             package.start_serve()
-            package.add_machine_id(self.machine_id)
-
             yield self.env.timeout(self.process_time)
             package.end_serve()
 
             self.pipelines_dict[next_pipeline].put(package)
             self.packages_processed[process_idx].succeed()
-
             self.package_records.append(package.package_record)
 
     def run(self):
@@ -99,7 +96,6 @@ class Unload:
 
                 # package add data
                 package.start_wait()
-                package.add_machine_id(self.machine_id)
                 # need request resource for processing
                 self.packages_processed[process_idx] = self.env.event()
                 self.env.process(self.process_package(process_idx, package))
