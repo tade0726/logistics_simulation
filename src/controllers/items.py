@@ -28,7 +28,6 @@ class TruckController:
         """模拟货车到达时间"""
         yield self.env.timeout(come_time)
         # truck start enter
-        item.start_wait()
         self.trucks.put(item)
 
     def controller(self):
