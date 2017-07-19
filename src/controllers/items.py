@@ -35,7 +35,7 @@ class TruckController:
         """
         des: 使用 FilterStore 特定的车辆筛选进不同的 r 入口
         """
-        trucks_dict = get_trucks(is_test=True)
+        trucks_dict = get_trucks()
 
         for keys, packages in trucks_dict.items():
             (truck_id, come_time, truck_type) = keys
