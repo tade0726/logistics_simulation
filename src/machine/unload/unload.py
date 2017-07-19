@@ -109,7 +109,7 @@ class Unload:
                 # package add data
                 package.start_wait()
                 # pop and mark
-                package.pop_mark()
+                package.pop_mark(is_first=True)
                 # need request resource for processing
                 self.packages_processed[process_idx] = self.env.event()
                 self.env.process(self.process_package(process_idx, package))
