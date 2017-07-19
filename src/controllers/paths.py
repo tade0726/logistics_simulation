@@ -137,7 +137,7 @@ class PathGenerator(object):
         :param all_paths: 存储路径的字典，如果不输入，则从data文件夹下的path文件读取
         """
         # 现在的版本是读取data文件夹下的一个临时文件
-        self.reload_setting = get_reload_setting(is_local=True)
+        self.reload_setting = get_reload_setting()
         if all_paths is not None:
             self.all_paths = all_paths
         else:
@@ -149,9 +149,13 @@ class PathGenerator(object):
                 print(exc)
                 self.all_paths = None
 
-    def path_generator(self, start_node, end_node,):
+    def path_generator(self, start_node, dest_code, sort_type, dest_type):
 
         # TODO: 确认/db/tools/get_reload_setting 函数中返回字典key元组的变量顺序
+        end_node = random.choice(
+            self.reload_setting[(dest_code, sort_type, dest_type)])
+
+        # end_node = dest_code
 
         if self.all_paths is not None:
             paths = self.all_paths[(start_node, end_node)]
@@ -190,7 +194,7 @@ if __name__ == "__main__":
 
     # 给定起终点单条路线
     # TODO: /db/tools/get_reload_setting 函数中返回字典key元组的变量顺序
-    print(",".join(Paths.path_generator("a1_1", "回流", "parcel", "L")))
+    print(",".join(Paths.path_generator("a1_1", "回流", "reload", "L")))
 
     # 生成100000条路线，测试进入医院区的概率是否为5%
     land_start_node = ["r1_1", "r1_2", "r1_3", "r1_4", "r2_1", "r2_2", "r2_3",
@@ -207,7 +211,7 @@ if __name__ == "__main__":
         start = random.choice(land_start_node)
         end = random.choice(land_end_node)
         prob = random.random()
-        path = Paths.path_generator(start, end, "parcel", "L")
+        path = Paths.path_generator(start, end, "reload", "L")
         if set(path) & hospital:
             paths["hospital"].append(path)
         else:
