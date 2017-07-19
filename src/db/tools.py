@@ -193,12 +193,18 @@ def get_pipelines(is_local: bool=False):
 
     """返回队列的表， 包含了每个队列对应的功能区域和传送时间"""
 
-    table_name = "i_queue_io"
+    tab_n_queue_io = "i_queue_io"
+    tab_n_equipment_io = "i_equipment_io"
 
-    if is_local:
-        table = load_from_local(table_name)
-    else:
-        table = load_from_mysql(table_name)
+    tab_queue_io = load_from_local(tab_n_queue_io) if is_local else load_from_mysql(tab_n_queue_io)
+    tab_equipment_io = load_from_local(tab_n_equipment_io) if is_local else load_from_mysql(tab_n_equipment_io)
+
+    # need to filter out the port been closed
+    open_equipments = list(tab_equipment_io[tab_equipment_io.equipment_status == 1].equipment_port.unique())
+
+    tab_queue_io = tab_queue_io[
+        tab_queue_io.equipment_port_last.isin(open_equipments) & tab_queue_io.equipment_port_next.isin(open_equipments)
+    ]
 
     machine_dict = \
     {'LM': 'presort',
@@ -208,13 +214,13 @@ def get_pipelines(is_local: bool=False):
      'AS': 'secondary_sort',
      'MS': 'small_sort',}
 
-    table = table[['equipment_port_last', 'equipment_port_next', 'sorter_zone', 'process_time', 'queue_id']]
-    table['machine_type'] = table['sorter_zone'].apply(lambda x: x[:2]).replace(machine_dict)
+    tab_queue_io = tab_queue_io[['equipment_port_last', 'equipment_port_next', 'sorter_zone', 'process_time', 'queue_id']]
+    tab_queue_io['machine_type'] = tab_queue_io['sorter_zone'].apply(lambda x: x[:2]).replace(machine_dict)
 
-    ind_cross = table.equipment_port_next.str.startswith('e') | table.equipment_port_next.str.startswith('x')
-    table.loc[ind_cross, "machine_type"] = "cross"
+    ind_cross = tab_queue_io.equipment_port_next.str.startswith('e') | tab_queue_io.equipment_port_next.str.startswith('x')
+    tab_queue_io.loc[ind_cross, "machine_type"] = "cross"
 
-    return table
+    return tab_queue_io
 
 
 def get_queue_io(is_local: bool):
