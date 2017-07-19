@@ -61,13 +61,13 @@ class Unload:
         with self.resource.request() as req:
             yield req
             next_pipeline = package.next_pipeline
-
             package.start_serve()
             yield self.env.timeout(self.process_time)
             package.end_serve()
+            package.add_machine_id(self.machine_id)
             self.pipelines_dict[next_pipeline].put(package)
             self.packages_processed[process_idx].succeed()
-            self.package_records.append(package.package_record)
+            self.package_records.append(package.package_record.copy())
 
     def run(self):
 
@@ -97,6 +97,7 @@ class Unload:
                     plan_path = self.path_generator(package_start, dest_code, sorter_type, dest_type)
                 except Exception as exc:
                     print(exc)
+                    print(package_start, dest_code)
                     break # jump out of the loop
 
                 # init package
@@ -109,7 +110,7 @@ class Unload:
                 # package add data
                 package.start_wait()
                 # pop and mark
-                package.pop_mark(is_first=True)
+                package.pop_mark()
                 # need request resource for processing
                 self.packages_processed[process_idx] = self.env.event()
                 self.env.process(self.process_package(process_idx, package))
@@ -118,7 +119,7 @@ class Unload:
             yield self.env.all_of(self.packages_processed.values())
             # truck add data
             truck.end_serve()
-            self.truck_records.append(truck.truck_record)
+            self.truck_records.append(truck.truck_record.copy())
             # truck is out
             self.done_trucks.put(truck)
             # truck convert time
