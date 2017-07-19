@@ -176,6 +176,19 @@ def get_resource_limit(is_local: bool=False):
     return table
 
 
+def get_resource_equipment_dict(is_local: bool=False):
+    """返回资源和设备槽口的对应关系"""
+    table_name = "i_equipment_resource"
+    table = load_from_local(table_name) if is_local else load_from_mysql(table_name)
+
+    table_dict = dict()
+
+    for _, row in table.iterrows():
+        table_dict[row["equipment_port"]] = row["resource_id"]
+
+    return table_dict
+
+
 def get_pipelines(is_local: bool=False):
 
     """返回队列的表， 包含了每个队列对应的功能区域和传送时间"""
