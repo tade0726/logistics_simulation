@@ -27,6 +27,8 @@ class TruckController:
     def latency(self, come_time, item: Truck):
         """模拟货车到达时间"""
         yield self.env.timeout(come_time)
+        # truck start enter
+        item.start_wait()
         self.trucks.put(item)
 
     def controller(self):
@@ -36,9 +38,9 @@ class TruckController:
         trucks_dict = get_trucks()
 
         for (truck_id, come_time, truck_type), packages in trucks_dict:
-            truck = Truck(item_id=truck_id, come_time=come_time,
-                          packages=packages, truck_type=truck_type, )
-
+            truck = Truck(env=self.env, item_id=truck_id, come_time=come_time,
+                          packages=packages, truck_type=truck_type,
+                          )
             self.env.process(self.latency(come_time, truck))
 
 if  __name__ == '__main__':
