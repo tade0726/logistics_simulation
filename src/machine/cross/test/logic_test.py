@@ -31,7 +31,7 @@ class LogicTest(object):
         for pid in self.pipline_dic.values():
             for v in pid:
                 pip_line = self.config.TYPE_PIP_LINE
-                self.pipline.update({v: pip_line(self.env, 10, v)})
+                self.pipline.update({v: pip_line(self.env, 1, v)})
 
     def generator(self):
         """"""
