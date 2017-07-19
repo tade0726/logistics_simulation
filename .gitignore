@@ -1,4 +1,4 @@
-# Byte-compiled / optimized / DLL files
+﻿# Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
 *$py.class
@@ -113,7 +113,7 @@ log/
 *.pdf
 
 # 忽略本地测试模块
-test/
+# test/
 
 # 忽略xls
 data/path
