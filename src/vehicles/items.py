@@ -41,7 +41,7 @@ class Package:
         # record for package enter machine
         self.package_record = dict(package_id=item_id)
 
-    def add_machine_id(self, machine_id: tuple):
+    def add_machine_id(self, machine_id):
         self.package_record["machine_id"] = machine_id
 
     def start_wait(self):
@@ -53,7 +53,7 @@ class Package:
     def end_serve(self):
         self.package_record["end_serve"] = self.env.now
 
-    def pop_mark(self, is_first:bool=False):
+    def pop_mark(self):
         """返回下一个pipeline id: (now_loc, next_loc)， 删去第一个节点，记录当前的时间点"""
         if len(self.path) >= 2:
             now_loc, next_loc = self.path[0: 2]
@@ -66,7 +66,7 @@ class Package:
         pop_loc = self.path.pop(0)
         self.time_records.append((pop_loc, self.env.now))
         # 改变下一个 pipeline id
-        self.next_pipeline = now_loc if is_first else (now_loc, next_loc)
+        self.next_pipeline = now_loc, next_loc
 
     def __str__(self):
         display_dct = dict(self.attr)
@@ -154,11 +154,6 @@ class Pipeline:
         self.pipeline_id = pipeline_id
         self.queue_id = queue_id
         self.machine_type = machine_type
-        # 传送带上货物的计数
-        self.latency_counts = 0
-        self.latency_counts_time = []
-        # 机器等待区， 队列的计数
-        self.machine_waiting_counts_time = []
 
     def latency(self, item: Package):
         """模拟传送时间"""
