@@ -72,8 +72,7 @@ class Cross(object):
         获取输入队列功能单元
         """
         if self.input_pip_line:
-            if isinstance(self.input_pip_line, Pipeline):
-                self.env.process(self._get_packages(self.input_pip_line))
+            self.env.process(self._get_packages(self.input_pip_line))
         else:
             raise RuntimeError('Please Initial input pip line '
                                'Queue for Cross instance First!')
@@ -85,13 +84,14 @@ class Cross(object):
             packages = yield get_package_queue.get()
             # 判断取没取到货物
             if packages:
-                print(f"------->package {packages.item['package_id']}",
-                      'was push to next queue at', self.env.now)
-                self.env.process(self._put_packages_into_out_queue(packages))
+                self._put_packages_into_out_queue(packages)
 
     def _put_packages_into_out_queue(self, package):
         """
         """
-        if isinstance(package, Package):
+        if package:
             id_output_pip_line = package.next_pipeline
-            yield self.pipelines_dict[id_output_pip_line].put(package)
+            next_pip_line = self.pipelines_dict[id_output_pip_line]
+            next_pip_line.put(package)
+            print(f'package {package.item_id} was push into '
+                  f'{id_output_pip_line} at {self.env.now}')
