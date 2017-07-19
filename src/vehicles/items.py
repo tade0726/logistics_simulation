@@ -34,8 +34,6 @@ class Package:
         self.plan_path = path
         # for popping
         self.path = list(path)
-        # for time
-        self.time_records = []
         # next pipeline_id
         self.next_pipeline = ()
         # record for package enter machine
@@ -63,8 +61,7 @@ class Package:
         else:
             raise ValueError('The path have been empty!')
         # remove the now_loc
-        pop_loc = self.path.pop(0)
-        self.time_records.append((pop_loc, self.env.now))
+        self.path.pop(0)
         # 改变下一个 pipeline id
         self.next_pipeline = now_loc, next_loc
 
