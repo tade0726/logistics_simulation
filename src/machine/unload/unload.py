@@ -27,7 +27,7 @@ class Unload:
                  unload_setting_dict: dict,
                  reload_setting_dict: dict,
                  trucks_q: simpy.FilterStore,
-                 pipelines_dict: defaultdict,
+                 pipelines_dict: dict,
                  resource_dict: defaultdict,
                  equipment_resource_dict:dict,
                  path_generator: PathGenerator,
