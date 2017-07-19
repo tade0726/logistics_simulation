@@ -62,7 +62,7 @@ class Unload:
             yield req
             next_pipeline = package.next_pipeline
 
-            package.instert_data(
+            package.insert_data(
                 PackageRecord(
                     machine_id=self.machine_id,
                     package_id=package.item_id,
@@ -71,7 +71,7 @@ class Unload:
 
             yield self.env.timeout(self.process_time)
 
-            package.instert_data(
+            package.insert_data(
                 PackageRecord(
                     machine_id=self.machine_id,
                     package_id=package.item_id,
@@ -88,7 +88,7 @@ class Unload:
             # filter out the match truck(LL/LA/AL/AA)
             truck = yield self.trucks_q.get(lambda x: x.truck_type in self.truck_types)
 
-            truck.instert_data(
+            truck.insert_data(
                 TruckRecord(
                     machine_id=self.machine_id,
                     truck_id=truck.item_id,
@@ -123,7 +123,7 @@ class Unload:
                                   path=plan_path,
                                   )
 
-                package.instert_data(
+                package.insert_data(
                     PackageRecord(
                         machine_id=self.machine_id,
                         package_id=package.item_id,
@@ -141,7 +141,7 @@ class Unload:
             yield self.env.all_of(self.packages_processed.values())
 
             # insert data
-            truck.instert_data(
+            truck.insert_data(
                 TruckRecord(
                     machine_id=self.machine_id,
                     truck_id=truck.item_id,

@@ -29,7 +29,7 @@ class TruckController:
         """模拟货车到达时间"""
         yield self.env.timeout(come_time)
 
-        item.instert_data(
+        item.insert_data(
             TruckRecord(
                 machine_id="new",
                 truck_id=item.item_id,

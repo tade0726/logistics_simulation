@@ -43,7 +43,7 @@ class Package:
         self.machine_data = []
         self.pipeline_data = []
 
-    def instert_data(self, record: namedtuple):
+    def insert_data(self, record: namedtuple):
 
         if isinstance(record, PackageRecord):
             self.machine_data.append(record)
@@ -114,7 +114,7 @@ class Truck:
 
         self.truck_data = []
 
-    def instert_data(self, record: namedtuple):
+    def insert_data(self, record: namedtuple):
 
         if isinstance(record, TruckRecord):
             self.truck_data.append(record)
@@ -156,14 +156,14 @@ class Pipeline:
         item.pop_mark()
         # insert data
 
-        item.instert_data(
+        item.insert_data(
             PackageRecord(
                 machine_id=self.pipeline_id,
                 package_id=item.item_id,
                 time_stamp=self.env.now,
                 action="wait", ))
 
-        item.instert_data(
+        item.insert_data(
             PipelineRecord(
                 pipeline_id=self.pipeline_id,
                 package_id=item.item_id,
@@ -174,7 +174,7 @@ class Pipeline:
 
     def put(self, item: Package):
 
-        item.instert_data(
+        item.insert_data(
             PipelineRecord(
                 pipeline_id=self.pipeline_id,
                 package_id=item.item_id,
