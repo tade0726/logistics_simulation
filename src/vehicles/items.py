@@ -53,7 +53,7 @@ class Package:
     def end_serve(self):
         self.package_record["end_serve"] = self.env.now
 
-    def pop_mark(self):
+    def pop_mark(self, is_first:bool=False):
         """返回下一个pipeline id: (now_loc, next_loc)， 删去第一个节点，记录当前的时间点"""
         if len(self.path) >= 2:
             now_loc, next_loc = self.path[0: 2]
@@ -160,37 +160,14 @@ class Pipeline:
         # 机器等待区， 队列的计数
         self.machine_waiting_counts_time = []
 
-        # 加入计数器
-        # fixme: it is slow add time like this, find a better way to get the data
-        # self.env.process(self.get_counts())
-
-    def get_counts(self):
-        """计数器"""
-        while True:
-
-            latency_dict = dict(pipeline_id=self.pipeline_id,
-                                timestamp=self.env.now,
-                                counts=self.latency_counts)
-
-            wait_dict = dict(pipeline_id=self.pipeline_id,
-                             timestamp=self.env.now,
-                             counts=len(self.queue.items))
-
-            self.latency_counts_time.append(latency_dict)
-            self.machine_waiting_counts_time.append(wait_dict)
-
-            yield self.env.timeout(1)
-
     def latency(self, item: Package):
         """模拟传送时间"""
-        self.latency_counts += 1
         yield self.env.timeout(self.delay)
         # 加入数据点
         item.pop_mark()
         item.add_machine_id(machine_id=self.pipeline_id)
-        item.start_wait = self.env.now
+        item.start_wait()
         self.queue.put(item)
-        self.latency_counts -= 1
 
     def put(self, item: Package):
         self.env.process(self.latency(item))
