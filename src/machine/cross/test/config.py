@@ -13,11 +13,11 @@ class Config(object):
     RANDOM_SEED = 42
     # 机器树的层数
     NODE_LAYERS = 3
-    # package生成器配置信息
-    NUM_PACKAGES = 10   # 生成package数量/个
+    # 生成package数量/个
+    NUM_PACKAGES = 10
     # 包裹生成间隔
     INTERVAL_TIME = 1
-    # 包裹传送带类型：pipline 类/simpy.Store/simpy.PriorityStore
+    # 包裹传送带类型
     TYPE_PIP_LINE = Store
     ID_LAST_MACHINE = ['package_generator']
     # 测试机器id表
