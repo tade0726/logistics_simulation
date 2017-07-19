@@ -220,7 +220,11 @@ def get_pipelines(is_local: bool=False, is_filter: bool=True):
     tab_queue_io['machine_type'] = tab_queue_io['sorter_zone'].apply(lambda x: x[:2]).replace(machine_dict)
 
     ind_cross = tab_queue_io.equipment_port_next.str.startswith('e') | tab_queue_io.equipment_port_next.str.startswith('x')
+    ind_hospital = tab_queue_io.equipment_port_next.str.startswith('h')
+
     tab_queue_io.loc[ind_cross, "machine_type"] = "cross"
+    tab_queue_io.loc[ind_hospital, "machine_type"] = "hospital"
+
 
     return tab_queue_io
 
