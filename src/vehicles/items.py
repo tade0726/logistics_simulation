@@ -13,6 +13,7 @@ Uld class
 import simpy
 import pandas as pd
 
+
 __all__ = ["Package", "Truck", "Uld", "SmallBag", "SmallPackage", "Pipeline"]
 
 
@@ -36,20 +37,6 @@ class Package:
         self.path = list(path)
         # next pipeline_id
         self.next_pipeline = ()
-        # record for package enter machine
-        self.package_record = dict(package_id=item_id)
-
-    def add_machine_id(self, machine_id):
-        self.package_record["machine_id"] = machine_id
-
-    def start_wait(self):
-        self.package_record["start_wait"] = self.env.now
-
-    def start_serve(self):
-        self.package_record["start_serve"] = self.env.now
-
-    def end_serve(self):
-        self.package_record["end_serve"] = self.env.now
 
     def pop_mark(self):
         """返回下一个pipeline id: (now_loc, next_loc)， 删去第一个节点，记录当前的时间点"""
@@ -110,19 +97,6 @@ class Truck:
         self.store_size = len(self.store)
         self.truck_type = truck_type
         self.env = env
-        self.truck_record = dict(truck_id=item_id)
-
-    def add_machine_id(self, machine_id: tuple):
-        self.truck_record["machine_id"] = machine_id
-
-    def start_wait(self):
-        self.truck_record["start_wait"] = self.env.now
-
-    def start_serve(self):
-        self.truck_record["start_serve"] = self.env.now
-
-    def end_serve(self):
-        self.truck_record["end_serve"] = self.env.now
 
     def __str__(self):
         return f"<truck_id: {self.item_id}, come_time: {self.come_time}, store_size:{self.store_size}>"
