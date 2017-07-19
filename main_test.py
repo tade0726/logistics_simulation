@@ -61,7 +61,7 @@ path_generator = PathGenerator()
 
 # init unload machines
 machines = []
-# todo
+
 for machine_id, truck_types in unload_setting_dict.items():
     machines.append(Unload(env,
                            machine_id=machine_id,
@@ -77,6 +77,16 @@ for machine_id, truck_types in unload_setting_dict.items():
 # adding machine into processes
 for machine in machines:
     env.process(machine.run())
+
+presort_pipelines = [pipeline for _, pipeline in pipelines_dict.items() if pipeline.machine_type == "presort"]
+
+# todo
+def pipelines_checker(env, end_event: simpy.Event):
+
+    while True:
+        for pipeline in presort_pipelines:
+            package_counts += len(pipeline.queue.items)
+
 
 if __name__ == "__main__":
     import pandas as pd
