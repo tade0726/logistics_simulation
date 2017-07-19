@@ -34,13 +34,13 @@ class SecondarySort(object):
                  cart_num: int,
                  input_queue: simpy.PriorityStore,
                  output_queue):
+
         self.env = env
         self.machine_id = machine_id
         self.process_time = process_time
         self.cart_num = cart_num
 
         self.last_queue = input_queue
-
         self.next_queue = output_queue
 
         self.cart = simpy.Resource(self.env, self.cart_num)
@@ -57,13 +57,14 @@ class SecondarySort(object):
 
                 package.start_serve()
                 #pipeline功能：指引包裹
-                pipeline_id = package.pop_mark()
+                now_loc, next_loc = package.next_pipeline
 
                 yield self.env.timeout(self.process_time)
+                package.time_records.append((next_loc, self.env.now))
                 package.end_serve()
 
-                self.next_queue[pipeline_id].put(package)
-                
+                self.next_queue[next_loc].put(package)
+
     def run(self):
         while True:
             package = yield self.last_queue.get()
