@@ -31,7 +31,7 @@ from src.vehicles import Pipeline
 
 RANDOM_SEED = 42
 CART_NUM = 300
-MACHINE_ID = ["i2-1"]
+MACHINE_ID = ["i2_1"]
 DEST_NUM = 50
 DEST_ID = {}
 ALL_PACKAGES = {}
@@ -59,7 +59,7 @@ def generate_package(env, mid):
         yield env.timeout(interval)
         dest_id = random.choice(DEST_ID[mid])
         path = (mid, dest_id)
-        item = Package(env, attr=None, item_id=f'{mid}-{i+1}', path=path)
+        item = Package(env, attr=None, item_id=f'{mid}_{i+1}', path=path)
         item.next_pipeline = path
         item.pipeline_data.append((path[0], env.now))
         package_queue.put(item)
@@ -80,7 +80,7 @@ if __name__ == '__main__':
         OUTPUT_QUEUE_DICT[did] = simpy.Store(env)
 
     # 生成pipeline
-    pipelines_table = get_pipelines(is_filter=False)
+    pipelines_table = get_pipelines()
     pipelines_dict = dict()
     for _, row in pipelines_table.iterrows():
         machine_type = row['machine_type']
