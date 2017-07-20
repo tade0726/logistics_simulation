@@ -197,6 +197,7 @@ def get_pipelines(is_local: bool=False, ):
 
     tab_n_queue_io = "i_queue_io"
     tab_queue_io = load_from_local(tab_n_queue_io) if is_local else load_from_mysql(tab_n_queue_io)
+    line_count_ori = tab_queue_io.shape[0]
 
     machine_dict = \
     {'LM': 'presort',
@@ -215,7 +216,8 @@ def get_pipelines(is_local: bool=False, ):
     tab_queue_io.loc[ind_cross, "machine_type"] = "cross"
     tab_queue_io.loc[ind_hospital, "machine_type"] = "hospital"
 
-    assert tab_queue_io.shape[0] == tab_n_queue_io.shape[0]
+    line_count_last = tab_queue_io.shape[0]
+    assert line_count_ori == line_count_last
     return tab_queue_io
 
 
