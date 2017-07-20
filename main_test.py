@@ -15,7 +15,7 @@ from src.db import *
 from src.controllers import TruckController, PathGenerator
 from src.utils import PipelineRecord, TruckRecord, PackageRecord
 from src.vehicles import Pipeline, PipelineRes, BasePipeline
-from src.machine import Unload
+from src.machine import Unload, Presort
 
 # log settings
 import logging
@@ -75,6 +75,10 @@ for _, row in pipelines_table.iterrows():
 for pipeline_id in reload_c_list:
     pipelines_dict[pipeline_id] = BasePipeline(env, machine_type="reload")
 
+# prepare init machine dict
+machine_init_dict = defaultdict(list)
+for pipeline_id, pipeline in pipelines_dict.items():
+    machine_init_dict[pipeline.machine_type].append(pipeline_id)
 
 # init trucks controllers
 truck_controller = TruckController(env, trucks=trucks_queue)
@@ -84,23 +88,37 @@ truck_controller.controller()
 path_generator = PathGenerator()
 
 # init unload machines
-machines = []
+machines_dict = defaultdict(list)
 
 for machine_id, truck_types in unload_setting_dict.items():
-    machines.append(Unload(env,
-                           machine_id=machine_id,
-                           equipment_id=machine_id,
-                           unload_setting_dict=unload_setting_dict,
-                           reload_setting_dict=reload_setting_dict,
-                           trucks_q=trucks_queue,
-                           pipelines_dict=pipelines_dict,
-                           resource_dict=resource_dict,
-                           equipment_resource_dict=equipment_resource_dict,
-                           path_generator=path_generator))
+    machines_dict["unload"].append(
+        Unload(env,
+               machine_id=machine_id,
+               unload_setting_dict=unload_setting_dict,
+               reload_setting_dict=reload_setting_dict,
+               trucks_q=trucks_queue,
+               pipelines_dict=pipelines_dict,
+               resource_dict=resource_dict,
+               equipment_resource_dict=equipment_resource_dict,
+               path_generator=path_generator)
+    )
+
+# init presort machine
+for machine_id in machine_init_dict["presort"]:
+    machines_dict["presort"].append(
+        Presort(env,
+                machine_id=machine_id,
+                pipelines_dict=pipelines_dict,
+                resource_dict=resource_dict,
+                equipment_resource_dict=equipment_resource_dict,)
+    )
+
 
 # adding machine into processes
-for machine in machines:
-    env.process(machine.run())
+for machine_type, machines in machines_dict.items():
+    logging.info(msg=f"init {machine_type} machines")
+    for machine in machines:
+        env.process(machine.run())
 
 if __name__ == "__main__":
     import pandas as pd
@@ -114,8 +132,7 @@ if __name__ == "__main__":
     t_end = datetime.now()
     # checking data
     truck_data = []
-
-    for machine in machines:
+    for machine in machines_dict["unload"]:
         for truck in machine.done_trucks.items:
             truck_data.extend(truck.truck_data)
 
@@ -123,14 +140,10 @@ if __name__ == "__main__":
 
     print(f"total time: {total_time.total_seconds()} s")
 
-    presort_pipelines = list(
-        filter(lambda x: True if x.machine_type == "presort" else False, pipelines_dict.values())
-    )
-
     pipeline_data = []
     machine_data = []
 
-    for pipeline in presort_pipelines:
+    for pipeline in pipelines_dict.values():
         for package in pipeline.queue.items:
             pipeline_data.extend(package.pipeline_data)
             machine_data.extend(package.machine_data)
