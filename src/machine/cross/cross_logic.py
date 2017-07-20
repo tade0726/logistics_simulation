@@ -11,13 +11,14 @@ from src.machine.cross import Cross
 class CrossSimConfig(Config):
     # RANDOM_SEED = 57
     NUM_PACKAGES = 10
+    #
     INTERVAL_TIME = 0
+
     TYPE_PIP_LINE = Pipeline
     # ==========================测试机配置参数===================================
     # 本次杭州仿真模为一个入口队列一个机器
     # 测试机器ID列表
     ID_TEST_MACHINE = ['test1']
-    # 测试机机器id-资源id映射
     # 测试机资源字典
     TEST_MACHINE_RESOURCE_DIC = {'test1': {'resource': 0,
                                            'process_time': 0},
@@ -31,9 +32,20 @@ class CrossSimConfig(Config):
     PROCESS_TIME = None  # 如果测试机器没有处理货物延时，设置为None，否则设置为对应延时
 
 
+
+
+
+
+
+
+
+
+
+
+
+
 if __name__ == '__main__':
     env = Environment()
-    Pipeline(env=env, delay_time=0, pipeline_id=('id1', 'id2'))
     t1 = LogicTest(env, CrossSimConfig)
     t1.generator()
     env.process(t1.packages_generator())

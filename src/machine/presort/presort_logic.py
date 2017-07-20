@@ -6,6 +6,7 @@ from src.vehicles import Pipeline
 from src.machine.cross.test.logic_test import LogicTest
 from simpy import Environment
 from src.machine import Presort
+from datetime import datetime
 
 
 class SimConfig(Config):
@@ -16,16 +17,14 @@ class SimConfig(Config):
     # ==========================测试机配置参数===================================
     # 本次杭州仿真模为一个入口队列一个机器
     # 测试机器ID列表
-    ID_TEST_MACHINE = ['test1', 'test2']
-    # 测试机机器id-资源id映射
-    MACHINE_RESOURCE_MAP = {'test1': 'resource_test1',
-                            'test2': 'resource_test2'
-                            }
+    ID_TEST_MACHINE = ['test1', 'test2', 'test3']
     # 测试机资源字典
     TEST_MACHINE_RESOURCE_DIC = {'test1': {'resource': 2,
-                                                    'process_time': 10},
+                                           'process_time': 10},
                                  'test2': {'resource': 2,
-                                                    'process_time': 10}
+                                           'process_time': 10},
+                                 'test3': {'resource': 1,
+                                           'process_time': 10}
                                  }
     # 测试机器出端口id列表
     ID_NEXT_MACHINE = ['next_1']
@@ -36,8 +35,9 @@ class SimConfig(Config):
 
 
 if __name__ == '__main__':
+    t_begin = datetime.now()
+    print(t_begin)
     env = Environment()
-    Pipeline(env=env, delay_time=0, pipeline_id=('id1', 'id2'))
     t1 = LogicTest(env, SimConfig)
     t1.generator()
     env.process(t1.packages_generator())
@@ -53,3 +53,6 @@ if __name__ == '__main__':
         env.process(p1.run())
 
     env.run(until=100)
+    t_end = datetime.now()
+    print('End time:', t_end)
+    print('Total time:', t_end-t_begin)
