@@ -24,7 +24,6 @@ class Unload:
     def __init__(self,
                  env: simpy.Environment,
                  machine_id: str,
-                 equipment_id: str,
                  unload_setting_dict: dict,
                  reload_setting_dict: dict,
                  trucks_q: simpy.FilterStore,
@@ -36,7 +35,6 @@ class Unload:
 
         self.env = env
         self.machine_id = machine_id
-        self.equipment_id = equipment_id  # pipeline id last value, for other machines
         self.unload_setting_dict = unload_setting_dict
         self.reload_setting_dict = reload_setting_dict
         self.trucks_q = trucks_q
@@ -60,6 +58,7 @@ class Unload:
     def _set_machine_resource(self):
         """"""
         if self.equipment_resource_dict:
+            self.equipment_id = self.machine_id   # pipeline id last value, for other machines
             self.resource_id = self.equipment_resource_dict[self.equipment_id]
             self.resource = self.resource_dict[self.resource_id]['resource']
             self.process_time = self.resource_dict[self.resource_id]['process_time']

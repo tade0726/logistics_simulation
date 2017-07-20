@@ -34,8 +34,6 @@ class Presort(object):
     def __init__(self,
                  env,
                  machine_id,
-                 equipment_id,
-                 input_pip_line=None,
                  pipelines_dict=None,
                  resource_dict=None,
                  equipment_resource_dict=None):
@@ -44,8 +42,6 @@ class Presort(object):
         """
         self.env = env
         self.machine_id = machine_id
-        self.equipment_id = equipment_id
-        self.input_pip_line = input_pip_line
         # 队列字典
         self.pipelines_dict = pipelines_dict
         # 资源字典
@@ -58,10 +54,12 @@ class Presort(object):
     def _set_machine_resource(self):
         """"""
         if self.equipment_resource_dict:
+            self.equipment_id = self.machine_id[1]
             self.resource_id = self.equipment_resource_dict[self.equipment_id]
             self.resource = self.resource_dict[self.resource_id]['resource']
-            self.process_time = self.resource_dict[
-                self.resource_id]['process_time']
+            self.process_time = self.resource_dict[self.resource_id]['process_time']
+            self.input_pip_line = self.pipelines_dict[self.machine_id]
+
         else:
             raise RuntimeError('cross machine',
                                self.machine_id,
@@ -96,5 +94,4 @@ class Presort(object):
         while True:
             package = yield self.input_pip_line.get()
             # 有包裹就推送到资源模块
-            if package:
-                self.env.process(self.processing(package))
+            self.env.process(self.processing(package))
