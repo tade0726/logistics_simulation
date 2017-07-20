@@ -15,7 +15,7 @@ from src.db import *
 from src.controllers import TruckController, PathGenerator
 from src.utils import PipelineRecord, TruckRecord, PackageRecord
 from src.vehicles import Pipeline, PipelineRes, BasePipeline
-from src.machine import Unload, Presort
+from src.machine import Unload, Presort, Cross
 
 # log settings
 import logging
@@ -103,7 +103,7 @@ for machine_id, truck_types in unload_setting_dict.items():
                path_generator=path_generator)
     )
 
-# init presort machine
+# init presort machines
 for machine_id in machine_init_dict["presort"]:
     machines_dict["presort"].append(
         Presort(env,
@@ -111,6 +111,17 @@ for machine_id in machine_init_dict["presort"]:
                 pipelines_dict=pipelines_dict,
                 resource_dict=resource_dict,
                 equipment_resource_dict=equipment_resource_dict,)
+    )
+
+# init cross machines
+for machine_id in machine_init_dict["cross"]:
+    machines_dict["cross"].append(
+        Cross(
+            env,
+            machine_id=machine_id,
+            pipelines_dict=pipelines_dict,
+            resource_dict=resource_dict,
+            equipment_resource_dict=equipment_resource_dict,)
     )
 
 
