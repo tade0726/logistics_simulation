@@ -24,48 +24,23 @@
 
 import simpy
 from src.vehicles.items import Package
+from src.utils import PackageRecord
 
 
 class SecondarySort(object):
+
     def __init__(self,
                  env: simpy.Environment(),
-                 machine_id: str,
-                 process_time: float,
-                 cart_num: int,
-                 pipelines_dict: dict,
-                 input_queue: simpy.PriorityStore,
-                 output_queue):
+                 machine_id: tuple,
+                 pipelines_dict: dict,):
 
         self.env = env
         self.machine_id = machine_id
-        self.process_time = process_time
-        self.cart_num = cart_num
+        self.equipment_id = machine_id[0]
         self.pipelines_dict = pipelines_dict
-
-        self.last_queue = input_queue
-        self.next_queue = output_queue
-
-        self.cart = simpy.Resource(self.env, self.cart_num)
-
-        self.package_count = 0
-
-    def secondary_machine(self, package:Package):
-        """
-        终分拣逻辑
-        """
-        while True:
-            with self.cart.request() as req:
-                yield req
-                #pipeline功能：指引包裹
-                next_pipeline = package.next_pipeline
-
-                package.pop_mark()
-
-                yield self.env.timeout(self.process_time)
-
-                self.pipelines_dict[next_pipeline].put(package)
+        self.pipeline = self.pipelines_dict[self.machine_id]
 
     def run(self):
         while True:
-            package = yield self.last_queue.get()
-            self.env.process(self.secondary_machine(package))
+            package = yield self.pipeline.get()
+            self.pipeline.put(package)
