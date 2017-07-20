@@ -94,7 +94,7 @@ class SmallBag(Package):
 
     def __str__(self):
         display_dct = dict(self.attr)
-        return f"<SmallBag attr:{dict(display_dct)}, path: {self.plan_path}, store_size:{store_size}>"
+        return f"<SmallBag attr:{dict(display_dct)}, path: {self.plan_path}, store_size:{self.store_size}>"
 
 
 class Truck:
@@ -187,7 +187,7 @@ class Pipeline:
         return self.queue.get()
 
     def __str__(self):
-        return f"<Pipeline: {self.pipeline_id}, delay: {self.delay}, package_counts: {self.latency_counts}>"
+        return f"<Pipeline: {self.pipeline_id}, delay: {self.delay}>"
 
 if __name__ == '__main__':
     pass
