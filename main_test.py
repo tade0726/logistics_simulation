@@ -13,7 +13,6 @@ import simpy
 from datetime import datetime
 import os
 
-t_start = datetime.now()
 
 from src.db import *
 from src.controllers import TruckController, PathGenerator
@@ -22,10 +21,15 @@ from src.vehicles import Pipeline, PipelineRes, BasePipeline
 from src.machine import Unload, Presort, Cross, Hospital, SecondarySort
 
 
+import tracemalloc
 # log settings
 import logging
 logging.basicConfig(level=logging.INFO)
 
+t_start = datetime.now()
+
+# testting
+tracemalloc.start()
 
 # todo:
 # move init step into config.py
@@ -190,4 +194,13 @@ if __name__ == "__main__":
 
     t_end = datetime.now()
     total_time = t_end - t_start
-    print(f"total time: {total_time.total_seconds()} s")
+
+    logging.info(f"total time: {total_time.total_seconds()} s")
+
+    # showing memory cost
+    snapshot = tracemalloc.take_snapshot()
+    top_stats = snapshot.statistics('lineno')
+    n = 30
+    logging.info(f"[ Top {n} differences ]")
+    for stat in top_stats[:n]:
+        logging.info(stat)
