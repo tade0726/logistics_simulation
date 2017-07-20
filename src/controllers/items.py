@@ -34,7 +34,8 @@ class TruckController:
                 machine_id="new",
                 truck_id=item.item_id,
                 time_stamp=self.env.now,
-                action="wait", ))
+                action="wait",
+                store_size=item.store_size,))
 
         # truck start enter
         self.trucks.put(item)

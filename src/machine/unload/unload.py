@@ -105,7 +105,8 @@ class Unload:
                     machine_id=self.machine_id,
                     truck_id=truck.item_id,
                     time_stamp=self.env.now,
-                    action="start", ))
+                    action="start",
+                    store_size=truck.store_size))
 
             # init packages_processed empty
             self.packages_processed = dict()
@@ -155,7 +156,8 @@ class Unload:
                     machine_id=self.machine_id,
                     truck_id=truck.item_id,
                     time_stamp=self.env.now,
-                    action="end", ))
+                    action="end",
+                    store_size=truck.store_size))
 
             # truck is out
             self.done_trucks.put(truck)
