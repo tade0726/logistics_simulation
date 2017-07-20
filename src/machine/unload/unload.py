@@ -11,12 +11,12 @@ unload modules
 import simpy
 from collections import defaultdict
 from src.vehicles import Package
-import random
 from src.controllers import PathGenerator
 from src.utils import TruckRecord, PackageRecord
 
-TRUCK_CONVERT_TIME = 300
+import logging
 
+TRUCK_CONVERT_TIME = 300
 
 class Unload:
 
@@ -109,8 +109,8 @@ class Unload:
                 try:
                     plan_path = self.path_generator(package_start, dest_code, sorter_type, dest_type)
                 except Exception as exc:
-                    print(exc)
-                    print(package_start, dest_code)
+                    msg = f"error: {exc}, package_start: {package_start}, dest_code: {dest_code}"
+                    logging.error(msg)
                     break  # jump out of the loop
 
                 # init package

@@ -14,8 +14,12 @@ import simpy
 from src.db import *
 from src.controllers import TruckController, PathGenerator
 from src.utils import PipelineRecord, TruckRecord, PackageRecord
-from src.vehicles import Pipeline, PipelineRes
+from src.vehicles import Pipeline, PipelineRes, BasePipeline
 from src.machine import Unload
+
+# log settings
+import logging
+logging.basicConfig(level=logging.INFO)
 
 
 # todo:
@@ -69,7 +73,7 @@ for _, row in pipelines_table.iterrows():
                                                   queue_id,
                                                   machine_type)
 for pipeline_id in reload_c_list:
-    pipelines_dict[pipeline_id] = simpy.Store(env)
+    pipelines_dict[pipeline_id] = BasePipeline(env, machine_type="reload")
 
 
 # init trucks controllers

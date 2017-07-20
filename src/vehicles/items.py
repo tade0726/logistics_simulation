@@ -16,8 +16,9 @@ import pandas as pd
 from collections import namedtuple, defaultdict
 from src.utils import PackageRecord, PipelineRecord, TruckRecord
 
+import logging
 
-__all__ = ["Package", "Truck", "Uld", "SmallBag", "SmallPackage", "Pipeline", "PipelineRes"]
+__all__ = ["Package", "Truck", "Uld", "SmallBag", "SmallPackage", "Pipeline", "PipelineRes", "BasePipeline"]
 
 
 class Package:
@@ -45,9 +46,13 @@ class Package:
         self.pipeline_data = []
 
     def insert_data(self, record: namedtuple):
-
+        # print out data
         if isinstance(record, PackageRecord):
             self.machine_data.append(record)
+
+            logging.info(msg=f"Package: {record.package_id} , action: {record.action}"
+                             f", machine: {record.machine_id}, timestamp: {record.time_stamp}")
+
         elif isinstance(record, PipelineRecord):
             self.pipeline_data.append(record)
         else:
@@ -129,6 +134,20 @@ class Truck:
 class Uld(Truck):
     """航空箱"""
     pass
+
+
+class BasePipeline:
+
+    def __init__(self, env: simpy.Environment, machine_type: str):
+
+        self.machine_type = machine_type
+        self.queue = simpy.Store(env)
+
+    def get(self):
+        return self.queue.get()
+
+    def put(self, item):
+        self.queue.put(item)
 
 
 class Pipeline:

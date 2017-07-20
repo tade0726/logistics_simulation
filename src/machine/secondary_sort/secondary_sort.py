@@ -34,7 +34,7 @@ class SecondarySort(object):
 
         self.env = env
         self.machine_id = machine_id
-        self.equipment_id = machine_id[0]
+        self.equipment_id = machine_id[1]
         self.pipelines_dict = pipelines_dict
         self.last_pipeline = pipelines_dict[machine_id]
 
