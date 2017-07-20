@@ -32,6 +32,7 @@ class SecondarySort(object):
                  machine_id: str,
                  process_time: float,
                  cart_num: int,
+                 pipelines_dict: dict,
                  input_queue: simpy.PriorityStore,
                  output_queue):
 
@@ -39,6 +40,7 @@ class SecondarySort(object):
         self.machine_id = machine_id
         self.process_time = process_time
         self.cart_num = cart_num
+        self.pipelines_dict = pipelines_dict
 
         self.last_queue = input_queue
         self.next_queue = output_queue
@@ -54,16 +56,14 @@ class SecondarySort(object):
         while True:
             with self.cart.request() as req:
                 yield req
-
-                package.start_serve()
                 #pipeline功能：指引包裹
-                now_loc, next_loc = package.next_pipeline
+                next_pipeline = package.next_pipeline
+
+                package.pop_mark()
 
                 yield self.env.timeout(self.process_time)
-                package.time_records.append((next_loc, self.env.now))
-                package.end_serve()
 
-                self.next_queue[next_loc].put(package)
+                self.pipelines_dict[next_pipeline].put(package)
 
     def run(self):
         while True:
