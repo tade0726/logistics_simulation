@@ -165,12 +165,12 @@ if __name__ == "__main__":
 
     # checking data
     truck_data = []
+    pipeline_data = []
+    machine_data = []
+
     for machine in machines_dict["unload"]:
         for truck in machine.done_trucks.items:
             truck_data.extend(truck.truck_data)
-
-    pipeline_data = []
-    machine_data = []
 
     for pipeline in pipelines_dict.values():
         for package in pipeline.queue.items:
