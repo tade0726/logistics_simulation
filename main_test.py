@@ -14,7 +14,7 @@ import simpy
 from src.db import *
 from src.controllers import TruckController, PathGenerator
 from src.utils import PipelineRecord, TruckRecord, PackageRecord
-from src.vehicles import Pipeline
+from src.vehicles import Pipeline, PipelineRes
 from src.machine import Unload
 
 
@@ -24,23 +24,19 @@ from src.machine import Unload
 # simpy env init
 env = simpy.Environment()
 # raw data prepare
-pipelines_table = get_pipelines(is_filter=False)
+pipelines_table = get_pipelines()
 unload_setting_dict = get_unload_setting()
 reload_setting_dict = get_reload_setting()
 resource_table = get_resource_limit()
 equipment_resource_dict = get_resource_equipment_dict()
 
+## c_port list
+reload_c_list = list()
+for _, c_list in unload_setting_dict.items():
+    reload_c_list.extend(c_list)
+
 # init trucks queues
 trucks_queue = simpy.FilterStore(env)
-
-# init pipeline
-pipelines_dict = dict()
-for _, row in pipelines_table.iterrows():
-    machine_type = row['machine_type']
-    queue_id = row['queue_id']
-    delay_time = row['process_time']
-    pipeline_id = row['equipment_port_last'], row['equipment_port_next']
-    pipelines_dict[pipeline_id] = Pipeline(env, delay_time, pipeline_id, queue_id, machine_type)
 
 # init resource
 resource_dict = defaultdict(dict)
@@ -52,6 +48,29 @@ for _, row in resource_table.iterrows():
     if resource_limit:
         resource_dict[resource_id]["resource"] = simpy.Resource(env=env, capacity=resource_limit)
         resource_dict[resource_id]["process_time"] = process_time
+
+# init pipelines
+pipelines_dict = dict()
+for _, row in pipelines_table.iterrows():
+    pipeline_type = row["pipeline_type"]
+    machine_type = row['machine_type']
+    queue_id = row['queue_id']
+    delay_time = row['process_time']
+    pipeline_id = row['equipment_port_last'], row['equipment_port_next']
+
+    if pipeline_type == "pipeline":
+        pipelines_dict[pipeline_id] = Pipeline(env, delay_time, pipeline_id, queue_id, machine_type)
+    else:
+        pipelines_dict[pipeline_id] = PipelineRes(env,
+                                                  resource_dict,
+                                                  equipment_resource_dict,
+                                                  delay_time,
+                                                  pipeline_id,
+                                                  queue_id,
+                                                  machine_type)
+for pipeline_id in reload_c_list:
+    pipelines_dict[pipeline_id] = simpy.Store(env)
+
 
 # init trucks controllers
 truck_controller = TruckController(env, trucks=trucks_queue)
