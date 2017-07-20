@@ -83,7 +83,7 @@ class SmallBag(Package):
     # todo
     def __init__(self, env: simpy.Environment,
                  attr: pd.Series,
-                 item_id : str,
+                 item_id: str,
                  path: tuple,
                  small_packages: pd.DataFrame):
 
@@ -136,10 +136,10 @@ class Pipeline:
 
     def __init__(self,
                  env: simpy.Environment,
-                 delay_time: float=0,
-                 pipeline_id: tuple=None,
-                 queue_id: str=None,
-                 machine_type: str=None,
+                 delay_time: float,
+                 pipeline_id: tuple,
+                 queue_id: str,
+                 machine_type: str,
                  ):
 
         self.env = env
@@ -151,6 +151,15 @@ class Pipeline:
 
     def latency(self, item: Package):
         """模拟传送时间"""
+
+        item.insert_data(
+            PipelineRecord(
+                pipeline_id=self.pipeline_id,
+                package_id=item.item_id,
+                time_stamp=self.env.now,
+                action="start", ))
+
+
         yield self.env.timeout(self.delay)
         # cutting path
         item.pop_mark()
@@ -173,14 +182,6 @@ class Pipeline:
         self.queue.put(item)
 
     def put(self, item: Package):
-
-        item.insert_data(
-            PipelineRecord(
-                pipeline_id=self.pipeline_id,
-                package_id=item.item_id,
-                time_stamp=self.env.now,
-                action="start", ))
-
         self.env.process(self.latency(item))
 
     def get(self):
@@ -191,4 +192,3 @@ class Pipeline:
 
 if __name__ == '__main__':
     pass
-
