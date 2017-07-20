@@ -17,8 +17,7 @@ from collections import namedtuple, defaultdict
 from src.utils import PackageRecord, PipelineRecord, TruckRecord
 
 
-
-__all__ = ["Package", "Truck", "Uld", "SmallBag", "SmallPackage", "Pipeline"]
+__all__ = ["Package", "Truck", "Uld", "SmallBag", "SmallPackage", "Pipeline", "PipelineRes"]
 
 
 class Package:
@@ -199,7 +198,7 @@ class PipelineRes(Pipeline):
     def __init__(self,
                  env: simpy.Environment,
                  resource_dict: defaultdict,
-                 resource_equipment_dict: dict,
+                 equipment_resource_dict: dict,
                  delay_time: float,
                  pipeline_id: tuple,
                  queue_id: str,
@@ -213,7 +212,7 @@ class PipelineRes(Pipeline):
                                           machine_type,)
 
         self.equipment_port = self.pipeline_id[0]
-        self.resource_id = resource_equipment_dict[self.equipment_port]
+        self.resource_id = equipment_resource_dict[self.equipment_port]
         self.resource = resource_dict[self.resource_id]["resource"]
 
     def latency(self, item: Package):
@@ -239,7 +238,7 @@ class PipelineRes(Pipeline):
                     time_stamp=self.env.now,
                     action="start", ))
 
-            # pipline start server
+            # pipeline start server
             item.insert_data(
                 PipelineRecord(
                     pipeline_id=self.pipeline_id,
