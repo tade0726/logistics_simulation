@@ -131,7 +131,7 @@ def get_reload_setting(is_local: bool=False):
     返回字典形式：
         dest_code 和 reload port 类型的映射
     examples:
-        { （"571J"， "L" , "reload"): ["c1_1", ],  （"571K"， "L", "small_sort"): ["c2_3", "c2_5"] }
+        { （"571J"， "reload", ""L""): ["c1_1", ],  （"571K"， "small_sort", "L"): ["c2_3", "c2_5"] }
     """
 
     table_name = "i_reload_setting"
