@@ -38,9 +38,10 @@ class SecondarySort(object):
         self.machine_id = machine_id
         self.equipment_id = machine_id[0]
         self.pipelines_dict = pipelines_dict
-        self.pipeline = self.pipelines_dict[self.machine_id]
+        self.last_pipeline = pipelines_dict[machine_id]
 
     def run(self):
         while True:
-            package = yield self.pipeline.get()
-            self.pipeline.put(package)
+            package = yield self.last_pipeline.get()
+            next_pipeline = package.next_pipeline
+            self.pipelines_dict[next_pipeline].put(package)
