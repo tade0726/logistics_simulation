@@ -34,6 +34,8 @@ class MySQLConfig:
 class SaveConfig:
 
     DATA_DIR = join( split(split(split(realpath(__file__))[0])[0])[0], 'data')
+    OUT_DIR = join( split(split(split(realpath(__file__))[0])[0])[0], 'out')
+
     DATA_FILE = 'tables.csv'
     DATA_PATH = join(DATA_DIR, DATA_FILE)
 
