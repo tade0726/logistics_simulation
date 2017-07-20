@@ -94,8 +94,6 @@ class Unload:
                     time_stamp=self.env.now,
                     action="start", ))
 
-            print(f"truck {truck.item_id} start process at {self.env.now}")
-
             # init packages_processed empty
             self.packages_processed = dict()
 
@@ -129,7 +127,6 @@ class Unload:
                         time_stamp=truck.come_time,
                         action="wait", ))
 
-                print(f"package {package.item_id} unloaded..")
                 # pop and mark
                 package.pop_mark()
                 # need request resource for processing
