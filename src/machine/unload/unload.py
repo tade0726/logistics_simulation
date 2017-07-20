@@ -18,6 +18,7 @@ import logging
 
 TRUCK_CONVERT_TIME = 300
 
+
 class Unload:
 
     def __init__(self,
@@ -36,14 +37,12 @@ class Unload:
         self.env = env
         self.machine_id = machine_id
         self.equipment_id = equipment_id  # pipeline id last value, for other machines
-        self.truck_types = unload_setting_dict[equipment_id]
+        self.unload_setting_dict = unload_setting_dict
         self.reload_setting_dict = reload_setting_dict
         self.trucks_q = trucks_q
         self.pipelines_dict = pipelines_dict
-
-        self.resource_id = equipment_resource_dict[equipment_id]
-        self.resource = resource_dict[self.resource_id]['resource']
-        self.process_time = resource_dict[self.resource_id]['process_time']
+        self.resource_dict = resource_dict
+        self.equipment_resource_dict = equipment_resource_dict
 
         self.num_of_truck = 0
         self.packages_processed = dict()
@@ -55,6 +54,21 @@ class Unload:
         # data store
         self.truck_records = []
         self.package_records = []
+
+        self.resource_set = self._set_machine_resource()
+
+    def _set_machine_resource(self):
+        """"""
+        if self.equipment_resource_dict:
+            self.resource_id = self.equipment_resource_dict[self.equipment_id]
+            self.resource = self.resource_dict[self.resource_id]['resource']
+            self.process_time = self.resource_dict[self.resource_id]['process_time']
+            self.truck_types = self.unload_setting_dict[self.equipment_id]
+
+        else:
+            raise RuntimeError('cross machine',
+                               self.machine_id,
+                               'not initial equipment_resource_dict!')
 
     def process_package(self, process_idx, package: Package):
 
