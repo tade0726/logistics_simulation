@@ -6,5 +6,6 @@ from .secondary_sort import SecondarySort
 from .small_sort import SmallSort
 from .security import Security
 from .reload import Reload
-
-__all__ = ["Unload", "Presort", "SecondarySort", "SmallSort", "Security", "Reload",]
+from .hospital import Hospital
+__all__ = ["Unload", "Presort", "SecondarySort", "SmallSort", "Security",
+           "Reload","Hospital"]

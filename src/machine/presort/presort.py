@@ -31,73 +31,57 @@ class Presort(object):
     预分拣机器的仿真
     """
     def __init__(self,
-                 env: simpy.Environment,
-                 machine_id: str,
-                 process_time: float,
-                 worker_num: int,
-                 input_queue,
-                 output_queue_dict
-                 ):
+                 env,
+                 machine_id,
+                 equipment_id,
+                 input_pip_line=None,
+                 pipelines_dict=None,
+                 resource_dict=None,
+                 equipment_resource_dict=None):
         """
 
         """
         self.env = env
         self.machine_id = machine_id
-        self.process_time = process_time  # 处理时间
-        self.worker_num = worker_num  # 资源（工人）数量
+        self.equipment_id = equipment_id
+        self.input_pip_line = input_pip_line
+        # 队列字典
+        self.pipelines_dict = pipelines_dict
+        # 资源字典
+        self.resource_dict = resource_dict
+        # 机器资源id与机器id映射字典
+        self.equipment_resource_dict = equipment_resource_dict
+        # 初始化初分拣字典
+        self.resource_set = self._set_machine_resource()
 
-        # 入口队列
-        self.last_queue = input_queue
-
-        # 出口队列
-        self.next_queue = output_queue_dict
-
-        # 人力资源
-        self.workers = simpy.Resource(self.env, self.worker_num)
-
-        # 检查队列是否为空， TODO 为了跑测试程序，将第二行注释，正式程序需去掉注释
-        self.empty = self.env.event()
-        # self.env.process(self.empty_queue())
-
-        # 等待队列包裹数
-        self.package_counts = 0
-
-    def empty_queue(self):
-        """
-        实时判断，如果连接此机器的队列为空，则触发self.empty事件
-        """
-        while True:
-            if not self.package_counts:
-                self.empty.succeed()
-                self.empty = self.env.event()
-            yield self.env.timeout(100)
+    def _set_machine_resource(self):
+        """"""
+        if self.equipment_resource_dict:
+            self.resource_id = self.equipment_resource_dict[self.equipment_id]
+            self.resource = self.resource_dict[self.resource_id]['resource']
+            self.process_time = self.resource_dict[
+                self.resource_id]['process_time']
+        else:
+            raise RuntimeError('cross machine',
+                               self.machine_id,
+                               'not initial equipment_resource_dict!')
 
     def processing(self, package: Package):
         # 请求资源（工人)
-        with self.workers.request() as req:
+        with self.resource.request() as req:
             yield req
-            # 获取一件货物
-            # 获取当前位置、下一步位置，增加时间记录
-            now_loc, next_loc = package.next_pipeline
+            # 获取出口队列id
+            id_output_pip_line = package.next_pipeline
             # 增加处理时间
             yield self.env.timeout(self.process_time)
             # 放入下一步的传送带
-            self.next_queue[next_loc].put(package)
-            # 记录时间
-            package.time_records.append((next_loc, self.env.now))
-            # 计数等待处理的包裹
-            self.package_counts -= 1
-            print(
-                f'Package {package.item_id} arrive in {package.time_records[0][0]} at {package.time_records[0][1]}' +
-                f', processed at {package.time_records[1][1]}' +
-                f', wait {package.time_records[1][1] - package.time_records[0][1]}' +
-                f', next to {package.path[0]}'
-                f', {self.package_counts} packages waiting at {package.time_records[0][0]}.'
-            )
+            self.pipelines_dict[id_output_pip_line].put(package)
+            print(f'machine {self.machine_id} presort '
+                  f'package {package.item_id} End at {self.env.now}')
 
     def run(self):
         while True:
-            package = yield self.last_queue.get()
-            # 计数等待处理的包裹
-            self.package_counts += 1
-            self.env.process(self.processing(package))
+            package = yield self.input_pip_line.get()
+            # 有包裹就推送到资源模块
+            if package:
+                self.env.process(self.processing(package))

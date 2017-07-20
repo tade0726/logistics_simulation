@@ -5,10 +5,10 @@ from src.machine.cross.test.config import Config
 from src.vehicles import Pipeline
 from src.machine.cross.test.logic_test import LogicTest
 from simpy import Environment
-from src.machine.cross import Cross
+from src.machine import Hospital
 
 
-class CrossSimConfig(Config):
+class SimConfig(Config):
     # RANDOM_SEED = 57
     NUM_PACKAGES = 10
     INTERVAL_TIME = 0
@@ -16,13 +16,12 @@ class CrossSimConfig(Config):
     # ==========================测试机配置参数===================================
     # 本次杭州仿真模为一个入口队列一个机器
     # 测试机器ID列表
-    ID_TEST_MACHINE = ['test1']
-    # 测试机机器id-资源id映射
+    ID_TEST_MACHINE = ['test1', 'test2']
     # 测试机资源字典
-    TEST_MACHINE_RESOURCE_DIC = {'test1': {'resource': 0,
-                                           'process_time': 0},
-                                 'test2': {'resource': 0,
-                                           'process_time': 0}}
+    TEST_MACHINE_RESOURCE_DIC = {'test1': {'resource': 2,
+                                           'process_time': 10},
+                                 'test2': {'resource': 2,
+                                           'process_time': 10}}
     # 测试机器出端口id列表
     ID_NEXT_MACHINE = ['next_1']
     # 测试机器资源
@@ -34,17 +33,19 @@ class CrossSimConfig(Config):
 if __name__ == '__main__':
     env = Environment()
     Pipeline(env=env, delay_time=0, pipeline_id=('id1', 'id2'))
-    t1 = LogicTest(env, CrossSimConfig)
+    t1 = LogicTest(env, SimConfig)
     t1.generator()
     env.process(t1.packages_generator())
     for tid in t1.config.ID_TEST_MACHINE:
         input_pip_line = t1.get_input_pip_line(tid)
-        Cross(env=env,
-              machine_id=tid,
-              equipment_id=tid,
-              input_pip_line=input_pip_line,
-              pipelines_dict=t1.pipline,
-              resource_dict=t1.resource_dict,
-              equipment_resource_dict=t1.equipment_resource_dict)
+        h1 = Hospital(env=env,
+                      machine_id=tid,
+                      equipment_id=tid,
+                      input_pip_line=input_pip_line,
+                      pipelines_dict=t1.pipline,
+                      resource_dict=t1.resource_dict,
+                      equipment_resource_dict=t1.equipment_resource_dict)
+
+        env.process(h1.run())
 
     env.run(until=100)

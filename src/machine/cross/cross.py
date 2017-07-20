@@ -21,6 +21,7 @@
 """
 from src.vehicles.items import Pipeline
 from src.vehicles.items import Package
+from src.utils import PackageRecord
 
 
 class Cross(object):
@@ -44,7 +45,8 @@ class Cross(object):
                  equipment_id,
                  input_pip_line=None,
                  pipelines_dict=None,
-                 resource_dict=None):
+                 resource_dict=None,
+                 equipment_resource_dict=None):
         """
         init class self args:
         Args:
@@ -54,6 +56,7 @@ class Cross(object):
             input_pip_line: A simpy.PriorityStore which was put from
                             ahead machine.
             pipelines_dict: pip line 字典
+            equipment_resource_dict: 机器资源id映射字典
             resource_dict: 资源查询字典
         Raises:
             RuntimeError: An error occurred when input_dic
@@ -64,8 +67,22 @@ class Cross(object):
         self.equipment_id = equipment_id
         self.input_pip_line = input_pip_line
         self.pipelines_dict = pipelines_dict
+        self.equipment_resource_dict = equipment_resource_dict
         self.resource_dict = resource_dict
+        self.resource_set = self._set_machine_resource()
         self.process = self._get_package_queue()
+
+    def _set_machine_resource(self):
+        """"""
+        if self.equipment_resource_dict:
+            self.resource_id = self.equipment_resource_dict[self.equipment_id]
+            self.resource = self.resource_dict[self.resource_id]['resource']
+            self.process_time = self.resource_dict[
+                self.resource_id]['process_time']
+        else:
+            raise RuntimeError('cross machine',
+                               self.machine_id,
+                               'not initial equipment_resource_dict!')
 
     def _get_package_queue(self):
         """
@@ -85,15 +102,26 @@ class Cross(object):
             # 判断取没取到货物
             if package:
                 self._put_packages_into_out_queue(package)
-            else:
-                raise RuntimeError('Package is not Package class!')
 
     def _put_packages_into_out_queue(self, package):
         """
         """
         if isinstance(package, Package):
+            package.insert_data(
+                PackageRecord(
+                    machine_id=self.machine_id,
+                    package_id=package.item_id,
+                    time_stamp=self.env.now,
+                    action="start", ))
+            # cross队列中无延时输出
+            package.insert_data(
+                PackageRecord(
+                    machine_id=self.machine_id,
+                    package_id=package.item_id,
+                    time_stamp=self.env.now,
+                    action="end", ))
             id_output_pip_line = package.next_pipeline
-            next_pip_line = self.pipelines_dict[id_output_pip_line]
-            next_pip_line.put(package)
-            print(f'package {package.item_id} was push into '
-                  f'{id_output_pip_line} at {self.env.now}')
+            self.pipelines_dict[id_output_pip_line].put(package)
+        else:
+            raise ValueError(f'Machine {self.machine_id}'
+                             f'get not Package instance value!')
