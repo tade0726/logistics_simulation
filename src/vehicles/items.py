@@ -13,8 +13,10 @@ Uld class
 import simpy
 import pandas as pd
 
-from collections import namedtuple
+from collections import namedtuple, defaultdict
 from src.utils import PackageRecord, PipelineRecord, TruckRecord
+
+
 
 __all__ = ["Package", "Truck", "Uld", "SmallBag", "SmallPackage", "Pipeline"]
 
@@ -83,7 +85,7 @@ class SmallBag(Package):
     # todo
     def __init__(self, env: simpy.Environment,
                  attr: pd.Series,
-                 item_id : str,
+                 item_id: str,
                  path: tuple,
                  small_packages: pd.DataFrame):
 
@@ -94,7 +96,7 @@ class SmallBag(Package):
 
     def __str__(self):
         display_dct = dict(self.attr)
-        return f"<SmallBag attr:{dict(display_dct)}, path: {self.plan_path}, store_size:{store_size}>"
+        return f"<SmallBag attr:{dict(display_dct)}, path: {self.plan_path}, store_size:{self.store_size}>"
 
 
 class Truck:
@@ -136,10 +138,10 @@ class Pipeline:
 
     def __init__(self,
                  env: simpy.Environment,
-                 delay_time: float=0,
-                 pipeline_id: tuple=None,
-                 queue_id: str=None,
-                 machine_type: str=None,
+                 delay_time: float,
+                 pipeline_id: tuple,
+                 queue_id: str,
+                 machine_type: str,
                  ):
 
         self.env = env
@@ -151,18 +153,28 @@ class Pipeline:
 
     def latency(self, item: Package):
         """模拟传送时间"""
+
+        # pipeline start server
+        item.insert_data(
+            PipelineRecord(
+                pipeline_id=self.pipeline_id,
+                package_id=item.item_id,
+                time_stamp=self.env.now,
+                action="start", ))
+
         yield self.env.timeout(self.delay)
         # cutting path
         item.pop_mark()
-        # insert data
 
+        # package wait for next process
         item.insert_data(
             PackageRecord(
-                machine_id=self.pipeline_id,
+                machine_id=item.next_pipeline,
                 package_id=item.item_id,
                 time_stamp=self.env.now,
                 action="wait", ))
 
+        # pipeline end server
         item.insert_data(
             PipelineRecord(
                 pipeline_id=self.pipeline_id,
@@ -173,22 +185,99 @@ class Pipeline:
         self.queue.put(item)
 
     def put(self, item: Package):
-
-        item.insert_data(
-            PipelineRecord(
-                pipeline_id=self.pipeline_id,
-                package_id=item.item_id,
-                time_stamp=self.env.now,
-                action="start", ))
-
         self.env.process(self.latency(item))
 
     def get(self):
         return self.queue.get()
 
     def __str__(self):
-        return f"<Pipeline: {self.pipeline_id}, delay: {self.delay}, package_counts: {self.latency_counts}>"
+        return f"<Pipeline: {self.pipeline_id}, delay: {self.delay}>"
+
+
+class PipelineRes(Pipeline):
+
+    def __init__(self,
+                 env: simpy.Environment,
+                 resource_dict: defaultdict,
+                 resource_equipment_dict: dict,
+                 delay_time: float,
+                 pipeline_id: tuple,
+                 queue_id: str,
+                 machine_type: str,
+                 ):
+
+        super(PipelineRes, self).__init__(env,
+                                          delay_time,
+                                          pipeline_id,
+                                          queue_id,
+                                          machine_type,)
+
+        self.equipment_port = self.pipeline_id[0]
+        self.resource_id = resource_equipment_dict[self.equipment_port]
+        self.resource = resource_dict[self.resource_id]["resource"]
+
+    def latency(self, item: Package):
+
+        with self.resource.request() as req:
+            """模拟传送时间"""
+
+            # package wait for resource, next_pipeline is actually last pipeline, also the machine id of last process
+            item.insert_data(
+                PackageRecord(
+                    machine_id=item.next_pipeline,
+                    package_id=item.item_id,
+                    time_stamp=self.env.now,
+                    action="wait", ))
+
+            yield req
+
+            # package start for process, next_pipeline is actually last pipeline, also the machine id of last process
+            item.insert_data(
+                PackageRecord(
+                    machine_id=item.next_pipeline,
+                    package_id=item.item_id,
+                    time_stamp=self.env.now,
+                    action="start", ))
+
+            # pipline start server
+            item.insert_data(
+                PipelineRecord(
+                    pipeline_id=self.pipeline_id,
+                    package_id=item.item_id,
+                    time_stamp=self.env.now,
+                    action="start", ))
+
+            yield self.env.timeout(self.delay)
+
+            # package end for process, next_pipeline is actually last pipeline, also the machine id of last process
+            item.insert_data(
+                PackageRecord(
+                    machine_id=item.next_pipeline,
+                    package_id=item.item_id,
+                    time_stamp=self.env.now,
+                    action="end", ))
+
+            # cutting path, change item next_pipeline
+            item.pop_mark()
+
+            # package wait fo next process
+            item.insert_data(
+                PackageRecord(
+                    machine_id=item.next_pipeline,
+                    package_id=item.item_id,
+                    time_stamp=self.env.now,
+                    action="wait", ))
+
+            # pipeline end server
+            item.insert_data(
+                PipelineRecord(
+                    pipeline_id=self.pipeline_id,
+                    package_id=item.item_id,
+                    time_stamp=self.env.now,
+                    action="end", ))
+
+            self.queue.put(item)
+
 
 if __name__ == '__main__':
     pass
-

@@ -82,6 +82,7 @@ for machine in machines:
 if __name__ == "__main__":
     import pandas as pd
     from datetime import datetime
+    import os
 
     t_start = datetime.now()
 
@@ -115,6 +116,9 @@ if __name__ == "__main__":
     pipeline_table = pd.DataFrame.from_records(pipeline_data, columns=PipelineRecord._fields,)
     machine_table = pd.DataFrame.from_records(machine_data, columns=PackageRecord._fields,)
 
-    truck_table.to_csv(join(SaveConfig.DATA_DIR, "truck_table.csv"), index=0)
-    pipeline_table.to_csv(join(SaveConfig.DATA_DIR, "pipeline_table.csv"), index=0)
-    machine_table.to_csv(join(SaveConfig.DATA_DIR, "machine_table.csv"), index=0)
+    if not os.path.isdir(SaveConfig.OUT_DIR):
+        os.makedirs(SaveConfig.OUT_DIR)
+
+    truck_table.to_csv(join(SaveConfig.OUT_DIR, "truck_table.csv"), index=0)
+    pipeline_table.to_csv(join(SaveConfig.OUT_DIR, "pipeline_table.csv"), index=0)
+    machine_table.to_csv(join(SaveConfig.OUT_DIR, "machine_table.csv"), index=0)

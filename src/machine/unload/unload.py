@@ -78,7 +78,6 @@ class Unload:
                     time_stamp=self.env.now,
                     action="end",))
 
-
             self.pipelines_dict[next_pipeline].put(package)
             self.packages_processed[process_idx].succeed()
 
