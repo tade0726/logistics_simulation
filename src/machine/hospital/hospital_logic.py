@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 
+from datetime import datetime
 from src.machine.cross.test.config import Config
 from src.vehicles import Pipeline
 from src.machine.cross.test.logic_test import LogicTest
@@ -23,16 +24,19 @@ class SimConfig(Config):
                                  'test2': {'resource': 2,
                                            'process_time': 10}}
     # 测试机器出端口id列表
-    ID_NEXT_MACHINE = ['next_1']
+    ID_NEXT_MACHINE = ['next_1', 'next_2']
     # 测试机器资源
     TEST_MACHINE_RESOURCE = 0  # 如果测试机器内部无资源调用，设置为0，否则设置资源数(如人力)
     # 测试机单资源处理时延
     PROCESS_TIME = None  # 如果测试机器没有处理货物延时，设置为None，否则设置为对应延时
 
 
+
+
+
 if __name__ == '__main__':
+    t_begin = datetime.now()
     env = Environment()
-    Pipeline(env=env, delay_time=0, pipeline_id=('id1', 'id2'))
     t1 = LogicTest(env, SimConfig)
     t1.generator()
     env.process(t1.packages_generator())
@@ -49,3 +53,7 @@ if __name__ == '__main__':
         env.process(h1.run())
 
     env.run(until=100)
+    t_end = datetime.now()
+    print('Start Time:',t_begin)
+    print('End time:', t_end)
+    print('Total time:', (t_end - t_begin).seconds)

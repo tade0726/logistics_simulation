@@ -34,7 +34,7 @@ class LogicTest(object):
         for pid in self.pipline_dic.values():
             for v in pid:
                 pip_line = self.config.TYPE_PIP_LINE
-                self.pipline.update({v: pip_line(self.env, 1, v)})
+                self.pipline.update({v: pip_line(self.env, 0, v, v, 'L')})
 
     def _set_resource_capacity(self,
                                id_machine='test',
