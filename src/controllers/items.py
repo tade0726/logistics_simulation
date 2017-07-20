@@ -31,7 +31,7 @@ class TruckController:
 
         item.insert_data(
             TruckRecord(
-                machine_id="new",
+                equipment_id="truck",
                 truck_id=item.item_id,
                 time_stamp=self.env.now,
                 action="wait",

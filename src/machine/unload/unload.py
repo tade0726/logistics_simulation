@@ -77,7 +77,7 @@ class Unload:
 
             package.insert_data(
                 PackageRecord(
-                    machine_id=self.machine_id,
+                    equipment_id=self.equipment_id,
                     package_id=package.item_id,
                     time_stamp=self.env.now,
                     action="start",))
@@ -86,7 +86,7 @@ class Unload:
 
             package.insert_data(
                 PackageRecord(
-                    machine_id=self.machine_id,
+                    equipment_id=self.equipment_id,
                     package_id=package.item_id,
                     time_stamp=self.env.now,
                     action="end",))
@@ -102,7 +102,7 @@ class Unload:
 
             truck.insert_data(
                 TruckRecord(
-                    machine_id=self.machine_id,
+                    equipment_id=self.equipment_id,
                     truck_id=truck.item_id,
                     time_stamp=self.env.now,
                     action="start",
@@ -136,13 +136,11 @@ class Unload:
 
                 package.insert_data(
                     PackageRecord(
-                        machine_id=self.machine_id,
+                        equipment_id=self.equipment_id,
                         package_id=package.item_id,
                         time_stamp=truck.come_time,
                         action="wait", ))
 
-                # pop and mark
-                package.pop_mark()
                 # need request resource for processing
                 self.packages_processed[process_idx] = self.env.event()
                 self.env.process(self.process_package(process_idx, package))
@@ -153,7 +151,7 @@ class Unload:
             # insert data
             truck.insert_data(
                 TruckRecord(
-                    machine_id=self.machine_id,
+                    equipment_id=self.equipment_id,
                     truck_id=truck.item_id,
                     time_stamp=self.env.now,
                     action="end",

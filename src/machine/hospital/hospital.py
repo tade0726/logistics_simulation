@@ -35,8 +35,6 @@ class Hospital(object):
     def __init__(self,
                  env,
                  machine_id,
-                 equipment_id,
-                 input_pip_line=None,
                  pipelines_dict=None,
                  resource_dict=None,
                  equipment_resource_dict=None):
@@ -45,8 +43,6 @@ class Hospital(object):
         """
         self.env = env
         self.machine_id = machine_id
-        self.equipment_id = equipment_id
-        self.input_pip_line = input_pip_line
         # 队列字典
         self.pipelines_dict = pipelines_dict
         # 资源字典
@@ -59,10 +55,12 @@ class Hospital(object):
     def _set_machine_resource(self):
         """"""
         if self.equipment_resource_dict:
+            self.equipment_id = self.machine_id[1]
             self.resource_id = self.equipment_resource_dict[self.equipment_id]
             self.resource = self.resource_dict[self.resource_id]['resource']
-            self.process_time = self.resource_dict[
-                self.resource_id]['process_time']
+            self.process_time = self.resource_dict[self.resource_id]['process_time']
+            self.input_pip_line = self.pipelines_dict[self.machine_id]
+
         else:
             raise RuntimeError('cross machine',
                                self.machine_id,
@@ -76,7 +74,7 @@ class Hospital(object):
             id_output_pip_line = package.next_pipeline
             package.insert_data(
                 PackageRecord(
-                    machine_id=self.machine_id,
+                    equipment_id=self.equipment_id,
                     package_id=package.item_id,
                     time_stamp=self.env.now,
                     action="start", ))
@@ -84,7 +82,7 @@ class Hospital(object):
             yield self.env.timeout(self.process_time)
             package.insert_data(
                 PackageRecord(
-                    machine_id=self.machine_id,
+                    equipment_id=self.equipment_id,
                     package_id=package.item_id,
                     time_stamp=self.env.now,
                     action="end", ))

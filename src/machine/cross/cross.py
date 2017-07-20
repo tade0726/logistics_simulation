@@ -87,14 +87,14 @@ class Cross(object):
             # 记录机器开始处理货物信息
             package.insert_data(
                 PackageRecord(
-                    machine_id=self.machine_id,
+                    equipment_id=self.equipment_id,
                     package_id=package.item_id,
                     time_stamp=self.env.now,
                     action="start", ))
             # 记录机器结束处理货物信息
             package.insert_data(
                 PackageRecord(
-                    machine_id=self.machine_id,
+                    equipment_id=self.equipment_id,
                     package_id=package.item_id,
                     time_stamp=self.env.now,
                     action="end", ))

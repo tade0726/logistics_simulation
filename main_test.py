@@ -10,12 +10,17 @@ des:
 
 
 import simpy
+from datetime import datetime
+import os
+
+t_start = datetime.now()
 
 from src.db import *
 from src.controllers import TruckController, PathGenerator
 from src.utils import PipelineRecord, TruckRecord, PackageRecord
 from src.vehicles import Pipeline, PipelineRes, BasePipeline
-from src.machine import Unload, Presort, Cross
+from src.machine import Unload, Presort, Cross, Hospital, SecondarySort
+
 
 # log settings
 import logging
@@ -36,7 +41,7 @@ equipment_resource_dict = get_resource_equipment_dict()
 
 ## c_port list
 reload_c_list = list()
-for _, c_list in unload_setting_dict.items():
+for _, c_list in reload_setting_dict.items():
     reload_c_list.extend(c_list)
 
 # init trucks queues
@@ -124,32 +129,45 @@ for machine_id in machine_init_dict["cross"]:
             equipment_resource_dict=equipment_resource_dict,)
     )
 
+# init secondary_sort machines
+for machine_id in machine_init_dict["secondary_sort"]:
+    machines_dict["secondary_sort"].append(
+        SecondarySort(
+            env,
+            machine_id=machine_id,
+            pipelines_dict=pipelines_dict,)
+    )
 
-# adding machine into processes
+# init hosital machines
+for machine_id in machine_init_dict["hospital"]:
+    machines_dict["hospital"].append(
+        Hospital(
+            env,
+            machine_id=machine_id,
+            pipelines_dict=pipelines_dict,
+            resource_dict=resource_dict,
+            equipment_resource_dict=equipment_resource_dict,)
+    )
+
+
+# adding machines into processes
 for machine_type, machines in machines_dict.items():
     logging.info(msg=f"init {machine_type} machines")
     for machine in machines:
         env.process(machine.run())
 
 if __name__ == "__main__":
-    import pandas as pd
-    from datetime import datetime
-    import os
 
-    t_start = datetime.now()
+    import pandas as pd
 
     print("sim start..")
     env.run()
-    t_end = datetime.now()
+
     # checking data
     truck_data = []
     for machine in machines_dict["unload"]:
         for truck in machine.done_trucks.items:
             truck_data.extend(truck.truck_data)
-
-    total_time = t_end - t_start
-
-    print(f"total time: {total_time.total_seconds()} s")
 
     pipeline_data = []
     machine_data = []
@@ -169,3 +187,7 @@ if __name__ == "__main__":
     truck_table.to_csv(join(SaveConfig.OUT_DIR, "truck_table.csv"), index=0)
     pipeline_table.to_csv(join(SaveConfig.OUT_DIR, "pipeline_table.csv"), index=0)
     machine_table.to_csv(join(SaveConfig.OUT_DIR, "machine_table.csv"), index=0)
+
+    t_end = datetime.now()
+    total_time = t_end - t_start
+    print(f"total time: {total_time.total_seconds()} s")

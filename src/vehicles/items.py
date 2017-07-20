@@ -37,13 +37,13 @@ class Package:
         self.env = env
         # for record
         self.plan_path = path
+        # data store
+        self.machine_data = []
+        self.pipeline_data = []
         # for popping
         self.path = list(path)
         # next pipeline_id
-        self.next_pipeline = ()
-
-        self.machine_data = []
-        self.pipeline_data = []
+        self.next_pipeline = tuple(self.plan_path[:2])
 
     def insert_data(self, record: namedtuple):
         # print out data
@@ -51,7 +51,7 @@ class Package:
             self.machine_data.append(record)
 
             logging.info(msg=f"Package: {record.package_id} , action: {record.action}"
-                             f", machine: {record.machine_id}, timestamp: {record.time_stamp}")
+                             f", equipment: {record.equipment_id}, timestamp: {record.time_stamp}")
 
         elif isinstance(record, PipelineRecord):
             self.pipeline_data.append(record)
@@ -61,16 +61,15 @@ class Package:
     def pop_mark(self):
         """返回下一个pipeline id: (now_loc, next_loc)， 删去第一个节点，记录当前的时间点"""
         if len(self.path) >= 2:
-            now_loc, next_loc = self.path[0: 2]
+            self.next_pipeline = tuple(self.path[0: 2])
         # 当 package 去到 reload（终分拣）， 终分拣的队列 id 只有一个值
         elif len(self.path) == 1:
-            now_loc, next_loc = self.path[-1], None
+            self.next_pipeline= self.path[-1]
         else:
             raise ValueError('The path have been empty!')
         # remove the now_loc
         self.path.pop(0)
         # 改变下一个 pipeline id
-        self.next_pipeline = now_loc, next_loc
 
     def __str__(self):
         display_dct = dict(self.attr)
@@ -175,7 +174,7 @@ class Pipeline:
         # pipeline start server
         item.insert_data(
             PipelineRecord(
-                pipeline_id=self.pipeline_id,
+                queue_id=self.queue_id,
                 package_id=item.item_id,
                 time_stamp=self.env.now,
                 action="start", ))
@@ -187,7 +186,7 @@ class Pipeline:
         # package wait for next process
         item.insert_data(
             PackageRecord(
-                machine_id=item.next_pipeline,
+                equipment_id=item.next_pipeline[1],
                 package_id=item.item_id,
                 time_stamp=self.env.now,
                 action="wait", ))
@@ -195,7 +194,7 @@ class Pipeline:
         # pipeline end server
         item.insert_data(
             PipelineRecord(
-                pipeline_id=self.pipeline_id,
+                queue_id=self.queue_id,
                 package_id=item.item_id,
                 time_stamp=self.env.now,
                 action="end", ))
@@ -242,7 +241,7 @@ class PipelineRes(Pipeline):
             # package wait for resource, next_pipeline is actually last pipeline, also the machine id of last process
             item.insert_data(
                 PackageRecord(
-                    machine_id=item.next_pipeline,
+                    equipment_id=item.next_pipeline[0],
                     package_id=item.item_id,
                     time_stamp=self.env.now,
                     action="wait", ))
@@ -252,7 +251,7 @@ class PipelineRes(Pipeline):
             # package start for process, next_pipeline is actually last pipeline, also the machine id of last process
             item.insert_data(
                 PackageRecord(
-                    machine_id=item.next_pipeline,
+                    equipment_id=item.next_pipeline[0],
                     package_id=item.item_id,
                     time_stamp=self.env.now,
                     action="start", ))
@@ -260,7 +259,7 @@ class PipelineRes(Pipeline):
             # pipeline start server
             item.insert_data(
                 PipelineRecord(
-                    pipeline_id=self.pipeline_id,
+                    queue_id=self.queue_id,
                     package_id=item.item_id,
                     time_stamp=self.env.now,
                     action="start", ))
@@ -270,7 +269,7 @@ class PipelineRes(Pipeline):
             # package end for process, next_pipeline is actually last pipeline, also the machine id of last process
             item.insert_data(
                 PackageRecord(
-                    machine_id=item.next_pipeline,
+                    equipment_id=item.next_pipeline[0],
                     package_id=item.item_id,
                     time_stamp=self.env.now,
                     action="end", ))
@@ -281,7 +280,7 @@ class PipelineRes(Pipeline):
             # package wait fo next process
             item.insert_data(
                 PackageRecord(
-                    machine_id=item.next_pipeline,
+                    equipment_id=item.next_pipeline[1],
                     package_id=item.item_id,
                     time_stamp=self.env.now,
                     action="wait", ))
@@ -289,7 +288,7 @@ class PipelineRes(Pipeline):
             # pipeline end server
             item.insert_data(
                 PipelineRecord(
-                    pipeline_id=self.pipeline_id,
+                    queue_id=self.queue_id,
                     package_id=item.item_id,
                     time_stamp=self.env.now,
                     action="end", ))

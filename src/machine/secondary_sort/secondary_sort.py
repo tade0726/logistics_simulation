@@ -34,9 +34,12 @@ class SecondarySort(object):
 
         self.env = env
         self.machine_id = machine_id
-        self.equipment_id = machine_id[1]
         self.pipelines_dict = pipelines_dict
-        self.last_pipeline = pipelines_dict[machine_id]
+        self._setting()
+
+    def _setting(self):
+        self.equipment_id = self.machine_id[1]
+        self.last_pipeline = self.pipelines_dict[self.machine_id]
 
     def run(self):
         while True:
