@@ -23,8 +23,6 @@
 
 
 import simpy
-from src.vehicles.items import Package
-from src.utils import PackageRecord
 
 
 class SecondarySort(object):
