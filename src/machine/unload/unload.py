@@ -35,7 +35,7 @@ class Unload:
 
         self.env = env
         self.machine_id = machine_id
-        self.equipment_id = equipment_id # pipeline id last value, for other machines
+        self.equipment_id = equipment_id  # pipeline id last value, for other machines
         self.truck_types = unload_setting_dict[equipment_id]
         self.reload_setting_dict = reload_setting_dict
         self.trucks_q = trucks_q
