@@ -210,11 +210,18 @@ def get_pipelines(is_local: bool=False, ):
     tab_queue_io = tab_queue_io[['equipment_port_last', 'equipment_port_next', 'sorter_zone', 'process_time', 'queue_id']]
     tab_queue_io['machine_type'] = tab_queue_io['sorter_zone'].apply(lambda x: x[:2]).replace(machine_dict)
 
-    ind_cross = tab_queue_io.equipment_port_next.str.startswith('e') | tab_queue_io.equipment_port_next.str.startswith('x')
+    ind_cross = \
+        tab_queue_io.equipment_port_next.str.startswith('e') | tab_queue_io.equipment_port_next.str.startswith('x')
     ind_hospital = tab_queue_io.equipment_port_next.str.startswith('h')
+
+    ind_pipeline_res = \
+        tab_queue_io.equipment_port_next.str.startswith('e') | tab_queue_io.equipment_port_next.str.startswith('c')
 
     tab_queue_io.loc[ind_cross, "machine_type"] = "cross"
     tab_queue_io.loc[ind_hospital, "machine_type"] = "hospital"
+
+    tab_queue_io.loc[ind_pipeline_res, "pipeline_type"] = "pipeline_res"
+    tab_queue_io.loc[~ind_pipeline_res, "pipeline_type"] = "pipeline"
 
     line_count_last = tab_queue_io.shape[0]
     assert line_count_ori == line_count_last
