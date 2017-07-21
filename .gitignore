@@ -124,3 +124,6 @@ docs/
 
 # mac folder file
 .DS_Store
+
+# out data dor
+out/
