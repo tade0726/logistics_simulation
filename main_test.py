@@ -82,7 +82,7 @@ for _, row in pipelines_table.iterrows():
                                                   queue_id,
                                                   machine_type)
 for pipeline_id in reload_c_list:
-    pipelines_dict[pipeline_id] = BasePipeline(env, machine_type="reload")
+    pipelines_dict[pipeline_id] = BasePipeline(env, pipeline_id=pipeline_id, machine_type="reload")
 
 # prepare init machine dict
 machine_init_dict = defaultdict(list)

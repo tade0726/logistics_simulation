@@ -55,6 +55,10 @@ class Package:
 
         elif isinstance(record, PipelineRecord):
             self.pipeline_data.append(record)
+
+            logging.info(msg=f"Package: {record.package_id} , action: {record.action}"
+                             f", pipeline: {record.pipeline_id}, timestamp: {record.time_stamp}")
+
         else:
             raise ValueError("Wrong type of record")
 
@@ -64,7 +68,7 @@ class Package:
             self.next_pipeline = tuple(self.path[0: 2])
         # 当 package 去到 reload（终分拣）， 终分拣的队列 id 只有一个值
         elif len(self.path) == 1:
-            self.next_pipeline= self.path[-1]
+            self.next_pipeline = self.path[-1]
         else:
             raise ValueError('The path have been empty!')
         # remove the now_loc
@@ -137,8 +141,11 @@ class Uld(Truck):
 
 class BasePipeline:
 
-    def __init__(self, env: simpy.Environment, machine_type: str):
+    def __init__(self, env: simpy.Environment, pipeline_id: str, machine_type: str, ):
 
+        self.env = env
+        self.pipeline_id = pipeline_id
+        self.queue_id = pipeline_id
         self.machine_type = machine_type
         self.queue = simpy.Store(env)
 
@@ -146,6 +153,15 @@ class BasePipeline:
         return self.queue.get()
 
     def put(self, item):
+
+        item.insert_data(
+            PipelineRecord(
+                pipeline_id=self.pipeline_id,
+                queue_id=self.queue_id,
+                package_id=item.item_id,
+                time_stamp=self.env.now,
+                action="start", ))
+
         self.queue.put(item)
 
 
@@ -174,6 +190,7 @@ class Pipeline:
         # pipeline start server
         item.insert_data(
             PipelineRecord(
+                pipeline_id=self.pipeline_id,
                 queue_id=self.queue_id,
                 package_id=item.item_id,
                 time_stamp=self.env.now,
@@ -194,6 +211,7 @@ class Pipeline:
         # pipeline end server
         item.insert_data(
             PipelineRecord(
+                pipeline_id=self.pipeline_id,
                 queue_id=self.queue_id,
                 package_id=item.item_id,
                 time_stamp=self.env.now,
@@ -259,6 +277,7 @@ class PipelineRes(Pipeline):
             # pipeline start server
             item.insert_data(
                 PipelineRecord(
+                    pipeline_id=self.pipeline_id,
                     queue_id=self.queue_id,
                     package_id=item.item_id,
                     time_stamp=self.env.now,
@@ -288,6 +307,7 @@ class PipelineRes(Pipeline):
             # pipeline end server
             item.insert_data(
                 PipelineRecord(
+                    pipeline_id=self.pipeline_id,
                     queue_id=self.queue_id,
                     package_id=item.item_id,
                     time_stamp=self.env.now,
