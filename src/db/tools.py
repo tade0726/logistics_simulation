@@ -41,7 +41,7 @@ class SaveConfig:
 
 
 class TimeConfig:
-    ZERO_TIMESTAMP = datetime(2017, 6, 15, 22)
+    ZERO_TIMESTAMP = datetime(2017, 6, 15, 21)
 
 
 def load_from_local(table_name: str):
@@ -68,7 +68,7 @@ def get_trucks(is_test: bool=False, is_local: bool=False):
     else:
         table = load_from_mysql(table_name)
     if is_test:
-        table = table.head(1000)
+        table = table.head(100)
 
     # add path_type: LL/LA/AL/AA
     table['path_type'] = table['src_type'] + table['dest_type']
@@ -211,8 +211,11 @@ def get_pipelines(is_local: bool=False, ):
         tab_queue_io.equipment_port_next.str.startswith('e') | tab_queue_io.equipment_port_next.str.startswith('x')
     ind_hospital = tab_queue_io.equipment_port_next.str.startswith('h')
 
+    # i-i, i-c, i-e 当做是需要请求资源的传送带
     ind_pipeline_res = \
-        tab_queue_io.equipment_port_next.str.startswith('e') | tab_queue_io.equipment_port_next.str.startswith('c')
+        tab_queue_io.equipment_port_last.str.startswith('i') & \
+        (tab_queue_io.equipment_port_next.str.startswith('c') | tab_queue_io.equipment_port_next.str.startswith('i')\
+        | tab_queue_io.equipment_port_next.str.startswith('e'))
 
     tab_queue_io.loc[ind_cross, "machine_type"] = "cross"
     tab_queue_io.loc[ind_hospital, "machine_type"] = "hospital"

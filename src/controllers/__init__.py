@@ -1,4 +1,4 @@
 # -*- coding: utf-8 -*-
 
-from .items import *
 from .paths import *
+from .items import *

@@ -21,7 +21,7 @@
 
 ==================================================================================================================================================
 """
-__all__ = ["PathGenerator",'generate_all_paths' ]
+__all__ = ["PathGenerator", "generate_all_paths", ]
 
 import random
 import pickle

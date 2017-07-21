@@ -15,11 +15,10 @@ import os
 
 
 from src.db import *
-from src.controllers import TruckController, PathGenerator
+from src.controllers import TruckController
 from src.utils import PipelineRecord, TruckRecord, PackageRecord
 from src.vehicles import Pipeline, PipelineRes, BasePipeline
 from src.machine import Unload, Presort, Cross, Hospital, SecondarySort
-
 
 import tracemalloc
 # log settings
@@ -28,14 +27,14 @@ logging.basicConfig(level=logging.INFO)
 
 t_start = datetime.now()
 
-# testting
+# testing
 tracemalloc.start()
-
-# todo:
-# move init step into config.py
 
 # simpy env init
 env = simpy.Environment()
+
+logging.info(msg="loading config data")
+
 # raw data prepare
 pipelines_table = get_pipelines()
 unload_setting_dict = get_unload_setting()
@@ -43,7 +42,7 @@ reload_setting_dict = get_reload_setting()
 resource_table = get_resource_limit()
 equipment_resource_dict = get_resource_equipment_dict()
 
-## c_port list
+# c_port list
 reload_c_list = list()
 for _, c_list in reload_setting_dict.items():
     reload_c_list.extend(c_list)
@@ -84,17 +83,19 @@ for _, row in pipelines_table.iterrows():
 for pipeline_id in reload_c_list:
     pipelines_dict[pipeline_id] = BasePipeline(env, pipeline_id=pipeline_id, machine_type="reload")
 
+pipelines_dict["unload_error_packages"] = BasePipeline(env, pipeline_id="unload_error", machine_type="error")
+
 # prepare init machine dict
 machine_init_dict = defaultdict(list)
 for pipeline_id, pipeline in pipelines_dict.items():
     machine_init_dict[pipeline.machine_type].append(pipeline_id)
 
+
 # init trucks controllers
+logging.info(msg="loading package data")
+
 truck_controller = TruckController(env, trucks=trucks_queue)
 truck_controller.controller()
-
-# init path generator
-path_generator = PathGenerator()
 
 # init unload machines
 machines_dict = defaultdict(list)
@@ -108,8 +109,7 @@ for machine_id, truck_types in unload_setting_dict.items():
                trucks_q=trucks_queue,
                pipelines_dict=pipelines_dict,
                resource_dict=resource_dict,
-               equipment_resource_dict=equipment_resource_dict,
-               path_generator=path_generator)
+               equipment_resource_dict=equipment_resource_dict,)
     )
 
 # init presort machines
@@ -163,9 +163,14 @@ for machine_type, machines in machines_dict.items():
 if __name__ == "__main__":
 
     import pandas as pd
+    from datetime import timedelta
+    from src.db import TimeConfig
 
-    print("sim start..")
+    logging.info("sim start..")
     env.run()
+    logging.info("sim end..")
+
+    logging.info(msg="collecting data")
 
     # checking data
     truck_data = []
@@ -187,6 +192,20 @@ if __name__ == "__main__":
 
     if not os.path.isdir(SaveConfig.OUT_DIR):
         os.makedirs(SaveConfig.OUT_DIR)
+
+    # process data
+    logging.info(msg="processing data")
+
+    def add_real_time_col(table: pd.DataFrame):
+        table["real_time_stamp"] = table["time_stamp"].apply(lambda x: TimeConfig.ZERO_TIMESTAMP + timedelta(seconds=x))
+        return table
+
+    truck_table = add_real_time_col(truck_table)
+    pipeline_table = add_real_time_col(pipeline_table)
+    machine_table = add_real_time_col(machine_table)
+
+    # output data
+    logging.info(msg="output data")
 
     truck_table.to_csv(join(SaveConfig.OUT_DIR, "truck_table.csv"), index=0)
     pipeline_table.to_csv(join(SaveConfig.OUT_DIR, "pipeline_table.csv"), index=0)
