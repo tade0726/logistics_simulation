@@ -70,9 +70,6 @@ def get_trucks(is_test: bool=False, is_local: bool=False):
     if is_test:
         table = table.head(1000)
 
-    # only L to L
-    table = table[(table["dest_type"] == "L") & (table["src_type"] == "L")]
-
     # add path_type: LL/LA/AL/AA
     table['path_type'] = table['src_type'] + table['dest_type']
     # convert datetime to seconds
