@@ -157,10 +157,11 @@ class Uld(Truck):
 
 class BasePipeline:
 
-    def __init__(self, env: simpy.Environment, pipeline_id: str, machine_type: str, ):
+    def __init__(self, env: simpy.Environment, pipeline_id: str, equipment_id: str, machine_type: str, ):
 
         self.env = env
         self.pipeline_id = pipeline_id
+        self.equipment_id = equipment_id
         self.queue_id = pipeline_id
         self.machine_type = machine_type
         self.queue = simpy.Store(env)
@@ -177,6 +178,14 @@ class BasePipeline:
                 package_id=item.item_id,
                 time_stamp=self.env.now,
                 action="start", ))
+
+        # package wait
+        item.insert_data(
+            PackageRecord(
+                equipment_id=self.equipment_id,
+                package_id=item.item_id,
+                time_stamp=self.env.now,
+                action="wait", ))
 
         self.queue.put(item)
 
