@@ -42,7 +42,6 @@ class Cross(object):
     def __init__(self,
                  env,
                  machine_id,
-                 input_pip_line=None,
                  pipelines_dict=None,
                  resource_dict=None,
                  equipment_resource_dict=None):
