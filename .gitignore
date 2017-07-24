@@ -125,5 +125,5 @@ docs/
 # mac folder file
 .DS_Store
 
-# out dir
-out
+# out data dor
+out/*

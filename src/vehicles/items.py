@@ -179,14 +179,6 @@ class BasePipeline:
                 time_stamp=self.env.now,
                 action="start", ))
 
-        # package wait
-        item.insert_data(
-            PackageRecord(
-                equipment_id=self.equipment_id,
-                package_id=item.item_id,
-                time_stamp=self.env.now,
-                action="wait", ))
-
         self.queue.put(item)
 
 
