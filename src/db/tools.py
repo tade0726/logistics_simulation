@@ -56,21 +56,39 @@ def get_trucks(is_test: bool=False, is_local: bool=False):
 def get_ulds(is_test: bool=False, is_local: bool=False):
     """
     返回uld数据，字典形式：
+
+    parcel_dict:
         key 为 （货车编号， 到达时间，货车货物路径类型（LL／LA..））
         value 为 一个uld的 packages 数据表
-    """
-    table_name = "i_od_parcel_airside"
-    if is_local:
-        table = load_from_local(table_name)
-    else:
-        table = load_from_mysql(table_name)
-    if is_test:
-        table = table.head(1000)
-    # add path_type: LL/LA/AL/AA
-    table['path_type'] = table['origin_type'] + table['dest_type']
-    # 'plate_num' 是货车／飞机／的编号
-    return dict(list(table.groupby(['uld_num', 'arrive_time', 'path_type'])))
 
+    small_dict:
+        key 为 parcel_id
+        value 为 一个small_bag的 packages 数据表
+    """
+    table_parcel_n = "i_od_parcel_airside"
+    table_small_n = "i_od_small_airside"
+
+    if is_local:
+        table_parcel = load_from_local(table_parcel_n)
+        table_small = load_from_local(table_small_n)
+    else:
+        table_parcel = load_from_mysql(table_parcel_n)
+        table_small = load_from_mysql(table_small_n)
+    if is_test:
+        table_parcel = table_parcel.head(1000)
+        table_small = table_small.head(1000)
+
+    # add path_type: LL/LA/AL/AA
+    table_parcel['path_type'] = table_parcel['src_type'] + table_parcel['dest_type']
+
+    # fixme: using parcel_id as uld_num, cos lack of uld_num
+    table_parcel["uld_num"] = table_parcel["parcel_id"]
+    table_small["uld_num"] = table_small["parcel_id"]
+
+    # 'plate_num' 是货车／飞机／的编号
+    parcel_dict = dict(list(table_parcel.groupby(['uld_num', 'arrive_time', 'path_type'])))
+    small_dict = dict(list(table_small.groupby(['parcel_id'])))
+    return parcel_dict, small_dict
 
 def get_unload_setting(is_local: bool=False):
     """
@@ -232,5 +250,6 @@ if __name__ == 0:
             print(key, val)
 
 if __name__ == "__main__":
-    test = get_pipelines()
-    print(test.head())
+    test1, test2 = get_ulds(is_test=True)
+    print(test1)
+    print(test2)
