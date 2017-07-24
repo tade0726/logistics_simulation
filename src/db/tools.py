@@ -220,6 +220,14 @@ def get_queue_io(is_local: bool):
     return io_list
 
 
+# todo
+def get_parameters(is_local: bool):
+
+    """返回参数表"""
+
+    pass
+
+
 if __name__ == 0:
 
     # test1 = get_unload_setting(is_local=True)
