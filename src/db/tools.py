@@ -12,36 +12,8 @@ data will be store into dictionary
 """
 
 import pandas as pd
-from sqlalchemy import create_engine
-from os.path import realpath, join, split
+from os.path import join
 from collections import defaultdict
-from datetime import datetime
-
-
-class MySQLConfig:
-
-    HOST = "10.0.149.36"
-    USER = "developer"
-    PASS = "developer"
-    DB = "hangzhouhubqa"
-    CHARSET = 'utf8'
-
-    engine = create_engine(
-        f'mysql+pymysql://{USER}:{PASS}@{HOST}/{DB}?charset={CHARSET}',
-        isolation_level="READ UNCOMMITTED", )
-
-
-class SaveConfig:
-
-    DATA_DIR = join( split(split(split(realpath(__file__))[0])[0])[0], 'data')
-    OUT_DIR = join( split(split(split(realpath(__file__))[0])[0])[0], 'out')
-
-    DATA_FILE = 'tables.csv'
-    DATA_PATH = join(DATA_DIR, DATA_FILE)
-
-
-class TimeConfig:
-    ZERO_TIMESTAMP = datetime(2017, 6, 15, 21)
 
 
 def load_from_local(table_name: str):
