@@ -14,6 +14,7 @@ data will be store into dictionary
 import pandas as pd
 from os.path import join
 from collections import defaultdict
+from src.config import *
 
 
 def load_from_local(table_name: str):
