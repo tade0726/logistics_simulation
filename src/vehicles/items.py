@@ -113,10 +113,10 @@ class SmallBag(Package):
 
         # 存储小件包裹
         self.store = small_packages
-        assert self._all_is_small_packages(), "SmallBag store SmallPackage only !!"
+        assert self._all_are_small_packages(), "SmallBag store SmallPackage only !!"
         self.store_size = len(self.store)
 
-    def _all_is_small_packages(self):
+    def _all_are_small_packages(self):
         packages_bool = [isinstance(small_package, SmallPackage) for small_package in self.store]
         return all(packages_bool)
 
@@ -136,13 +136,13 @@ class Truck:
         self.item_id = item_id
         self.come_time = come_time
         self.store = packages
-        assert self._all_is_packages(), "Truck store Package only !!"
+        assert self._all_are_packages(), "Truck store Package only !!"
         self.store_size = len(self.store)
         self.truck_type = truck_type
         self.env = env
         self.truck_data = []
 
-    def _all_is_packages(self):
+    def _all_are_packages(self):
         packages_bool = [isinstance(package, Package) for package in self.store]
         return all(packages_bool)
 
