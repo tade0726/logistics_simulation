@@ -19,8 +19,6 @@
                                                       3、每个入口\出口无服务受限；
 =====================================================================================================
 """
-from src.vehicles.items import Pipeline
-from src.vehicles.items import Package
 from src.utils import PackageRecord
 
 
@@ -50,12 +48,9 @@ class Cross(object):
         Args:
             env: A simpy.Environment instance.
             machine_id: Cross machine id.
-            equipment_id: 预留参数
-            input_pip_line: A simpy.PriorityStore which was put from
-                            ahead machine.
             pipelines_dict: pip line 字典
-            equipment_resource_dict: 机器资源id映射字典
             resource_dict: 资源查询字典
+            equipment_resource_dict: 机器资源id映射字典
         Raises:
             RuntimeError: An error occurred when input_dic
             not initialized before.
