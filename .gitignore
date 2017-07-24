@@ -1,4 +1,4 @@
-# Byte-compiled / optimized / DLL files
+﻿# Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
 *$py.class
@@ -113,9 +113,19 @@ log/
 *.pdf
 
 # 忽略本地测试模块
-test/
+# test/
 
 # 忽略xls
-*.xlsx
+data/path
+#data/*.csv
+data/*.txt
+docs/
 *.txt
 data/
+
+
+# mac folder file
+.DS_Store
+
+# out data dor
+out/*

@@ -7,29 +7,30 @@
                                     项目启动日期：2017年7月6日
                                     项目启动标识：AIRPORT OF EZHOU'S PROJECT  -- HZ
                                     ===========================================
-                                    代码创建日期：2017年7月6日
-                                    代码创建工程师：谈和，元方
+                                    代码创建日期：2017年7月13日
+                                    代码创建工程师：谈和
                                     代码版本：1.0
                                     版本更新日期：2017年7月20日
-                                    版本更新工程师：元方，卢健，赵鹏
+                                    版本更新工程师：谈和, 卢健, 赵鹏
 
-                                    代码整体功能描述：预分拣模块，
-                                                      1、完成预分拣模块的货物处理逻辑；
+                                    代码整体功能描述：医院区处理模块，处理逻辑；
+                                                    处理逻辑：从前一个队列（last_queue)取出货物，
+                                                    加上处理时间，
+                                                    然后放置到下一个队列(next_queue)；
 
 
 
 ==================================================================================================================================================
 """
 
-
 import simpy
 from src.vehicles.items import Package
 from src.utils import PackageRecord
 
 
-class Presort(object):
+class Hospital(object):
     """
-    预分拣机器的仿真
+    医院区机器的仿真
     """
     def __init__(self,
                  env,
@@ -71,7 +72,6 @@ class Presort(object):
             yield req
             # 获取出口队列id
             id_output_pip_line = package.next_pipeline
-            # 记录机器开始处理货物信息
             package.insert_data(
                 PackageRecord(
                     equipment_id=self.equipment_id,
@@ -80,7 +80,6 @@ class Presort(object):
                     action="start", ))
             # 增加处理时间
             yield self.env.timeout(self.process_time)
-            # 记录机器结束处理货物信息
             package.insert_data(
                 PackageRecord(
                     equipment_id=self.equipment_id,
@@ -94,4 +93,5 @@ class Presort(object):
         while True:
             package = yield self.input_pip_line.get()
             # 有包裹就推送到资源模块
-            self.env.process(self.processing(package))
+            if package:
+                self.env.process(self.processing(package))

@@ -9,6 +9,8 @@ des:
 
 """
 
+# fixme @ted: the whole data layer is still changing, please igonre the function below
+
 import pandas as pd
 from os.path import realpath, join, split
 from sqlalchemy import create_engine
@@ -85,6 +87,7 @@ def get_trucks(istest:bool = True):
     return truck_dict
 
 
+# 测试
 if __name__  == "__main__":
     # load_from_mysql(save=True)
     # print(SaveConfig.DATA_DIR)

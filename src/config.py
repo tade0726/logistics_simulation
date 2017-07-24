@@ -1,21 +1,10 @@
-class MySQLConfig:
-    HOST = ""
-    USER = ""
-    PASS = ""
-    DB = ""
+# -*- coding: utf-8 -*-
 
+"""
+Author: Ted
+Date: 2017-07-13
 
+Des:
+    generate pipelines / resources / parameters / Trucks / Uld
 
-config_unload = dict(
-    a='',
-    b='',
-    c='',
-)
-
-
-
-io_rules_between = {}
-io_rules_inside = {}
-machine_io = {}
-queues = {}
-queues_time = {}
+"""
