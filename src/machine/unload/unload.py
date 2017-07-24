@@ -15,7 +15,8 @@ from src.utils import TruckRecord, PackageRecord
 
 import logging
 
-TRUCK_CONVERT_TIME = 300
+# todo: using data from get_parameters
+TRUCK_CONVERT_TIME = 90
 
 
 class Unload:
