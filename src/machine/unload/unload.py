@@ -11,7 +11,6 @@ unload modules
 import simpy
 from collections import defaultdict
 from src.vehicles import Package
-from src.controllers import PathGenerator
 from src.utils import TruckRecord, PackageRecord
 
 import logging
@@ -30,7 +29,6 @@ class Unload:
                  pipelines_dict: dict,
                  resource_dict: defaultdict,
                  equipment_resource_dict: dict,
-                 path_generator: PathGenerator,
                  ):
 
         self.env = env
@@ -45,10 +43,6 @@ class Unload:
         self.num_of_truck = 0
         self.packages_processed = dict()
         self.done_trucks = simpy.Store(env)
-
-        # path generator
-        self.path_generator = path_generator.path_generator
-
         # data store
         self.truck_records = []
         self.package_records = []
@@ -73,7 +67,6 @@ class Unload:
 
         with self.resource.request() as req:
             yield req
-            next_pipeline = package.next_pipeline
 
             package.insert_data(
                 PackageRecord(
@@ -91,7 +84,15 @@ class Unload:
                     time_stamp=self.env.now,
                     action="end",))
 
-            self.pipelines_dict[next_pipeline].put(package)
+            # error package store in
+            try:
+                package.set_path(package_start=self.machine_id)
+                self.pipelines_dict[package.next_pipeline].put(package)
+            except Exception as exc:
+                msg = f"error: {exc}, package: {package}"
+                logging.error(msg)
+                self.pipelines_dict["unload_error_packages"].put(package)
+
             self.packages_processed[process_idx].succeed()
 
     def run(self):
@@ -111,29 +112,9 @@ class Unload:
             # init packages_processed empty
             self.packages_processed = dict()
 
-            for process_idx, package_record in truck.store.iterrows():
+            for process_idx, package in enumerate(truck.store):
 
-                package_start = self.machine_id
-                # building key
-                dest_code = package_record["dest_zone_code"]
-                dest_type = package_record["dest_type"]
-                parcel_type = package_record["parcel_type"]
-                sorter_type = "reload" if parcel_type == "parcel" else "small_sort"
-
-                try:
-                    plan_path = self.path_generator(package_start, dest_code, sorter_type, dest_type)
-                except Exception as exc:
-                    msg = f"error: {exc}, package_start: {package_start}, dest_code: {dest_code}"
-                    logging.error(msg)
-                    break  # jump out of the loop
-
-                # init package
-                package = Package(env=self.env,
-                                  item_id=package_record["parcel_id"],
-                                  attr=package_record,
-                                  path=plan_path,
-                                  )
-
+                # add package wait data
                 package.insert_data(
                     PackageRecord(
                         equipment_id=self.equipment_id,

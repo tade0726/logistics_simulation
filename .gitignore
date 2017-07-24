@@ -126,4 +126,4 @@ docs/
 .DS_Store
 
 # out data dor
-out/
+out/*

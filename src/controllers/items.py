@@ -10,9 +10,10 @@
 """
 import simpy
 
-from src.vehicles import Truck
+from src.vehicles import Truck, Package
 from src.utils import TruckRecord
 from src.db import get_trucks
+import logging
 
 
 __all__ = ["TruckController", ]
@@ -40,19 +41,29 @@ class TruckController:
         # truck start enter
         self.trucks.put(item)
 
-    def controller(self):
+    def controller(self, is_test: bool=False):
         """
-        des: 使用 FilterStore 特定的车辆筛选进不同的 r 入口
         """
-        trucks_dict = get_trucks()
 
-        for keys, packages in trucks_dict.items():
+        trucks_dict = get_trucks(is_test=is_test)
+
+        for keys, packages_record in trucks_dict.items():
             (truck_id, come_time, truck_type) = keys
+
+            packages = list()
+
+            for _, package_record in packages_record.iterrows():
+                # init package
+                package = Package(env=self.env,
+                                  attr=package_record,
+                                  )
+
+                packages.append(package)
+
             truck = Truck(env=self.env, item_id=truck_id, come_time=come_time,
                           packages=packages, truck_type=truck_type,
                           )
             self.env.process(self.latency(come_time, truck))
-
 
 if __name__ == '__main__':
     pass

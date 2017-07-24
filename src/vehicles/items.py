@@ -15,65 +15,85 @@ import pandas as pd
 
 from collections import namedtuple, defaultdict
 from src.utils import PackageRecord, PipelineRecord, TruckRecord
-
+from src.controllers import PathGenerator
 import logging
 
 __all__ = ["Package", "Truck", "Uld", "SmallBag", "SmallPackage", "Pipeline", "PipelineRes", "BasePipeline"]
+
+# init path generator
+path_generator = PathGenerator()
 
 
 class Package:
     """包裹"""
     def __init__(self,
                  env: simpy.Environment,
-                 attr: pd.Series,
-                 item_id : str,
-                 path: tuple, ):
+                 attr: pd.Series,):
 
         # 包裹的所有信息都在 attr
         self.attr = attr
         # id
-        self.item_id = item_id
+        self.item_id = self.attr["parcel_id"]
         # env
         self.env = env
-        # for record
-        self.plan_path = path
         # data store
         self.machine_data = []
         self.pipeline_data = []
-        # for popping
-        self.path = list(path)
+        # path_generator
+        self.path_generator = path_generator.path_generator
+        # paths
+        self.planned_path = None
+        self.path = None
         # next pipeline_id
-        self.next_pipeline = tuple(self.plan_path[:2])
+        self.next_pipeline = None
+
+    # use in unload machine
+    def set_path(self, package_start):
+
+        dest_code = self.attr["dest_zone_code"]
+        dest_type = self.attr["dest_type"]
+        parcel_type = self.attr["parcel_type"]
+        sorter_type = "reload" if parcel_type == "parcel" else "small_sort"
+
+        path = path_generator.path_generator(package_start, dest_code, sorter_type, dest_type)
+
+        self.planned_path = tuple(path)
+        self.path = list(self.planned_path)
+        self.next_pipeline = self.planned_path[:2]
 
     def insert_data(self, record: namedtuple):
         # print out data
         if isinstance(record, PackageRecord):
             self.machine_data.append(record)
 
-            logging.info(msg=f"Package: {record.package_id} , action: {record.action}"
+            logging.debug(msg=f"Package: {record.package_id} , action: {record.action}"
                              f", equipment: {record.equipment_id}, timestamp: {record.time_stamp}")
 
         elif isinstance(record, PipelineRecord):
             self.pipeline_data.append(record)
+
+            logging.debug(msg=f"Package: {record.package_id} , action: {record.action}"
+                              f", pipeline: {record.pipeline_id}, timestamp: {record.time_stamp}")
+
         else:
             raise ValueError("Wrong type of record")
 
     def pop_mark(self):
-        """返回下一个pipeline id: (now_loc, next_loc)， 删去第一个节点，记录当前的时间点"""
+        """删去第一个节点, 返回下一个 pipeline id: (now_loc, next_loc)"""
+        self.path.pop(0)
         if len(self.path) >= 2:
             self.next_pipeline = tuple(self.path[0: 2])
         # 当 package 去到 reload（终分拣）， 终分拣的队列 id 只有一个值
         elif len(self.path) == 1:
-            self.next_pipeline= self.path[-1]
+            self.next_pipeline = self.path[-1]
         else:
             raise ValueError('The path have been empty!')
         # remove the now_loc
-        self.path.pop(0)
         # 改变下一个 pipeline id
 
     def __str__(self):
         display_dct = dict(self.attr)
-        return f"<package attr:{dict(display_dct)}, path: {self.plan_path}>"
+        return f"<package attr:{dict(display_dct)}, path: {self.planned_path}>"
 
 
 class SmallPackage(Package):
@@ -104,7 +124,7 @@ class SmallBag(Package):
 
 class Truck:
     """货车"""
-    def __init__(self, env: simpy.Environment, item_id: str, come_time: int, truck_type: str, packages:pd.DataFrame):
+    def __init__(self, env: simpy.Environment, item_id: str, come_time: int, truck_type: str, packages: list):
         """
         :param truck_id: self explain
         :param come_time: self explain
@@ -137,8 +157,12 @@ class Uld(Truck):
 
 class BasePipeline:
 
-    def __init__(self, env: simpy.Environment, machine_type: str):
+    def __init__(self, env: simpy.Environment, pipeline_id: str, equipment_id: str, machine_type: str, ):
 
+        self.env = env
+        self.pipeline_id = pipeline_id
+        self.equipment_id = equipment_id
+        self.queue_id = pipeline_id
         self.machine_type = machine_type
         self.queue = simpy.Store(env)
 
@@ -146,6 +170,15 @@ class BasePipeline:
         return self.queue.get()
 
     def put(self, item):
+
+        item.insert_data(
+            PipelineRecord(
+                pipeline_id=self.pipeline_id,
+                queue_id=self.queue_id,
+                package_id=item.item_id,
+                time_stamp=self.env.now,
+                action="start", ))
+
         self.queue.put(item)
 
 
@@ -167,6 +200,7 @@ class Pipeline:
         self.pipeline_id = pipeline_id
         self.queue_id = queue_id
         self.machine_type = machine_type
+        self.equipment_id = self.pipeline_id[1]  # in Pipeline the equipment_id is equipment after this pipeline
 
     def latency(self, item: Package):
         """模拟传送时间"""
@@ -174,6 +208,7 @@ class Pipeline:
         # pipeline start server
         item.insert_data(
             PipelineRecord(
+                pipeline_id=self.pipeline_id,
                 queue_id=self.queue_id,
                 package_id=item.item_id,
                 time_stamp=self.env.now,
@@ -186,7 +221,7 @@ class Pipeline:
         # package wait for next process
         item.insert_data(
             PackageRecord(
-                equipment_id=item.next_pipeline[1],
+                equipment_id=self.equipment_id,
                 package_id=item.item_id,
                 time_stamp=self.env.now,
                 action="wait", ))
@@ -194,6 +229,7 @@ class Pipeline:
         # pipeline end server
         item.insert_data(
             PipelineRecord(
+                pipeline_id=self.pipeline_id,
                 queue_id=self.queue_id,
                 package_id=item.item_id,
                 time_stamp=self.env.now,
@@ -229,8 +265,9 @@ class PipelineRes(Pipeline):
                                           queue_id,
                                           machine_type,)
 
-        self.equipment_port = self.pipeline_id[0]
-        self.resource_id = equipment_resource_dict[self.equipment_port]
+        self.equipment_last = self.pipeline_id[0]  # in PipelineRes the equipment_id is equipment before this pipeline
+        self.equipment_next = self.pipeline_id[1]  # in PipelineRes the equipment_id is equipment before this pipeline
+        self.resource_id = equipment_resource_dict[self.equipment_last]
         self.resource = resource_dict[self.resource_id]["resource"]
 
     def latency(self, item: Package):
@@ -238,20 +275,12 @@ class PipelineRes(Pipeline):
         with self.resource.request() as req:
             """模拟传送时间"""
 
-            # package wait for resource, next_pipeline is actually last pipeline, also the machine id of last process
-            item.insert_data(
-                PackageRecord(
-                    equipment_id=item.next_pipeline[0],
-                    package_id=item.item_id,
-                    time_stamp=self.env.now,
-                    action="wait", ))
-
             yield req
 
-            # package start for process, next_pipeline is actually last pipeline, also the machine id of last process
+            # package start for process
             item.insert_data(
                 PackageRecord(
-                    equipment_id=item.next_pipeline[0],
+                    equipment_id=self.equipment_last,
                     package_id=item.item_id,
                     time_stamp=self.env.now,
                     action="start", ))
@@ -259,6 +288,7 @@ class PipelineRes(Pipeline):
             # pipeline start server
             item.insert_data(
                 PipelineRecord(
+                    pipeline_id=self.pipeline_id,
                     queue_id=self.queue_id,
                     package_id=item.item_id,
                     time_stamp=self.env.now,
@@ -266,10 +296,10 @@ class PipelineRes(Pipeline):
 
             yield self.env.timeout(self.delay)
 
-            # package end for process, next_pipeline is actually last pipeline, also the machine id of last process
+            # package end for process
             item.insert_data(
                 PackageRecord(
-                    equipment_id=item.next_pipeline[0],
+                    equipment_id=self.equipment_last,
                     package_id=item.item_id,
                     time_stamp=self.env.now,
                     action="end", ))
@@ -280,7 +310,7 @@ class PipelineRes(Pipeline):
             # package wait fo next process
             item.insert_data(
                 PackageRecord(
-                    equipment_id=item.next_pipeline[1],
+                    equipment_id=self.equipment_next,
                     package_id=item.item_id,
                     time_stamp=self.env.now,
                     action="wait", ))
@@ -288,6 +318,7 @@ class PipelineRes(Pipeline):
             # pipeline end server
             item.insert_data(
                 PipelineRecord(
+                    pipeline_id=self.pipeline_id,
                     queue_id=self.queue_id,
                     package_id=item.item_id,
                     time_stamp=self.env.now,
