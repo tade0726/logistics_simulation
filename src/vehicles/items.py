@@ -100,26 +100,29 @@ class SmallPackage(Package):
     """小件包裹"""
     def __str__(self):
         display_dct = dict(self.attr)
-        return f"<SmallBag attr:{dict(display_dct)}, path: {self.plan_path}>"
+        return f"<SmallBag attr:{dict(display_dct)}, path: {self.planned_path}>"
 
 
 class SmallBag(Package):
     """小件包"""
-    # todo
     def __init__(self, env: simpy.Environment,
                  attr: pd.Series,
-                 item_id: str,
-                 path: tuple,
-                 small_packages: pd.DataFrame):
+                 small_packages: list):
 
-        super(SmallBag, self).__init__(env, attr, item_id, path)
+        super(SmallBag, self).__init__(env, attr,)
 
+        # 存储小件包裹
         self.store = small_packages
+        assert self._all_is_small_packages(), "SmallBag store SmallPackage only !!"
         self.store_size = len(self.store)
+
+    def _all_is_small_packages(self):
+        packages_bool = [isinstance(small_package, SmallPackage) for small_package in self.store]
+        return all(packages_bool)
 
     def __str__(self):
         display_dct = dict(self.attr)
-        return f"<SmallBag attr:{dict(display_dct)}, path: {self.plan_path}, store_size:{self.store_size}>"
+        return f"<SmallBag attr:{dict(display_dct)}, path: {self.planned_path}, store_size:{self.store_size}>"
 
 
 class Truck:
@@ -133,11 +136,15 @@ class Truck:
         self.item_id = item_id
         self.come_time = come_time
         self.store = packages
+        assert self._all_is_packages(), "Truck store Package only !!"
         self.store_size = len(self.store)
         self.truck_type = truck_type
         self.env = env
-
         self.truck_data = []
+
+    def _all_is_packages(self):
+        packages_bool = [isinstance(package, Package) for package in self.store]
+        return all(packages_bool)
 
     def insert_data(self, record: namedtuple):
 
