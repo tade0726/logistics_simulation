@@ -207,7 +207,7 @@ class PathGenerator(object):
         :param all_paths: 存储路径的字典，如果不输入，则从data文件夹下的path文件读取
         """
         # 现在的版本是读取data文件夹下的一个临时文件
-        self.reload_setting = get_reload_setting(is_local=True)
+        self.reload_setting = get_reload_setting()
         self.machine_pre_dict = machine_pre()
         if all_paths is not None:
             self.all_paths = all_paths
