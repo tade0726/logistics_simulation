@@ -118,3 +118,4 @@ test/
 # 忽略xls
 *.xlsx
 *.txt
+data/
