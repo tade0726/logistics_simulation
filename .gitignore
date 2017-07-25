@@ -127,3 +127,6 @@ docs/
 
 # out data dor
 out/*
+
+# notebooks ignore
+notebooks/*
