@@ -29,9 +29,7 @@ def load_from_mysql(table_name: str):
     return table
 
 
-def get_vehicles(is_test: bool = False,
-                 is_local: bool = False,
-                 is_land: bool = True):
+def get_vehicles(is_land: bool, is_test: bool = False, is_local: bool = False,):
     """
     返回 uld 或者 truck 数据，字典形式：
 
@@ -78,7 +76,7 @@ def get_vehicles(is_test: bool = False,
         .apply(lambda x: x.total_seconds() if x.total_seconds() > 0 else 0)
 
     # 'plate_num' 是货车／飞机／的编号
-    parcel_dict = dict(list(table_parcel.groupby(['plate_num', 'arrive_time', 'path_type'])))
+    parcel_dict = dict(list(table_parcel.groupby(['plate_num', 'arrive_time', 'path_type', 'parcel_type'])))
     small_dict = dict(list(table_small.groupby(['parcel_id'])))
     return parcel_dict, small_dict
 
