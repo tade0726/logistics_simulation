@@ -101,7 +101,7 @@ for pipeline_id, pipeline in pipelines_dict.items():
 logging.info(msg="loading package data")
 
 truck_controller = TruckController(env, trucks=trucks_queue)
-truck_controller.controller()
+truck_controller.controller(is_test=True)
 
 # init unload machines
 machines_dict = defaultdict(list)

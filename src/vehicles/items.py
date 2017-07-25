@@ -277,14 +277,6 @@ class PipelineRes(Pipeline):
 
             yield req
 
-            # package start for process
-            item.insert_data(
-                PackageRecord(
-                    equipment_id=self.equipment_last,
-                    package_id=item.item_id,
-                    time_stamp=self.env.now,
-                    action="start", ))
-
             # pipeline start server
             item.insert_data(
                 PipelineRecord(
@@ -296,24 +288,16 @@ class PipelineRes(Pipeline):
 
             yield self.env.timeout(self.delay)
 
-            # package end for process
-            item.insert_data(
-                PackageRecord(
-                    equipment_id=self.equipment_last,
-                    package_id=item.item_id,
-                    time_stamp=self.env.now,
-                    action="end", ))
-
-            # cutting path, change item next_pipeline
-            item.pop_mark()
-
-            # package wait fo next process
+            # package start for process
             item.insert_data(
                 PackageRecord(
                     equipment_id=self.equipment_next,
                     package_id=item.item_id,
                     time_stamp=self.env.now,
                     action="wait", ))
+
+            # cutting path, change item next_pipeline
+            item.pop_mark()
 
             # pipeline end server
             item.insert_data(
