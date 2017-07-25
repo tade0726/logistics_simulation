@@ -29,7 +29,9 @@ def load_from_mysql(table_name: str):
     return table
 
 
-def get_vehicles(is_test: bool = False, is_local: bool = False, is_land: bool = True):
+def get_vehicles(is_test: bool = False,
+                 is_local: bool = False,
+                 is_land: bool = True):
     """
     返回 uld 或者 truck 数据，字典形式：
 
@@ -210,7 +212,7 @@ def get_pipelines(is_local: bool=False, ):
     return tab_queue_io
 
 
-def get_queue_io(is_local: bool):
+def get_queue_io(is_local: bool=False):
     """返回 io 对: [(r1_1,  m1_1), (r1_3, m2_3), ]"""
     table = get_pipelines(is_local)
     io_list = []
@@ -220,37 +222,29 @@ def get_queue_io(is_local: bool):
     return io_list
 
 
-# todo
-def get_parameters(is_local: bool):
+def get_parameters(is_local: bool=False):
+    """
+    返回参数表
 
-    """返回参数表"""
+    样例：
+        {'a1': {'prob_of_nc': [0.059999999999999998],
+                'uld_turnaround_time': [0.0]},
+         'a2': {'prob_of_nc': [0.059999999999999998],
+                'uld_turnaround_time': [0.0]},
+         'h1': {'hospital_entry_i2_time': [476.0],
+                'hospital_entry_i4_time': [408.0],
+                'prob_hospital_entry': [0.050000000000000003]}, }
 
-    pass
+    """
+    table_n = "i_equipment_parameter"
+    table = load_from_local(table_n) if is_local else load_from_mysql(table_n)
 
+    table_dict = table.groupby(["equipment_id"]) \
+        .apply(lambda x: x.groupby(["parameter_id"])["parameter_value"].apply(list).to_dict()).to_dict()
 
-if __name__ == 0:
+    return table_dict
 
-    # test1 = get_unload_setting(is_local=True)
-    # test2 = get_resource_limit(is_local=True)
-    # test3 = get_pipelines(is_local=True)
-    # test4 = get_queue_io(is_local=True)
-    test5 = get_reload_setting(is_local=True)
-
-    # # this a test
-    # with open('tools.py.txt', 'at') as file:
-    #     for obj in [test1, test2, test3, test4, test5]:
-    #         file.writelines(obj.__str__() + "\n")
-    #         file.writelines("\n" + "=" * 60 + "\n")
-
-
-
-    for key, val in test5.items():
-        if len(val) >= 2:
-            print(key, val)
 
 if __name__ == "__main__":
-    test1, test2 = get_vehicles(is_test=True, is_land=True)
-    test3, test4 = get_vehicles(is_test=True, is_land=False)
-
+    test1 = get_parameters()
     print(test1)
-    print(test2)
