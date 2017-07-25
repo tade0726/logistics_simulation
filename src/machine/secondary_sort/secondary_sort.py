@@ -33,20 +33,20 @@ class SecondarySort(object):
                  env: simpy.Environment(),
                  machine_id: tuple,
                  pipelines_dict: dict,
-                 equipment_process_time:dict,
+                 equipment_process_time_dict:dict,
                  ):
 
         self.env = env
         self.machine_id = machine_id
         self.pipelines_dict = pipelines_dict
-        self.equipment_process_time = equipment_process_time
-        self._set_machine_resource()
+        self.equipment_process_time_dict = equipment_process_time_dict
+        self._set_machine()
 
-    def _set_machine_resource(self):
+    def _set_machine(self):
         """
         """
-        self.equipment_id = self.machine_id   # pipeline id last value, for other machines
-        self.process_time = self.equipment_process_time[self.equipment_id]
+        self.equipment_id = self.machine_id[1]  # pipeline id last value, for other machines
+        self.process_time = self.equipment_process_time_dict[self.equipment_id]
         self.input_pip_line = self.pipelines_dict[self.machine_id]
 
     def process_package(self, item: Package):
