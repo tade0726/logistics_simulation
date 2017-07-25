@@ -25,7 +25,6 @@
 import simpy
 from src.vehicles import Package
 from src.utils import PackageRecord
-from collections import defaultdict
 
 
 class SecondarySort(object):
@@ -34,51 +33,45 @@ class SecondarySort(object):
                  env: simpy.Environment(),
                  machine_id: tuple,
                  pipelines_dict: dict,
-                 resource_dict: defaultdict,
-                 equipment_resource_dict: dict,
+                 equipment_process_time:dict,
                  ):
 
         self.env = env
         self.machine_id = machine_id
         self.pipelines_dict = pipelines_dict
-        self.resource_dict = resource_dict
-        self.equipment_resource_dict = equipment_resource_dict
+        self.equipment_process_time = equipment_process_time
         self._set_machine_resource()
 
     def _set_machine_resource(self):
         """
         """
-        if self.equipment_resource_dict:
-            self.equipment_id = self.machine_id   # pipeline id last value, for other machines
-            self.resource_id = self.equipment_resource_dict[self.equipment_id]
-            self.resource = self.resource_dict[self.resource_id]['resource']
-            self.process_time = self.resource_dict[self.resource_id]['process_time']
-            self.input_pip_line = self.pipelines_dict[self.machine_id]
+        self.equipment_id = self.machine_id   # pipeline id last value, for other machines
+        self.process_time = self.equipment_process_time[self.equipment_id]
+        self.input_pip_line = self.pipelines_dict[self.machine_id]
 
-    # todo:
     def process_package(self, item: Package):
+        # package start for process
+        item.insert_data(
+            PackageRecord(
+                equipment_id=self.equipment_id,
+                package_id=item.item_id,
+                time_stamp=self.env.now,
+                action="start", ))
+
         yield self.env.timeout(self.process_time)
+
+        # package end for process
+        item.insert_data(
+            PackageRecord(
+                equipment_id=self.equipment_id,
+                package_id=item.item_id,
+                time_stamp=self.env.now,
+                action="end", ))
+
+        next_pipeline = item.next_pipeline
+        self.pipelines_dict[next_pipeline].put(item)
 
     def run(self):
         while True:
             package = yield self.input_pip_line.get()
-            next_pipeline = package.next_pipeline
-
-            # package start for process
-            package.insert_data(
-                PackageRecord(
-                    equipment_id=self.equipment_id,
-                    package_id=package.item_id,
-                    time_stamp=self.env.now,
-                    action="start", ))
-
-            # package end for process
-            package.insert_data(
-                PackageRecord(
-                    equipment_id=self.equipment_id,
-                    package_id=package.item_id,
-                    time_stamp=self.env.now,
-                    action="end", ))
-
-            self.pipelines_dict[next_pipeline].put(package)
-
+            self.env.process(self.process_package(item=package))
