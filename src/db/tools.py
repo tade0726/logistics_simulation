@@ -15,7 +15,7 @@ import pandas as pd
 from sqlalchemy import create_engine
 from os.path import realpath, join, split
 from datetime import datetime
-
+import logging
 
 class MySQLConfig:
 
@@ -41,6 +41,14 @@ class SaveConfig:
 
 class TimeConfig:
     ZERO_TIMESTAMP = datetime(2017, 6, 15, 21)
+
+
+def write_mysql(table_name: str, data: pd.DataFrame):
+    try:
+        data.to_sql(name=f'o_{table_name}', con=MySQLConfig.engine, if_exists='replace')
+        logging.info(f"write table {table_name} succeed!")
+    except Exception as exc:
+        logging.error(f"write table {table_name} failed, error: {exc}.")
 
 
 def load_from_local(table_name: str):
