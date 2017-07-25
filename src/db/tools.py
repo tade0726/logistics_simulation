@@ -14,7 +14,6 @@ data will be store into dictionary
 import pandas as pd
 from sqlalchemy import create_engine
 from os.path import realpath, join, split
-from collections import defaultdict
 from datetime import datetime
 
 
@@ -59,7 +58,7 @@ def load_from_mysql(table_name: str):
 def get_trucks(is_test: bool=False, is_local: bool=False):
     """
     返回货车数据，字典形式：
-        key 为 （货车编号， 到达时间，货车货物路径类型（LL／LA..））
+        key 为 （货车编号， 到达时间，货车货物路径类型（L／A..））
         value 为 一个货车的 packages 数据表
     """
     table_name = "i_od_parcel_landside"
@@ -70,14 +69,12 @@ def get_trucks(is_test: bool=False, is_local: bool=False):
     if is_test:
         table = table.head(100)
 
-    # add path_type: LL/LA/AL/AA
-    table['path_type'] = table['src_type'] + table['dest_type']
     # convert datetime to seconds
 
     table["arrive_time"] = (table["arrive_time"] - TimeConfig.ZERO_TIMESTAMP)\
         .apply(lambda x: x.total_seconds() if x.total_seconds() > 0 else 0)
     # 'plate_num' 是货车／飞机／的编号
-    return dict(list(table.groupby(['plate_num', 'arrive_time', 'path_type'])))
+    return dict(list(table.groupby(['plate_num', 'arrive_time', 'src_type'])))
 
 
 def get_ulds(is_test: bool=False, is_local: bool=False):
@@ -102,9 +99,9 @@ def get_ulds(is_test: bool=False, is_local: bool=False):
 def get_unload_setting(is_local: bool=False):
     """
     返回字典形式：
-        unload port 和 truck 类型（LL， LA， AL ，AA） 的映射
+        unload port 和 truck 类型（L， A） 的映射
     examples:
-        {'r1_1': ['LL'], 'r3_1': ['LL', 'LA']}
+        {'r1_1': ['L'], 'r3_1': ['L', 'A']}
     """
 
     table_name = "i_unload_setting"
@@ -114,12 +111,8 @@ def get_unload_setting(is_local: bool=False):
     else:
         table = load_from_mysql(table_name)
 
-    # add truck type: LL/LA/AL/AA
-    table['truck_type'] = table['origin_type'] + table['dest_type']
-
-    table_dict = defaultdict(list)
-    for _, row in table.iterrows():
-        table_dict[row['equipment_port']].append(row['truck_type'])
+    table_dict= \
+        table.groupby('equipment_port')['origin_type'].apply(set).apply(list).to_dict()
     return table_dict
 
 
@@ -137,9 +130,8 @@ def get_reload_setting(is_local: bool=False):
         table = load_from_local(table_name)
     else:
         table = load_from_mysql(table_name)
-    table_dict = defaultdict(list)
-    for _, row in table.iterrows():
-        table_dict[(row['dest_zone_code'], row["sorter_type"], row["dest_type"],)].append(row['equipment_port'])
+    table_dict= \
+        table.groupby(['dest_zone_code', 'sorter_type', 'dest_type'])['equipment_port'].apply(set).apply(list).to_dict()
     return table_dict
 
 
@@ -256,5 +248,5 @@ def get_equipment_process_time(is_local: bool=False):
     return table_dict
 
 if __name__ == "__main__":
-    test = get_reload_setting()
+    test = get_unload_setting()
     print(test)
