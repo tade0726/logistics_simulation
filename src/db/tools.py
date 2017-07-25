@@ -237,35 +237,24 @@ def get_queue_io(is_local: bool):
 
     return io_list
 
-# todo:
-def get_equipment_process_time(is_local: bool=False):
 
+def get_equipment_process_time(is_local: bool=False):
+    """
+    返回设备对应的处理时间，不一定与资源挂钩
+    samples:
+        {'a1_1': 0.0,
+         'a1_10': 0.0,
+         'a1_11': 0.0,
+         'a1_12': 0.0,
+         'a1_2': 0.0,
+         'a1_3': 0.0,}
+    """
     table_n = "i_equipment_io"
     table = load_from_local(table_n) if is_local else load_from_mysql(table_n)
+    table_dict = table.groupby(["equipment_port"])["process_time"].apply(lambda x: list(x)[0]).to_dict()
 
-
-
-
-if __name__ == 0:
-
-    # test1 = get_unload_setting(is_local=True)
-    # test2 = get_resource_limit(is_local=True)
-    # test3 = get_pipelines(is_local=True)
-    # test4 = get_queue_io(is_local=True)
-    test5 = get_reload_setting(is_local=True)
-
-    # # this a test
-    # with open('tools.py.txt', 'at') as file:
-    #     for obj in [test1, test2, test3, test4, test5]:
-    #         file.writelines(obj.__str__() + "\n")
-    #         file.writelines("\n" + "=" * 60 + "\n")
-
-
-
-    for key, val in test5.items():
-        if len(val) >= 2:
-            print(key, val)
+    return table_dict
 
 if __name__ == "__main__":
-    test = get_pipelines()
-    print(test.head())
+    test = get_equipment_process_time()
+    print(test)
