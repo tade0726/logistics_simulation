@@ -179,7 +179,6 @@ def get_resource_equipment_dict(is_local: bool=False):
 
     return table_dict
 
-
 def get_pipelines(is_local: bool=False, ):
 
     """返回队列的表， 包含了每个队列对应的功能区域和传送时间"""
@@ -188,20 +187,27 @@ def get_pipelines(is_local: bool=False, ):
     tab_queue_io = load_from_local(tab_n_queue_io) if is_local else load_from_mysql(tab_n_queue_io)
     line_count_ori = tab_queue_io.shape[0]
 
-    machine_dict = \
-    {'LM': 'presort',
-     'LS': 'secondary_sort',
-     'SE': 'security',
-     'AM': 'presort',
-     'AS': 'secondary_sort',
-     'MS': 'small_sort',}
+    # fixme: need to add in database
+    # add machine_type
+    # m: presort
+    # i1 - i8: secondary_sort
+    # i17 - i24: secondary_sort
+    # i9 - i16: small_sort
+    # j: security
+    # h: hospital
+    # e, x: cross
 
-    tab_queue_io = tab_queue_io[['equipment_port_last', 'equipment_port_next', 'sorter_zone', 'process_time', 'queue_id']]
-    tab_queue_io['machine_type'] = tab_queue_io['sorter_zone'].apply(lambda x: x[:2]).replace(machine_dict)
+    secon_sort_mark1 = [f'i{n}' for n in range(1, 9)]
+    secon_sort_mark2 = [f'i{n}' for n in range(17, 25)]
+    secon_sort_mark = secon_sort_mark1 + secon_sort_mark2
 
+    ind_presort = tab_queue_io.equipment_port_next.str.startswith('m')
+    ind_secondary_sort = tab_queue_io.equipment_port_next.apply(lambda x: x.split('_')[0]).isin(secon_sort_mark)
+    ind_small_sort = tab_queue_io.equipment_port_next.str.startswith('u')
+    ind_security = tab_queue_io.equipment_port_next.str.startswith('j')
+    ind_hospital = tab_queue_io.equipment_port_next.str.startswith('h')
     ind_cross = \
         tab_queue_io.equipment_port_next.str.startswith('e') | tab_queue_io.equipment_port_next.str.startswith('x')
-    ind_hospital = tab_queue_io.equipment_port_next.str.startswith('h')
 
     # i-i, i-c, i-e 当做是需要请求资源的传送带
     ind_pipeline_res = \
@@ -209,6 +215,10 @@ def get_pipelines(is_local: bool=False, ):
         (tab_queue_io.equipment_port_next.str.startswith('c') | tab_queue_io.equipment_port_next.str.startswith('i')\
         | tab_queue_io.equipment_port_next.str.startswith('e'))
 
+    tab_queue_io.loc[ind_presort, "machine_type"] = "presort"
+    tab_queue_io.loc[ind_secondary_sort, "machine_type"] = "secondary_sort"
+    tab_queue_io.loc[ind_small_sort, "machine_type"] = "small_sort"
+    tab_queue_io.loc[ind_security, "machine_type"] = "security"
     tab_queue_io.loc[ind_cross, "machine_type"] = "cross"
     tab_queue_io.loc[ind_hospital, "machine_type"] = "hospital"
 
@@ -220,13 +230,12 @@ def get_pipelines(is_local: bool=False, ):
     return tab_queue_io
 
 
-def get_queue_io(is_local: bool):
+def get_queue_io(is_local: bool=False):
     """返回 io 对: [(r1_1,  m1_1), (r1_3, m2_3), ]"""
     table = get_pipelines(is_local)
     io_list = []
     for _, row in table.iterrows():
         io_list.append((row['equipment_port_last'], row['equipment_port_next']))
-
     return io_list
 
 
@@ -248,5 +257,5 @@ def get_equipment_process_time(is_local: bool=False):
     return table_dict
 
 if __name__ == "__main__":
-    test = get_unload_setting()
+    test = get_pipelines()
     print(test)
