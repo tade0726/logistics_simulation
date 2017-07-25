@@ -139,7 +139,7 @@ def get_reload_setting(is_local: bool=False):
         table = load_from_mysql(table_name)
     table_dict = defaultdict(list)
     for _, row in table.iterrows():
-        table_dict[(row['dest_code'], row["sorter_type"], row["dest_type"],)].append(row['equipment_port'])
+        table_dict[(row['dest_zone_code'], row["sorter_type"], row["dest_type"],)].append(row['equipment_port'])
     return table_dict
 
 
@@ -256,5 +256,5 @@ def get_equipment_process_time(is_local: bool=False):
     return table_dict
 
 if __name__ == "__main__":
-    test = get_equipment_process_time()
+    test = get_reload_setting()
     print(test)
