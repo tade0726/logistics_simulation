@@ -121,6 +121,8 @@ data/path
 data/*.txt
 docs/
 *.txt
+data/
+
 
 # mac folder file
 .DS_Store
