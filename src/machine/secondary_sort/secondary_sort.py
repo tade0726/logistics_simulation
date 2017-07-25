@@ -23,7 +23,9 @@
 
 
 import simpy
+from src.vehicles import Package
 from src.utils import PackageRecord
+from collections import defaultdict
 
 
 class SecondarySort(object):
@@ -31,20 +33,35 @@ class SecondarySort(object):
     def __init__(self,
                  env: simpy.Environment(),
                  machine_id: tuple,
-                 pipelines_dict: dict,):
+                 pipelines_dict: dict,
+                 resource_dict: defaultdict,
+                 equipment_resource_dict: dict,
+                 ):
 
         self.env = env
         self.machine_id = machine_id
         self.pipelines_dict = pipelines_dict
-        self._setting()
+        self.resource_dict = resource_dict
+        self.equipment_resource_dict = equipment_resource_dict
+        self._set_machine_resource()
 
-    def _setting(self):
-        self.equipment_id = self.machine_id[1]
-        self.last_pipeline = self.pipelines_dict[self.machine_id]
+    def _set_machine_resource(self):
+        """
+        """
+        if self.equipment_resource_dict:
+            self.equipment_id = self.machine_id   # pipeline id last value, for other machines
+            self.resource_id = self.equipment_resource_dict[self.equipment_id]
+            self.resource = self.resource_dict[self.resource_id]['resource']
+            self.process_time = self.resource_dict[self.resource_id]['process_time']
+            self.input_pip_line = self.pipelines_dict[self.machine_id]
+
+    # todo:
+    def process_package(self, item: Package):
+        yield self.env.timeout(self.process_time)
 
     def run(self):
         while True:
-            package = yield self.last_pipeline.get()
+            package = yield self.input_pip_line.get()
             next_pipeline = package.next_pipeline
 
             # package start for process

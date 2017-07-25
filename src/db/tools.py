@@ -237,6 +237,14 @@ def get_queue_io(is_local: bool):
 
     return io_list
 
+# todo:
+def get_equipment_process_time(is_local: bool=False):
+
+    table_n = "i_equipment_io"
+    table = load_from_local(table_n) if is_local else load_from_mysql(table_n)
+
+
+
 
 if __name__ == 0:
 
