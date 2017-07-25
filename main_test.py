@@ -12,7 +12,7 @@ des:
 import simpy
 from datetime import datetime
 import os
-
+from collections import defaultdict
 
 from src.db import *
 from src.controllers import TruckController
