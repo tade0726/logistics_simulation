@@ -41,6 +41,7 @@ unload_setting_dict = get_unload_setting()
 reload_setting_dict = get_reload_setting()
 resource_table = get_resource_limit()
 equipment_resource_dict = get_resource_equipment_dict()
+equipment_process_time_dict = get_equipment_process_time()
 
 # c_port list
 reload_c_list = list()
@@ -145,7 +146,8 @@ for machine_id in machine_init_dict["secondary_sort"]:
         SecondarySort(
             env,
             machine_id=machine_id,
-            pipelines_dict=pipelines_dict,)
+            pipelines_dict=pipelines_dict,
+            equipment_process_time_dict=equipment_process_time_dict,)
     )
 
 # init hosital machines
