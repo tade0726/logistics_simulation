@@ -23,7 +23,7 @@
 
 
 import simpy
-
+from src.utils import PackageRecord
 
 class SecondarySort(object):
 
@@ -45,4 +45,22 @@ class SecondarySort(object):
         while True:
             package = yield self.last_pipeline.get()
             next_pipeline = package.next_pipeline
+
+            # package start for process
+            package.insert_data(
+                PackageRecord(
+                    equipment_id=self.equipment_id,
+                    package_id=package.item_id,
+                    time_stamp=self.env.now,
+                    action="start", ))
+
+            # package end for process
+            package.insert_data(
+                PackageRecord(
+                    equipment_id=self.equipment_id,
+                    package_id=package.item_id,
+                    time_stamp=self.env.now,
+                    action="end", ))
+
             self.pipelines_dict[next_pipeline].put(package)
+
