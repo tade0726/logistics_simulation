@@ -27,7 +27,6 @@ class RemoteMySQLConfig:
 
 
 class SaveConfig:
-
     DATA_DIR = join( split(split(realpath(__file__))[0])[0], 'data')
     OUT_DIR = join( split(split(realpath(__file__))[0])[0], 'out')
 
