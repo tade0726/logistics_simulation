@@ -102,7 +102,7 @@ for pipeline_id, pipeline in pipelines_dict.items():
 logging.info(msg="loading package data")
 
 truck_controller = TruckController(env, trucks=trucks_queue)
-truck_controller.controller(is_test=False)
+truck_controller.controller(is_test=True)
 
 # init unload machines
 machines_dict = defaultdict(list)
@@ -203,21 +203,24 @@ if __name__ == "__main__":
 
     # process data
     logging.info(msg="processing data")
+    # time stamp for db
+    db_insert_time = datetime.now()
 
-    def add_real_time_col(table: pd.DataFrame):
+    def add_time(table: pd.DataFrame):
+        """添加仿真的时间戳， 以及运行的日期"""
         table["real_time_stamp"] = table["time_stamp"].apply(lambda x: TimeConfig.ZERO_TIMESTAMP + timedelta(seconds=x))
+        table["run_time"] = db_insert_time
         return table
 
-    truck_table = add_real_time_col(truck_table)
-    pipeline_table = add_real_time_col(pipeline_table)
-    machine_table = add_real_time_col(machine_table)
+    truck_table = add_time(truck_table)
+    pipeline_table = add_time(pipeline_table)
+    machine_table = add_time(machine_table)
 
-    # output data
+    # output data to mysql
     logging.info(msg="output data")
-
-    truck_table.to_csv(join(SaveConfig.OUT_DIR, "truck_table.csv"), index=0)
-    pipeline_table.to_csv(join(SaveConfig.OUT_DIR, "pipeline_table.csv"), index=0)
-    machine_table.to_csv(join(SaveConfig.OUT_DIR, "machine_table.csv"), index=0)
+    write_mysql("truck_table", truck_table)
+    write_mysql("pipeline_table", pipeline_table)
+    write_mysql("machine_table", machine_table)
 
     t_end = datetime.now()
     total_time = t_end - t_start
