@@ -108,7 +108,7 @@ def get_vehicles(is_land: bool, is_test: bool = False, is_local: bool = False,):
         table_parcel["plate_num"] = table_parcel["parcel_id"]
         table_small["plate_num"] = table_small["parcel_id"]
 
-    # 装换时间
+    # 转换时间
     table_parcel["arrive_time"] = (table_parcel["arrive_time"] - TimeConfig.ZERO_TIMESTAMP) \
         .apply(lambda x: x.total_seconds() if x.total_seconds() > 0 else 0)
 
