@@ -131,4 +131,4 @@ data/
 out/*
 
 # notebooks ignore
-notebooks/*
+notebooks/
