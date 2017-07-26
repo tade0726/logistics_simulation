@@ -70,18 +70,24 @@ class TruckController:
         """
         """
 
-        for keys, packages_record in trucks_dict.items():
-            (truck_id, come_time, truck_type, parcel_type) = keys
-            packages = list()
+        for keys, packages_record in self.trucks_dict.items():
 
+            # init packages
+            packages = list()
             for _, package_record in packages_record.iterrows():
-                # init package
-                package = Package(env=self.env,
-                                  attr=package_record,
-                                  )
+                parcel_type = package_record['parcel_type']
+
+                if parcel_type == 'parcel':
+                    package = self._init_package(cls=Package, package_record=package_record)
+                elif parcel_type == 'small':
+                    package = self._init_small_bag(small_bag_record=package_record)
+                else:
+                    raise ValueError("parcel_type is either parcel or small!!")
 
                 packages.append(package)
 
+            # init truck
+            (truck_id, come_time, truck_type,) = keys
             truck = Truck(env=self.env, item_id=truck_id, come_time=come_time,
                           packages=packages, truck_type=truck_type,
                           )

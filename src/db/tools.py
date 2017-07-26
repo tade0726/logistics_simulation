@@ -99,6 +99,7 @@ def get_vehicles(is_land: bool, is_test: bool = False, is_local: bool = False,):
         table_small = load_from_mysql(table_small_n)
 
     # take samples for test
+    #  fixme: 关于小件的抽样需要查表
     if is_test:
         table_parcel = table_parcel.head(1000)
         table_small = table_small.head(1000)
