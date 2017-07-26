@@ -20,15 +20,11 @@ from src.utils import PipelineRecord, TruckRecord, PackageRecord
 from src.vehicles import Pipeline, PipelineRes, BasePipeline
 from src.machine import Unload, Presort, Cross, Hospital, SecondarySort
 
-import tracemalloc
 # log settings
 import logging
 logging.basicConfig(level=logging.INFO)
 
 t_start = datetime.now()
-
-# testing
-tracemalloc.start()
 
 # simpy env init
 env = simpy.Environment()
@@ -226,11 +222,3 @@ if __name__ == "__main__":
     total_time = t_end - t_start
 
     logging.info(f"total time: {total_time.total_seconds()} s")
-
-    # showing memory cost
-    snapshot = tracemalloc.take_snapshot()
-    top_stats = snapshot.statistics('lineno')
-    n = 30
-    logging.info(f"[ Top {n} differences ]")
-    for stat in top_stats[:n]:
-        logging.info(stat)

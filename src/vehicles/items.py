@@ -173,7 +173,7 @@ class BasePipeline:
 
         item.insert_data(
             PipelineRecord(
-                pipeline_id=self.pipeline_id,
+                pipeline_id=':'.join(self.pipeline_id),
                 queue_id=self.queue_id,
                 package_id=item.item_id,
                 time_stamp=self.env.now,
@@ -208,7 +208,7 @@ class Pipeline:
         # pipeline start server
         item.insert_data(
             PipelineRecord(
-                pipeline_id=self.pipeline_id,
+                pipeline_id=':'.join(self.pipeline_id),
                 queue_id=self.queue_id,
                 package_id=item.item_id,
                 time_stamp=self.env.now,
@@ -229,7 +229,7 @@ class Pipeline:
         # pipeline end server
         item.insert_data(
             PipelineRecord(
-                pipeline_id=self.pipeline_id,
+                pipeline_id=':'.join(self.pipeline_id),
                 queue_id=self.queue_id,
                 package_id=item.item_id,
                 time_stamp=self.env.now,
@@ -280,7 +280,7 @@ class PipelineRes(Pipeline):
             # pipeline start server
             item.insert_data(
                 PipelineRecord(
-                    pipeline_id=self.pipeline_id,
+                    pipeline_id=':'.join(self.pipeline_id),
                     queue_id=self.queue_id,
                     package_id=item.item_id,
                     time_stamp=self.env.now,
@@ -302,7 +302,7 @@ class PipelineRes(Pipeline):
             # pipeline end server
             item.insert_data(
                 PipelineRecord(
-                    pipeline_id=self.pipeline_id,
+                    pipeline_id=':'.join(self.pipeline_id),
                     queue_id=self.queue_id,
                     package_id=item.item_id,
                     time_stamp=self.env.now,

@@ -12,54 +12,41 @@ data will be store into dictionary
 """
 
 import pandas as pd
-from sqlalchemy import create_engine
-from os.path import realpath, join, split
-from datetime import datetime
 import logging
-
-class MySQLConfig:
-
-    HOST = "10.0.149.36"
-    USER = "developer"
-    PASS = "developer"
-    DB = "hangzhouhubqa"
-    CHARSET = 'utf8'
-
-    engine = create_engine(
-        f'mysql+pymysql://{USER}:{PASS}@{HOST}/{DB}?charset={CHARSET}',
-        isolation_level="READ UNCOMMITTED", )
+from src.config import *
 
 
-class SaveConfig:
-
-    DATA_DIR = join( split(split(split(realpath(__file__))[0])[0])[0], 'data')
-    OUT_DIR = join( split(split(split(realpath(__file__))[0])[0])[0], 'out')
-
-    DATA_FILE = 'tables.csv'
-    DATA_PATH = join(DATA_DIR, DATA_FILE)
-
-
-class TimeConfig:
-    ZERO_TIMESTAMP = datetime(2017, 6, 15, 21)
-
-
-def write_mysql(table_name: str, data: pd.DataFrame):
+def write_mysql(table_name: str, data: pd.DataFrame, ):
+    """写入MySQl数据库, 表格如果存在, 则新增数据"""
     try:
-        data.to_sql(name=f'o_{table_name}', con=MySQLConfig.engine, if_exists='replace')
-        logging.info(f"write table {table_name} succeed!")
+        data.to_sql(name=f'o_{table_name}', con=RemoteMySQLConfig.engine, if_exists='append', index=0)
+        logging.info(f"mysql write table {table_name} succeed!")
     except Exception as exc:
-        logging.error(f"write table {table_name} failed, error: {exc}.")
+        logging.error(f"mysql write table {table_name} failed, error: {exc}.")
+        raise Exception
+
+
+def write_local(table_name: str, data: pd.DataFrame):
+    """写入本地"""
+    try:
+        data.to_csv(join(SaveConfig.OUT_DIR, f"{table_name}.csv"), index=0)
+        logging.info(f"csv write table {table_name} succeed!")
+    except Exception as exc:
+        logging.error(f"csv write table {table_name} failed, error: {exc}.")
+        raise Exception
 
 
 def load_from_local(table_name: str):
     """本地读取数据，数据格式为csv"""
+    logging.info(msg=f"Reading local table {table_name}")
     table = pd.read_csv(join(SaveConfig.DATA_DIR, f"{table_name}.csv"))
     return table
 
 
 def load_from_mysql(table_name: str):
     """读取远程mysql数据表"""
-    table = pd.read_sql_table(con=MySQLConfig.engine, table_name=f"{table_name}")
+    logging.info(msg=f"Reading mysql table {table_name}")
+    table = pd.read_sql_table(con=RemoteMySQLConfig.engine, table_name=f"{table_name}")
     return table
 
 
