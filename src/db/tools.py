@@ -116,7 +116,8 @@ def get_vehicles(is_land: bool,
             table_parcel_AA = table_parcel[(table_parcel["parcel_type"] == 'parcel') & (table_parcel["src_type"] == 'A') & (table_parcel["dest_type"] == 'A')]
             table_parcel = table_parcel_AA.sample(500)
 
-        table_small = table_small["parcel_id"].isin(table_parcel.parcel_id)
+        # filter small
+        table_small = table_small[table_small["parcel_id"].isin(table_parcel.parcel_id)]
 
     if not is_land:
         # fixme: using parcel_id as plate_num, cos lack of plate_num for uld
@@ -131,7 +132,7 @@ def get_vehicles(is_land: bool,
         .apply(lambda x: x.total_seconds() if x.total_seconds() > 0 else 0)
 
     # 'plate_num' 是货车／飞机／的编号
-    parcel_dict = dict(list(table_parcel.groupby(['plate_num', 'arrive_time', 'path_type', ])))
+    parcel_dict = dict(list(table_parcel.groupby(['plate_num', 'arrive_time', 'src_type', ])))
     small_dict = dict(list(table_small.groupby(['parcel_id'])))
     return parcel_dict, small_dict
 
