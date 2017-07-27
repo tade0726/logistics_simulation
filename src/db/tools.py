@@ -72,7 +72,10 @@ def get_trucks(is_test: bool=False, is_local: bool=False):
     return dict(list(table.groupby(['plate_num', 'arrive_time', 'src_type'])))
 
 
-def get_vehicles(is_land: bool, is_test: bool = False, is_local: bool = False,):
+def get_vehicles(is_land: bool,
+                 is_test: bool = False,
+                 is_local: bool = False,
+                 is_parcel: bool = False,):
     """
     返回 uld 或者 truck 数据，字典形式：
 
@@ -97,6 +100,10 @@ def get_vehicles(is_land: bool, is_test: bool = False, is_local: bool = False,):
     else:
         table_parcel = load_from_mysql(table_parcel_n)
         table_small = load_from_mysql(table_small_n)
+
+    # filter only parcel
+    if is_parcel:
+        table_parcel = table_parcel[table_parcel.parcel_type == 'parcel']
 
     # take samples for test
     #  fixme: 关于小件的抽样需要查表
