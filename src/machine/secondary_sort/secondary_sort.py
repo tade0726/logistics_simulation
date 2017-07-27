@@ -23,6 +23,8 @@
 
 
 import simpy
+from src.vehicles import Package
+from src.utils import PackageRecord
 
 
 class SecondarySort(object):
@@ -30,19 +32,23 @@ class SecondarySort(object):
     def __init__(self,
                  env: simpy.Environment(),
                  machine_id: tuple,
-                 pipelines_dict: dict,):
+                 pipelines_dict: dict,
+                 ):
 
         self.env = env
         self.machine_id = machine_id
         self.pipelines_dict = pipelines_dict
-        self._setting()
+        self._set_machine()
 
-    def _setting(self):
-        self.equipment_id = self.machine_id[1]
-        self.last_pipeline = self.pipelines_dict[self.machine_id]
+    def _set_machine(self):
+        """
+        """
+        self.equipment_id = self.machine_id[1]  # pipeline id last value, for other machines
+        self.input_pip_line = self.pipelines_dict[self.machine_id]
 
     def run(self):
         while True:
-            package = yield self.last_pipeline.get()
+            package = yield self.input_pip_line.get()
             next_pipeline = package.next_pipeline
             self.pipelines_dict[next_pipeline].put(package)
+

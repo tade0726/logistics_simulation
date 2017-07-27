@@ -9,9 +9,14 @@ des:
 """
 
 
+# log settings
+import logging
+logging.basicConfig(level=logging.DEBUG)
+
 import simpy
 from datetime import datetime
 import os
+from collections import defaultdict
 
 
 from src.db import *
@@ -19,21 +24,20 @@ from src.controllers import TruckController
 from src.utils import PipelineRecord, TruckRecord, PackageRecord
 from src.vehicles import Pipeline, PipelineRes, BasePipeline
 from src.machine import Unload, Presort, Cross, Hospital, SecondarySort
+from src.config import MainConfig
 
-import tracemalloc
-# log settings
-import logging
-logging.basicConfig(level=logging.INFO)
+import pandas as pd
+from datetime import timedelta
+from src.config import TimeConfig
 
+
+# start time
 t_start = datetime.now()
-
-# testing
-tracemalloc.start()
 
 # simpy env init
 env = simpy.Environment()
 
-logging.info(msg="loading config data")
+logging.debug("loading config data")
 
 # raw data prepare
 pipelines_table = get_pipelines()
@@ -41,6 +45,8 @@ unload_setting_dict = get_unload_setting()
 reload_setting_dict = get_reload_setting()
 resource_table = get_resource_limit()
 equipment_resource_dict = get_resource_equipment_dict()
+equipment_process_time_dict = get_equipment_process_time()
+equipment_parameters = get_parameters()
 
 # c_port list
 reload_c_list = list()
@@ -79,7 +85,8 @@ for _, row in pipelines_table.iterrows():
                                                   delay_time,
                                                   pipeline_id,
                                                   queue_id,
-                                                  machine_type)
+                                                  machine_type,
+                                                  equipment_process_time_dict)
 for pipeline_id in reload_c_list:
     pipelines_dict[pipeline_id] = BasePipeline(env,
                                                pipeline_id=pipeline_id,
@@ -98,10 +105,10 @@ for pipeline_id, pipeline in pipelines_dict.items():
 
 
 # init trucks controllers
-logging.info(msg="loading package data")
+logging.debug("loading package data")
 
 truck_controller = TruckController(env, trucks=trucks_queue)
-truck_controller.controller()
+truck_controller.controller(is_test=MainConfig.IS_TEST)
 
 # init unload machines
 machines_dict = defaultdict(list)
@@ -115,7 +122,8 @@ for machine_id, truck_types in unload_setting_dict.items():
                trucks_q=trucks_queue,
                pipelines_dict=pipelines_dict,
                resource_dict=resource_dict,
-               equipment_resource_dict=equipment_resource_dict,)
+               equipment_resource_dict=equipment_resource_dict,
+               equipment_parameters=equipment_parameters)
     )
 
 # init presort machines
@@ -162,21 +170,17 @@ for machine_id in machine_init_dict["hospital"]:
 
 # adding machines into processes
 for machine_type, machines in machines_dict.items():
-    logging.info(msg=f"init {machine_type} machines")
+    logging.debug(f"init {machine_type} machines")
     for machine in machines:
         env.process(machine.run())
 
 if __name__ == "__main__":
 
-    import pandas as pd
-    from datetime import timedelta
-    from src.db import TimeConfig
-
-    logging.info("sim start..")
+    logging.debug("sim start..")
     env.run()
-    logging.info("sim end..")
+    logging.debug("sim end..")
 
-    logging.info(msg="collecting data")
+    logging.debug("collecting data")
 
     # checking data
     truck_data = []
@@ -200,32 +204,33 @@ if __name__ == "__main__":
         os.makedirs(SaveConfig.OUT_DIR)
 
     # process data
-    logging.info(msg="processing data")
+    logging.debug(msg="processing data")
+    # time stamp for db
+    db_insert_time = datetime.now()
 
-    def add_real_time_col(table: pd.DataFrame):
+    def add_time(table: pd.DataFrame):
+        """添加仿真的时间戳， 以及运行的日期"""
         table["real_time_stamp"] = table["time_stamp"].apply(lambda x: TimeConfig.ZERO_TIMESTAMP + timedelta(seconds=x))
+        table["run_time"] = db_insert_time
         return table
 
-    truck_table = add_real_time_col(truck_table)
-    pipeline_table = add_real_time_col(pipeline_table)
-    machine_table = add_real_time_col(machine_table)
+    truck_table = add_time(truck_table)
+    pipeline_table = add_time(pipeline_table)
+    machine_table = add_time(machine_table)
 
-    # output data
-    logging.info(msg="output data")
+    # output data to mysql
+    logging.debug("output data")
 
-    truck_table.to_csv(join(SaveConfig.OUT_DIR, "truck_table.csv"), index=0)
-    pipeline_table.to_csv(join(SaveConfig.OUT_DIR, "pipeline_table.csv"), index=0)
-    machine_table.to_csv(join(SaveConfig.OUT_DIR, "machine_table.csv"), index=0)
+    if MainConfig.SAVE_LOCAL:
+        write_local('machine_table', machine_table)
+        write_local('pipeline_table', pipeline_table)
+        write_local('truck_table', truck_table)
+    else:
+        write_mysql("pipeline_table", pipeline_table)
+        write_mysql("truck_table", truck_table)
+        write_mysql("machine_table", machine_table)
 
     t_end = datetime.now()
     total_time = t_end - t_start
 
-    logging.info(f"total time: {total_time.total_seconds()} s")
-
-    # showing memory cost
-    snapshot = tracemalloc.take_snapshot()
-    top_stats = snapshot.statistics('lineno')
-    n = 30
-    logging.info(f"[ Top {n} differences ]")
-    for stat in top_stats[:n]:
-        logging.info(stat)
+    logging.debug(f"total time: {total_time.total_seconds()} s")

@@ -13,10 +13,8 @@ from sqlalchemy import create_engine
 from os.path import realpath, join, split
 from datetime import datetime
 
-__all__ = ["MySQLConfig", "SaveConfig", "TimeConfig"]
 
-
-class MySQLConfig:
+class RemoteMySQLConfig:
     HOST = "10.0.149.36"
     USER = "developer"
     PASS = "developer"
@@ -29,12 +27,17 @@ class MySQLConfig:
 
 
 class SaveConfig:
-    DATA_DIR = join(split(split(realpath(__file__))[0])[0], 'data')
-    OUT_DIR = join(split(split(realpath(__file__))[0])[0], 'out')
+    DATA_DIR = join( split(split(realpath(__file__))[0])[0], 'data')
+    OUT_DIR = join( split(split(realpath(__file__))[0])[0], 'out')
 
 
 class TimeConfig:
     ZERO_TIMESTAMP = datetime(2017, 6, 15, 21)
+
+
+class MainConfig:
+    IS_TEST = False
+    SAVE_LOCAL = False
 
 
 if __name__ == "__main__":

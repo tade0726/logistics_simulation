@@ -131,7 +131,7 @@ class Truck:
         """
         :param truck_id: self explain
         :param come_time: self explain
-        :param packages: a dataframe contain all packages
+        :param packages: a data frame contain all packages
         """
         self.item_id = item_id
         self.come_time = come_time
@@ -180,7 +180,7 @@ class BasePipeline:
 
         item.insert_data(
             PipelineRecord(
-                pipeline_id=self.pipeline_id,
+                pipeline_id=':'.join(self.pipeline_id),
                 queue_id=self.queue_id,
                 package_id=item.item_id,
                 time_stamp=self.env.now,
@@ -215,7 +215,7 @@ class Pipeline:
         # pipeline start server
         item.insert_data(
             PipelineRecord(
-                pipeline_id=self.pipeline_id,
+                pipeline_id=':'.join(self.pipeline_id),
                 queue_id=self.queue_id,
                 package_id=item.item_id,
                 time_stamp=self.env.now,
@@ -236,7 +236,7 @@ class Pipeline:
         # pipeline end server
         item.insert_data(
             PipelineRecord(
-                pipeline_id=self.pipeline_id,
+                pipeline_id=':'.join(self.pipeline_id),
                 queue_id=self.queue_id,
                 package_id=item.item_id,
                 time_stamp=self.env.now,
@@ -264,6 +264,7 @@ class PipelineRes(Pipeline):
                  pipeline_id: tuple,
                  queue_id: str,
                  machine_type: str,
+                 equipment_process_time_dict: dict,
                  ):
 
         super(PipelineRes, self).__init__(env,
@@ -276,6 +277,9 @@ class PipelineRes(Pipeline):
         self.equipment_next = self.pipeline_id[1]  # in PipelineRes the equipment_id is equipment before this pipeline
         self.resource_id = equipment_resource_dict[self.equipment_last]
         self.resource = resource_dict[self.resource_id]["resource"]
+        # add for equipment
+        self.equipment_process_time_dict = equipment_process_time_dict
+        self.process_time = self.equipment_process_time_dict[self.equipment_last]
 
     def latency(self, item: Package):
 
@@ -292,16 +296,7 @@ class PipelineRes(Pipeline):
                     time_stamp=self.env.now,
                     action="start", ))
 
-            # pipeline start server
-            item.insert_data(
-                PipelineRecord(
-                    pipeline_id=self.pipeline_id,
-                    queue_id=self.queue_id,
-                    package_id=item.item_id,
-                    time_stamp=self.env.now,
-                    action="start", ))
-
-            yield self.env.timeout(self.delay)
+            yield self.env.timeout(self.process_time)
 
             # package end for process
             item.insert_data(
@@ -311,10 +306,18 @@ class PipelineRes(Pipeline):
                     time_stamp=self.env.now,
                     action="end", ))
 
-            # cutting path, change item next_pipeline
-            item.pop_mark()
+            # pipeline start server
+            item.insert_data(
+                PipelineRecord(
+                    pipeline_id=':'.join(self.pipeline_id),
+                    queue_id=self.queue_id,
+                    package_id=item.item_id,
+                    time_stamp=self.env.now,
+                    action="start", ))
 
-            # package wait fo next process
+            yield self.env.timeout(self.delay)
+
+            # package start for process
             item.insert_data(
                 PackageRecord(
                     equipment_id=self.equipment_next,
@@ -325,12 +328,14 @@ class PipelineRes(Pipeline):
             # pipeline end server
             item.insert_data(
                 PipelineRecord(
-                    pipeline_id=self.pipeline_id,
+                    pipeline_id=':'.join(self.pipeline_id),
                     queue_id=self.queue_id,
                     package_id=item.item_id,
                     time_stamp=self.env.now,
                     action="end", ))
 
+            # cutting path, change item next_pipeline
+            item.pop_mark()
             self.queue.put(item)
 
 

@@ -12,27 +12,48 @@ data will be store into dictionary
 """
 
 import pandas as pd
-from os.path import join
-from collections import defaultdict
+import logging
 from src.config import *
+
+
+def write_mysql(table_name: str, data: pd.DataFrame, ):
+    """写入MySQl数据库, 表格如果存在, 则新增数据"""
+    try:
+        data.to_sql(name=f'o_{table_name}', con=RemoteMySQLConfig.engine, if_exists='append', index=0)
+        logging.info(f"mysql write table {table_name} succeed!")
+    except Exception as exc:
+        logging.error(f"mysql write table {table_name} failed, error: {exc}.")
+        raise Exception
+
+
+def write_local(table_name: str, data: pd.DataFrame):
+    """写入本地"""
+    try:
+        data.to_csv(join(SaveConfig.OUT_DIR, f"{table_name}.csv"), index=0)
+        logging.info(f"csv write table {table_name} succeed!")
+    except Exception as exc:
+        logging.error(f"csv write table {table_name} failed, error: {exc}.")
+        raise Exception
 
 
 def load_from_local(table_name: str):
     """本地读取数据，数据格式为csv"""
+    logging.debug(msg=f"Reading local table {table_name}")
     table = pd.read_csv(join(SaveConfig.DATA_DIR, f"{table_name}.csv"))
     return table
 
 
 def load_from_mysql(table_name: str):
     """读取远程mysql数据表"""
-    table = pd.read_sql_table(con=MySQLConfig.engine, table_name=f"{table_name}")
+    logging.debug(msg=f"Reading mysql table {table_name}")
+    table = pd.read_sql_table(con=RemoteMySQLConfig.engine, table_name=f"{table_name}")
     return table
 
 
 def get_trucks(is_test: bool=False, is_local: bool=False):
     """
     返回货车数据，字典形式：
-        key 为 （货车编号， 到达时间，货车货物路径类型（LL／LA..））
+        key 为 （货车编号， 到达时间，货车货物路径类型（L／A..））
         value 为 一个货车的 packages 数据表
     """
     table_name = "i_od_parcel_landside"
@@ -43,14 +64,12 @@ def get_trucks(is_test: bool=False, is_local: bool=False):
     if is_test:
         table = table.head(100)
 
-    # add path_type: LL/LA/AL/AA
-    table['path_type'] = table['src_type'] + table['dest_type']
     # convert datetime to seconds
 
     table["arrive_time"] = (table["arrive_time"] - TimeConfig.ZERO_TIMESTAMP)\
         .apply(lambda x: x.total_seconds() if x.total_seconds() > 0 else 0)
     # 'plate_num' 是货车／飞机／的编号
-    return dict(list(table.groupby(['plate_num', 'arrive_time', 'path_type'])))
+    return dict(list(table.groupby(['plate_num', 'arrive_time', 'src_type'])))
 
 
 def get_ulds(is_test: bool=False, is_local: bool=False):
@@ -75,9 +94,9 @@ def get_ulds(is_test: bool=False, is_local: bool=False):
 def get_unload_setting(is_local: bool=False):
     """
     返回字典形式：
-        unload port 和 truck 类型（LL， LA， AL ，AA） 的映射
+        unload port 和 truck 类型（L， A） 的映射
     examples:
-        {'r1_1': ['LL'], 'r3_1': ['LL', 'LA']}
+        {'r1_1': ['L'], 'r3_1': ['L', 'A']}
     """
 
     table_name = "i_unload_setting"
@@ -87,12 +106,8 @@ def get_unload_setting(is_local: bool=False):
     else:
         table = load_from_mysql(table_name)
 
-    # add truck type: LL/LA/AL/AA
-    table['truck_type'] = table['origin_type'] + table['dest_type']
-
-    table_dict = defaultdict(list)
-    for _, row in table.iterrows():
-        table_dict[row['equipment_port']].append(row['truck_type'])
+    table_dict= \
+        table.groupby('equipment_port')['origin_type'].apply(set).apply(list).to_dict()
     return table_dict
 
 
@@ -110,9 +125,8 @@ def get_reload_setting(is_local: bool=False):
         table = load_from_local(table_name)
     else:
         table = load_from_mysql(table_name)
-    table_dict = defaultdict(list)
-    for _, row in table.iterrows():
-        table_dict[(row['dest_code'], row["sorter_type"], row["dest_type"],)].append(row['equipment_port'])
+    table_dict= \
+        table.groupby(['dest_zone_code', 'sorter_type', 'dest_type'])['equipment_port'].apply(set).apply(list).to_dict()
     return table_dict
 
 
@@ -169,20 +183,27 @@ def get_pipelines(is_local: bool=False, ):
     tab_queue_io = load_from_local(tab_n_queue_io) if is_local else load_from_mysql(tab_n_queue_io)
     line_count_ori = tab_queue_io.shape[0]
 
-    machine_dict = \
-    {'LM': 'presort',
-     'LS': 'secondary_sort',
-     'SE': 'security',
-     'AM': 'presort',
-     'AS': 'secondary_sort',
-     'MS': 'small_sort',}
+    # fixme: need to add in database
+    # add machine_type
+    # m: presort
+    # i1 - i8: secondary_sort
+    # i17 - i24: secondary_sort
+    # i9 - i16: small_sort
+    # j: security
+    # h: hospital
+    # e, x: cross
 
-    tab_queue_io = tab_queue_io[['equipment_port_last', 'equipment_port_next', 'sorter_zone', 'process_time', 'queue_id']]
-    tab_queue_io['machine_type'] = tab_queue_io['sorter_zone'].apply(lambda x: x[:2]).replace(machine_dict)
+    secon_sort_mark1 = [f'i{n}' for n in range(1, 9)]
+    secon_sort_mark2 = [f'i{n}' for n in range(17, 25)]
+    secon_sort_mark = secon_sort_mark1 + secon_sort_mark2
 
+    ind_presort = tab_queue_io.equipment_port_next.str.startswith('m')
+    ind_secondary_sort = tab_queue_io.equipment_port_next.apply(lambda x: x.split('_')[0]).isin(secon_sort_mark)
+    ind_small_sort = tab_queue_io.equipment_port_next.str.startswith('u')
+    ind_security = tab_queue_io.equipment_port_next.str.startswith('j')
+    ind_hospital = tab_queue_io.equipment_port_next.str.startswith('h')
     ind_cross = \
         tab_queue_io.equipment_port_next.str.startswith('e') | tab_queue_io.equipment_port_next.str.startswith('x')
-    ind_hospital = tab_queue_io.equipment_port_next.str.startswith('h')
 
     # i-i, i-c, i-e 当做是需要请求资源的传送带
     ind_pipeline_res = \
@@ -190,6 +211,10 @@ def get_pipelines(is_local: bool=False, ):
         (tab_queue_io.equipment_port_next.str.startswith('c') | tab_queue_io.equipment_port_next.str.startswith('i')\
         | tab_queue_io.equipment_port_next.str.startswith('e'))
 
+    tab_queue_io.loc[ind_presort, "machine_type"] = "presort"
+    tab_queue_io.loc[ind_secondary_sort, "machine_type"] = "secondary_sort"
+    tab_queue_io.loc[ind_small_sort, "machine_type"] = "small_sort"
+    tab_queue_io.loc[ind_security, "machine_type"] = "security"
     tab_queue_io.loc[ind_cross, "machine_type"] = "cross"
     tab_queue_io.loc[ind_hospital, "machine_type"] = "hospital"
 
@@ -201,36 +226,57 @@ def get_pipelines(is_local: bool=False, ):
     return tab_queue_io
 
 
-def get_queue_io(is_local: bool):
+def get_queue_io(is_local: bool=False):
     """返回 io 对: [(r1_1,  m1_1), (r1_3, m2_3), ]"""
     table = get_pipelines(is_local)
     io_list = []
     for _, row in table.iterrows():
         io_list.append((row['equipment_port_last'], row['equipment_port_next']))
-
     return io_list
 
 
-if __name__ == 0:
+def get_equipment_process_time(is_local: bool=False):
+    """
+    返回设备对应的处理时间，不一定与资源挂钩
+    samples:
+        {'a1_1': 0.0,
+         'a1_10': 0.0,
+         'a1_11': 0.0,
+         'a1_12': 0.0,
+         'a1_2': 0.0,
+         'a1_3': 0.0,}
+    """
+    table_n = "i_equipment_io"
+    table = load_from_local(table_n) if is_local else load_from_mysql(table_n)
+    table_dict = table.groupby(["equipment_port"])["process_time"].apply(lambda x: list(x)[0]).to_dict()
 
-    # test1 = get_unload_setting(is_local=True)
-    # test2 = get_resource_limit(is_local=True)
-    # test3 = get_pipelines(is_local=True)
-    # test4 = get_queue_io(is_local=True)
-    test5 = get_reload_setting(is_local=True)
-
-    # # this a test
-    # with open('tools.py.txt', 'at') as file:
-    #     for obj in [test1, test2, test3, test4, test5]:
-    #         file.writelines(obj.__str__() + "\n")
-    #         file.writelines("\n" + "=" * 60 + "\n")
+    return table_dict
 
 
+def get_parameters(is_local: bool=False):
+    """
+    返回设备参数
 
-    for key, val in test5.items():
-        if len(val) >= 2:
-            print(key, val)
+    samples:
+      {'a1': {'prob_of_nc': 0.059999999999999998, 'vehicle_turnaround_time': 0.0},
+       'a2': {'prob_of_nc': 0.059999999999999998, 'vehicle_turnaround_time': 0.0}, }
+    """
+
+    table_n = "i_equipment_parameter"
+    table = load_from_local(table_n) if is_local else load_from_mysql(table_n)
+
+    # change parameter name
+    table["parameter_id"] = table["parameter_id"].replace(
+        {'uld_turnaround_time': 'vehicle_turnaround_time',
+         'truck_turnaround_time': 'vehicle_turnaround_time', })
+
+    table_dict = \
+        table.groupby(["equipment_id"])["parameter_id", "parameter_value"] \
+            .apply(lambda x: x.groupby("parameter_id")["parameter_value"]\
+                   .apply(lambda x: list(x)[0]).to_dict()).to_dict()
+
+    return table_dict
 
 if __name__ == "__main__":
-    test = get_pipelines()
-    print(test.head())
+    test = get_parameters()
+    print(test)

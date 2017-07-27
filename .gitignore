@@ -121,9 +121,14 @@ data/path
 data/*.txt
 docs/
 *.txt
+data/
+
 
 # mac folder file
 .DS_Store
 
 # out data dor
 out/*
+
+# notebooks ignore
+notebooks/*
