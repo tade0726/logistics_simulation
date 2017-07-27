@@ -282,7 +282,23 @@ class PipelineRes(Pipeline):
         with self.resource.request() as req:
             """模拟传送时间"""
 
+            # package start for process
+            item.insert_data(
+                PackageRecord(
+                    equipment_id=':'.join(self.pipeline_id),
+                    package_id=item.item_id,
+                    time_stamp=self.env.now,
+                    action="wait", ))
+
             yield req
+
+            # package start for process
+            item.insert_data(
+                PackageRecord(
+                    equipment_id=':'.join(self.pipeline_id),
+                    package_id=item.item_id,
+                    time_stamp=self.env.now,
+                    action="start", ))
 
             # pipeline start server
             item.insert_data(
@@ -294,6 +310,14 @@ class PipelineRes(Pipeline):
                     action="start", ))
 
             yield self.env.timeout(self.delay)
+
+            # package start for process
+            item.insert_data(
+                PackageRecord(
+                    equipment_id=':'.join(self.pipeline_id),
+                    package_id=item.item_id,
+                    time_stamp=self.env.now,
+                    action="end", ))
 
             # package start for process
             item.insert_data(
