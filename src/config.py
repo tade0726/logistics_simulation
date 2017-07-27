@@ -35,6 +35,11 @@ class TimeConfig:
     ZERO_TIMESTAMP = datetime(2017, 6, 15, 21)
 
 
+class MainConfig:
+    IS_TEST = False
+    SAVE_LOCAL = False
+
+
 if __name__ == "__main__":
     print(SaveConfig.DATA_DIR)
     print(SaveConfig.OUT_DIR)
