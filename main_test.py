@@ -11,7 +11,7 @@ des:
 
 # log settings
 import logging
-logging.basicConfig(level=logging.DEBUG)
+logging.basicConfig(level=logging.info)
 
 import simpy
 from datetime import datetime
@@ -37,7 +37,7 @@ t_start = datetime.now()
 # simpy env init
 env = simpy.Environment()
 
-logging.debug("loading config data")
+logging.info("loading config data")
 
 # raw data prepare
 pipelines_table = get_pipelines()
@@ -105,10 +105,10 @@ for pipeline_id, pipeline in pipelines_dict.items():
 
 
 # init trucks controllers
-logging.debug("loading package data")
+logging.info("loading package data")
 
-truck_controller = TruckController(env, trucks=trucks_queue)
-truck_controller.controller(is_test=MainConfig.IS_TEST)
+truck_controller = TruckController(env, trucks=trucks_queue, is_test=MainConfig.IS_TEST)
+truck_controller.controller()
 
 # init unload machines
 machines_dict = defaultdict(list)
@@ -170,17 +170,17 @@ for machine_id in machine_init_dict["hospital"]:
 
 # adding machines into processes
 for machine_type, machines in machines_dict.items():
-    logging.debug(f"init {machine_type} machines")
+    logging.info(f"init {machine_type} machines")
     for machine in machines:
         env.process(machine.run())
 
 if __name__ == "__main__":
 
-    logging.debug("sim start..")
+    logging.info("sim start..")
     env.run()
-    logging.debug("sim end..")
+    logging.info("sim end..")
 
-    logging.debug("collecting data")
+    logging.info("collecting data")
 
     # checking data
     truck_data = []
@@ -204,7 +204,7 @@ if __name__ == "__main__":
         os.makedirs(SaveConfig.OUT_DIR)
 
     # process data
-    logging.debug(msg="processing data")
+    logging.info(msg="processing data")
     # time stamp for db
     db_insert_time = datetime.now()
 
@@ -219,7 +219,7 @@ if __name__ == "__main__":
     machine_table = add_time(machine_table)
 
     # output data to mysql
-    logging.debug("output data")
+    logging.info("output data")
 
     if MainConfig.SAVE_LOCAL:
         write_local('machine_table', machine_table)
@@ -233,4 +233,4 @@ if __name__ == "__main__":
     t_end = datetime.now()
     total_time = t_end - t_start
 
-    logging.debug(f"total time: {total_time.total_seconds()} s")
+    logging.info(f"total time: {total_time.total_seconds()} s")
