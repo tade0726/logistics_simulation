@@ -264,6 +264,7 @@ class PipelineRes(Pipeline):
                  pipeline_id: tuple,
                  queue_id: str,
                  machine_type: str,
+                 equipment_process_time_dict: dict,
                  ):
 
         super(PipelineRes, self).__init__(env,
@@ -276,29 +277,34 @@ class PipelineRes(Pipeline):
         self.equipment_next = self.pipeline_id[1]  # in PipelineRes the equipment_id is equipment before this pipeline
         self.resource_id = equipment_resource_dict[self.equipment_last]
         self.resource = resource_dict[self.resource_id]["resource"]
+        # add for equipment
+        self.equipment_process_time_dict = equipment_process_time_dict
+        self.process_time = self.equipment_process_time_dict[self.equipment_last]
 
     def latency(self, item: Package):
 
         with self.resource.request() as req:
             """模拟传送时间"""
 
-            # package start for process
-            item.insert_data(
-                PackageRecord(
-                    equipment_id=':'.join(self.pipeline_id),
-                    package_id=item.item_id,
-                    time_stamp=self.env.now,
-                    action="wait", ))
-
             yield req
 
             # package start for process
             item.insert_data(
                 PackageRecord(
-                    equipment_id=':'.join(self.pipeline_id),
+                    equipment_id=self.equipment_last,
                     package_id=item.item_id,
                     time_stamp=self.env.now,
                     action="start", ))
+
+            yield self.env.timeout(self.process_time)
+
+            # package end for process
+            item.insert_data(
+                PackageRecord(
+                    equipment_id=self.equipment_last,
+                    package_id=item.item_id,
+                    time_stamp=self.env.now,
+                    action="end", ))
 
             # pipeline start server
             item.insert_data(
@@ -314,21 +320,10 @@ class PipelineRes(Pipeline):
             # package start for process
             item.insert_data(
                 PackageRecord(
-                    equipment_id=':'.join(self.pipeline_id),
-                    package_id=item.item_id,
-                    time_stamp=self.env.now,
-                    action="end", ))
-
-            # package start for process
-            item.insert_data(
-                PackageRecord(
                     equipment_id=self.equipment_next,
                     package_id=item.item_id,
                     time_stamp=self.env.now,
                     action="wait", ))
-
-            # cutting path, change item next_pipeline
-            item.pop_mark()
 
             # pipeline end server
             item.insert_data(
@@ -339,6 +334,8 @@ class PipelineRes(Pipeline):
                     time_stamp=self.env.now,
                     action="end", ))
 
+            # cutting path, change item next_pipeline
+            item.pop_mark()
             self.queue.put(item)
 
 
