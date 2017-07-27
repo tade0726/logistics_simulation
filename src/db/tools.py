@@ -38,14 +38,14 @@ def write_local(table_name: str, data: pd.DataFrame):
 
 def load_from_local(table_name: str):
     """本地读取数据，数据格式为csv"""
-    logging.info(msg=f"Reading local table {table_name}")
+    logging.debug(msg=f"Reading local table {table_name}")
     table = pd.read_csv(join(SaveConfig.DATA_DIR, f"{table_name}.csv"))
     return table
 
 
 def load_from_mysql(table_name: str):
     """读取远程mysql数据表"""
-    logging.info(msg=f"Reading mysql table {table_name}")
+    logging.debug(msg=f"Reading mysql table {table_name}")
     table = pd.read_sql_table(con=RemoteMySQLConfig.engine, table_name=f"{table_name}")
     return table
 
