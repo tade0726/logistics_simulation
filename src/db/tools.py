@@ -75,7 +75,7 @@ def get_trucks(is_test: bool=False, is_local: bool=False):
 def get_vehicles(is_land: bool,
                  is_test: bool = False,
                  is_local: bool = False,
-                 is_parcel: bool = False,):
+                 is_parcel_only: bool = False,):
     """
     返回 uld 或者 truck 数据，字典形式：
 
@@ -102,14 +102,21 @@ def get_vehicles(is_land: bool,
         table_small = load_from_mysql(table_small_n)
 
     # filter only parcel
-    if is_parcel:
+    if is_parcel_only:
         table_parcel = table_parcel[table_parcel.parcel_type == 'parcel']
 
     # take samples for test
     #  fixme: 关于小件的抽样需要查表
     if is_test:
-        table_parcel = table_parcel.head(1000)
-        table_small = table_small.head(1000)
+        # keep both LL/AA
+        if is_land:
+            table_parcel_LL = table_parcel[(table_parcel["parcel_type"] == 'parcel') & (table_parcel["src_type"] == 'L') & (table_parcel["dest_type"] == 'L')]
+            table_parcel = table_parcel_LL.sample(500)
+        else:
+            table_parcel_AA = table_parcel[(table_parcel["parcel_type"] == 'parcel') & (table_parcel["src_type"] == 'A') & (table_parcel["dest_type"] == 'A')]
+            table_parcel = table_parcel_AA.sample(500)
+
+        table_small = table_small["parcel_id"].isin(table_parcel.parcel_id)
 
     if not is_land:
         # fixme: using parcel_id as plate_num, cos lack of plate_num for uld
@@ -316,5 +323,5 @@ def get_parameters(is_local: bool=False):
     return table_dict
 
 if __name__ == "__main__":
-    test = get_parameters()
+    test = get_vehicles(is_test=True, is_land=True)
     print(test)
