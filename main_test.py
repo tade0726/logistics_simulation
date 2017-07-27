@@ -19,6 +19,8 @@ from src.controllers import TruckController
 from src.utils import PipelineRecord, TruckRecord, PackageRecord
 from src.vehicles import Pipeline, PipelineRes, BasePipeline
 from src.machine import Unload, Presort, Cross, Hospital, SecondarySort
+from src.config import MainConfig
+
 
 # log settings
 import logging
@@ -98,7 +100,7 @@ for pipeline_id, pipeline in pipelines_dict.items():
 logging.info(msg="loading package data")
 
 truck_controller = TruckController(env, trucks=trucks_queue)
-truck_controller.controller(is_test=False)
+truck_controller.controller(is_test=MainConfig.IS_TEST)
 
 # init unload machines
 machines_dict = defaultdict(list)
@@ -214,9 +216,16 @@ if __name__ == "__main__":
 
     # output data to mysql
     logging.info(msg="output data")
-    write_mysql("truck_table", truck_table)
-    write_mysql("pipeline_table", pipeline_table)
-    write_mysql("machine_table", machine_table)
+
+    if MainConfig.SAVE_LOCAL:
+        write_local('machine_table', machine_table)
+        write_local('pipeline_table', pipeline_table)
+        write_local('truck_table', truck_table)
+    else:
+        write_mysql("pipeline_table", pipeline_table)
+        write_mysql("truck_table", truck_table)
+        write_mysql("machine_table", machine_table)
+
 
     t_end = datetime.now()
     total_time = t_end - t_start
