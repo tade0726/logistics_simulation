@@ -12,11 +12,7 @@ import simpy
 from collections import defaultdict
 from src.vehicles import Package
 from src.utils import TruckRecord, PackageRecord
-
 import logging
-
-# todo: using data from get_parameters
-TRUCK_CONVERT_TIME = 90
 
 
 class Unload:
@@ -30,6 +26,7 @@ class Unload:
                  pipelines_dict: dict,
                  resource_dict: defaultdict,
                  equipment_resource_dict: dict,
+                 equipment_parameters: dict
                  ):
 
         self.env = env
@@ -40,6 +37,7 @@ class Unload:
         self.pipelines_dict = pipelines_dict
         self.resource_dict = resource_dict
         self.equipment_resource_dict = equipment_resource_dict
+        self.equipment_parameters = equipment_parameters
 
         self.num_of_truck = 0
         self.packages_processed = dict()
@@ -53,11 +51,13 @@ class Unload:
     def _set_machine_resource(self):
         """"""
         if self.equipment_resource_dict:
-            self.equipment_id = self.machine_id   # pipeline id last value, for other machines
+            self.equipment_id = self.machine_id   # pipeline id last value, for other machines (r1_1, etc)
+            self.equipment_name = self.machine_id.split('_')[0] # r1, ect
             self.resource_id = self.equipment_resource_dict[self.equipment_id]
             self.resource = self.resource_dict[self.resource_id]['resource']
             self.process_time = self.resource_dict[self.resource_id]['process_time']
             self.truck_types = self.unload_setting_dict[self.equipment_id]
+            self.vehicle_turnaround_time = self.equipment_parameters[self.equipment_name]["vehicle_turnaround_time"]
 
         else:
             raise RuntimeError('cross machine',
@@ -141,8 +141,8 @@ class Unload:
 
             # truck is out
             self.done_trucks.put(truck)
-            # truck convert time
-            yield self.env.timeout(TRUCK_CONVERT_TIME)
+            # vehicle turnaround time
+            yield self.env.timeout(self.vehicle_turnaround_time)
 
 
 
