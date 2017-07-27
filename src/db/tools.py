@@ -174,6 +174,7 @@ def get_resource_equipment_dict(is_local: bool=False):
 
     return table_dict
 
+
 def get_pipelines(is_local: bool=False, ):
 
     """返回队列的表， 包含了每个队列对应的功能区域和传送时间"""
@@ -251,6 +252,31 @@ def get_equipment_process_time(is_local: bool=False):
 
     return table_dict
 
+
+def get_parameters(is_local: bool=False):
+    """
+    返回设备参数
+
+    samples:
+      {'a1': {'prob_of_nc': 0.059999999999999998, 'vehicle_turnaround_time': 0.0},
+       'a2': {'prob_of_nc': 0.059999999999999998, 'vehicle_turnaround_time': 0.0}, }
+    """
+
+    table_n = "i_equipment_parameter"
+    table = load_from_local(table_n) if is_local else load_from_mysql(table_n)
+
+    # change parameter name
+    table["parameter_id"] = table["parameter_id"].replace(
+        {'uld_turnaround_time': 'vehicle_turnaround_time',
+         'truck_turnaround_time': 'vehicle_turnaround_time', })
+
+    table_dict = \
+        table.groupby(["equipment_id"])["parameter_id", "parameter_value"] \
+            .apply(lambda x: x.groupby("parameter_id")["parameter_value"]\
+                   .apply(lambda x: list(x)[0]).to_dict()).to_dict()
+
+    return table_dict
+
 if __name__ == "__main__":
-    test = get_pipelines()
+    test = get_parameters()
     print(test)
