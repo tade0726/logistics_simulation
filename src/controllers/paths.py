@@ -27,7 +27,7 @@ import random
 import pickle
 import os.path
 import networkx as nx
-from src.db.tools import load_from_local, get_reload_setting, SaveConfig
+from src.db.tools import load_from_local, get_reload_setting, SaveConfig, load_from_mysql
 
 
 def machine_pre():
@@ -118,7 +118,7 @@ def generate_all_paths():
     machine_pre_dict = machine_pre()
 
     # parcel-path是一个临时使用的文件，不包含小件路径
-    edge_df = load_from_local("i_queue_io")
+    edge_df = load_from_mysql("i_queue_io")
 
     cycle_node = [machine_pre_dict["hospital"]]
     mgraph = nx.DiGraph()
