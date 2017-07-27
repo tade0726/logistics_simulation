@@ -9,10 +9,15 @@ des:
 """
 
 
+# log settings
+import logging
+logging.basicConfig(level=logging.DEBUG)
+
 import simpy
 from datetime import datetime
 import os
 from collections import defaultdict
+
 
 from src.db import *
 from src.controllers import TruckController
@@ -25,16 +30,14 @@ import pandas as pd
 from datetime import timedelta
 from src.config import TimeConfig
 
-# log settings
-import logging
-logging.basicConfig(level=logging.DEBUG)
 
+# start time
 t_start = datetime.now()
 
 # simpy env init
 env = simpy.Environment()
 
-logging.debug(msg="loading config data")
+logging.debug("loading config data")
 
 # raw data prepare
 pipelines_table = get_pipelines()
@@ -43,6 +46,7 @@ reload_setting_dict = get_reload_setting()
 resource_table = get_resource_limit()
 equipment_resource_dict = get_resource_equipment_dict()
 equipment_process_time_dict = get_equipment_process_time()
+equipment_parameters = get_parameters()
 
 # c_port list
 reload_c_list = list()
@@ -101,7 +105,7 @@ for pipeline_id, pipeline in pipelines_dict.items():
 
 
 # init trucks controllers
-logging.debug(msg="loading package data")
+logging.debug("loading package data")
 
 truck_controller = TruckController(env, trucks=trucks_queue)
 truck_controller.controller(is_test=MainConfig.IS_TEST)
@@ -118,7 +122,8 @@ for machine_id, truck_types in unload_setting_dict.items():
                trucks_q=trucks_queue,
                pipelines_dict=pipelines_dict,
                resource_dict=resource_dict,
-               equipment_resource_dict=equipment_resource_dict,)
+               equipment_resource_dict=equipment_resource_dict,
+               equipment_parameters=equipment_parameters)
     )
 
 # init presort machines
@@ -165,7 +170,7 @@ for machine_id in machine_init_dict["hospital"]:
 
 # adding machines into processes
 for machine_type, machines in machines_dict.items():
-    logging.debug(msg=f"init {machine_type} machines")
+    logging.debug(f"init {machine_type} machines")
     for machine in machines:
         env.process(machine.run())
 
@@ -175,7 +180,7 @@ if __name__ == "__main__":
     env.run()
     logging.debug("sim end..")
 
-    logging.debug(msg="collecting data")
+    logging.debug("collecting data")
 
     # checking data
     truck_data = []
@@ -214,7 +219,7 @@ if __name__ == "__main__":
     machine_table = add_time(machine_table)
 
     # output data to mysql
-    logging.debug(msg="output data")
+    logging.debug("output data")
 
     if MainConfig.SAVE_LOCAL:
         write_local('machine_table', machine_table)
