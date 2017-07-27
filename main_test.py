@@ -24,14 +24,14 @@ from src.config import MainConfig
 
 # log settings
 import logging
-logging.basicConfig(level=logging.INFO)
+logging.basicConfig(level=logging.DEBUG)
 
 t_start = datetime.now()
 
 # simpy env init
 env = simpy.Environment()
 
-logging.info(msg="loading config data")
+logging.debug(msg="loading config data")
 
 # raw data prepare
 pipelines_table = get_pipelines()
@@ -97,7 +97,7 @@ for pipeline_id, pipeline in pipelines_dict.items():
 
 
 # init trucks controllers
-logging.info(msg="loading package data")
+logging.debug(msg="loading package data")
 
 truck_controller = TruckController(env, trucks=trucks_queue)
 truck_controller.controller(is_test=MainConfig.IS_TEST)
@@ -162,7 +162,7 @@ for machine_id in machine_init_dict["hospital"]:
 
 # adding machines into processes
 for machine_type, machines in machines_dict.items():
-    logging.info(msg=f"init {machine_type} machines")
+    logging.debug(msg=f"init {machine_type} machines")
     for machine in machines:
         env.process(machine.run())
 
@@ -172,11 +172,11 @@ if __name__ == "__main__":
     from datetime import timedelta
     from src.db import TimeConfig
 
-    logging.info("sim start..")
+    logging.debug("sim start..")
     env.run()
-    logging.info("sim end..")
+    logging.debug("sim end..")
 
-    logging.info(msg="collecting data")
+    logging.debug(msg="collecting data")
 
     # checking data
     truck_data = []
@@ -200,7 +200,7 @@ if __name__ == "__main__":
         os.makedirs(SaveConfig.OUT_DIR)
 
     # process data
-    logging.info(msg="processing data")
+    logging.debug(msg="processing data")
     # time stamp for db
     db_insert_time = datetime.now()
 
@@ -215,7 +215,7 @@ if __name__ == "__main__":
     machine_table = add_time(machine_table)
 
     # output data to mysql
-    logging.info(msg="output data")
+    logging.debug(msg="output data")
 
     if MainConfig.SAVE_LOCAL:
         write_local('machine_table', machine_table)
@@ -226,8 +226,7 @@ if __name__ == "__main__":
         write_mysql("truck_table", truck_table)
         write_mysql("machine_table", machine_table)
 
-
     t_end = datetime.now()
     total_time = t_end - t_start
 
-    logging.info(f"total time: {total_time.total_seconds()} s")
+    logging.debug(f"total time: {total_time.total_seconds()} s")
