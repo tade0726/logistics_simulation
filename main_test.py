@@ -21,6 +21,9 @@ from src.vehicles import Pipeline, PipelineRes, BasePipeline
 from src.machine import Unload, Presort, Cross, Hospital, SecondarySort
 from src.config import MainConfig
 
+import pandas as pd
+from datetime import timedelta
+from src.config import TimeConfig
 
 # log settings
 import logging
@@ -78,7 +81,8 @@ for _, row in pipelines_table.iterrows():
                                                   delay_time,
                                                   pipeline_id,
                                                   queue_id,
-                                                  machine_type)
+                                                  machine_type,
+                                                  equipment_process_time_dict)
 for pipeline_id in reload_c_list:
     pipelines_dict[pipeline_id] = BasePipeline(env,
                                                pipeline_id=pipeline_id,
@@ -144,8 +148,7 @@ for machine_id in machine_init_dict["secondary_sort"]:
         SecondarySort(
             env,
             machine_id=machine_id,
-            pipelines_dict=pipelines_dict,
-            equipment_process_time_dict=equipment_process_time_dict,)
+            pipelines_dict=pipelines_dict,)
     )
 
 # init hosital machines
@@ -167,10 +170,6 @@ for machine_type, machines in machines_dict.items():
         env.process(machine.run())
 
 if __name__ == "__main__":
-
-    import pandas as pd
-    from datetime import timedelta
-    from src.db import TimeConfig
 
     logging.debug("sim start..")
     env.run()
