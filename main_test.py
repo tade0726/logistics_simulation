@@ -11,13 +11,12 @@ des:
 
 # log settings
 import logging
-logging.basicConfig(level=logging.info)
+logging.basicConfig(level=logging.INFO)
 
 import simpy
-from datetime import datetime
+from datetime import datetime, timedelta
 import os
 from collections import defaultdict
-
 
 from src.db import *
 from src.controllers import TruckController
@@ -25,161 +24,160 @@ from src.utils import PipelineRecord, TruckRecord, PackageRecord
 from src.vehicles import Pipeline, PipelineRes, BasePipeline
 from src.machine import Unload, Presort, Cross, Hospital, SecondarySort
 from src.config import MainConfig
-
-import pandas as pd
-from datetime import timedelta
 from src.config import TimeConfig
 
 
-# start time
-t_start = datetime.now()
-
-# simpy env init
-env = simpy.Environment()
-
-logging.info("loading config data")
-
-# raw data prepare
-pipelines_table = get_pipelines()
-unload_setting_dict = get_unload_setting()
-reload_setting_dict = get_reload_setting()
-resource_table = get_resource_limit()
-equipment_resource_dict = get_resource_equipment_dict()
-equipment_process_time_dict = get_equipment_process_time()
-equipment_parameters = get_parameters()
-
-# c_port list
-reload_c_list = list()
-for _, c_list in reload_setting_dict.items():
-    reload_c_list.extend(c_list)
-
-# init trucks queues
-trucks_queue = simpy.FilterStore(env)
-
-# init resource
-resource_dict = defaultdict(dict)
-for _, row in resource_table.iterrows():
-    resource_id = row['resource_id']
-    process_time = row['process_time']
-    resource_limit = row['resource_limit']
-    # add info
-    if resource_limit:
-        resource_dict[resource_id]["resource"] = simpy.Resource(env=env, capacity=resource_limit)
-        resource_dict[resource_id]["process_time"] = process_time
-
-# init pipelines
-pipelines_dict = dict()
-for _, row in pipelines_table.iterrows():
-    pipeline_type = row["pipeline_type"]
-    machine_type = row['machine_type']
-    queue_id = row['queue_id']
-    delay_time = row['process_time']
-    pipeline_id = row['equipment_port_last'], row['equipment_port_next']
-
-    if pipeline_type == "pipeline":
-        pipelines_dict[pipeline_id] = Pipeline(env, delay_time, pipeline_id, queue_id, machine_type)
-    else:
-        pipelines_dict[pipeline_id] = PipelineRes(env,
-                                                  resource_dict,
-                                                  equipment_resource_dict,
-                                                  delay_time,
-                                                  pipeline_id,
-                                                  queue_id,
-                                                  machine_type,
-                                                  equipment_process_time_dict)
-for pipeline_id in reload_c_list:
-    pipelines_dict[pipeline_id] = BasePipeline(env,
-                                               pipeline_id=pipeline_id,
-                                               equipment_id=pipeline_id,
-                                               machine_type="reload")
-
-pipelines_dict["unload_error_packages"] = BasePipeline(env,
-                                                       pipeline_id="unload_error",
-                                                       equipment_id="unload_error",
-                                                       machine_type="error")
-
-# prepare init machine dict
-machine_init_dict = defaultdict(list)
-for pipeline_id, pipeline in pipelines_dict.items():
-    machine_init_dict[pipeline.machine_type].append(pipeline_id)
+__all__ = ["main"]
 
 
-# init trucks controllers
-logging.info("loading package data")
+def main():
 
-truck_controller = TruckController(env, trucks=trucks_queue, is_test=MainConfig.IS_TEST)
-truck_controller.controller()
+    t_start = datetime.now()
+    # start time
 
-# init unload machines
-machines_dict = defaultdict(list)
+    # simpy env init
+    env = simpy.Environment()
 
-for machine_id, truck_types in unload_setting_dict.items():
-    machines_dict["unload"].append(
-        Unload(env,
-               machine_id=machine_id,
-               unload_setting_dict=unload_setting_dict,
-               reload_setting_dict=reload_setting_dict,
-               trucks_q=trucks_queue,
-               pipelines_dict=pipelines_dict,
-               resource_dict=resource_dict,
-               equipment_resource_dict=equipment_resource_dict,
-               equipment_parameters=equipment_parameters)
-    )
+    logging.info("loading config data")
 
-# init presort machines
-for machine_id in machine_init_dict["presort"]:
-    machines_dict["presort"].append(
-        Presort(env,
+    # raw data prepare
+    pipelines_table = get_pipelines()
+    unload_setting_dict = get_unload_setting()
+    reload_setting_dict = get_reload_setting()
+    resource_table = get_resource_limit()
+    equipment_resource_dict = get_resource_equipment_dict()
+    equipment_process_time_dict = get_equipment_process_time()
+    equipment_parameters = get_parameters()
+
+    # c_port list
+    reload_c_list = list()
+    for _, c_list in reload_setting_dict.items():
+        reload_c_list.extend(c_list)
+
+    # init trucks queues
+    trucks_queue = simpy.FilterStore(env)
+
+    # init resource
+    resource_dict = defaultdict(dict)
+    for _, row in resource_table.iterrows():
+        resource_id = row['resource_id']
+        process_time = row['process_time']
+        resource_limit = row['resource_limit']
+        # add info
+        if resource_limit:
+            resource_dict[resource_id]["resource"] = simpy.Resource(env=env, capacity=resource_limit)
+            resource_dict[resource_id]["process_time"] = process_time
+
+    # init pipelines
+    pipelines_dict = dict()
+    for _, row in pipelines_table.iterrows():
+        pipeline_type = row["pipeline_type"]
+        machine_type = row['machine_type']
+        queue_id = row['queue_id']
+        delay_time = row['process_time']
+        pipeline_id = row['equipment_port_last'], row['equipment_port_next']
+
+        if pipeline_type == "pipeline":
+            pipelines_dict[pipeline_id] = Pipeline(env, delay_time, pipeline_id, queue_id, machine_type)
+        else:
+            pipelines_dict[pipeline_id] = PipelineRes(env,
+                                                      resource_dict,
+                                                      equipment_resource_dict,
+                                                      delay_time,
+                                                      pipeline_id,
+                                                      queue_id,
+                                                      machine_type,
+                                                      equipment_process_time_dict)
+    for pipeline_id in reload_c_list:
+        pipelines_dict[pipeline_id] = BasePipeline(env,
+                                                   pipeline_id=pipeline_id,
+                                                   equipment_id=pipeline_id,
+                                                   machine_type="reload")
+
+    pipelines_dict["unload_error_packages"] = BasePipeline(env,
+                                                           pipeline_id="unload_error",
+                                                           equipment_id="unload_error",
+                                                           machine_type="error")
+
+    # prepare init machine dict
+    machine_init_dict = defaultdict(list)
+    for pipeline_id, pipeline in pipelines_dict.items():
+        machine_init_dict[pipeline.machine_type].append(pipeline_id)
+
+
+    # init trucks controllers
+    logging.info("loading package data")
+
+    truck_controller = TruckController(env, trucks=trucks_queue, is_test=MainConfig.IS_TEST)
+    truck_controller.controller()
+
+    # init unload machines
+    machines_dict = defaultdict(list)
+
+    for machine_id, truck_types in unload_setting_dict.items():
+        machines_dict["unload"].append(
+            Unload(env,
+                   machine_id=machine_id,
+                   unload_setting_dict=unload_setting_dict,
+                   reload_setting_dict=reload_setting_dict,
+                   trucks_q=trucks_queue,
+                   pipelines_dict=pipelines_dict,
+                   resource_dict=resource_dict,
+                   equipment_resource_dict=equipment_resource_dict,
+                   equipment_parameters=equipment_parameters)
+        )
+
+    # init presort machines
+    for machine_id in machine_init_dict["presort"]:
+        machines_dict["presort"].append(
+            Presort(env,
+                    machine_id=machine_id,
+                    pipelines_dict=pipelines_dict,
+                    resource_dict=resource_dict,
+                    equipment_resource_dict=equipment_resource_dict,)
+        )
+
+    # init cross machines
+    for machine_id in machine_init_dict["cross"]:
+        machines_dict["cross"].append(
+            Cross(
+                env,
                 machine_id=machine_id,
                 pipelines_dict=pipelines_dict,
                 resource_dict=resource_dict,
                 equipment_resource_dict=equipment_resource_dict,)
-    )
+        )
 
-# init cross machines
-for machine_id in machine_init_dict["cross"]:
-    machines_dict["cross"].append(
-        Cross(
-            env,
-            machine_id=machine_id,
-            pipelines_dict=pipelines_dict,
-            resource_dict=resource_dict,
-            equipment_resource_dict=equipment_resource_dict,)
-    )
+    # init secondary_sort machines
+    for machine_id in machine_init_dict["secondary_sort"]:
+        machines_dict["secondary_sort"].append(
+            SecondarySort(
+                env,
+                machine_id=machine_id,
+                pipelines_dict=pipelines_dict,)
+        )
 
-# init secondary_sort machines
-for machine_id in machine_init_dict["secondary_sort"]:
-    machines_dict["secondary_sort"].append(
-        SecondarySort(
-            env,
-            machine_id=machine_id,
-            pipelines_dict=pipelines_dict,)
-    )
-
-# init hosital machines
-for machine_id in machine_init_dict["hospital"]:
-    machines_dict["hospital"].append(
-        Hospital(
-            env,
-            machine_id=machine_id,
-            pipelines_dict=pipelines_dict,
-            resource_dict=resource_dict,
-            equipment_resource_dict=equipment_resource_dict,)
-    )
+    # init hospital machines
+    for machine_id in machine_init_dict["hospital"]:
+        machines_dict["hospital"].append(
+            Hospital(
+                env,
+                machine_id=machine_id,
+                pipelines_dict=pipelines_dict,
+                resource_dict=resource_dict,
+                equipment_resource_dict=equipment_resource_dict,)
+        )
 
 
-# adding machines into processes
-for machine_type, machines in machines_dict.items():
-    logging.info(f"init {machine_type} machines")
-    for machine in machines:
-        env.process(machine.run())
-
-if __name__ == "__main__":
+    # adding machines into processes
+    for machine_type, machines in machines_dict.items():
+        logging.info(f"init {machine_type} machines")
+        for machine in machines:
+            env.process(machine.run())
 
     logging.info("sim start..")
     env.run()
     logging.info("sim end..")
-
     logging.info("collecting data")
 
     # checking data
@@ -234,3 +232,7 @@ if __name__ == "__main__":
     total_time = t_end - t_start
 
     logging.info(f"total time: {total_time.total_seconds()} s")
+
+
+if __name__ == '__main__':
+    main()
