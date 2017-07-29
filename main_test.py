@@ -42,12 +42,17 @@ def main():
 
     # raw data prepare
     pipelines_table = get_pipelines()
-    unload_setting_dict = get_unload_setting()
+    unload_setting_dict_src = get_unload_setting()
     reload_setting_dict = get_reload_setting()
     resource_table = get_resource_limit()
     equipment_resource_dict = get_resource_equipment_dict()
     equipment_process_time_dict = get_equipment_process_time()
     equipment_parameters = get_parameters()
+    equipment_on_off_list = get_equipment_on_off()
+
+    # equipment setting from unload
+    unload_setting_dict = \
+        {key: val for key, val in unload_setting_dict_src.items() if key in equipment_on_off_list}
 
     # c_port list
     reload_c_list = list()

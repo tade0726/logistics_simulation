@@ -323,6 +323,20 @@ def get_parameters(is_local: bool=False):
 
     return table_dict
 
+
+def get_equipment_on_off(is_local: bool = False):
+    """
+    返回设备的开关信息
+
+    samples:
+        ['r1_1', 'r1_2', ..]
+    """
+    tab_n = "i_equipment_io"
+    table = load_from_local(tab_n) if is_local else load_from_mysql(tab_n)
+    equipment_on = table[table.equipment_status == 1]
+    return equipment_on.equipment_port.tolist()
+
+
 if __name__ == "__main__":
     test = get_vehicles(is_test=True, is_land=True)
     print(test)
