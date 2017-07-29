@@ -38,6 +38,7 @@ class TimeConfig:
 class MainConfig:
     IS_TEST = False
     SAVE_LOCAL = False
+    IS_PARCEL_ONLY = True
 
 
 if __name__ == "__main__":

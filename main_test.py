@@ -104,11 +104,10 @@ def main():
     for pipeline_id, pipeline in pipelines_dict.items():
         machine_init_dict[pipeline.machine_type].append(pipeline_id)
 
-
     # init trucks controllers
     logging.info("loading package data")
 
-    truck_controller = TruckController(env, trucks=trucks_queue, is_test=MainConfig.IS_TEST)
+    truck_controller = TruckController(env, trucks=trucks_queue, is_test=MainConfig.IS_TEST, is_parcel_only=MainConfig.IS_PARCEL_ONLY)
     truck_controller.controller()
 
     # init unload machines
