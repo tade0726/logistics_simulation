@@ -1,16 +1,41 @@
 # -*- coding: utf-8 -*-
 
 from src.config_frame import *
-from src import App
+from src import App, CheckBtnCreate, EntryCreate
 from . import messagebox
 
 
 def init_app(master, wig):
     """"""
-
     return App(master=master,
                pack=ConfigApp.RELOAD_FRAME[wig]['pack'],
                attr=ConfigApp.RELOAD_FRAME[wig]['attr'])
+
+def init_check_btn(master, id, var, command):
+    """"""
+    return CheckBtnCreate(
+        master=master,
+        grid_dic=ConfigCheckBtn.R_CHECK_BTN[id]['grid'],
+        attr_dic=ConfigCheckBtn.R_CHECK_BTN[id]['attr'],
+        id=id,
+        var=var,
+        command=command
+    )
+
+def init_entry(master, id, text_var):
+    """
+    
+    :param master: 
+    :param id: 
+    :param var: 
+    :return: 
+    """
+    return EntryCreate(
+        master=master,
+        attr_dic=ConfigCheckBtn.R_ENTRY[id]['attr'],
+        grid_dic=ConfigCheckBtn.R_ENTRY[id]['grid'],
+        text_var=text_var
+    )
 
 
 def init_r_frame(root: Tk):
@@ -19,36 +44,52 @@ def init_r_frame(root: Tk):
     top = init_app(master=root, wig='TOP_FRAME')
     #  左侧设置基底面板
     left = init_app(master=root, wig='LEFT_FRAME')
+    #
+    left_set_pad_package = init_app(
+        master=left,
+        wig='LEFT_SET_PAD_TOP_PACKAGE'
+    )
+    #  左侧设置面板设置
+    left_set_pad_r = init_app(
+        master=left,
+        wig='LEFT_SET_PAD_TOP_R')
+    # #  左侧设置面板底部
+    left_set_pad_resource = init_app(
+        master=left,
+        wig='LEFT_SET_PAD_BOTTOM_RESOURCE')
+    # left_set_pad_resource.grid(row=1, column=0)
     #  右侧输出基底面板
-    right = init_app(master=root, wig='RIGHT_FRAME')
+    right = init_app(
+        master=root,
+        wig='RIGHT_FRAME')
+    right_output_pad_title = init_app(
+        master=right,
+        wig='RIGHT_TITLE'
+    )
     #  右侧上部输出面板
-    right_output_pad = init_app(master=right, wig='RIGHT_OUTPUT_PAD')
+    right_output_pad_info = init_app(
+        master=right,
+        wig='RIGHT_OUTPUT_PAD_INFO')
     #  右侧下部按钮控件
-    right_output_button = init_app(master=right, wig='RIGHT_OUTPUT_BUTTON')
-    #  左侧设置面板顶部
-    left_set_pad_top = init_app(master=left, wig='LEFT_SET_PAD_TOP')
-    #  左侧设置面板底部
-    left_set_bottom = init_app(master=left, wig='LEFT_SET_PAD_BOTTOM')
-
+    right_output_pad_button = init_app(
+        master=right,
+        wig='RIGHT_BUTTON')
     # LeftSetPadTopMachine = App(
     #     master=
     # )
-    left_set_pad_top_package = init_app(
-        master=left_set_pad_top,
-        wig='LEFT_SET_PAD_TOP_PACKAGE'
-    )
-    left_set_pad_bottom_resource = init_app(
-        master=left_set_bottom,
-        wig='LEFT_SET_PAD_BOTTOM_RESOURCE'
-    )
+
+    # left_set_pad_bottom_resource = init_app(
+    #     master=left_set_bottom,
+    #     wig='LEFT_SET_PAD_BOTTOM_RESOURCE'
+    # )
     left_set_pad_center_left = init_app(
-        master=left_set_pad_top,
+        master=left_set_pad_r,
         wig='LEFT_SET_PAD_CENTER_LEFT'
     )
-    left_set_pad_center_right = init_app(
-        master=left_set_pad_top,
-        wig='LEFT_SET_PAD_CENTER_RIGHT'
-    )
+    # left_set_pad_center_right = init_app(
+    #     master=left_set_pad_r,
+    #     wig='LEFT_SET_PAD_CENTER_RIGHT'
+    # )
     var1 = IntVar()
     var2 = IntVar()
     var3 = IntVar()
@@ -61,6 +102,26 @@ def init_r_frame(root: Tk):
     var10 = IntVar()
     var11 = IntVar()
     var12 = IntVar()
+    var13 = IntVar()
+    var14 = IntVar()
+    var15 = IntVar()
+    var16 = IntVar()
+    var17 = IntVar()
+    var18 = IntVar()
+    var19 = IntVar()
+    var20 = IntVar()
+    var21 = IntVar()
+    var22 = IntVar()
+    var23 = IntVar()
+    var24 = IntVar()
+    var25 = IntVar()
+    var26 = IntVar()
+    var27 = IntVar()
+    var28 = IntVar()
+    var29 = IntVar()
+    var30 = IntVar()
+    var31 = IntVar()
+    var32 = IntVar()
 
     e_r1 = StringVar()
     e_r2 = StringVar()
@@ -74,6 +135,26 @@ def init_r_frame(root: Tk):
     e_r10 = StringVar()
     e_r11 = StringVar()
     e_r12 = StringVar()
+    e_r13 = StringVar()
+    e_r14 = StringVar()
+    e_r15 = StringVar()
+    e_r16 = StringVar()
+    e_r17 = StringVar()
+    e_r18 = StringVar()
+    e_r19 = StringVar()
+    e_r20 = StringVar()
+    e_r21 = StringVar()
+    e_r22 = StringVar()
+    e_r23 = StringVar()
+    e_r24 = StringVar()
+    e_r25 = StringVar()
+    e_r26 = StringVar()
+    e_r27 = StringVar()
+    e_r28 = StringVar()
+    e_r29 = StringVar()
+    e_r30 = StringVar()
+    e_r31 = StringVar()
+    e_r32 = StringVar()
 
     e_r1.set('关机')
     e_r2.set('关机')
@@ -87,6 +168,26 @@ def init_r_frame(root: Tk):
     e_r10.set('关机')
     e_r11.set('关机')
     e_r12.set('关机')
+    e_r13.set('关机')
+    e_r14.set('关机')
+    e_r15.set('关机')
+    e_r16.set('关机')
+    e_r17.set('关机')
+    e_r18.set('关机')
+    e_r19.set('关机')
+    e_r20.set('关机')
+    e_r21.set('关机')
+    e_r22.set('关机')
+    e_r23.set('关机')
+    e_r24.set('关机')
+    e_r25.set('关机')
+    e_r26.set('关机')
+    e_r27.set('关机')
+    e_r28.set('关机')
+    e_r29.set('关机')
+    e_r30.set('关机')
+    e_r31.set('关机')
+    e_r32.set('关机')
 
     def cost_of_item():
         """"""
@@ -102,133 +203,248 @@ def init_r_frame(root: Tk):
             root.destroy()
             return
 
-    # ===============================Heading====================================
-    lbl_info = Label(top, font=('arial', 20, 'bold'),
-                     text='\t\t\t\t          杭州分拣中心仿真系统            \t\t\t\t',
-                     bd=10, anchor='w')
+    # ==============================Heading===========================
+    lbl_info = Label(top,
+                     font=('arial', 20, 'bold'),
+                     text='\t\t\t\t杭州分拣中心仿真系统\t\t\t\t',
+                     bd=10,
+                     anchor='w')
+    lbl_info.grid(row=0, column=0)
+    # ============================包裹设置参数========================
+    lbl_package = Label(
+        master=left_set_pad_package,
+        font=('arial', 12),
+        text='快件数量',
+        bd=2,
+        anchor='w'
+    )
+    lbl_package.grid(row=0, column=0)
+    package_num = Entry(
+        master=left_set_pad_package,
+        width=70
+    )
+    package_num.grid(row=0, column=1)
+    # ============================机器配置==========================
+    r1_1 = init_check_btn(
+        master=left_set_pad_center_left, id='r1_1', var=var1,
+        command=chk_button_value)
+    txt_r1_1 = init_entry(
+        master=left_set_pad_center_left, id='r1_1', text_var=e_r1)
+    r1_2 = init_check_btn(
+        master=left_set_pad_center_left, id='r1_2', var=var2,
+        command=chk_button_value)
+    txt_r1_2 = init_entry(
+        master=left_set_pad_center_left, id='r1_2', text_var=e_r2)
+    r1_3 = init_check_btn(
+        master=left_set_pad_center_left, id='r1_3', var=var3,
+        command=chk_button_value)
+    txt_r1_3 = init_entry(
+        master=left_set_pad_center_left, id = 'r1_3', text_var=e_r3)
+    r1_4 = init_check_btn(
+        master=left_set_pad_center_left, id='r1_4', var=var4,
+        command=chk_button_value)
+    txt_r1_4 = init_entry(
+        master=left_set_pad_center_left, id='r1_4', text_var=e_r4)
+    # =======================================================================
+    r2_1 = init_check_btn(
+        master=left_set_pad_center_left, id='r2_1', var=var5,
+        command=chk_button_value)
+    txt_r2_1 = init_entry(
+        master=left_set_pad_center_left, id='r2_1', text_var=e_r5)
+    r2_2 = init_check_btn(
+        master=left_set_pad_center_left, id='r2_2', var=var6,
+        command=chk_button_value)
+    txt_r2_2 = init_entry(
+        master=left_set_pad_center_left, id='r2_2', text_var=e_r6)
+    r2_3 = init_check_btn(
+        master=left_set_pad_center_left, id='r2_3', var=var7,
+        command=chk_button_value)
+    txt_r2_3 = init_entry(
+        master=left_set_pad_center_left, id='r2_3', text_var=e_r7)
+    r2_4 = init_check_btn(
+        master=left_set_pad_center_left, id='r2_4', var=var8,
+        command=chk_button_value)
+    txt_r2_4 = init_entry(
+        master=left_set_pad_center_left, id='r2_4', text_var=e_r8)
+    # =======================================================================
+    r3_1 = init_check_btn(
+        master=left_set_pad_center_left, id='r3_1', var=var9,
+        command=chk_button_value)
+    txt_r3_1 = init_entry(
+        master=left_set_pad_center_left, id='r3_1', text_var=e_r9)
+    r3_2 = init_check_btn(
+        master=left_set_pad_center_left, id='r3_2', var=var10,
+        command=chk_button_value)
+    txt_r3_2 = init_entry(
+        master=left_set_pad_center_left, id='r3_2', text_var=e_r10)
+    r3_3 = init_check_btn(
+        master=left_set_pad_center_left, id='r3_3', var=var11,
+        command=chk_button_value)
+    txt_r3_3 = init_entry(
+        master=left_set_pad_center_left, id='r3_3', text_var=e_r11)
+    r3_4 = init_check_btn(
+        master=left_set_pad_center_left, id='r3_4', var=var12,
+        command=chk_button_value)
+    txt_r3_4 = init_entry(
+        master=left_set_pad_center_left, id='r3_4', text_var=e_r12)
+    # =======================================================================
+    r4_1 = init_check_btn(
+        master=left_set_pad_center_left, id='r4_1', var=var13,
+        command=chk_button_value)
+    txt_r4_1 = init_entry(
+        master=left_set_pad_center_left, id='r4_1', text_var=e_r13)
+    r4_2 = init_check_btn(
+        master=left_set_pad_center_left, id='r4_2', var=var14,
+        command=chk_button_value)
+    txt_r4_2 = init_entry(
+        master=left_set_pad_center_left, id='r4_2', text_var=e_r14)
+    r4_3 = init_check_btn(
+        master=left_set_pad_center_left, id='r4_3', var=var15,
+        command=chk_button_value)
+    txt_r4_3 = init_entry(
+        master=left_set_pad_center_left, id='r4_3', text_var=e_r15)
+    r4_4 = init_check_btn(
+        master=left_set_pad_center_left, id='r4_4', var=var16,
+        command=chk_button_value)
+    txt_r4_4 = init_entry(
+        master=left_set_pad_center_left, id='r4_4', text_var=e_r16)
+    # ======================================2===================================
+    r5_1 = init_check_btn(
+        master=left_set_pad_center_left, id='r5_1', var=var17,
+        command=chk_button_value)
+    txt_r5_1 = init_entry(
+        master=left_set_pad_center_left, id='r5_1', text_var=e_r17)
+    r5_2 = init_check_btn(
+        master=left_set_pad_center_left, id='r5_2', var=var18,
+        command=chk_button_value)
+    txt_r5_2 = init_entry(
+        master=left_set_pad_center_left, id='r5_2', text_var=e_r18)
+    r5_3 = init_check_btn(
+        master=left_set_pad_center_left, id='r5_3', var=var19,
+        command=chk_button_value)
+    txt_r5_3 = init_entry(
+        master=left_set_pad_center_left, id='r5_3', text_var=e_r19)
+    r5_4 = init_check_btn(
+        master=left_set_pad_center_left, id='r5_4', var=var20,
+        command=chk_button_value)
+    txt_r5_4 = init_entry(
+        master=left_set_pad_center_left, id='r5_4', text_var=e_r20)
+    # =======================================================================
+    r6_1 = init_check_btn(
+        master=left_set_pad_center_left, id='r6_1', var=var21,
+        command=chk_button_value)
+    txt_r6_1 = init_entry(
+        master=left_set_pad_center_left, id='r6_1', text_var=e_r21)
+    r6_2 = init_check_btn(
+        master=left_set_pad_center_left, id='r6_2', var=var22,
+        command=chk_button_value)
+    txt_r6_2 = init_entry(
+        master=left_set_pad_center_left, id='r6_2', text_var=e_r22)
+    r6_3 = init_check_btn(
+        master=left_set_pad_center_left, id='r6_3', var=var23,
+        command=chk_button_value)
+    txt_r6_3 = init_entry(
+        master=left_set_pad_center_left, id='r6_3', text_var=e_r23)
+    r6_4 = init_check_btn(
+        master=left_set_pad_center_left, id='r6_4', var=var24,
+        command=chk_button_value)
+    txt_r6_4 = init_entry(
+        master=left_set_pad_center_left, id='r6_4', text_var=e_r24)
+    # =======================================================================
+    r7_1 = init_check_btn(
+        master=left_set_pad_center_left, id='r7_1', var=var25,
+        command=chk_button_value)
+    txt_r7_1 = init_entry(
+        master=left_set_pad_center_left, id='r7_1', text_var=e_r25)
+    r7_2 = init_check_btn(
+        master=left_set_pad_center_left, id='r7_2', var=var26,
+        command=chk_button_value)
+    txt_r7_2 = init_entry(
+        master=left_set_pad_center_left, id='r7_2', text_var=e_r26)
+    r7_3 = init_check_btn(
+        master=left_set_pad_center_left, id='r7_3', var=var27,
+        command=chk_button_value)
+    txt_r7_3 = init_entry(
+        master=left_set_pad_center_left, id='r7_3', text_var=e_r27)
+    r7_4 = init_check_btn(
+        master=left_set_pad_center_left, id='r7_4', var=var28,
+        command=chk_button_value)
+    txt_r7_4 = init_entry(
+        master=left_set_pad_center_left, id='r7_4', text_var=e_r28)
+    # =======================================================================
+    r8_1 = init_check_btn(
+        master=left_set_pad_center_left, id='r8_1', var=var29,
+        command=chk_button_value)
+    txt_r8_1 = init_entry(
+        master=left_set_pad_center_left, id='r8_1', text_var=e_r29)
+    r8_2 = init_check_btn(
+        master=left_set_pad_center_left, id='r8_2', var=var30,
+        command=chk_button_value)
+    txt_r8_2 = init_entry(
+        master=left_set_pad_center_left, id='r8_2', text_var=e_r30)
+    r8_3 = init_check_btn(
+        master=left_set_pad_center_left, id='r8_3', var=var31,
+        command=chk_button_value)
+    txt_r8_3 = init_entry(
+        master=left_set_pad_center_left, id='r8_3', text_var=e_r31)
+    r8_4 = init_check_btn(
+        master=left_set_pad_center_left, id='r8_4', var=var32,
+        command=chk_button_value)
+    txt_r8_4 = init_entry(
+        master=left_set_pad_center_left, id='r8_4', text_var=e_r32)
+    # ============================资源配置======================================
+    lbl_resource = Label(
+        master=left_set_pad_resource,
+        font=('arial', 12),
+        text='人力资源数：',
+        bd=2,
+        anchor='w'
+    )
+    lbl_resource.grid(row=0, column=0)
+    person_res = Spinbox(
+        master=left_set_pad_resource,
+        values=(1, 2))
+    person_res.grid(row=0, column=1)
+    # ============================仿真结果输出面板======================
+    lbl_info = Label(
+        master=right_output_pad_title,
+        font=('arial', 10, 'bold'),
+        text='输出结果统计',
+        bd=2,
+        anchor='w'
+    )
     lbl_info.grid(row=0, column=0)
 
-    r1 = Checkbutton(left_set_pad_center_left, text='r1 \t', variable=var1, onvalue=1, offvalue=0,
-                     font=('arial', 18, 'bold'), command=chk_button_value).grid(
-        row=0, sticky='w')
-
-    r2 = Checkbutton(left_set_pad_center_left, text='r2 \t\t', variable=var2, onvalue=1, offvalue=0,
-                     font=('arial', 18, 'bold'), command=chk_button_value).grid(
-        row=1, sticky='w')
-
-    r3 = Checkbutton(left_set_pad_center_left, text='r3 \t\t', variable=var3, onvalue=1, offvalue=0,
-                     font=('arial', 18, 'bold'), command=chk_button_value).grid(
-        row=2, sticky='w')
-
-    r4 = Checkbutton(left_set_pad_center_left, text='r4 \t', variable=var4, onvalue=1, offvalue=0,
-                     font=('arial', 18, 'bold'), command=chk_button_value).grid(
-        row=3, sticky='w')
-
-    r5 = Checkbutton(left_set_pad_center_left, text='r5 \t\t', variable=var5, onvalue=1, offvalue=0,
-                     font=('arial', 18, 'bold'), command=chk_button_value).grid(
-        row=4, sticky='w')
-
-    r6 = Checkbutton(left_set_pad_center_left, text='r6 \t\t', variable=var6, onvalue=1, offvalue=0,
-                     font=('arial', 18, 'bold'), command=chk_button_value).grid(
-        row=5, sticky='w')
-
-    txt_r1 = Entry(left_set_pad_center_left, font=('arial', 16, 'bold'),
-                   textvariable=e_r1, bd=8, width=6, justify='left',
-                   state=DISABLED)
-    txt_r1.grid(row=0, column=1)
-    txt_r2 = Entry(left_set_pad_center_left, font=('arial', 16, 'bold'),
-                   textvariable=e_r2, bd=8, width=6, justify='left',
-                   state=DISABLED)
-    txt_r2.grid(row=1, column=1)
-    txt_r3 = Entry(left_set_pad_center_left, font=('arial', 16, 'bold'),
-                   textvariable=e_r3, bd=8, width=6, justify='left',
-                   state=DISABLED)
-    txt_r3.grid(row=2, column=1)
-    txt_r4 = Entry(left_set_pad_center_left, font=('arial', 16, 'bold'),
-                   textvariable=e_r4, bd=8, width=6, justify='left',
-                   state=DISABLED)
-    txt_r4.grid(row=3, column=1)
-    txt_r5 = Entry(left_set_pad_center_left, font=('arial', 16, 'bold'),
-                   textvariable=e_r5, bd=8, width=6, justify='left',
-                   state=DISABLED)
-    txt_r5.grid(row=4, column=1)
-    txt_r6 = Entry(left_set_pad_center_left, font=('arial', 16, 'bold'),
-                   textvariable=e_r6, bd=8, width=6, justify='left',
-                   state=DISABLED)
-    txt_r6.grid(row=5, column=1)
-
-    r7 = Checkbutton(left_set_pad_center_right,
-                     text='r7 \t', variable=var7, onvalue=1, offvalue=0,
-                     font=('arial', 18, 'bold'), command=chk_button_value
-                     ).grid(
-        row=0, sticky='w')
-
-    r8 = Checkbutton(left_set_pad_center_right, text='r8 \t\t', variable=var8, onvalue=1, offvalue=0,
-                     font=('arial', 18, 'bold'), command=chk_button_value).grid(
-        row=1, sticky='w')
-
-    r9 = Checkbutton(left_set_pad_center_right, text='r3 \t\t', variable=var9, onvalue=1, offvalue=0,
-                     font=('arial', 18, 'bold'), command=chk_button_value).grid(
-        row=2, sticky='w')
-
-    r10 = Checkbutton(left_set_pad_center_right, text='r4 \t', variable=var10, onvalue=1, offvalue=0,
-                      font=('arial', 18, 'bold'),
-                      command=chk_button_value).grid(
-        row=3, sticky='w')
-
-    r11 = Checkbutton(left_set_pad_center_right, text='r5 \t\t', variable=var11, onvalue=1,
-                      offvalue=0,
-                      font=('arial', 18, 'bold'),
-                      command=chk_button_value).grid(
-        row=4, sticky='w')
-
-    r12 = Checkbutton(left_set_pad_center_right, text='r6 \t\t', variable=var12, onvalue=1,
-                      offvalue=0,
-                      font=('arial', 18, 'bold'),
-                      command=chk_button_value).grid(
-        row=5, sticky='w')
-
-    txt_r7 = Entry(left_set_pad_center_right, font=('arial', 16, 'bold'),
-                   textvariable=e_r7, bd=8, width=6,
-                   justify='left', state=DISABLED)
-    txt_r7.grid(row=0, column=1)
-    txt_r8 = Entry(left_set_pad_center_right, font=('arial', 16, 'bold'),
-                   textvariable=e_r8, bd=8, width=6,
-                   justify='left', state=DISABLED)
-    txt_r8.grid(row=1, column=1)
-    txt_r9 = Entry(left_set_pad_center_right, font=('arial', 16, 'bold'),
-                   textvariable=e_r9, bd=8, width=6,
-                   justify='left', state=DISABLED)
-    txt_r9.grid(row=2, column=1)
-    txt_r10 = Entry(left_set_pad_center_right, font=('arial', 16, 'bold'),
-                    textvariable=e_r10, bd=8, width=6,
-                    justify='left', state=DISABLED)
-    txt_r10.grid(row=3, column=1)
-    txt_r11 = Entry(left_set_pad_center_right, font=('arial', 16, 'bold'),
-                    textvariable=e_r11, bd=8, width=6,
-                    justify='left', state=DISABLED)
-
-    txt_r11.grid(row=4, column=1)
-    txt_r12 = Entry(left_set_pad_center_right, font=('arial', 16, 'bold'),
-                    textvariable=e_r12, bd=8, width=6,
-                    justify='left', state=DISABLED)
-    txt_r12.grid(row=5, column=1)
-
-    lblReceipt = Label(
-        right_output_pad,
-        font=('arial', 12, 'bold'), text='统计面板',
-        bd=2, anchor='w')
-    lblReceipt.grid(row=0, column=0, sticky='w')
-    txtReceipt = Text(right_output_pad, font=('arial', 11, 'bold'), height=22,
+    # ============================输出信息面板=========================
+    txtReceipt = Text(right_output_pad_info,
+                      font=('arial', 11, 'bold'),
+                      height=23,
                       bd=8,
                       bg="white")
-    txtReceipt.grid(row=1, column=0)
-
+    txtReceipt.grid(row=0, column=0)
     # =====================Button==============================
-    btnTotal = Button(right_output_button, padx=16, pady=1, bd=4, fg="black",
-                      font=('arial', 16, 'bold'), width=5,
-                      text="仿真", command=cost_of_item).grid(row=0, column=0)
-
-    btnExit = Button(right_output_button, padx=16, pady=4, fg="black",
-                     font=('arial', 16, 'bold'),
-                     width=5, text="退出", command=q_exit).grid(row=0, column=1)
+    btn_run = Button(
+        master=right_output_pad_button,
+        padx=20, pady=1, fg="black",
+        font=('arial', 9, 'bold'),
+        width=5,
+        text="启动仿真",
+        command=cost_of_item
+    ).grid(row=0, column=0)
+    btn_analyze = Button(
+        master=right_output_pad_button,
+        padx=20, pady=1, fg="black",
+        font=('arial', 9, 'bold'),
+        width=5,
+        text="仿真分析",
+        command=cost_of_item
+    ).grid(row=0, column=1)
+    btn_exit = Button(
+        master=right_output_pad_button,
+        padx=20, pady=1, fg="black",
+        font=('arial', 9, 'bold'),
+        width=5,
+        text="退出",
+        command=q_exit
+    ).grid(row=0, column=2)
+    # ========================================================

@@ -1,7 +1,7 @@
 #
 from tkinter import messagebox
 from .config_frame import *
-from .frame import App
+from .frame import App, CheckBtnCreate, EntryCreate
 from .r_frame import init_r_frame
 
 root = Tk()
