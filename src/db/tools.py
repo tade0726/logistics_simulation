@@ -326,7 +326,7 @@ def get_parameters(is_local: bool=False):
 
 def get_equipment_on_off(is_local: bool = False):
     """
-    返回设备的开关信息
+    返回设备的开关信息, 返回开的设备名
 
     samples:
         ['r1_1', 'r1_2', ..]
