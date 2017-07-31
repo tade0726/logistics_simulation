@@ -26,21 +26,28 @@ class TruckController:
                  env: simpy.Environment,
                  trucks: simpy.FilterStore,
                  is_test: bool=False,
-                 is_parcel_only: bool=True):
+                 is_parcel_only: bool=True,
+                 is_land_only:bool=True):
 
         self.env = env
         self.trucks = trucks
         self.is_test = is_test
-        self.is_parcel_only =is_parcel_only
+        self.is_parcel_only = is_parcel_only
+        self.is_land_only = is_land_only
         self._init_truck_data()
 
     def _init_truck_data(self):
 
-        trucks_dict, truck_small_dict = get_vehicles(is_test=self.is_test, is_land=True, is_parcel_only=self.is_parcel_only)
-        uld_dict, uld_small_dict = get_vehicles(is_test=self.is_test, is_land=False, is_parcel_only=self.is_parcel_only)
+        trucks_dict, truck_small_dict = get_vehicles(is_test=self.is_test,
+                                                     is_land=True,
+                                                     is_parcel_only=self.is_parcel_only)
 
-        trucks_dict.update(uld_dict)
-        truck_small_dict.update(uld_small_dict)
+        if not self.is_land_only:
+            uld_dict, uld_small_dict = get_vehicles(is_test=self.is_test,
+                                                    is_land=False,
+                                                    is_parcel_only=self.is_parcel_only)
+            trucks_dict.update(uld_dict)
+            truck_small_dict.update(uld_small_dict)
 
         self.trucks_dict = trucks_dict
         self.truck_small_dict = truck_small_dict

@@ -113,7 +113,11 @@ def main():
 
     # init trucks controllers
     logging.info("loading package data")
-    truck_controller = TruckController(env, trucks=trucks_queue, is_test=MainConfig.IS_TEST, is_parcel_only=MainConfig.IS_PARCEL_ONLY)
+    truck_controller = TruckController(env,
+                                       trucks=trucks_queue,
+                                       is_test=MainConfig.IS_TEST,
+                                       is_parcel_only=MainConfig.IS_PARCEL_ONLY,
+                                       is_land_only=MainConfig.IS_LAND_ONLY)
     truck_controller.controller()
 
     # init unload machines
