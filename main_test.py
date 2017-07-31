@@ -51,8 +51,7 @@ def main():
     equipment_on_off_list = get_equipment_on_off()
 
     # equipment setting from unload
-    unload_setting_dict = \
-        {key: val for key, val in unload_setting_dict_src.items() if key in equipment_on_off_list}
+    unload_setting_dict = {key: val for key, val in unload_setting_dict_src.items() if key in equipment_on_off_list}
 
     # c_port list
     reload_c_list = list()
@@ -111,7 +110,6 @@ def main():
 
     # init trucks controllers
     logging.info("loading package data")
-
     truck_controller = TruckController(env, trucks=trucks_queue, is_test=MainConfig.IS_TEST, is_parcel_only=MainConfig.IS_PARCEL_ONLY)
     truck_controller.controller()
 
@@ -172,7 +170,6 @@ def main():
                 equipment_resource_dict=equipment_resource_dict,)
         )
 
-
     # adding machines into processes
     for machine_type, machines in machines_dict.items():
         logging.info(f"init {machine_type} machines")
@@ -220,7 +217,7 @@ def main():
     pipeline_table = add_time(pipeline_table)
     machine_table = add_time(machine_table)
 
-    # output data to mysql
+    # output data
     logging.info("output data")
 
     if MainConfig.SAVE_LOCAL:
