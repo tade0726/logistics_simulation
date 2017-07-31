@@ -76,32 +76,37 @@ class TruckController:
         # truck start enter
         self.trucks.put(item)
 
+    def _init_truck(self, keys: tuple, packages_record: pd.DataFrame):
+
+        yield self.env.timeout(0)
+        # init packages
+        packages = list()
+        for _, package_record in packages_record.iterrows():
+            parcel_type = package_record['parcel_type']
+
+            if parcel_type == 'parcel':
+                package = self._init_package(cls=Package, package_record=package_record)
+            elif parcel_type == 'small':
+                package = self._init_small_bag(small_bag_record=package_record)
+            else:
+                raise ValueError("parcel_type is either parcel or small!!")
+
+            packages.append(package)
+
+        # init truck
+        (truck_id, come_time, truck_type,) = keys
+        truck = Truck(env=self.env, item_id=truck_id, come_time=come_time,
+                      packages=packages, truck_type=truck_type,
+                      )
+        self.env.process(self.latency(come_time, truck))
+
     def controller(self):
         """
         """
-
+        logging.info(msg="init trucks..")
         for keys, packages_record in self.trucks_dict.items():
+            self.env.process(self._init_truck(keys, packages_record))
 
-            # init packages
-            packages = list()
-            for _, package_record in packages_record.iterrows():
-                parcel_type = package_record['parcel_type']
-
-                if parcel_type == 'parcel':
-                    package = self._init_package(cls=Package, package_record=package_record)
-                elif parcel_type == 'small':
-                    package = self._init_small_bag(small_bag_record=package_record)
-                else:
-                    raise ValueError("parcel_type is either parcel or small!!")
-
-                packages.append(package)
-
-            # init truck
-            (truck_id, come_time, truck_type,) = keys
-            truck = Truck(env=self.env, item_id=truck_id, come_time=come_time,
-                          packages=packages, truck_type=truck_type,
-                          )
-            self.env.process(self.latency(come_time, truck))
 
 if __name__ == '__main__':
     pass
