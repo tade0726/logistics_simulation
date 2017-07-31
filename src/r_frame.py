@@ -225,6 +225,16 @@ def init_r_frame(root: Tk):
     )
     package_num.grid(row=0, column=1)
     # ============================机器配置==========================
+    # # 路侧卸货标题
+    # lbl_unload = Label(
+    #     master=left_set_pad_center_left,
+    #     font=('arial', 10),
+    #     text='路侧设置面板',
+    #     bd=2,
+    #     anchor='w'
+    # )
+    # lbl_unload.grid(row=0, column=0)
+    # =============================================================
     r1_1 = init_check_btn(
         master=left_set_pad_center_left, id='r1_1', var=var1,
         command=chk_button_value)
@@ -329,70 +339,70 @@ def init_r_frame(root: Tk):
         command=chk_button_value)
     txt_r5_4 = init_entry(
         master=left_set_pad_center_left, id='r5_4', text_var=e_r20)
-    # =======================================================================
-    a1_1 = init_check_btn(
-        master=left_set_pad_center_right, id='a1_1', var=var21,
-        command=chk_button_value)
-    txt_a1_1 = init_entry(
-        master=left_set_pad_center_right, id='a1_1', text_var=e_r21)
-    a1_2 = init_check_btn(
-        master=left_set_pad_center_right, id='a1_2', var=var22,
-        command=chk_button_value)
-    txt_a1_2 = init_entry(
-        master=left_set_pad_center_right, id='a1_2', text_var=e_r22)
-    a1_3 = init_check_btn(
-        master=left_set_pad_center_right, id='a1_3', var=var23,
-        command=chk_button_value)
-    txt_a1_3 = init_entry(
-        master=left_set_pad_center_right, id='a1_3', text_var=e_r23)
-    a1_4 = init_check_btn(
-        master=left_set_pad_center_right, id='a1_4', var=var24,
-        command=chk_button_value)
-    txt_a1_4 = init_entry(
-        master=left_set_pad_center_right, id='a1_4', text_var=e_r24)
-    # =======================================================================
-    a1_5 = init_check_btn(
-        master=left_set_pad_center_right, id='a1_5', var=var25,
-        command=chk_button_value)
-    txt_a1_5 = init_entry(
-        master=left_set_pad_center_right, id='a1_5', text_var=e_r25)
-    a1_6 = init_check_btn(
-        master=left_set_pad_center_right, id='a1_6', var=var26,
-        command=chk_button_value)
-    txt_a1_6 = init_entry(
-        master=left_set_pad_center_right, id='a1_6', text_var=e_r26)
-    a1_7 = init_check_btn(
-        master=left_set_pad_center_right, id='a1_7', var=var27,
-        command=chk_button_value)
-    txt_a1_7 = init_entry(
-        master=left_set_pad_center_right, id='a1_7', text_var=e_r27)
-    a1_8 = init_check_btn(
-        master=left_set_pad_center_right, id='a1_8', var=var28,
-        command=chk_button_value)
-    txt_a1_8 = init_entry(
-        master=left_set_pad_center_right, id='a1_8', text_var=e_r28)
-    # =======================================================================
-    a1_9 = init_check_btn(
-        master=left_set_pad_center_right, id='a1_9', var=var29,
-        command=chk_button_value)
-    txt_a1_9 = init_entry(
-        master=left_set_pad_center_right, id='a1_9', text_var=e_r29)
-    a1_10 = init_check_btn(
-        master=left_set_pad_center_right, id='a1_10', var=var30,
-        command=chk_button_value)
-    txt_a1_10 = init_entry(
-        master=left_set_pad_center_right, id='a1_10', text_var=e_r30)
-    a1_11 = init_check_btn(
-        master=left_set_pad_center_right, id='a1_11', var=var31,
-        command=chk_button_value)
-    txt_a1_11 = init_entry(
-        master=left_set_pad_center_right, id='a1_11', text_var=e_r31)
-    a1_12 = init_check_btn(
-        master=left_set_pad_center_right, id='a1_12', var=var32,
-        command=chk_button_value)
-    txt_a1_12 = init_entry(
-        master=left_set_pad_center_right, id='a1_12', text_var=e_r32)
-    # ============================资源配置==============================
+    # # ===========================空侧卸货口设置==============================
+    # a1_1 = init_check_btn(
+    #     master=left_set_pad_center_right, id='a1_1', var=var21,
+    #     command=chk_button_value)
+    # txt_a1_1 = init_entry(
+    #     master=left_set_pad_center_right, id='a1_1', text_var=e_r21)
+    # a1_2 = init_check_btn(
+    #     master=left_set_pad_center_right, id='a1_2', var=var22,
+    #     command=chk_button_value)
+    # txt_a1_2 = init_entry(
+    #     master=left_set_pad_center_right, id='a1_2', text_var=e_r22)
+    # a1_3 = init_check_btn(
+    #     master=left_set_pad_center_right, id='a1_3', var=var23,
+    #     command=chk_button_value)
+    # txt_a1_3 = init_entry(
+    #     master=left_set_pad_center_right, id='a1_3', text_var=e_r23)
+    # a1_4 = init_check_btn(
+    #     master=left_set_pad_center_right, id='a1_4', var=var24,
+    #     command=chk_button_value)
+    # txt_a1_4 = init_entry(
+    #     master=left_set_pad_center_right, id='a1_4', text_var=e_r24)
+    # # =======================================================================
+    # a1_5 = init_check_btn(
+    #     master=left_set_pad_center_right, id='a1_5', var=var25,
+    #     command=chk_button_value)
+    # txt_a1_5 = init_entry(
+    #     master=left_set_pad_center_right, id='a1_5', text_var=e_r25)
+    # a1_6 = init_check_btn(
+    #     master=left_set_pad_center_right, id='a1_6', var=var26,
+    #     command=chk_button_value)
+    # txt_a1_6 = init_entry(
+    #     master=left_set_pad_center_right, id='a1_6', text_var=e_r26)
+    # a1_7 = init_check_btn(
+    #     master=left_set_pad_center_right, id='a1_7', var=var27,
+    #     command=chk_button_value)
+    # txt_a1_7 = init_entry(
+    #     master=left_set_pad_center_right, id='a1_7', text_var=e_r27)
+    # a1_8 = init_check_btn(
+    #     master=left_set_pad_center_right, id='a1_8', var=var28,
+    #     command=chk_button_value)
+    # txt_a1_8 = init_entry(
+    #     master=left_set_pad_center_right, id='a1_8', text_var=e_r28)
+    # # =======================================================================
+    # a1_9 = init_check_btn(
+    #     master=left_set_pad_center_right, id='a1_9', var=var29,
+    #     command=chk_button_value)
+    # txt_a1_9 = init_entry(
+    #     master=left_set_pad_center_right, id='a1_9', text_var=e_r29)
+    # a1_10 = init_check_btn(
+    #     master=left_set_pad_center_right, id='a1_10', var=var30,
+    #     command=chk_button_value)
+    # txt_a1_10 = init_entry(
+    #     master=left_set_pad_center_right, id='a1_10', text_var=e_r30)
+    # a1_11 = init_check_btn(
+    #     master=left_set_pad_center_right, id='a1_11', var=var31,
+    #     command=chk_button_value)
+    # txt_a1_11 = init_entry(
+    #     master=left_set_pad_center_right, id='a1_11', text_var=e_r31)
+    # a1_12 = init_check_btn(
+    #     master=left_set_pad_center_right, id='a1_12', var=var32,
+    #     command=chk_button_value)
+    # txt_a1_12 = init_entry(
+    #     master=left_set_pad_center_right, id='a1_12', text_var=e_r32)
+    # ============================资源配置=============================
     # 标题
     lbl_resource = Label(
         master=left_set_pad_resource,
@@ -424,7 +434,7 @@ def init_r_frame(root: Tk):
                       bd=8,
                       bg="white")
     txtReceipt.grid(row=0, column=0)
-    # =====================Button==============================
+    # ===========================Button==============================
     btn_run = Button(
         master=right_output_pad_button,
         padx=20, pady=1, fg="black",
