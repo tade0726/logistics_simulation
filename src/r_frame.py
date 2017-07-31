@@ -86,10 +86,10 @@ def init_r_frame(root: Tk):
         master=left_set_pad_r,
         wig='LEFT_SET_PAD_CENTER_LEFT'
     )
-    # left_set_pad_center_right = init_app(
-    #     master=left_set_pad_r,
-    #     wig='LEFT_SET_PAD_CENTER_RIGHT'
-    # )
+    left_set_pad_center_right = init_app(
+        master=left_set_pad_r,
+        wig='LEFT_SET_PAD_CENTER_RIGHT'
+    )
     var1 = IntVar()
     var2 = IntVar()
     var3 = IntVar()
@@ -245,7 +245,7 @@ def init_r_frame(root: Tk):
         command=chk_button_value)
     txt_r1_4 = init_entry(
         master=left_set_pad_center_left, id='r1_4', text_var=e_r4)
-    # =======================================================================
+    # ==================================================================
     r2_1 = init_check_btn(
         master=left_set_pad_center_left, id='r2_1', var=var5,
         command=chk_button_value)
@@ -308,7 +308,7 @@ def init_r_frame(root: Tk):
         command=chk_button_value)
     txt_r4_4 = init_entry(
         master=left_set_pad_center_left, id='r4_4', text_var=e_r16)
-    # ======================================2===================================
+    # =================================2=============================
     r5_1 = init_check_btn(
         master=left_set_pad_center_left, id='r5_1', var=var17,
         command=chk_button_value)
@@ -330,69 +330,70 @@ def init_r_frame(root: Tk):
     txt_r5_4 = init_entry(
         master=left_set_pad_center_left, id='r5_4', text_var=e_r20)
     # =======================================================================
-    r6_1 = init_check_btn(
-        master=left_set_pad_center_left, id='r6_1', var=var21,
+    a1_1 = init_check_btn(
+        master=left_set_pad_center_right, id='a1_1', var=var21,
         command=chk_button_value)
-    txt_r6_1 = init_entry(
-        master=left_set_pad_center_left, id='r6_1', text_var=e_r21)
-    r6_2 = init_check_btn(
-        master=left_set_pad_center_left, id='r6_2', var=var22,
+    txt_a1_1 = init_entry(
+        master=left_set_pad_center_right, id='a1_1', text_var=e_r21)
+    a1_2 = init_check_btn(
+        master=left_set_pad_center_right, id='a1_2', var=var22,
         command=chk_button_value)
-    txt_r6_2 = init_entry(
-        master=left_set_pad_center_left, id='r6_2', text_var=e_r22)
-    r6_3 = init_check_btn(
-        master=left_set_pad_center_left, id='r6_3', var=var23,
+    txt_a1_2 = init_entry(
+        master=left_set_pad_center_right, id='a1_2', text_var=e_r22)
+    a1_3 = init_check_btn(
+        master=left_set_pad_center_right, id='a1_3', var=var23,
         command=chk_button_value)
-    txt_r6_3 = init_entry(
-        master=left_set_pad_center_left, id='r6_3', text_var=e_r23)
-    r6_4 = init_check_btn(
-        master=left_set_pad_center_left, id='r6_4', var=var24,
+    txt_a1_3 = init_entry(
+        master=left_set_pad_center_right, id='a1_3', text_var=e_r23)
+    a1_4 = init_check_btn(
+        master=left_set_pad_center_right, id='a1_4', var=var24,
         command=chk_button_value)
-    txt_r6_4 = init_entry(
-        master=left_set_pad_center_left, id='r6_4', text_var=e_r24)
+    txt_a1_4 = init_entry(
+        master=left_set_pad_center_right, id='a1_4', text_var=e_r24)
     # =======================================================================
-    r7_1 = init_check_btn(
-        master=left_set_pad_center_left, id='r7_1', var=var25,
+    a1_5 = init_check_btn(
+        master=left_set_pad_center_right, id='a1_5', var=var25,
         command=chk_button_value)
-    txt_r7_1 = init_entry(
-        master=left_set_pad_center_left, id='r7_1', text_var=e_r25)
-    r7_2 = init_check_btn(
-        master=left_set_pad_center_left, id='r7_2', var=var26,
+    txt_a1_5 = init_entry(
+        master=left_set_pad_center_right, id='a1_5', text_var=e_r25)
+    a1_6 = init_check_btn(
+        master=left_set_pad_center_right, id='a1_6', var=var26,
         command=chk_button_value)
-    txt_r7_2 = init_entry(
-        master=left_set_pad_center_left, id='r7_2', text_var=e_r26)
-    r7_3 = init_check_btn(
-        master=left_set_pad_center_left, id='r7_3', var=var27,
+    txt_a1_6 = init_entry(
+        master=left_set_pad_center_right, id='a1_6', text_var=e_r26)
+    a1_7 = init_check_btn(
+        master=left_set_pad_center_right, id='a1_7', var=var27,
         command=chk_button_value)
-    txt_r7_3 = init_entry(
-        master=left_set_pad_center_left, id='r7_3', text_var=e_r27)
-    r7_4 = init_check_btn(
-        master=left_set_pad_center_left, id='r7_4', var=var28,
+    txt_a1_7 = init_entry(
+        master=left_set_pad_center_right, id='a1_7', text_var=e_r27)
+    a1_8 = init_check_btn(
+        master=left_set_pad_center_right, id='a1_8', var=var28,
         command=chk_button_value)
-    txt_r7_4 = init_entry(
-        master=left_set_pad_center_left, id='r7_4', text_var=e_r28)
+    txt_a1_8 = init_entry(
+        master=left_set_pad_center_right, id='a1_8', text_var=e_r28)
     # =======================================================================
-    r8_1 = init_check_btn(
-        master=left_set_pad_center_left, id='r8_1', var=var29,
+    a1_9 = init_check_btn(
+        master=left_set_pad_center_right, id='a1_9', var=var29,
         command=chk_button_value)
-    txt_r8_1 = init_entry(
-        master=left_set_pad_center_left, id='r8_1', text_var=e_r29)
-    r8_2 = init_check_btn(
-        master=left_set_pad_center_left, id='r8_2', var=var30,
+    txt_a1_9 = init_entry(
+        master=left_set_pad_center_right, id='a1_9', text_var=e_r29)
+    a1_10 = init_check_btn(
+        master=left_set_pad_center_right, id='a1_10', var=var30,
         command=chk_button_value)
-    txt_r8_2 = init_entry(
-        master=left_set_pad_center_left, id='r8_2', text_var=e_r30)
-    r8_3 = init_check_btn(
-        master=left_set_pad_center_left, id='r8_3', var=var31,
+    txt_a1_10 = init_entry(
+        master=left_set_pad_center_right, id='a1_10', text_var=e_r30)
+    a1_11 = init_check_btn(
+        master=left_set_pad_center_right, id='a1_11', var=var31,
         command=chk_button_value)
-    txt_r8_3 = init_entry(
-        master=left_set_pad_center_left, id='r8_3', text_var=e_r31)
-    r8_4 = init_check_btn(
-        master=left_set_pad_center_left, id='r8_4', var=var32,
+    txt_a1_11 = init_entry(
+        master=left_set_pad_center_right, id='a1_11', text_var=e_r31)
+    a1_12 = init_check_btn(
+        master=left_set_pad_center_right, id='a1_12', var=var32,
         command=chk_button_value)
-    txt_r8_4 = init_entry(
-        master=left_set_pad_center_left, id='r8_4', text_var=e_r32)
-    # ============================资源配置======================================
+    txt_a1_12 = init_entry(
+        master=left_set_pad_center_right, id='a1_12', text_var=e_r32)
+    # ============================资源配置==============================
+    # 标题
     lbl_resource = Label(
         master=left_set_pad_resource,
         font=('arial', 12),
@@ -401,6 +402,7 @@ def init_r_frame(root: Tk):
         anchor='w'
     )
     lbl_resource.grid(row=0, column=0)
+    # 选择人数
     person_res = Spinbox(
         master=left_set_pad_resource,
         values=(1, 2))

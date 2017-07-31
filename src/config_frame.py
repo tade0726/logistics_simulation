@@ -239,65 +239,65 @@ class ConfigCheckBtn(object):
             'grid': {
                 'row': 3, 'column': 2, 'sticky': 'w'
             }},
-        'r6_1': {
+        'a1_1': {
             'attr': R_CHECK_BTN_ATTR,
             'grid': {
-                'row': 4, 'column': 2, 'sticky': 'w'
+                'row': 0, 'column': 0, 'sticky': 'w'
             }},
-        'r6_2': {
+        'a1_2': {
             'attr': R_CHECK_BTN_ATTR,
             'grid': {
-                'row': 5, 'column': 2, 'sticky': 'w'
+                'row': 1, 'column': 0, 'sticky': 'w'
             }},
-        'r6_3': {
+        'a1_3': {
             'attr': R_CHECK_BTN_ATTR,
             'grid': {
-                'row': 6, 'column': 2, 'sticky': 'w'
+                'row': 2, 'column': 0, 'sticky': 'w'
             }},
-        'r6_4': {
+        'a1_4': {
             'attr': R_CHECK_BTN_ATTR,
             'grid': {
-                'row': 7, 'column': 2, 'sticky': 'w'
+                'row': 3, 'column': 0, 'sticky': 'w'
             }},
-        'r7_1': {
+        'a1_5': {
             'attr': R_CHECK_BTN_ATTR,
             'grid': {
-                'row': 8, 'column': 2, 'sticky': 'w'
+                'row': 4, 'column': 0, 'sticky': 'w'
             }},
-        'r7_2': {
+        'a1_6': {
             'attr': R_CHECK_BTN_ATTR,
             'grid': {
-                'row': 9, 'column': 2, 'sticky': 'w'
+                'row': 5, 'column': 0, 'sticky': 'w'
             }},
-        'r7_3': {
+        'a1_7': {
             'attr': R_CHECK_BTN_ATTR,
             'grid': {
-                'row': 10, 'column': 2, 'sticky': 'w'
+                'row': 6, 'column': 0, 'sticky': 'w'
             }},
-        'r7_4': {
+        'a1_8': {
             'attr': R_CHECK_BTN_ATTR,
             'grid': {
-                'row': 11, 'column': 2, 'sticky': 'w'
+                'row': 7, 'column': 0, 'sticky': 'w'
             }},
-        'r8_1': {
+        'a1_9': {
             'attr': R_CHECK_BTN_ATTR,
             'grid': {
-                'row': 12, 'column': 2, 'sticky': 'w'
+                'row': 8, 'column': 0, 'sticky': 'w'
             }},
-        'r8_2': {
+        'a1_10': {
             'attr': R_CHECK_BTN_ATTR,
             'grid': {
-                'row': 13, 'column': 2, 'sticky': 'w'
+                'row': 9, 'column': 0, 'sticky': 'w'
             }},
-        'r8_3': {
+        'a1_11': {
             'attr': R_CHECK_BTN_ATTR,
             'grid': {
-                'row': 14, 'column': 2, 'sticky': 'w'
+                'row': 10, 'column': 0, 'sticky': 'w'
             }},
-        'r8_4': {
+        'a1_12': {
             'attr': R_CHECK_BTN_ATTR,
             'grid': {
-                'row': 15, 'column': 2, 'sticky': 'w'
+                'row': 11, 'column': 0, 'sticky': 'w'
             }},
 
     }
@@ -402,61 +402,64 @@ class ConfigCheckBtn(object):
             'grid': {
                 'row': 3, 'column': 3
             }},
-        'r6_1': {
+        'a1_1': {
             'attr': R_ENTRY_ATTR,
             'grid': {
-                'row': 4, 'column': 3}},
-        'r6_2': {
-            'attr': R_ENTRY_ATTR,
-            'grid': {
-                'row': 5, 'column': 3
+                'row': 0, 'column': 1
             }},
-        'r6_3': {
+        'a1_2': {
             'attr': R_ENTRY_ATTR,
             'grid': {
-                'row': 6, 'column': 3
+                'row': 1, 'column': 1
             }},
-        'r6_4': {
+        'a1_3': {
             'attr': R_ENTRY_ATTR,
             'grid': {
-                'row': 7, 'column': 3
+                'row': 2, 'column': 1
             }},
-        'r7_1': {
+        'a1_4': {
             'attr': R_ENTRY_ATTR,
             'grid': {
-                'row': 8, 'column': 3}},
-        'r7_2': {
-            'attr': R_ENTRY_ATTR,
-            'grid': {
-                'row': 9, 'column': 3
+                'row': 3, 'column': 1
             }},
-        'r7_3': {
+        'a1_5': {
             'attr': R_ENTRY_ATTR,
             'grid': {
-                'row': 10, 'column': 3
+                'row': 4, 'column': 1
             }},
-        'r7_4': {
+        'a1_6': {
             'attr': R_ENTRY_ATTR,
             'grid': {
-                'row': 11, 'column': 3
+                'row': 5, 'column': 1
             }},
-        'r8_1': {
+        'a1_7': {
             'attr': R_ENTRY_ATTR,
             'grid': {
-                'row': 12, 'column': 3}},
-        'r8_2': {
-            'attr': R_ENTRY_ATTR,
-            'grid': {
-                'row': 13, 'column': 3
+                'row': 6, 'column': 1
             }},
-        'r8_3': {
+        'a1_8': {
             'attr': R_ENTRY_ATTR,
             'grid': {
-                'row': 14, 'column': 3
+                'row': 7, 'column': 1
             }},
-        'r8_4': {
+        'a1_9': {
             'attr': R_ENTRY_ATTR,
             'grid': {
-                'row': 15, 'column': 3
+                'row': 8, 'column': 1
+            }},
+        'a1_10': {
+            'attr': R_ENTRY_ATTR,
+            'grid': {
+                'row': 9, 'column': 1
+            }},
+        'a1_11': {
+            'attr': R_ENTRY_ATTR,
+            'grid': {
+                'row': 10, 'column': 1
+            }},
+        'a1_12': {
+            'attr': R_ENTRY_ATTR,
+            'grid': {
+                'row': 11, 'column': 1
             }},
     }
