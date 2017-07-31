@@ -19,12 +19,14 @@ import logging
 
 __all__ = ["TruckController", ]
 
-# todo:
-
 
 class TruckController:
 
-    def __init__(self, env: simpy.Environment, trucks: simpy.FilterStore, is_test: bool=False, is_parcel_only: bool=True):
+    def __init__(self,
+                 env: simpy.Environment,
+                 trucks: simpy.FilterStore,
+                 is_test: bool=False,
+                 is_parcel_only: bool=True):
 
         self.env = env
         self.trucks = trucks
