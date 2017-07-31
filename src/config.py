@@ -38,8 +38,8 @@ class TimeConfig:
 class MainConfig:
     IS_TEST = False
     SAVE_LOCAL = False
-    IS_PARCEL_ONLY = True
-    IS_LAND_ONLY = True
+    IS_PARCEL_ONLY = True  # 只有 parcel 件
+    IS_LAND_ONLY = True  # True 路到路， False 空到空
 
 
 if __name__ == "__main__":
