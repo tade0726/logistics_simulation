@@ -37,6 +37,8 @@ def main():
 
     # simpy env init
     env = simpy.Environment()
+    # init trucks queues
+    trucks_queue = simpy.FilterStore(env)
 
     logging.info("loading config data")
 
@@ -50,6 +52,15 @@ def main():
     equipment_parameters = get_parameters()
     equipment_on_list, equipment_off_list = get_equipment_on_off()
 
+    # init trucks controllers
+    logging.info("loading package data")
+    truck_controller = TruckController(env,
+                                       trucks=trucks_queue,
+                                       is_test=MainConfig.IS_TEST,
+                                       is_parcel_only=MainConfig.IS_PARCEL_ONLY,
+                                       is_land_only=MainConfig.IS_LAND_ONLY)
+    truck_controller.controller()
+
     # equipment setting from unload
     unload_setting_dict = {key: val for key, val in unload_setting_dict_src.items() if key in equipment_on_list}
 
@@ -57,9 +68,6 @@ def main():
     reload_c_list = list()
     for _, c_list in reload_setting_dict.items():
         reload_c_list.extend(c_list)
-
-    # init trucks queues
-    trucks_queue = simpy.FilterStore(env)
 
     # init resource
     resource_dict = defaultdict(dict)
@@ -111,14 +119,6 @@ def main():
     for pipeline_id, pipeline in pipelines_dict.items():
         machine_init_dict[pipeline.machine_type].append(pipeline_id)
 
-    # init trucks controllers
-    logging.info("loading package data")
-    truck_controller = TruckController(env,
-                                       trucks=trucks_queue,
-                                       is_test=MainConfig.IS_TEST,
-                                       is_parcel_only=MainConfig.IS_PARCEL_ONLY,
-                                       is_land_only=MainConfig.IS_LAND_ONLY)
-    truck_controller.controller()
 
     # init unload machines
     machines_dict = defaultdict(list)
