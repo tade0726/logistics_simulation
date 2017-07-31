@@ -32,8 +32,8 @@ __all__ = ["main"]
 
 def main():
 
-    t_start = datetime.now()
     # start time
+    t_start = datetime.now()
 
     # simpy env init
     env = simpy.Environment()
@@ -83,7 +83,7 @@ def main():
 
         if pipeline_type == "pipeline":
             pipelines_dict[pipeline_id] = Pipeline(env, delay_time, pipeline_id, queue_id, machine_type)
-        else:
+        elif pipeline_type == 'pipeline_res':
             pipelines_dict[pipeline_id] = PipelineRes(env,
                                                       resource_dict,
                                                       equipment_resource_dict,
@@ -92,6 +92,9 @@ def main():
                                                       queue_id,
                                                       machine_type,
                                                       equipment_process_time_dict)
+        else:
+            raise ValueError("Pipeline init error!!")
+
     for pipeline_id in reload_c_list:
         pipelines_dict[pipeline_id] = BasePipeline(env,
                                                    pipeline_id=pipeline_id,
