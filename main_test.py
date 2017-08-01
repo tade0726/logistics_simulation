@@ -29,6 +29,7 @@ from src.config import TimeConfig
 
 __all__ = ["main"]
 
+# todo: add parameters
 
 def main():
 
