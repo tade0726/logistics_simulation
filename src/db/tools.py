@@ -39,7 +39,7 @@ def load_cache(func):
 def write_mysql(table_name: str, data: pd.DataFrame, ):
     """写入MySQl数据库, 表格如果存在, 则新增数据"""
     try:
-        data.to_sql(name=f'o_{table_name}', con=RemoteMySQLConfig.engine, if_exists='append', index=0)
+        data.to_sql(name=f'o_{table_name}', con=RemoteMySQLConfig.engine_save, if_exists='append', index=0)
         logging.info(f"mysql write table {table_name} succeed!")
     except Exception as exc:
         logging.error(f"mysql write table {table_name} failed, error: {exc}.")
@@ -72,10 +72,11 @@ def load_from_local(table_name: str, is_csv:bool=True):
     return table
 
 
+@load_cache
 def load_from_mysql(table_name: str):
     """读取远程mysql数据表"""
     logging.debug(msg=f"Reading mysql table {table_name}")
-    table = pd.read_sql_table(con=RemoteMySQLConfig.engine, table_name=f"{table_name}")
+    table = pd.read_sql_table(con=RemoteMySQLConfig.engine_read, table_name=f"{table_name}")
     return table
 
 
