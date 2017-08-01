@@ -19,20 +19,20 @@ import logging
 from src.config import *
 
 
-def checking_file(table_name):
-    return isfile(join(SaveConfig.DATA_DIR, f"{table_name}.csv"))
+def checking_pickle_file(table_name):
+    return isfile(join(SaveConfig.DATA_DIR, f"{table_name}.pkl"))
 
 
-def load_csv_cache(func):
+def load_cache(func):
     """decorator: cache to local csv"""
     @wraps(func)
     def wrapper(table_name):
-        if not checking_file(table_name):
+        if not checking_pickle_file(table_name):
             table = func(table_name)
-            write_local(table_name, data=table, is_out=False)
+            write_local(table_name, data=table, is_out=False, is_csv=False)
             return table
         else:
-            return load_from_local(table_name)
+            return load_from_local(table_name, is_csv=False)
     return wrapper
 
 
@@ -46,26 +46,32 @@ def write_mysql(table_name: str, data: pd.DataFrame, ):
         raise Exception
 
 
-def write_local(table_name: str, data: pd.DataFrame, is_out:bool = True):
+def write_local(table_name: str, data: pd.DataFrame, is_out:bool = True, is_csv:bool=True):
     """写入本地"""
 
     out_dir = SaveConfig.OUT_DIR if is_out else SaveConfig.DATA_DIR
-
+    table_format = 'csv' if is_csv else 'pkl'
     try:
-        data.to_csv(join(out_dir, f"{table_name}.csv"), index=0)
-        logging.info(f"csv write table {table_name} succeed!")
+        if is_csv:
+            data.to_csv(join(out_dir, f"{table_name}.csv"), index=0)
+        else:
+            data.to_pickle(join(out_dir, f"{table_name}.pkl"), )
+        logging.info(f"{table_format} write table {table_name} succeed!")
     except Exception as exc:
-        logging.error(f"csv write table {table_name} failed, error: {exc}.")
+        logging.error(f"{table_format} write table {table_name} failed, error: {exc}.")
         raise Exception
 
 
-def load_from_local(table_name: str):
+def load_from_local(table_name: str, is_csv:bool=True):
     """本地读取数据，数据格式为csv"""
     logging.debug(msg=f"Reading local table {table_name}")
-    table = pd.read_csv(join(SaveConfig.DATA_DIR, f"{table_name}.csv"),)
+    if is_csv:
+        table = pd.read_csv(join(SaveConfig.DATA_DIR, f"{table_name}.csv"),)
+    else:
+        table = pd.read_pickle(join(SaveConfig.DATA_DIR, f"{table_name}.pkl"), )
     return table
 
-
+@load_cache
 def load_from_mysql(table_name: str):
     """读取远程mysql数据表"""
     logging.debug(msg=f"Reading mysql table {table_name}")
