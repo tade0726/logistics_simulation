@@ -65,6 +65,8 @@ def main():
     # equipment setting from unload
     if not MainConfig.EQUIPMENT_ALL:
         unload_setting_dict = {key: val for key, val in unload_setting_dict_src.items() if key in equipment_on_list}
+    else:
+        unload_setting_dict = unload_setting_dict_src
 
     # c_port list
     reload_c_list = list()
