@@ -6,7 +6,6 @@ from src.fram_r.frame_r_view import *
 
 
 
-
 def init_app(master, wig):
     """"""
     return App(master=master,
@@ -224,9 +223,24 @@ def init_r_frame(root: Tk):
     lbl_package.grid(row=0, column=0)
     package_num = Entry(
         master=left_set_pad_package,
-        width=70
+        # width=70
     )
     package_num.grid(row=0, column=1)
+    # ============================资源配置=============================
+    # 标题
+    lbl_resource = Label(
+        master=left_set_pad_package,
+        font=('arial', 12),
+        text='人力资源数：',
+        bd=2,
+        anchor='w'
+    )
+    lbl_resource.grid(row=0, column=2)
+    # 选择人数
+    person_res = Spinbox(
+        master=left_set_pad_package,
+        values=(1, 2))
+    person_res.grid(row=0, column=3)
     # ============================机器配置==========================
     # # 路侧卸货标题
     # lbl_unload = Label(
@@ -280,68 +294,68 @@ def init_r_frame(root: Tk):
     txt_r2_4 = init_entry(
         master=left_set_pad_center_left, id='r2_4', text_var=e_r8)
     # =======================================================================
-    r3_1 = init_check_btn(
-        master=left_set_pad_center_left, id='r3_1', var=var9,
-        command=lambda: chk_button_value(var9, e_r9))
-    txt_r3_1 = init_entry(
-        master=left_set_pad_center_left, id='r3_1', text_var=e_r9)
-    r3_2 = init_check_btn(
-        master=left_set_pad_center_left, id='r3_2', var=var10,
-        command=lambda: chk_button_value(var10, e_r10))
-    txt_r3_2 = init_entry(
-        master=left_set_pad_center_left, id='r3_2', text_var=e_r10)
-    r3_3 = init_check_btn(
-        master=left_set_pad_center_left, id='r3_3', var=var11,
-        command=lambda: chk_button_value(var11, e_r11))
-    txt_r3_3 = init_entry(
-        master=left_set_pad_center_left, id='r3_3', text_var=e_r11)
-    r3_4 = init_check_btn(
-        master=left_set_pad_center_left, id='r3_4', var=var12,
-        command=lambda: chk_button_value(var12, e_r12))
-    txt_r3_4 = init_entry(
-        master=left_set_pad_center_left, id='r3_4', text_var=e_r12)
-    # =======================================================================
-    r4_1 = init_check_btn(
-        master=left_set_pad_center_left, id='r4_1', var=var13,
-        command=lambda: chk_button_value(var13, e_r13))
-    txt_r4_1 = init_entry(
-        master=left_set_pad_center_left, id='r4_1', text_var=e_r13)
-    r4_2 = init_check_btn(
-        master=left_set_pad_center_left, id='r4_2', var=var14,
-        command=lambda: chk_button_value(var14, e_r14))
-    txt_r4_2 = init_entry(
-        master=left_set_pad_center_left, id='r4_2', text_var=e_r14)
-    r4_3 = init_check_btn(
-        master=left_set_pad_center_left, id='r4_3', var=var15,
-        command=lambda: chk_button_value(var15, e_r15))
-    txt_r4_3 = init_entry(
-        master=left_set_pad_center_left, id='r4_3', text_var=e_r15)
-    r4_4 = init_check_btn(
-        master=left_set_pad_center_left, id='r4_4', var=var16,
-        command=lambda: chk_button_value(var16, e_r16))
-    txt_r4_4 = init_entry(
-        master=left_set_pad_center_left, id='r4_4', text_var=e_r16)
-    # =================================2=============================
-    r5_1 = init_check_btn(
-        master=left_set_pad_center_left, id='r5_1', var=var17,
-        command=lambda: chk_button_value(var17, e_r17))
-    txt_r5_1 = init_entry(
-        master=left_set_pad_center_left, id='r5_1', text_var=e_r17)
-    r5_2 = init_check_btn(
-        master=left_set_pad_center_left, id='r5_2', var=var18,
-        command=lambda: chk_button_value(var18, e_r18))
-    txt_r5_2 = init_entry(
-        master=left_set_pad_center_left, id='r5_2', text_var=e_r18)
-    r5_3 = init_check_btn(
-        master=left_set_pad_center_left, id='r5_3', var=var19,
-        command=lambda: chk_button_value(var19, e_r19))
-    txt_r5_3 = init_entry(
-        master=left_set_pad_center_left, id='r5_3', text_var=e_r19)
-    r5_4 = init_check_btn(
-        master=left_set_pad_center_left, id='r5_4', var=var20,
-        command=lambda: chk_button_value(var20, e_r20))
-    txt_r5_4 = init_entry(
-        master=left_set_pad_center_left, id='r5_4', text_var=e_r20)
+    # r3_1 = init_check_btn(
+    #     master=left_set_pad_center_right, id='r3_1', var=var9,
+    #     command=lambda: chk_button_value(var9, e_r9))
+    # txt_r3_1 = init_entry(
+    #     master=left_set_pad_center_right, id='r3_1', text_var=e_r9)
+    # r3_2 = init_check_btn(
+    #     master=left_set_pad_center_right, id='r3_2', var=var10,
+    #     command=lambda: chk_button_value(var10, e_r10))
+    # txt_r3_2 = init_entry(
+    #     master=left_set_pad_center_right, id='r3_2', text_var=e_r10)
+    # r3_3 = init_check_btn(
+    #     master=left_set_pad_center_right, id='r3_3', var=var11,
+    #     command=lambda: chk_button_value(var11, e_r11))
+    # txt_r3_3 = init_entry(
+    #     master=left_set_pad_center_right, id='r3_3', text_var=e_r11)
+    # r3_4 = init_check_btn(
+    #     master=left_set_pad_center_right, id='r3_4', var=var12,
+    #     command=lambda: chk_button_value(var12, e_r12))
+    # txt_r3_4 = init_entry(
+    #     master=left_set_pad_center_right, id='r3_4', text_var=e_r12)
+    # # # =======================================================================
+    # r3_5 = init_check_btn(
+    #     master=left_set_pad_center_right, id='r3_5', var=var13,
+    #     command=lambda: chk_button_value(var13, e_r13))
+    # txt_r3_5 = init_entry(
+    #     master=left_set_pad_center_right, id='r3_5', text_var=e_r13)
+    # r3_6 = init_check_btn(
+    #     master=left_set_pad_center_right, id='r3_6', var=var14,
+    #     command=lambda: chk_button_value(var14, e_r14))
+    # txt_r3_6 = init_entry(
+    #     master=left_set_pad_center_right, id='r3_6', text_var=e_r14)
+    # r3_7 = init_check_btn(
+    #     master=left_set_pad_center_right, id='r3_7', var=var15,
+    #     command=lambda: chk_button_value(var15, e_r15))
+    # txt_r3_7 = init_entry(
+    #     master=left_set_pad_center_right, id='r3_7', text_var=e_r15)
+    # r3_8 = init_check_btn(
+    #     master=left_set_pad_center_right, id='r3_8', var=var16,
+    #     command=lambda: chk_button_value(var16, e_r16))
+    # txt_r3_8 = init_entry(
+    #     master=left_set_pad_center_right, id='r3_8', text_var=e_r16)
+    # # =================================2=============================
+    # r5_1 = init_check_btn(
+    #     master=left_set_pad_center_left, id='r5_1', var=var17,
+    #     command=lambda: chk_button_value(var17, e_r17))
+    # txt_r5_1 = init_entry(
+    #     master=left_set_pad_center_left, id='r5_1', text_var=e_r17)
+    # r5_2 = init_check_btn(
+    #     master=left_set_pad_center_left, id='r5_2', var=var18,
+    #     command=lambda: chk_button_value(var18, e_r18))
+    # txt_r5_2 = init_entry(
+    #     master=left_set_pad_center_left, id='r5_2', text_var=e_r18)
+    # r5_3 = init_check_btn(
+    #     master=left_set_pad_center_left, id='r5_3', var=var19,
+    #     command=lambda: chk_button_value(var19, e_r19))
+    # txt_r5_3 = init_entry(
+    #     master=left_set_pad_center_left, id='r5_3', text_var=e_r19)
+    # r5_4 = init_check_btn(
+    #     master=left_set_pad_center_left, id='r5_4', var=var20,
+    #     command=lambda: chk_button_value(var20, e_r20))
+    # txt_r5_4 = init_entry(
+    #     master=left_set_pad_center_left, id='r5_4', text_var=e_r20)
     # # ===========================空侧卸货口设置==============================
     # a1_1 = init_check_btn(
     #     master=left_set_pad_center_right, id='a1_1', var=var21,
@@ -405,21 +419,7 @@ def init_r_frame(root: Tk):
     #     command=lambda: chk_button_value(var32, e_r32))
     # txt_a1_12 = init_entry(
     #     master=left_set_pad_center_right, id='a1_12', text_var=e_r32)
-    # ============================资源配置=============================
-    # 标题
-    lbl_resource = Label(
-        master=left_set_pad_resource,
-        font=('arial', 12),
-        text='人力资源数：',
-        bd=2,
-        anchor='w'
-    )
-    lbl_resource.grid(row=0, column=0)
-    # 选择人数
-    person_res = Spinbox(
-        master=left_set_pad_resource,
-        values=(1, 2))
-    person_res.grid(row=0, column=1)
+
     # ============================仿真结果输出面板======================
     lbl_info = Label(
         master=right_output_pad_title,
