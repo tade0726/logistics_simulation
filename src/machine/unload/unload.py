@@ -14,6 +14,8 @@ from src.vehicles import Package
 from src.utils import TruckRecord, PackageRecord
 import logging
 
+import traceback
+
 
 class Unload:
 
@@ -92,6 +94,7 @@ class Unload:
             except Exception as exc:
                 msg = f"error: {exc}, package: {package}"
                 logging.error(msg)
+                logging.exception(exc)
                 self.pipelines_dict["unload_error_packages"].put(package)
 
             self.packages_processed[process_idx].succeed()
