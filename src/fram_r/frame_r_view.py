@@ -2,17 +2,19 @@
 
 from tkinter import *
 
-FRAME_WIDTH = 1350  # 界面的总计宽度
-FRAME_WIDTH_LEFT = 800  # 左侧界面的总计宽度
-FRAME_WIDTH_RIGHT = 550  # 右侧界面的总计宽度  vc
-FRAME_WIDTH_LEFT_HALF = 350  #左侧界面的半宽度
+FRAME_WIDTH = 1030  # 界面的总计宽度
+FRAME_WIDTH_LEFT = 700  # 左侧界面的总计宽度
+FRAME_WIDTH_LEFT_ONE = 200  #左侧界面的左宽度
+FRAME_WIDTH_LEFT_TOW =500  # 左侧界面的右宽度
+FRAME_WIDTH_RIGHT = 300  # 右侧界面的总计宽度
 
-FRAME_HEIGHT = 750  # 界面的总计高度
-FRAME_HEIGHT_HEAD = 100  # 标题的高度
-FRAME_HEIGHT_CENTER = 550  # 中间界面的总计高度
+FRAME_HEIGHT = 500  # 界面的总计高度
+FRAME_HEIGHT_HEAD = 50  # 标题的高度
+FRAME_HEIGHT_CENTER = 450  # 中间界面的总计高度
+FRAME_HEIGHT_RIGHT_INFO = 400  # 输出信息版高度
 FRAME_HEIGHT_CENTER_PACKAGE = 50  # 包裹设置界面高度
-FRAME_HEIGHT_BOTTOM = 50  # 底部界面的总高度
-FRAME_HEIGHT_LEFT_CENTER = 330
+FRAME_HEIGHT_BUTTON = 50  # 右侧底部界面button的总高度
+FRAME_HEIGHT_RIGHT_INFO_TITLE = 50  # 包裹设置界面高度
 
 DATABASES = {
     'HOST': '',
@@ -27,9 +29,9 @@ class ConfigApp(object):
     RELOAD_FRAME = {
         'TOP_FRAME': {
             'attr': {
-                # 'width': FRAME_WIDTH,
-                # 'height': FRAME_HEIGHT_HEAD,
-                'bd': 7,
+                'width': FRAME_WIDTH,
+                'height': FRAME_HEIGHT_HEAD,
+                'bd': 8,
                 'relief': 'raise',
                 # 'bg': '#A2B5CD'
             },
@@ -37,8 +39,8 @@ class ConfigApp(object):
         },
         'LEFT_FRAME': {
             'attr': {
-                # 'width': FRAME_WIDTH_LEFT,
-                # 'height': FRAME_HEIGHT,
+                'width': FRAME_WIDTH_LEFT,
+                'height': FRAME_HEIGHT,
                 'bd': 8,
                 'relief': 'raise',
                 # 'bg': '#A2B5CD'
@@ -47,8 +49,8 @@ class ConfigApp(object):
         },
         'RIGHT_FRAME': {
             'attr': {
-                # 'width': FRAME_WIDTH_RIGHT,
-                # 'height': FRAME_HEIGHT,
+                'width': FRAME_WIDTH_RIGHT,
+                'height': FRAME_HEIGHT,
                 'bd': 8,
                 'relief': 'raise',
                 # 'bg': '#A2B5CD'
@@ -57,8 +59,8 @@ class ConfigApp(object):
         },
         'LEFT_SET_PAD_TOP_R': {
             'attr': {
-                # 'width': FRAME_WIDTH_LEFT,
-                # 'height': 500,
+                'width': FRAME_WIDTH_LEFT,
+                'height': FRAME_HEIGHT_CENTER,
                 'bd': 8,
                 'relief': 'raise'
             },
@@ -68,7 +70,7 @@ class ConfigApp(object):
         'LEFT_SET_PAD_BOTTOM': {
             'attr': {
                 'width': FRAME_WIDTH_LEFT,
-                'height': 100,
+                'height': 50,
                 'bd': 2,
                 'relief': 'raise'},
             'pack': {
@@ -76,33 +78,25 @@ class ConfigApp(object):
         },
         'LEFT_SET_PAD_TOP_PACKAGE': {
             'attr': {
-                # 'width': FRAME_WIDTH_LEFT,
-                # 'height': 50,
-                'bd': 2,
+                'width': FRAME_WIDTH_LEFT,
+                'height': FRAME_HEIGHT_CENTER_PACKAGE,
+                'bd': 8,
                 'relief': 'raise'
             },
             'pack': {'side': 'top'}
         },
-        'LEFT_SET_PAD_BOTTOM_RESOURCE': {
-            'attr': {
-                # 'width': FRAME_WIDTH_LEFT,
-                # 'height': FRAME_HEIGHT_BOTTOM,
-                'bd': 2,
-                'relief': 'raise'},
-            'pack': {'side': 'bottom'}
-        },
         'LEFT_SET_PAD_CENTER_LEFT': {
             'attr': {
-                # 'width': FRAME_WIDTH_LEFT_HALF,
-                # 'height': FRAME_HEIGHT_CENTER,
+                'width': FRAME_WIDTH_LEFT_ONE,
+                'height': FRAME_HEIGHT_CENTER,
                 'bd': 8,
                 'relief': 'raise'},
             'pack': {'side': 'left'}
         },
         'LEFT_SET_PAD_CENTER_RIGHT': {
             'attr': {
-                # 'width': FRAME_WIDTH_LEFT_HALF,
-                # 'height': FRAME_HEIGHT_CENTER,
+                'width': FRAME_WIDTH_LEFT_TOW,
+                'height': FRAME_HEIGHT_CENTER,
                 'bd': 8,
                 'relief': 'raise'},
             'pack': {'side': 'right'}
@@ -110,17 +104,17 @@ class ConfigApp(object):
         'RIGHT_TITLE': {
             'attr': {
                 'width': FRAME_WIDTH_RIGHT,
-                'height': 50,
-                'bd': 2,
-                # 'relief': 'raise'
+                'height': FRAME_HEIGHT_RIGHT_INFO_TITLE,
+                'bd': 8,
+                'relief': 'raise'
             },
             'pack': {'side': 'top'}
         },
         'RIGHT_OUTPUT_PAD_INFO': {
             'attr': {
                 'width': FRAME_WIDTH_RIGHT,
-                'height': FRAME_HEIGHT_CENTER,
-                'bd': 2,
+                'height': FRAME_HEIGHT_RIGHT_INFO,
+                'bd': 8,
                 'relief': 'raise',
                 # 'bg': '#A2B5CD'
             },
@@ -129,9 +123,9 @@ class ConfigApp(object):
         'RIGHT_BUTTON': {
             'attr': {
                 'width': FRAME_WIDTH_RIGHT,
-                'height': FRAME_HEIGHT_BOTTOM,
-                'bd': 2,
-                # 'relief': 'raise'
+                'height': FRAME_HEIGHT_BUTTON,
+                'bd': 8,
+                'relief': 'raise'
             },
             'pack': {'side': 'bottom'}
         }

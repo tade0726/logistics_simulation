@@ -42,22 +42,24 @@ def init_entry(master, id, text_var):
 def init_r_frame(root: Tk):
     """"""
     #  顶部标题面板
-    top = init_app(master=root, wig='TOP_FRAME')
+    top = init_app(
+        master=root, wig='TOP_FRAME')
     #  左侧设置基底面板
-    left = init_app(master=root, wig='LEFT_FRAME')
+    left = init_app(
+        master=root, wig='LEFT_FRAME')
     #
     left_set_pad_package = init_app(
         master=left,
         wig='LEFT_SET_PAD_TOP_PACKAGE'
     )
     #  左侧设置面板设置
-    left_set_pad_r = init_app(
-        master=left,
-        wig='LEFT_SET_PAD_TOP_R')
-    # #  左侧设置面板底部
-    left_set_pad_resource = init_app(
-        master=left,
-        wig='LEFT_SET_PAD_BOTTOM_RESOURCE')
+    # left_set_pad_r = init_app(
+    #     master=left,
+    #     wig='LEFT_SET_PAD_TOP_R')
+    #  顶部人力资源设置
+    # left_set_pad_resource = init_app(
+    #     master=left,
+    #     wig='LEFT_SET_PAD_BOTTOM_RESOURCE')
     # left_set_pad_resource.grid(row=1, column=0)
     #  右侧输出基底面板
     right = init_app(
@@ -67,28 +69,25 @@ def init_r_frame(root: Tk):
         master=right,
         wig='RIGHT_TITLE'
     )
-    #  右侧上部输出面板
+    #  右侧中部输出面板
     right_output_pad_info = init_app(
         master=right,
         wig='RIGHT_OUTPUT_PAD_INFO')
-    #  右侧下部按钮控件
+    # 右侧下部按钮控件
     right_output_pad_button = init_app(
         master=right,
         wig='RIGHT_BUTTON')
-    # LeftSetPadTopMachine = App(
-    #     master=
-    # )
 
     # left_set_pad_bottom_resource = init_app(
     #     master=left_set_bottom,
     #     wig='LEFT_SET_PAD_BOTTOM_RESOURCE'
     # )
     left_set_pad_center_left = init_app(
-        master=left_set_pad_r,
+        master=left,#left_set_pad_r,
         wig='LEFT_SET_PAD_CENTER_LEFT'
     )
     left_set_pad_center_right = init_app(
-        master=left_set_pad_r,
+        master=left,#left_set_pad_r,
         wig='LEFT_SET_PAD_CENTER_RIGHT'
     )
     var1 = IntVar()
@@ -192,19 +191,19 @@ def init_r_frame(root: Tk):
 
     def cost_of_item():
         """"""
-        on_off_dict = {}
-        on_off_dict['r1_1'] = r1_1.var.get()
-        on_off_dict['r1_2'] = r1_2.var.get()
-        on_off_dict['r1_3'] = r1_3.var.get()
-        on_off_dict['r1_4'] = r1_4.var.get()
-        on_off_dict['r2_1'] = r2_1.var.get()
-        on_off_dict['r2_2'] = r2_2.var.get()
-        on_off_dict['r2_3'] = r2_3.var.get()
-        on_off_dict['r2_4'] = r2_4.var.get()
-        on_off_dict['r3_1'] = r3_1.var.get()
-        on_off_dict['r3_2'] = r3_2.var.get()
-        on_off_dict['r3_3'] = r3_3.var.get()
-        on_off_dict['r3_4'] = r3_4.var.get()
+        # on_off_dict = {}
+        # on_off_dict['r1_1'] = r1_1.var.get()
+        # on_off_dict['r1_2'] = r1_2.var.get()
+        # on_off_dict['r1_3'] = r1_3.var.get()
+        # on_off_dict['r1_4'] = r1_4.var.get()
+        # on_off_dict['r2_1'] = r2_1.var.get()
+        # on_off_dict['r2_2'] = r2_2.var.get()
+        # on_off_dict['r2_3'] = r2_3.var.get()
+        # on_off_dict['r2_4'] = r2_4.var.get()
+        # on_off_dict['r3_1'] = r3_1.var.get()
+        # on_off_dict['r3_2'] = r3_2.var.get()
+        # on_off_dict['r3_3'] = r3_3.var.get()
+        # on_off_dict['r3_4'] = r3_4.var.get()
         # on_off_dict['r4_1'] = r4_1.var.get()
         # on_off_dict['r4_2'] = r4_2.var.get()
         # on_off_dict['r4_3'] = r4_3.var.get()
@@ -216,11 +215,11 @@ def init_r_frame(root: Tk):
         #
         # update_on_off(on_off_dict)
         # #  显示开关状态
-        txtReceipt['state'] = NORMAL
-        txtReceipt.delete('1.0', END)
-        for item in on_off_dict.items():
-            txtReceipt.insert(END, item[0]+':\t\t\t'+ str(item[1]) + '\n')
-        txtReceipt['state'] = DISABLED
+        # txtReceipt['state'] = NORMAL
+        # txtReceipt.delete('1.0', END)
+        # for item in on_off_dict.items():
+        #     txtReceipt.insert(END, item[0]+':\t\t\t'+ str(item[1]) + '\n')
+        # txtReceipt['state'] = DISABLED
 
     def chk_button_value(var, e_r):
         """"""
@@ -249,43 +248,44 @@ def init_r_frame(root: Tk):
             return
 
     # ==============================Heading===========================
-    lbl_info = Label(top,
-                     font=('arial', 20, 'bold'),
-                     text='\t\t\t\t杭州分拣中心仿真系统\t\t\t\t',
-                     bd=10,
-                     anchor='w')
-    lbl_info.grid(row=0, column=0)
+    # lbl_info = Label(top,
+    #                  font=('arial', 20, 'bold'),
+    #                  text='\t\t\t杭州分拣中心仿真系统\t\t\t',
+    #                  bd=8,
+    #                  # width=59,
+    #                  anchor='w')
+    # lbl_info.grid(row=0, column=0)
     # ============================包裹设置参数========================
-    lbl_package = Label(
-        master=left_set_pad_package,
-        font=('arial', 12),
-        text='快件数量',
-        bd=2,
-        anchor='w'
-    )
-    lbl_package.grid(row=0, column=0)
-    package_num = Entry(
-        master=left_set_pad_package,
-        # width=70
-    )
-    package_num.grid(row=0, column=1)
+    # lbl_package = Label(
+    #     master=left_set_pad_package,
+    #     font=('arial', 12),
+    #     text='快件数量',
+    #     bd=2,
+    #     anchor='w'
+    # )
+    # lbl_package.grid(row=0, column=0)
+    # package_num = Entry(
+    #     master=left_set_pad_package,
+    #     width=50
+    # )
+    # package_num.grid(row=0, column=1)
     # ============================资源配置=============================
     # 标题
-    lbl_resource = Label(
-        master=left_set_pad_package,
-        font=('arial', 12),
-        text='人力资源数：',
-        bd=2,
-        anchor='w'
-    )
-    lbl_resource.grid(row=0, column=2)
-    # 选择人数
-    person_res = Spinbox(
-        master=left_set_pad_package,
-        values=(1, 2))
-    person_res.grid(row=0, column=3)
+    # lbl_resource = Label(
+    #     master=left_set_pad_package,
+    #     font=('arial', 12),
+    #     text='人力资源数：',
+    #     bd=2,
+    #     anchor='w'
+    # )
+    # lbl_resource.grid(row=0, column=2)
+    # # 选择人数
+    # person_res = Spinbox(
+    #     master=left_set_pad_package,
+    #     values=(1, 2))
+    # person_res.grid(row=0, column=3)
     # ============================机器配置==========================
-    # # 路侧卸货标题
+    # 路侧卸货标题
     # lbl_unload = Label(
     #     master=left_set_pad_center_left,
     #     font=('arial', 10),
@@ -293,7 +293,7 @@ def init_r_frame(root: Tk):
     #     bd=2,
     #     anchor='w'
     # )
-    # lbl_unload.grid(row=0, column=0)
+    # lbl_unload.grid(row=0, column=1)
     # =============================================================
     r1_1 = init_check_btn(
         master=left_set_pad_center_left, id='r1_1', var=var1,
@@ -357,7 +357,7 @@ def init_r_frame(root: Tk):
         command=lambda: chk_button_value(var12, e_r12))
     txt_r3_4 = init_entry(
         master=left_set_pad_center_right, id='r3_4', text_var=e_r12)
-    # # =======================================================================
+    # =======================================================================
     r3_5 = init_check_btn(
         master=left_set_pad_center_right, id='r3_5', var=var13,
         command=lambda: chk_button_value(var13, e_r13))
@@ -475,35 +475,36 @@ def init_r_frame(root: Tk):
 
     # ============================输出信息面板=========================
     txtReceipt = Text(right_output_pad_info,
-                      font=('arial', 11, 'bold'),
-                      height=23,
+                      font=('arial', 7),
+                      height=20,
+                      width=70,
                       bd=8,
                       bg="white",
                       state=DISABLED)
-    txtReceipt.grid(row=0, column=0)
+    txtReceipt.grid(row=1, column=0)
     # ===========================Button==============================
-    btn_run = Button(
-        master=right_output_pad_button,
-        padx=20, pady=1, fg="black",
-        font=('arial', 9, 'bold'),
-        width=5,
-        text="启动仿真",
-        command=cost_of_item
-    ).grid(row=0, column=0)
-    btn_analyze = Button(
-        master=right_output_pad_button,
-        padx=20, pady=1, fg="black",
-        font=('arial', 9, 'bold'),
-        width=5,
-        text="仿真分析",
-        command=cost_of_item
-    ).grid(row=0, column=1)
-    btn_exit = Button(
-        master=right_output_pad_button,
-        padx=20, pady=1, fg="black",
-        font=('arial', 9, 'bold'),
-        width=5,
-        text="退出",
-        command=q_exit
-    ).grid(row=0, column=2)
+    # btn_run = Button(
+    #     master=right_output_pad_button,
+    #     padx=20, pady=1, fg="black",
+    #     font=('arial', 9, 'bold'),
+    #     width=5,
+    #     text="启动仿真",
+    #     command=cost_of_item
+    # ).grid(row=0, column=0)
+    # btn_analyze = Button(
+    #     master=right_output_pad_button,
+    #     padx=20, pady=1, fg="black",
+    #     font=('arial', 9, 'bold'),
+    #     width=5,
+    #     text="仿真分析",
+    #     command=cost_of_item
+    # ).grid(row=0, column=1)
+    # btn_exit = Button(
+    #     master=right_output_pad_button,
+    #     padx=20, pady=1, fg="black",
+    #     font=('arial', 9, 'bold'),
+    #     width=5,
+    #     text="退出",
+    #     command=q_exit
+    # ).grid(row=0, column=2)
     # ========================================================
