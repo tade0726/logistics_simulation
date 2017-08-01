@@ -220,12 +220,12 @@ class PathGenerator(object):
                 print(exc)
                 self.all_paths = None
 
-    def path_generator(self, start_node, dest_code, sort_type, dest_type,
+    def path_generator(self, start_node, dest_zone_code, sort_type, dest_type,
                        position=0):
         """
         选择路径
         :param start_node: 起点
-        :param dest_code: 目的地代码
+        :param dest_zone_code: 目的地代码
         :param sort_type: 分拣类型，small_sort和reload
         :param dest_type: 目的地类型，L和A
         :param position: 小件路线的位置，卸货位-小件分拣机为1，小件分拣机内部为2，其他均为默认0
@@ -249,16 +249,16 @@ class PathGenerator(object):
         if position == 1:
             end_node = random.choice(small_dic[random.choice(
                 self.reload_setting[
-                    (dest_code, sort_type, dest_type)])[0:3]]) + str(
+                    (dest_zone_code, sort_type, dest_type)])[0:3]]) + str(
                 random.randint(1, 7))
             return random.choice(self.all_paths[(start_node, end_node)]["all"])
         elif position == 2:
             end_node = random.choice(
-                self.reload_setting[(dest_code, sort_type, dest_type)])
+                self.reload_setting[(dest_zone_code, sort_type, dest_type)])
             return random.choice(self.all_paths[(start_node, end_node)]["all"])
         else:
             end_node = random.choice(
-                self.reload_setting[(dest_code, sort_type, dest_type)])
+                self.reload_setting[(dest_zone_code, sort_type, dest_type)])
             if start_node[0:3] in self.machine_pre_dict[
                 "land_unload"] and end_node[0:3] in self.machine_pre_dict[
                 "air_secondary"]:
