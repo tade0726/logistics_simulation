@@ -26,11 +26,16 @@ class RemoteMySQLConfig:
     HOST = "10.0.149.36"
     USER = "461241"
     PASS = "461241"
-    DB = "test3"
+    DB_SAVE = "test3"
+    DB_READ = "hangzhouhubqa"
     CHARSET = 'utf8'
 
-    engine = create_engine(
-        f'mysql+pymysql://{USER}:{PASS}@{HOST}/{DB}?charset={CHARSET}',
+    engine_save = create_engine(
+        f'mysql+pymysql://{USER}:{PASS}@{HOST}/{DB_SAVE}?charset={CHARSET}',
+        isolation_level="READ UNCOMMITTED", )
+
+    engine_read = create_engine(
+        f'mysql+pymysql://{USER}:{PASS}@{HOST}/{DB_READ}?charset={CHARSET}',
         isolation_level="READ UNCOMMITTED", )
 
 
