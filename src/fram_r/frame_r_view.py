@@ -14,6 +14,13 @@ FRAME_HEIGHT_CENTER_PACKAGE = 50  # 包裹设置界面高度
 FRAME_HEIGHT_BOTTOM = 50  # 底部界面的总高度
 FRAME_HEIGHT_LEFT_CENTER = 330
 
+DATABASES = {
+    'HOST': '',
+    'USER': '',
+    'PASSWORD': '',
+    'NAME': '',
+    'CHARSET': 'utf8'
+}
 
 class ConfigApp(object):
     """"""

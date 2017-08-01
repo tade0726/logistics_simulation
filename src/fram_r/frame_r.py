@@ -4,7 +4,7 @@ from src.fram_r import App, CheckBtnCreate, EntryCreate
 from src.fram_r import messagebox
 from src.fram_r.frame_r_view import *
 
-
+import pymysql
 
 
 def init_app(master, wig):
@@ -193,12 +193,50 @@ def init_r_frame(root: Tk):
 
     def cost_of_item():
         """"""
-        pass
+        on_off_dict = {}
+        on_off_dict['r1_1'] = r1_1.var.get()
+        on_off_dict['r1_2'] = r1_2.var.get()
+        on_off_dict['r1_3'] = r1_3.var.get()
+        on_off_dict['r1_4'] = r1_4.var.get()
+        on_off_dict['r2_1'] = r2_1.var.get()
+        on_off_dict['r2_2'] = r2_2.var.get()
+        on_off_dict['r2_3'] = r2_3.var.get()
+        on_off_dict['r2_4'] = r2_4.var.get()
+        on_off_dict['r3_1'] = r3_1.var.get()
+        on_off_dict['r3_2'] = r3_2.var.get()
+        on_off_dict['r3_3'] = r3_3.var.get()
+        on_off_dict['r3_4'] = r3_4.var.get()
+        on_off_dict['r4_1'] = r4_1.var.get()
+        on_off_dict['r4_2'] = r4_2.var.get()
+        on_off_dict['r4_3'] = r4_3.var.get()
+        on_off_dict['r4_4'] = r4_4.var.get()
+        on_off_dict['r5_1'] = r5_1.var.get()
+        on_off_dict['r5_2'] = r5_2.var.get()
+        on_off_dict['r5_3'] = r5_3.var.get()
+        on_off_dict['r5_4'] = r5_4.var.get()
+
+        update_on_off(on_off_dict)
+        # #  显示开关状态
+        # txtReceipt['state'] = NORMAL
+        # txtReceipt.delete('1.0', END)
+        # for item in on_off_dict.items():
+        #     txtReceipt.insert(END, item[0]+':\t\t\t'+ str(item[1]) + '\n')
+        # txtReceipt['state'] = DISABLED
 
     def chk_button_value(var, e_r):
         """"""
         status_dict = {0: '关机', 1: '开机'}
         e_r.set(status_dict[var.get()])
+
+    def update_on_off(data: dict):
+        conn = pymysql.connect(host=DATABASES['HOST'], user=DATABASES['USER'], passwd=DATABASES['PASSWORD'],
+                               db=DATABASES['NAME'])
+        cur = conn.cursor()
+        for item in data.items():
+            cur.execute("update table set column=%s where column=%s" % (item[1], item[0]))
+        conn.commit()
+        cur.close()
+        conn.close()
 
     def q_exit():
         if_exit = messagebox.askyesno("tkmessage", "要退出了，确定？")
@@ -435,7 +473,8 @@ def init_r_frame(root: Tk):
                       font=('arial', 11, 'bold'),
                       height=23,
                       bd=8,
-                      bg="white")
+                      bg="white",
+                      state=DISABLED)
     txtReceipt.grid(row=0, column=0)
     # ===========================Button==============================
     btn_run = Button(
