@@ -1,8 +1,10 @@
 # -*- coding: utf-8 -*-
 
-from src.config_frame import *
-from src import App, CheckBtnCreate, EntryCreate
-from . import messagebox
+from src.fram_r import App, CheckBtnCreate, EntryCreate
+from src.fram_r import messagebox
+from src.fram_r.frame_r_view import *
+
+
 
 
 def init_app(master, wig):

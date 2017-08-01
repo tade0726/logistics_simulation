@@ -2,8 +2,8 @@
 
 from tkinter import *
 from tkinter import messagebox
-from src.config_frame import ConfigApp
 
+from src.fram_r.frame_r_view import ConfigApp
 
 root = Tk()
 # root.geometry("1350x750+0+0")
