@@ -124,13 +124,7 @@ def get_vehicles(is_land: bool,
     #  fixme: 关于小件的抽样需要查表
     if is_test:
         # keep both LL/AA
-        if is_land:
-            table_parcel_LL = table_parcel[(table_parcel["parcel_type"] == 'parcel') & (table_parcel["src_type"] == 'L') & (table_parcel["dest_type"] == 'L')]
-            table_parcel = table_parcel_LL.sample(500)
-        else:
-            table_parcel_AA = table_parcel[(table_parcel["parcel_type"] == 'parcel') & (table_parcel["src_type"] == 'A') & (table_parcel["dest_type"] == 'A')]
-            table_parcel = table_parcel_AA.sample(500)
-
+        table_parcel = table_parcel.sample(500)
         # filter small
         table_small = table_small[table_small["parcel_id"].isin(table_parcel.parcel_id)]
 
