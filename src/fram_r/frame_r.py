@@ -229,11 +229,16 @@ def init_r_frame(root: Tk):
         e_r.set(status_dict[var.get()])
 
     def update_on_off(data: dict):
-        conn = pymysql.connect(host=DATABASES['HOST'], user=DATABASES['USER'], passwd=DATABASES['PASSWORD'],
+        conn = pymysql.connect(host=DATABASES['HOST'],
+                               user=DATABASES['USER'],
+                               passwd=DATABASES['PASSWORD'],
                                db=DATABASES['NAME'])
         cur = conn.cursor()
         for item in data.items():
-            cur.execute("update table set column=%s where column=%s" % (item[1], item[0]))
+            cur.execute(
+                "update table set column=%s where column=%s" %
+                (item[1], item[0])
+            )
         conn.commit()
         cur.close()
         conn.close()
