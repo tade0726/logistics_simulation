@@ -12,6 +12,14 @@ Des:
 from sqlalchemy import create_engine
 from os.path import realpath, join, split
 from datetime import datetime
+import redis
+
+
+class RedisConfig:
+    HOST = 'localhost'
+    PORT = 6379
+    DB = 0
+    CONN = redis.StrictRedis(host=HOST, port=PORT, db=DB)
 
 
 class RemoteMySQLConfig:
