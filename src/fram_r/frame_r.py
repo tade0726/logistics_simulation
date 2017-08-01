@@ -195,9 +195,10 @@ def init_r_frame(root: Tk):
         """"""
         pass
 
-    def chk_button_value():
+    def chk_button_value(var, e_r):
         """"""
-        pass
+        status_dict = {0: '关机', 1: '开机'}
+        e_r.set(status_dict[var.get()])
 
     def q_exit():
         if_exit = messagebox.askyesno("tkmessage", "要退出了，确定？")
@@ -239,169 +240,169 @@ def init_r_frame(root: Tk):
     # =============================================================
     r1_1 = init_check_btn(
         master=left_set_pad_center_left, id='r1_1', var=var1,
-        command=chk_button_value)
+        command=lambda: chk_button_value(var1, e_r1))
     txt_r1_1 = init_entry(
         master=left_set_pad_center_left, id='r1_1', text_var=e_r1)
     r1_2 = init_check_btn(
         master=left_set_pad_center_left, id='r1_2', var=var2,
-        command=chk_button_value)
+        command=lambda: chk_button_value(var2, e_r2))
     txt_r1_2 = init_entry(
         master=left_set_pad_center_left, id='r1_2', text_var=e_r2)
     r1_3 = init_check_btn(
         master=left_set_pad_center_left, id='r1_3', var=var3,
-        command=chk_button_value)
+        command=lambda: chk_button_value(var3, e_r3))
     txt_r1_3 = init_entry(
         master=left_set_pad_center_left, id = 'r1_3', text_var=e_r3)
     r1_4 = init_check_btn(
         master=left_set_pad_center_left, id='r1_4', var=var4,
-        command=chk_button_value)
+        command=lambda: chk_button_value(var4, e_r4))
     txt_r1_4 = init_entry(
         master=left_set_pad_center_left, id='r1_4', text_var=e_r4)
     # ==================================================================
     r2_1 = init_check_btn(
         master=left_set_pad_center_left, id='r2_1', var=var5,
-        command=chk_button_value)
+        command=lambda: chk_button_value(var5, e_r5))
     txt_r2_1 = init_entry(
         master=left_set_pad_center_left, id='r2_1', text_var=e_r5)
     r2_2 = init_check_btn(
         master=left_set_pad_center_left, id='r2_2', var=var6,
-        command=chk_button_value)
+        command=lambda: chk_button_value(var6, e_r6))
     txt_r2_2 = init_entry(
         master=left_set_pad_center_left, id='r2_2', text_var=e_r6)
     r2_3 = init_check_btn(
         master=left_set_pad_center_left, id='r2_3', var=var7,
-        command=chk_button_value)
+        command=lambda: chk_button_value(var7, e_r7))
     txt_r2_3 = init_entry(
         master=left_set_pad_center_left, id='r2_3', text_var=e_r7)
     r2_4 = init_check_btn(
         master=left_set_pad_center_left, id='r2_4', var=var8,
-        command=chk_button_value)
+        command=lambda: chk_button_value(var8, e_r8))
     txt_r2_4 = init_entry(
         master=left_set_pad_center_left, id='r2_4', text_var=e_r8)
     # =======================================================================
     r3_1 = init_check_btn(
         master=left_set_pad_center_left, id='r3_1', var=var9,
-        command=chk_button_value)
+        command=lambda: chk_button_value(var9, e_r9))
     txt_r3_1 = init_entry(
         master=left_set_pad_center_left, id='r3_1', text_var=e_r9)
     r3_2 = init_check_btn(
         master=left_set_pad_center_left, id='r3_2', var=var10,
-        command=chk_button_value)
+        command=lambda: chk_button_value(var10, e_r10))
     txt_r3_2 = init_entry(
         master=left_set_pad_center_left, id='r3_2', text_var=e_r10)
     r3_3 = init_check_btn(
         master=left_set_pad_center_left, id='r3_3', var=var11,
-        command=chk_button_value)
+        command=lambda: chk_button_value(var11, e_r11))
     txt_r3_3 = init_entry(
         master=left_set_pad_center_left, id='r3_3', text_var=e_r11)
     r3_4 = init_check_btn(
         master=left_set_pad_center_left, id='r3_4', var=var12,
-        command=chk_button_value)
+        command=lambda: chk_button_value(var12, e_r12))
     txt_r3_4 = init_entry(
         master=left_set_pad_center_left, id='r3_4', text_var=e_r12)
     # =======================================================================
     r4_1 = init_check_btn(
         master=left_set_pad_center_left, id='r4_1', var=var13,
-        command=chk_button_value)
+        command=lambda: chk_button_value(var13, e_r13))
     txt_r4_1 = init_entry(
         master=left_set_pad_center_left, id='r4_1', text_var=e_r13)
     r4_2 = init_check_btn(
         master=left_set_pad_center_left, id='r4_2', var=var14,
-        command=chk_button_value)
+        command=lambda: chk_button_value(var14, e_r14))
     txt_r4_2 = init_entry(
         master=left_set_pad_center_left, id='r4_2', text_var=e_r14)
     r4_3 = init_check_btn(
         master=left_set_pad_center_left, id='r4_3', var=var15,
-        command=chk_button_value)
+        command=lambda: chk_button_value(var15, e_r15))
     txt_r4_3 = init_entry(
         master=left_set_pad_center_left, id='r4_3', text_var=e_r15)
     r4_4 = init_check_btn(
         master=left_set_pad_center_left, id='r4_4', var=var16,
-        command=chk_button_value)
+        command=lambda: chk_button_value(var16, e_r16))
     txt_r4_4 = init_entry(
         master=left_set_pad_center_left, id='r4_4', text_var=e_r16)
     # =================================2=============================
     r5_1 = init_check_btn(
         master=left_set_pad_center_left, id='r5_1', var=var17,
-        command=chk_button_value)
+        command=lambda: chk_button_value(var17, e_r17))
     txt_r5_1 = init_entry(
         master=left_set_pad_center_left, id='r5_1', text_var=e_r17)
     r5_2 = init_check_btn(
         master=left_set_pad_center_left, id='r5_2', var=var18,
-        command=chk_button_value)
+        command=lambda: chk_button_value(var18, e_r18))
     txt_r5_2 = init_entry(
         master=left_set_pad_center_left, id='r5_2', text_var=e_r18)
     r5_3 = init_check_btn(
         master=left_set_pad_center_left, id='r5_3', var=var19,
-        command=chk_button_value)
+        command=lambda: chk_button_value(var19, e_r19))
     txt_r5_3 = init_entry(
         master=left_set_pad_center_left, id='r5_3', text_var=e_r19)
     r5_4 = init_check_btn(
         master=left_set_pad_center_left, id='r5_4', var=var20,
-        command=chk_button_value)
+        command=lambda: chk_button_value(var20, e_r20))
     txt_r5_4 = init_entry(
         master=left_set_pad_center_left, id='r5_4', text_var=e_r20)
     # # ===========================空侧卸货口设置==============================
     # a1_1 = init_check_btn(
     #     master=left_set_pad_center_right, id='a1_1', var=var21,
-    #     command=chk_button_value)
+    #     command=lambda: chk_button_value(var21, e_r21))
     # txt_a1_1 = init_entry(
     #     master=left_set_pad_center_right, id='a1_1', text_var=e_r21)
     # a1_2 = init_check_btn(
     #     master=left_set_pad_center_right, id='a1_2', var=var22,
-    #     command=chk_button_value)
+    #     command=lambda: chk_button_value(var22, e_r22))
     # txt_a1_2 = init_entry(
     #     master=left_set_pad_center_right, id='a1_2', text_var=e_r22)
     # a1_3 = init_check_btn(
     #     master=left_set_pad_center_right, id='a1_3', var=var23,
-    #     command=chk_button_value)
+    #     command=lambda: chk_button_value(var23, e_r23))
     # txt_a1_3 = init_entry(
     #     master=left_set_pad_center_right, id='a1_3', text_var=e_r23)
     # a1_4 = init_check_btn(
     #     master=left_set_pad_center_right, id='a1_4', var=var24,
-    #     command=chk_button_value)
+    #     command=lambda: chk_button_value(var24, e_r24))
     # txt_a1_4 = init_entry(
     #     master=left_set_pad_center_right, id='a1_4', text_var=e_r24)
-    # # =======================================================================
+    # =======================================================================
     # a1_5 = init_check_btn(
     #     master=left_set_pad_center_right, id='a1_5', var=var25,
-    #     command=chk_button_value)
+    #     command=lambda: chk_button_value(var25, e_r25))
     # txt_a1_5 = init_entry(
     #     master=left_set_pad_center_right, id='a1_5', text_var=e_r25)
     # a1_6 = init_check_btn(
     #     master=left_set_pad_center_right, id='a1_6', var=var26,
-    #     command=chk_button_value)
+    #     command=lambda: chk_button_value(var26, e_r26))
     # txt_a1_6 = init_entry(
     #     master=left_set_pad_center_right, id='a1_6', text_var=e_r26)
     # a1_7 = init_check_btn(
     #     master=left_set_pad_center_right, id='a1_7', var=var27,
-    #     command=chk_button_value)
+    #     command=lambda: chk_button_value(var27, e_r27))
     # txt_a1_7 = init_entry(
     #     master=left_set_pad_center_right, id='a1_7', text_var=e_r27)
     # a1_8 = init_check_btn(
     #     master=left_set_pad_center_right, id='a1_8', var=var28,
-    #     command=chk_button_value)
+    #     command=lambda: chk_button_value(var28, e_r28))
     # txt_a1_8 = init_entry(
     #     master=left_set_pad_center_right, id='a1_8', text_var=e_r28)
     # # =======================================================================
     # a1_9 = init_check_btn(
     #     master=left_set_pad_center_right, id='a1_9', var=var29,
-    #     command=chk_button_value)
+    #     command=lambda: chk_button_value(var29, e_r29))
     # txt_a1_9 = init_entry(
     #     master=left_set_pad_center_right, id='a1_9', text_var=e_r29)
     # a1_10 = init_check_btn(
     #     master=left_set_pad_center_right, id='a1_10', var=var30,
-    #     command=chk_button_value)
+    #     command=lambda: chk_button_value(var30, e_r30))
     # txt_a1_10 = init_entry(
     #     master=left_set_pad_center_right, id='a1_10', text_var=e_r30)
     # a1_11 = init_check_btn(
     #     master=left_set_pad_center_right, id='a1_11', var=var31,
-    #     command=chk_button_value)
+    #     command=lambda: chk_button_value(var31, e_r31))
     # txt_a1_11 = init_entry(
     #     master=left_set_pad_center_right, id='a1_11', text_var=e_r31)
     # a1_12 = init_check_btn(
     #     master=left_set_pad_center_right, id='a1_12', var=var32,
-    #     command=chk_button_value)
+    #     command=lambda: chk_button_value(var32, e_r32))
     # txt_a1_12 = init_entry(
     #     master=left_set_pad_center_right, id='a1_12', text_var=e_r32)
     # ============================资源配置=============================
