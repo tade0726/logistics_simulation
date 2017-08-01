@@ -205,22 +205,22 @@ def init_r_frame(root: Tk):
         on_off_dict['r3_2'] = r3_2.var.get()
         on_off_dict['r3_3'] = r3_3.var.get()
         on_off_dict['r3_4'] = r3_4.var.get()
-        on_off_dict['r4_1'] = r4_1.var.get()
-        on_off_dict['r4_2'] = r4_2.var.get()
-        on_off_dict['r4_3'] = r4_3.var.get()
-        on_off_dict['r4_4'] = r4_4.var.get()
-        on_off_dict['r5_1'] = r5_1.var.get()
-        on_off_dict['r5_2'] = r5_2.var.get()
-        on_off_dict['r5_3'] = r5_3.var.get()
-        on_off_dict['r5_4'] = r5_4.var.get()
-
-        update_on_off(on_off_dict)
+        # on_off_dict['r4_1'] = r4_1.var.get()
+        # on_off_dict['r4_2'] = r4_2.var.get()
+        # on_off_dict['r4_3'] = r4_3.var.get()
+        # on_off_dict['r4_4'] = r4_4.var.get()
+        # on_off_dict['r5_1'] = r5_1.var.get()
+        # on_off_dict['r5_2'] = r5_2.var.get()
+        # on_off_dict['r5_3'] = r5_3.var.get()
+        # on_off_dict['r5_4'] = r5_4.var.get()
+        #
+        # update_on_off(on_off_dict)
         # #  显示开关状态
-        # txtReceipt['state'] = NORMAL
-        # txtReceipt.delete('1.0', END)
-        # for item in on_off_dict.items():
-        #     txtReceipt.insert(END, item[0]+':\t\t\t'+ str(item[1]) + '\n')
-        # txtReceipt['state'] = DISABLED
+        txtReceipt['state'] = NORMAL
+        txtReceipt.delete('1.0', END)
+        for item in on_off_dict.items():
+            txtReceipt.insert(END, item[0]+':\t\t\t'+ str(item[1]) + '\n')
+        txtReceipt['state'] = DISABLED
 
     def chk_button_value(var, e_r):
         """"""
@@ -337,47 +337,47 @@ def init_r_frame(root: Tk):
     txt_r2_4 = init_entry(
         master=left_set_pad_center_left, id='r2_4', text_var=e_r8)
     # =======================================================================
-    # r3_1 = init_check_btn(
-    #     master=left_set_pad_center_right, id='r3_1', var=var9,
-    #     command=lambda: chk_button_value(var9, e_r9))
-    # txt_r3_1 = init_entry(
-    #     master=left_set_pad_center_right, id='r3_1', text_var=e_r9)
-    # r3_2 = init_check_btn(
-    #     master=left_set_pad_center_right, id='r3_2', var=var10,
-    #     command=lambda: chk_button_value(var10, e_r10))
-    # txt_r3_2 = init_entry(
-    #     master=left_set_pad_center_right, id='r3_2', text_var=e_r10)
-    # r3_3 = init_check_btn(
-    #     master=left_set_pad_center_right, id='r3_3', var=var11,
-    #     command=lambda: chk_button_value(var11, e_r11))
-    # txt_r3_3 = init_entry(
-    #     master=left_set_pad_center_right, id='r3_3', text_var=e_r11)
-    # r3_4 = init_check_btn(
-    #     master=left_set_pad_center_right, id='r3_4', var=var12,
-    #     command=lambda: chk_button_value(var12, e_r12))
-    # txt_r3_4 = init_entry(
-    #     master=left_set_pad_center_right, id='r3_4', text_var=e_r12)
-    # # # =======================================================================
-    # r3_5 = init_check_btn(
-    #     master=left_set_pad_center_right, id='r3_5', var=var13,
-    #     command=lambda: chk_button_value(var13, e_r13))
-    # txt_r3_5 = init_entry(
-    #     master=left_set_pad_center_right, id='r3_5', text_var=e_r13)
-    # r3_6 = init_check_btn(
-    #     master=left_set_pad_center_right, id='r3_6', var=var14,
-    #     command=lambda: chk_button_value(var14, e_r14))
-    # txt_r3_6 = init_entry(
-    #     master=left_set_pad_center_right, id='r3_6', text_var=e_r14)
-    # r3_7 = init_check_btn(
-    #     master=left_set_pad_center_right, id='r3_7', var=var15,
-    #     command=lambda: chk_button_value(var15, e_r15))
-    # txt_r3_7 = init_entry(
-    #     master=left_set_pad_center_right, id='r3_7', text_var=e_r15)
-    # r3_8 = init_check_btn(
-    #     master=left_set_pad_center_right, id='r3_8', var=var16,
-    #     command=lambda: chk_button_value(var16, e_r16))
-    # txt_r3_8 = init_entry(
-    #     master=left_set_pad_center_right, id='r3_8', text_var=e_r16)
+    r3_1 = init_check_btn(
+        master=left_set_pad_center_right, id='r3_1', var=var9,
+        command=lambda: chk_button_value(var9, e_r9))
+    txt_r3_1 = init_entry(
+        master=left_set_pad_center_right, id='r3_1', text_var=e_r9)
+    r3_2 = init_check_btn(
+        master=left_set_pad_center_right, id='r3_2', var=var10,
+        command=lambda: chk_button_value(var10, e_r10))
+    txt_r3_2 = init_entry(
+        master=left_set_pad_center_right, id='r3_2', text_var=e_r10)
+    r3_3 = init_check_btn(
+        master=left_set_pad_center_right, id='r3_3', var=var11,
+        command=lambda: chk_button_value(var11, e_r11))
+    txt_r3_3 = init_entry(
+        master=left_set_pad_center_right, id='r3_3', text_var=e_r11)
+    r3_4 = init_check_btn(
+        master=left_set_pad_center_right, id='r3_4', var=var12,
+        command=lambda: chk_button_value(var12, e_r12))
+    txt_r3_4 = init_entry(
+        master=left_set_pad_center_right, id='r3_4', text_var=e_r12)
+    # # =======================================================================
+    r3_5 = init_check_btn(
+        master=left_set_pad_center_right, id='r3_5', var=var13,
+        command=lambda: chk_button_value(var13, e_r13))
+    txt_r3_5 = init_entry(
+        master=left_set_pad_center_right, id='r3_5', text_var=e_r13)
+    r3_6 = init_check_btn(
+        master=left_set_pad_center_right, id='r3_6', var=var14,
+        command=lambda: chk_button_value(var14, e_r14))
+    txt_r3_6 = init_entry(
+        master=left_set_pad_center_right, id='r3_6', text_var=e_r14)
+    r3_7 = init_check_btn(
+        master=left_set_pad_center_right, id='r3_7', var=var15,
+        command=lambda: chk_button_value(var15, e_r15))
+    txt_r3_7 = init_entry(
+        master=left_set_pad_center_right, id='r3_7', text_var=e_r15)
+    r3_8 = init_check_btn(
+        master=left_set_pad_center_right, id='r3_8', var=var16,
+        command=lambda: chk_button_value(var16, e_r16))
+    txt_r3_8 = init_entry(
+        master=left_set_pad_center_right, id='r3_8', text_var=e_r16)
     # # =================================2=============================
     # r5_1 = init_check_btn(
     #     master=left_set_pad_center_left, id='r5_1', var=var17,
