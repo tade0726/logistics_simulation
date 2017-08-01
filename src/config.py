@@ -24,9 +24,9 @@ class RedisConfig:
 
 class RemoteMySQLConfig:
     HOST = "10.0.149.36"
-    USER = "developer"
-    PASS = "developer"
-    DB = "hangzhouhubqa"
+    USER = "461241"
+    PASS = "461241"
+    DB = "test3"
     CHARSET = 'utf8'
 
     engine = create_engine(
@@ -44,6 +44,7 @@ class TimeConfig:
 
 
 class MainConfig:
+    EQUIPMENT_ALL = True
     IS_TEST = False
     SAVE_LOCAL = False
     IS_PARCEL_ONLY = True  # 只有 parcel 件
