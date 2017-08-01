@@ -94,7 +94,11 @@ class TruckController:
             packages.append(package)
 
         # init truck
-        (truck_id, come_time, truck_type,) = keys
+        (truck_id, come_time, src_type,) = keys
+        # find out package dest_type
+        package_dest_type = 'A' if 'A' in list(set(package.dest_type for package in packages)) else 'L'
+        # LL/LA/AA/AA
+        truck_type = src_type + package_dest_type
         truck = Truck(env=self.env, item_id=truck_id, come_time=come_time,
                       packages=packages, truck_type=truck_type,
                       )

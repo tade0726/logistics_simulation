@@ -155,16 +155,16 @@ def get_vehicles(is_land: bool,
 def get_unload_setting():
     """
     返回字典形式：
-        unload port 和 truck 类型（L， A） 的映射
+        unload port 和 truck 类型（LL， LA, AA,  AL） 的映射
     examples:
-        {'r1_1': ['L'], 'r3_1': ['L', 'A']}
+        {'r1_1': ['LL', 'LA'], 'r3_1': ['LL', ]}
     """
 
     table_name = "i_unload_setting"
     table = load_from_mysql(table_name)
-
+    table['truck_type'] = table['origin_type'] + table['dest_type']
     table_dict= \
-        table.groupby('equipment_port')['origin_type'].apply(set).apply(list).to_dict()
+        table.groupby('equipment_port')['truck_type'].apply(set).apply(list).to_dict()
     return table_dict
 
 
@@ -342,5 +342,5 @@ def get_equipment_on_off():
 
 
 if __name__ == "__main__":
-    test = get_vehicles(is_test=True, is_land=True)
+    test = get_unload_setting()
     print(test)

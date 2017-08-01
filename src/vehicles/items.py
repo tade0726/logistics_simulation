@@ -47,16 +47,14 @@ class Package:
         # next pipeline_id
         self.next_pipeline = None
 
+        self.dest_code = self.attr["dest_zone_code"]
+        self.dest_type = self.attr["dest_type"]
+        self.parcel_type = self.attr["parcel_type"]
+        self.sorter_type = "reload" if self.parcel_type == "parcel" else "small_sort"
+
     # use in unload machine
     def set_path(self, package_start):
-
-        dest_code = self.attr["dest_zone_code"]
-        dest_type = self.attr["dest_type"]
-        parcel_type = self.attr["parcel_type"]
-        sorter_type = "reload" if parcel_type == "parcel" else "small_sort"
-
-        path = path_generator.path_generator(package_start, dest_code, sorter_type, dest_type)
-
+        path = path_generator.path_generator(package_start, self.dest_code, self.sorter_type, self.dest_type)
         self.planned_path = tuple(path)
         self.path = list(self.planned_path)
         self.next_pipeline = self.planned_path[:2]
