@@ -65,7 +65,7 @@ def load_from_local(table_name: str):
     table = pd.read_csv(join(SaveConfig.DATA_DIR, f"{table_name}.csv"),)
     return table
 
-@load_csv_cache
+
 def load_from_mysql(table_name: str):
     """读取远程mysql数据表"""
     logging.debug(msg=f"Reading mysql table {table_name}")
