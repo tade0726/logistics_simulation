@@ -290,7 +290,7 @@ if __name__ == "__main__":
     machine_pre_dict = machine_pre()
     hospital = set(machine_pre_dict["hospital"])
     security = set(machine_pre_dict["security"])
-    re_cal = True
+    re_cal = False
 
     if re_cal:
 
@@ -327,7 +327,7 @@ if __name__ == "__main__":
 
     # 给定起终点单条路线
     print(",".join(Paths.path_generator("a1_1", "027", "reload", "A")))
-    print(",".join(Paths.path_generator("a1_1", "571J", "small_sort", "L", 1)))  # 小件
+    #print(",".join(Paths.path_generator("a1_1", "571J", "small_sort", "L", 1)))  # 小件
 
     # 生成100000条路线，测试进入医院区的概率是否为5%
     # land_start_node = ["r1_1", "r1_2", "r1_3", "r1_4", "r2_1", "r2_2", "r2_3",
@@ -338,8 +338,8 @@ if __name__ == "__main__":
     #                  "571KL", "571HB", "571B", "571NB", "571AM", "571NH",
     #                  "571PF", "C571H", "571BM"]
     land_start_node = ["r5_1", "r5_2", "r5_3", "r5_4"]
-    air_end_node = ["023", "592", "812H", "5940", "5950", "028", "771", "4310",
-                    "7710", "7700", "431H", "772", "027", "7311"]
+    air_end_node = ["023", "592", "812", "594", "595", "028", "771", "431",
+                    "771", "770", "431", "772", "027", "731"]
 
     paths = {"hospital": [], "without hospital": [], "security": [], "us": []}
     num = 0

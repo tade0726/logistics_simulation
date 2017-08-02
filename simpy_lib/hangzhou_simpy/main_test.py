@@ -29,12 +29,13 @@ from simpy_lib.hangzhou_simpy.src.machine \
 from simpy_lib.hangzhou_simpy.src.config import MainConfig
 from simpy_lib.hangzhou_simpy.src.config import TimeConfig
 
+from tkinter import NORMAL, DISABLED, END
 
 __all__ = ["main"]
 
 # todo: add parameters
 
-def main():
+def main(text_txt_receipt):
 
     # start time
     t_start = datetime.now()
@@ -43,7 +44,13 @@ def main():
     env = simpy.Environment()
     # init trucks queues
     trucks_queue = simpy.FilterStore(env)
-
+    # =============================== 测试日志输出 ==============================
+    # text_txt_receipt['state'] = NORMAL
+    # text_txt_receipt.delete('1.0', END)
+    # print('loading config data=====', text_txt_receipt)
+    # text_txt_receipt.insert(END, "loading config data\n")
+    # text_txt_receipt['state'] = DISABLED
+    # ==========================================================================
     logging.info("loading config data")
 
     # raw data prepare
@@ -231,14 +238,14 @@ def main():
     # output data
     logging.info("output data")
 
-    # if MainConfig.SAVE_LOCAL:
-    #     write_local('machine_table', machine_table)
-    #     write_local('pipeline_table', pipeline_table)
-    #     write_local('truck_table', truck_table)
-    # else:
-    #     write_mysql("pipeline_table", pipeline_table)
-    #     write_mysql("truck_table", truck_table)
-    #     write_mysql("machine_table", machine_table)
+    if MainConfig.SAVE_LOCAL:
+        write_local('machine_table', machine_table)
+        write_local('pipeline_table', pipeline_table)
+        write_local('truck_table', truck_table)
+    else:
+        write_mysql("pipeline_table", pipeline_table)
+        write_mysql("truck_table", truck_table)
+        write_mysql("machine_table", machine_table)
 
     t_end = datetime.now()
     total_time = t_end - t_start

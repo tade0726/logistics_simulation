@@ -2,7 +2,9 @@
 
 from tk_fram.fram_r import App, CheckBtnCreate, EntryCreate
 from tk_fram.fram_r import messagebox
+from simpy_lib import main
 from tk_fram.fram_r.frame_r_view import *
+import logging as lg
 
 import pymysql
 
@@ -165,62 +167,67 @@ def init_r_frame(root: Tk):
     e_r31 = StringVar()
     e_r32 = StringVar()
 
-    # e_r1.set('关机')
-    # e_r2.set('关机')
-    # e_r3.set('关机')
-    # e_r4.set('关机')
-    # e_r5.set('关机')
-    # e_r6.set('关机')
-    # e_r7.set('关机')
-    # e_r8.set('关机')
-    # e_r9.set('关机')
-    # e_r10.set('关机')
-    # e_r11.set('关机')
-    # e_r12.set('关机')
-    # e_r13.set('关机')
-    # e_r14.set('关机')
-    # e_r15.set('关机')
-    # e_r16.set('关机')
-    # e_r17.set('关机')
-    # e_r18.set('关机')
-    # e_r19.set('关机')
-    # e_r20.set('关机')
-    # e_r21.set('关机')
-    # e_r22.set('关机')
-    # e_r23.set('关机')
-    # e_r24.set('关机')
-    # e_r25.set('关机')
-    # e_r26.set('关机')
-    # e_r27.set('关机')
-    # e_r28.set('关机')
-    # e_r29.set('关机')
-    # e_r30.set('关机')
-    # e_r31.set('关机')
-    # e_r32.set('关机')
 
     def cost_of_item():
+        """"""
+        txtReceipt['state'] = NORMAL
+        txtReceipt.delete('1.0', END)
+        txtReceipt.insert(END, '开始调用仿真函数\n')
+        main(text_txt_receipt=txtReceipt)
+        txtReceipt.insert(END, '结束调用仿真函数\n')
+        conn = pymysql.connect(host=DATABASES['HOST'],
+                               user=DATABASES['USER'],
+                               passwd=DATABASES['PASSWORD'],
+                               db=DATABASES['NAME'])
+        cur = conn.cursor()
+        result = read_result(cur)
+        cur.close()
+        conn.close()
+        txtReceipt.delete('1.0', END)
+        txtReceipt.insert(END, '最早到达时间:\t\t\t' + result['fast_time'] + '\n')
+        txtReceipt.insert(END, '最晚到达时间:\t\t\t' + result['later_time'] + '\n')
+        txtReceipt.insert(END, '最后一票处理时间:\t\t\t' + result['last_solve_time']
+                          + '\n')
+        txtReceipt.insert(END, '总处理时间:\t\t\t' + str(result['total_solve_time']) +
+                          '\n')
+        txtReceipt['state'] = DISABLED
+        pass
+
+    def update_data():
         """"""
         on_off_dict = {}
         on_off_dict['r1_1'] = r1_1.var.get()
         on_off_dict['r1_2'] = r1_2.var.get()
         on_off_dict['r1_3'] = r1_3.var.get()
         on_off_dict['r1_4'] = r1_4.var.get()
-        # on_off_dict['r2_1'] = r2_1.var.get()
-        # on_off_dict['r2_2'] = r2_2.var.get()
-        # on_off_dict['r2_3'] = r2_3.var.get()
-        # on_off_dict['r2_4'] = r2_4.var.get()
-        # on_off_dict['r3_1'] = r3_1.var.get()
-        # on_off_dict['r3_2'] = r3_2.var.get()
-        # on_off_dict['r3_3'] = r3_3.var.get()
-        # on_off_dict['r3_4'] = r3_4.var.get()
-        # on_off_dict['r4_1'] = r4_1.var.get()
-        # on_off_dict['r4_2'] = r4_2.var.get()
-        # on_off_dict['r4_3'] = r4_3.var.get()
-        # on_off_dict['r4_4'] = r4_4.var.get()
-        # on_off_dict['r5_1'] = r5_1.var.get()
-        # on_off_dict['r5_2'] = r5_2.var.get()
-        # on_off_dict['r5_3'] = r5_3.var.get()
-        # on_off_dict['r5_4'] = r5_4.var.get()
+        on_off_dict['r2_1'] = r2_1.var.get()
+        on_off_dict['r2_2'] = r2_2.var.get()
+        on_off_dict['r2_3'] = r2_3.var.get()
+        on_off_dict['r2_4'] = r2_4.var.get()
+        on_off_dict['r3_1'] = r3_1.var.get()
+        on_off_dict['r3_2'] = r3_2.var.get()
+        on_off_dict['r3_3'] = r3_3.var.get()
+        on_off_dict['r3_4'] = r3_4.var.get()
+        on_off_dict['r3_5'] = r3_5.var.get()
+        on_off_dict['r3_6'] = r3_6.var.get()
+        on_off_dict['r3_7'] = r3_7.var.get()
+        on_off_dict['r3_8'] = r3_8.var.get()
+        on_off_dict['r3_9'] = r3_9.var.get()
+        on_off_dict['r3_10'] = r3_10.var.get()
+        on_off_dict['r4_1'] = r4_1.var.get()
+        on_off_dict['r4_2'] = r4_2.var.get()
+        on_off_dict['r4_3'] = r4_3.var.get()
+        on_off_dict['r4_4'] = r4_4.var.get()
+        on_off_dict['r4_5'] = r4_5.var.get()
+        on_off_dict['r4_6'] = r4_6.var.get()
+        on_off_dict['r4_7'] = r4_7.var.get()
+        on_off_dict['r4_8'] = r4_8.var.get()
+        on_off_dict['r4_9'] = r4_9.var.get()
+        on_off_dict['r4_10'] = r4_10.var.get()
+        on_off_dict['r5_1'] = r5_1.var.get()
+        on_off_dict['r5_2'] = r5_2.var.get()
+        on_off_dict['r5_3'] = r5_3.var.get()
+        on_off_dict['r5_4'] = r5_4.var.get()
 
         conn = pymysql.connect(host=DATABASES['HOST'],
                                user=DATABASES['USER'],
@@ -228,33 +235,44 @@ def init_r_frame(root: Tk):
                                db=DATABASES['NAME'])
         cur = conn.cursor()
 
-        # 更改开关状态
+        # # #  显示结果
+        txtReceipt['state'] = NORMAL
+        txtReceipt.delete('1.0', END)
+        # # 更改开关状态
+        # ==========================================
+        txtReceipt.insert(END, '机器开关状态更新......\n')
         update_on_off(cur, on_off_dict)
         conn.commit()
-
-        # 插入测试数据
+        txtReceipt.insert(END, '机器开关状态更新成功！\n')
+        #
+        # # 插入测试数据
+        txtReceipt.insert(END, '插入包裹仿真数据......\n')
         insert_package(cur, package_num.get())
         conn.commit()
-
-        # 更改人员数量
+        txtReceipt.insert(END, '插入包裹仿真数据成功！\n')
+        #
+        # # 更改人员数量
         update_person(cur, person_res.get())
         conn.commit()
 
-        result = read_result(cur)
+        #result = read_result(cur)
 
         cur.close()
         conn.close()
 
-        # #  显示结果
-        txtReceipt['state'] = NORMAL
-        txtReceipt.delete('1.0', END)
-        txtReceipt.insert(END, '最早到达时间:\t\t\t' + result['fast_time'] + '\n')
-        txtReceipt.insert(END, '最晚到达时间:\t\t\t' + result['later_time'] + '\n')
-        txtReceipt.insert(END, '最后一票处理时间:\t\t\t' + result['last_solve_time']
-                          + '\n')
-        txtReceipt.insert(END, '总处理时间:\t\t\t' + result['total_solve_time'] +
-                          '\n')
-        txtReceipt['state'] = DISABLED
+        # # str =
+        #
+        #txtReceipt.insert(END, '开始调用仿真函数\n')
+        # # # ======================= 调用simpy仿真模块
+        # main(text_txt_receipt=txtReceipt)
+        #txtReceipt.insert(END, '结束调用仿真函数\n')
+        # txtReceipt.insert(END, '最早到达时间:\t\t\t' + result['fast_time'] + '\n')
+        # txtReceipt.insert(END, '最晚到达时间:\t\t\t' + result['later_time'] + '\n')
+        # txtReceipt.insert(END, '最后一票处理时间:\t\t\t' + result['last_solve_time']
+        #                   + '\n')
+        # txtReceipt.insert(END, '总处理时间:\t\t\t' + result['total_solve_time'] +
+        #                   '\n')
+        #txtReceipt['state'] = DISABLED
 
     def chk_button_value(var, e_r):
         """"""
@@ -265,17 +283,20 @@ def init_r_frame(root: Tk):
         for item in data.items():
             cursor.execute(
                 "update i_equipment_io set equipment_status=%s where "
-                "equipment_port=%s" % (item[1], item[0])
+                "equipment_port='%s'" % (item[1], item[0])
             )
 
     def insert_package(cursor, num: str):
+        print("insert into i_od_parcel_landside select * "
+                       " from i_od_parcel_landside_all limit %s" % num)
+
         cursor.execute("truncate i_od_parcel_landside")
-        cursor.execute("insert into i_od_parcel_landside select * from "
-                       "i_od_parcel_landside_all limit %s" % num)
+        cursor.execute("insert into i_od_parcel_landside select * "
+                       " from i_od_parcel_landside_all limit %s" % num)
 
     def update_person(cursor, num: str):
         # 需要指定 resource_id 范围
-        cursor.execute("update i_resource_limit set resouce_limit={} where "
+        cursor.execute("update i_resource_limit set resource_limit={} where "
                        "resource_id like 'man_m%' ".format(num))
 
     def read_result(cursor):
@@ -637,15 +658,15 @@ def init_r_frame(root: Tk):
         padx=20, pady=1, fg="black",
         font=('arial', 9, 'bold'),
         width=5,
-        text="启动仿真",
-        command=cost_of_item
+        text="数据更新",
+        command=update_data
     ).grid(row=0, column=0)
     btn_analyze = Button(
         master=right_output_pad_button,
         padx=20, pady=1, fg="black",
         font=('arial', 9, 'bold'),
         width=5,
-        text="仿真分析",
+        text="启动仿真",
         command=cost_of_item
     ).grid(row=0, column=1)
     btn_exit = Button(
