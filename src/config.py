@@ -51,29 +51,31 @@ class MainConfig:
     SAVE_LOCAL = False
     IS_PARCEL_ONLY = True  # 只有 parcel 件
     IS_LAND_ONLY = False  # True 只有 landside, False landside airside
+    LOG_LOCAL = False
 
-
-def get_logger(logger_name: str):
+def get_logger(logger_name: str, log_local:bool=False):
 
     logger = logging.getLogger(logger_name)
-    logger.setLevel(level=logging.INFO)
-    # add handlers
-    ch = logging.StreamHandler()
-    fh = logging.FileHandler(filename=join(SaveConfig.PROJECT_DIR, f"{logger_name}.log"), mode='a')
-    # add format
-    formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-    # set format
-    ch.setFormatter(formatter)
-    fh.setFormatter(formatter)
 
-    logger.addHandler(ch)
-    logger.addHandler(fh)
+    if log_local:
+        logger.setLevel(level=logging.INFO)
+        # add handlers
+        ch = logging.StreamHandler()
+        fh = logging.FileHandler(filename=join(SaveConfig.PROJECT_DIR, f"{logger_name}.log"), mode='a')
+        # add format
+        formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+        # set format
+        ch.setFormatter(formatter)
+        fh.setFormatter(formatter)
+
+        logger.addHandler(ch)
+        logger.addHandler(fh)
 
     return logger
 
 
 class LOG:
-    logger_font = get_logger("django")
+    logger_font = get_logger("django", log_local=MainConfig.LOG_LOCAL)
 
 
 if __name__ == "__main__":
