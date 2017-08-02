@@ -9,8 +9,10 @@ root = Tk()
 
 def create_r_frame():
     """"""
-    # root.geometry("1350x750+0+0")
+    root.geometry("1070x450+0+0")
     root.title('杭州分拣中心仿真程序')
+    root.minsize(1070, 450)
+    root.maxsize(1070, 450)
     root.config(
         background='#A2B5CD'
     )
