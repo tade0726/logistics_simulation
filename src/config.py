@@ -51,7 +51,8 @@ class MainConfig:
     SAVE_LOCAL = False
     IS_PARCEL_ONLY = True  # 只有 parcel 件
     IS_LAND_ONLY = False  # True 只有 landside, False landside airside
-    LOG_LOCAL = False
+    LOG_LOCAL = False  # 仿真程序是否生成日志， False 为被前端调用的时候
+
 
 def get_logger(logger_name: str, log_local:bool=False):
 
