@@ -221,15 +221,21 @@ def init_r_frame(root: Tk):
         update_person(cur, person_res.get())
         conn.commit()
 
+        result = read_result(cur)
+
         cur.close()
         conn.close()
 
-        # #  显示开关状态
-        # txtReceipt['state'] = NORMAL
-        # txtReceipt.delete('1.0', END)
-        # for item in on_off_dict.items():
-        #     txtReceipt.insert(END, item[0]+':\t\t\t'+ str(item[1]) + '\n')
-        # txtReceipt['state'] = DISABLED
+        # #  显示结果
+        txtReceipt['state'] = NORMAL
+        txtReceipt.delete('1.0', END)
+        txtReceipt.insert(END, '最早到达时间:\t\t\t' + result['fast_time'] + '\n')
+        txtReceipt.insert(END, '最晚到达时间:\t\t\t' + result['later_time'] + '\n')
+        txtReceipt.insert(END, '最后一票处理时间:\t\t\t' + result['last_solve_time']
+                          + '\n')
+        txtReceipt.insert(END, '总处理时间:\t\t\t' + result['total_solve_time'] +
+                          '\n')
+        txtReceipt['state'] = DISABLED
 
     def chk_button_value(var, e_r):
         """"""
@@ -270,7 +276,12 @@ def init_r_frame(root: Tk):
             "(max(time_stamp)-min(time_stamp))/3600 from o_machine_table where "
             "action='wait' and run_Time='{}'".format(run_time))
         last_solve_time, total_solve_time = cursor.fetchone()
-        return
+        return {
+            'fast_time': fast_time,
+            'later_time': later_time,
+            'last_solve_time': last_solve_time,
+            'total_solve_time': total_solve_time
+        }
 
     def q_exit():
         if_exit = messagebox.askyesno("tkmessage", "要退出了，确定？")
