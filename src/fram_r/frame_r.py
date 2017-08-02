@@ -6,6 +6,7 @@ from src.fram_r.frame_r_view import *
 
 import pymysql
 
+
 def init_app(master, wig):
     """"""
     return App(master=master,
@@ -22,6 +23,16 @@ def init_check_btn(master, id, var, command):
         var=var,
         command=command
     )
+
+def init_btn_entry_val_from_sql():
+    """"""
+    var_dic = {}
+    # todo
+    # '''''''
+
+
+    return var_dic
+
 
 def init_entry(master, id, text_var):
     """
@@ -146,38 +157,38 @@ def init_r_frame(root: Tk):
     e_r31 = StringVar()
     e_r32 = StringVar()
 
-    e_r1.set('关机')
-    e_r2.set('关机')
-    e_r3.set('关机')
-    e_r4.set('关机')
-    e_r5.set('关机')
-    e_r6.set('关机')
-    e_r7.set('关机')
-    e_r8.set('关机')
-    e_r9.set('关机')
-    e_r10.set('关机')
-    e_r11.set('关机')
-    e_r12.set('关机')
-    e_r13.set('关机')
-    e_r14.set('关机')
-    e_r15.set('关机')
-    e_r16.set('关机')
-    e_r17.set('关机')
-    e_r18.set('关机')
-    e_r19.set('关机')
-    e_r20.set('关机')
-    e_r21.set('关机')
-    e_r22.set('关机')
-    e_r23.set('关机')
-    e_r24.set('关机')
-    e_r25.set('关机')
-    e_r26.set('关机')
-    e_r27.set('关机')
-    e_r28.set('关机')
-    e_r29.set('关机')
-    e_r30.set('关机')
-    e_r31.set('关机')
-    e_r32.set('关机')
+    # e_r1.set('关机')
+    # e_r2.set('关机')
+    # e_r3.set('关机')
+    # e_r4.set('关机')
+    # e_r5.set('关机')
+    # e_r6.set('关机')
+    # e_r7.set('关机')
+    # e_r8.set('关机')
+    # e_r9.set('关机')
+    # e_r10.set('关机')
+    # e_r11.set('关机')
+    # e_r12.set('关机')
+    # e_r13.set('关机')
+    # e_r14.set('关机')
+    # e_r15.set('关机')
+    # e_r16.set('关机')
+    # e_r17.set('关机')
+    # e_r18.set('关机')
+    # e_r19.set('关机')
+    # e_r20.set('关机')
+    # e_r21.set('关机')
+    # e_r22.set('关机')
+    # e_r23.set('关机')
+    # e_r24.set('关机')
+    # e_r25.set('关机')
+    # e_r26.set('关机')
+    # e_r27.set('关机')
+    # e_r28.set('关机')
+    # e_r29.set('关机')
+    # e_r30.set('关机')
+    # e_r31.set('关机')
+    # e_r32.set('关机')
 
     def cost_of_item():
         """"""
@@ -360,6 +371,7 @@ def init_r_frame(root: Tk):
     r1_1 = init_check_btn(
         master=left_set_pad_center_left, id='r1_1', var=var1,
         command=lambda: chk_button_value(var1, e_r1))
+    #r1_1.var.set(init_btn_entry_val_from_sql['r1_1'])
     txt_r1_1 = init_entry(
         master=left_set_pad_center_left, id='r1_1', text_var=e_r1)
     r1_2 = init_check_btn(
