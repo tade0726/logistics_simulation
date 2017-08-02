@@ -340,7 +340,7 @@ def init_r_frame(root: Tk):
     lbl_package = Label(
         master=left_set_pad_package,
         font=('arial', 12),
-        text='快件数量',
+        text='仿真输入件量',
         bd=2,
         anchor='w'
     )
@@ -355,7 +355,7 @@ def init_r_frame(root: Tk):
     lbl_resource = Label(
         master=left_set_pad_package,
         font=('arial', 12),
-        text='人力资源数：',
+        text='初分拣区卸货口人数：',
         bd=2,
         anchor='w'
     )
