@@ -240,17 +240,37 @@ def init_r_frame(root: Tk):
         # equipment_port 需要确定
         for item in data.items():
             cursor.execute(
-                "update i_equipment_io set equipment_status=%s where equipment_port=%s" %
-                (item[1], item[0])
+                "update i_equipment_io set equipment_status=%s where "
+                "equipment_port=%s" % (item[1], item[0])
             )
 
     def insert_package(cursor, num: str):
         cursor.execute("truncate i_od_parcel_landside")
-        cursor.execute("insert into i_od_parcel_landside select * from i_od_parcel_landside_all limit %s" % num)
+        cursor.execute("insert into i_od_parcel_landside select * from "
+                       "i_od_parcel_landside_all limit %s" % num)
 
     def update_person(cursor, num: str):
         # 需要指定 resource_id 范围
-        cursor.execute("update i_resource_limit set resouce_limit={} where resource_id like 'man_m%' ".format(num))
+        cursor.execute("update i_resource_limit set resouce_limit={} where "
+                       "resource_id like 'man_m%' ".format(num))
+
+    def read_result(cursor):
+        cursor.execute("select run_time from o_machine_table order by run_time "
+                       "desc limit 1")
+        run_time = cursor.fetchone()[0]
+        cursor.execute(
+            "select min(cast(real_time_stamp as datetime)), "
+            "max(cast(real_time_stamp as datetime)) from o_machine_table where "
+            "action='wait' and run_Time='{}' and equipment_id like 'r%'".format(
+                run_time))
+
+        fast_time, later_time = cursor.fetchone()
+        cursor.execute(
+            "select max(cast(real_time_stamp as datetime)), "
+            "(max(time_stamp)-min(time_stamp))/3600 from o_machine_table where "
+            "action='wait' and run_Time='{}'".format(run_time))
+        last_solve_time, total_solve_time = cursor.fetchone()
+        return
 
     def q_exit():
         if_exit = messagebox.askyesno("tkmessage", "要退出了，确定？")
