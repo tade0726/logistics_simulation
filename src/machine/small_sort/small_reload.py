@@ -22,6 +22,7 @@
 
 
 from src.vehicles.items import SmallPackage, SmallBag, PackageRecord
+import simpy
 import time
 
 
@@ -43,6 +44,7 @@ class SmallReload(object):
         self.resource_set = self._set_machine_resource()
         self.small_list = []
         self.timer = 0
+        self.bag = self.env.event()
 
     def _set_machine_resource(self):
         self.equipment_id = self.machine_id[1]
@@ -52,24 +54,33 @@ class SmallReload(object):
         self.last_pipeline = self.pipeline_dict[self.machine_id]
         self.bag_num = BAG_NUM
 
+    def check_bag(self):
+        while True:
+            if len(self.small_list) == 15:
+                self.bag.succeed()
+                self.bag = self.env.event()
+
     def length(self):
         return len(self.small_list)
 
     def processing(self):
-        if self.length == self.bag_num or self.env.now - self.timer > 7200:
+        if self.length == self.bag_num:
+            # 取列表中第一个小件的信息作为小件包的信息
             smallbag = SmallBag(self.env, self.small_list[0].attr,
                                 self.small_list)
+            # 重新生成小件包的id
             smallbag.item_id = "98" + str(int(time.time()*1000))[-10:]
             smallbag.set_path(self.equipment_id)
             output_pipeline = smallbag.next_pipeline
-            # 记录机器开始处理货物信息
+            self.small_list = []
+            # 记录机器开始打包信息
             smallbag.insert_data(
                 PackageRecord(
                     equipment_id=self.equipment_id,
                     package_id=smallbag.item_id,
                     time_stamp=self.env.now,
                     action="start", ))
-            # 增加处理时间
+            # 增加打包时间
             yield self.env.timeout(self.process_time)
             # 记录机器结束处理货物信息
             smallbag.insert_data(
@@ -80,7 +91,6 @@ class SmallReload(object):
                     action="end", ))
             # 放入下一步的传送带
             self.pipeline_dict[output_pipeline].put(smallbag)
-            self.small_list = []
 
     def run(self):
         while True:
