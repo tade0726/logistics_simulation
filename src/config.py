@@ -15,6 +15,7 @@ from datetime import datetime
 import redis
 import logging
 
+
 class RedisConfig:
     HOST = 'localhost'
     PORT = 6379
@@ -35,8 +36,10 @@ class RemoteMySQLConfig:
 
 
 class SaveConfig:
-    DATA_DIR = join( split(split(realpath(__file__))[0])[0], 'data')
-    OUT_DIR = join( split(split(realpath(__file__))[0])[0], 'out')
+    PROJECT_DIR = split(split(realpath(__file__))[0])[0]
+    DATA_DIR = join(PROJECT_DIR , 'data')
+    OUT_DIR = join(PROJECT_DIR, 'out')
+    LOG_DIR = join(PROJECT_DIR, 'log')
 
 
 class TimeConfig:
@@ -44,12 +47,34 @@ class TimeConfig:
 
 
 class MainConfig:
-    IS_TEST = False
-    SAVE_LOCAL = False
+    IS_TEST = True
+    SAVE_LOCAL = True
     IS_PARCEL_ONLY = True  # 只有 parcel 件
     IS_LAND_ONLY = False  # True 只有 landside, False landside airside
 
-logger = logging.getLogger("django")
+
+def get_logger(logger_name: str):
+
+    logger = logging.getLogger(logger_name)
+    logger.setLevel(level=logging.INFO)
+    # add handlers
+    ch = logging.StreamHandler()
+    fh = logging.FileHandler(filename=join(SaveConfig.PROJECT_DIR, f"{logger_name}.log"), mode='a')
+    # add format
+    formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+    # set format
+    ch.setFormatter(formatter)
+    fh.setFormatter(formatter)
+
+    logger.addHandler(ch)
+    logger.addHandler(fh)
+
+    return logger
+
+
+class LOG:
+    logger_font = get_logger("django")
+
 
 if __name__ == "__main__":
     print(SaveConfig.DATA_DIR)

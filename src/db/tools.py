@@ -38,9 +38,9 @@ def write_mysql(table_name: str, data: pd.DataFrame, ):
     """写入MySQl数据库, 表格如果存在, 则新增数据"""
     try:
         data.to_sql(name=f'o_{table_name}', con=RemoteMySQLConfig.engine, if_exists='append', index=0)
-        logger.info(f"mysql write table {table_name} succeed!")
+        LOG.logger_font.info(f"mysql write table {table_name} succeed!")
     except Exception as exc:
-        logger.error(f"mysql write table {table_name} failed, error: {exc}.")
+        LOG.logger_font.error(f"mysql write table {table_name} failed, error: {exc}.")
         raise Exception
 
 
@@ -54,15 +54,15 @@ def write_local(table_name: str, data: pd.DataFrame, is_out:bool = True, is_csv:
             data.to_csv(join(out_dir, f"{table_name}.csv"), index=0)
         else:
             data.to_pickle(join(out_dir, f"{table_name}.pkl"), )
-        logger.info(f"{table_format} write table {table_name} succeed!")
+        LOG.logger_font.info(f"{table_format} write table {table_name} succeed!")
     except Exception as exc:
-        logger.error(f"{table_format} write table {table_name} failed, error: {exc}.")
+        LOG.logger_font.error(f"{table_format} write table {table_name} failed, error: {exc}.")
         raise Exception
 
 
 def load_from_local(table_name: str, is_csv:bool=True):
     """本地读取数据，数据格式为csv"""
-    logger.debug(msg=f"Reading local table {table_name}")
+    LOG.logger_font.debug(msg=f"Reading local table {table_name}")
     if is_csv:
         table = pd.read_csv(join(SaveConfig.DATA_DIR, f"{table_name}.csv"),)
     else:
@@ -70,9 +70,10 @@ def load_from_local(table_name: str, is_csv:bool=True):
     return table
 
 
+@load_cache
 def load_from_mysql(table_name: str):
     """读取远程mysql数据表"""
-    logger.debug(msg=f"Reading mysql table {table_name}")
+    LOG.logger_font.debug(msg=f"Reading mysql table {table_name}")
     table = pd.read_sql_table(con=RemoteMySQLConfig.engine, table_name=f"{table_name}")
     return table
 

@@ -12,7 +12,7 @@ import simpy
 from collections import defaultdict
 from src.vehicles import Package
 from src.utils import TruckRecord, PackageRecord
-from src.config import logger
+from src.config import LOG
 
 
 class Unload:
@@ -91,8 +91,8 @@ class Unload:
                 self.pipelines_dict[package.next_pipeline].put(package)
             except Exception as exc:
                 msg = f"error: {exc}, package: {package}, reload_port: {self.equipment_id}"
-                logger.error(msg)
-                logger.exception(exc)
+                LOG.logger_font.error(msg)
+                LOG.logger_font.exception(exc)
                 self.pipelines_dict["unload_error_packages"].put(package)
 
             self.packages_processed[process_idx].succeed()
