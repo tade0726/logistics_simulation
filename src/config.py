@@ -13,7 +13,7 @@ from sqlalchemy import create_engine
 from os.path import realpath, join, split
 from datetime import datetime
 import redis
-
+import logging
 
 class RedisConfig:
     HOST = 'localhost'
@@ -49,6 +49,7 @@ class MainConfig:
     IS_PARCEL_ONLY = True  # 只有 parcel 件
     IS_LAND_ONLY = False  # True 只有 landside, False landside airside
 
+logger = logging.getLogger("django")
 
 if __name__ == "__main__":
     print(SaveConfig.DATA_DIR)
