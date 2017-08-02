@@ -181,11 +181,11 @@ def init_r_frame(root: Tk):
 
     def cost_of_item():
         """"""
-        # on_off_dict = {}
-        # on_off_dict['r1_1'] = r1_1.var.get()
-        # on_off_dict['r1_2'] = r1_2.var.get()
-        # on_off_dict['r1_3'] = r1_3.var.get()
-        # on_off_dict['r1_4'] = r1_4.var.get()
+        on_off_dict = {}
+        on_off_dict['r1_1'] = r1_1.var.get()
+        on_off_dict['r1_2'] = r1_2.var.get()
+        on_off_dict['r1_3'] = r1_3.var.get()
+        on_off_dict['r1_4'] = r1_4.var.get()
         # on_off_dict['r2_1'] = r2_1.var.get()
         # on_off_dict['r2_2'] = r2_2.var.get()
         # on_off_dict['r2_3'] = r2_3.var.get()
@@ -202,8 +202,28 @@ def init_r_frame(root: Tk):
         # on_off_dict['r5_2'] = r5_2.var.get()
         # on_off_dict['r5_3'] = r5_3.var.get()
         # on_off_dict['r5_4'] = r5_4.var.get()
-        #
-        # update_on_off(on_off_dict)
+
+        conn = pymysql.connect(host=DATABASES['HOST'],
+                               user=DATABASES['USER'],
+                               passwd=DATABASES['PASSWORD'],
+                               db=DATABASES['NAME'])
+        cur = conn.cursor()
+
+        # 更改开关状态
+        update_on_off(cur, on_off_dict)
+        conn.commit()
+
+        # 插入测试数据
+        insert_package(cur, package_num.get())
+        conn.commit()
+
+        # 更改人员数量
+        update_person(cur, person_res.get())
+        conn.commit()
+
+        cur.close()
+        conn.close()
+
         # #  显示开关状态
         # txtReceipt['state'] = NORMAL
         # txtReceipt.delete('1.0', END)
@@ -216,20 +236,21 @@ def init_r_frame(root: Tk):
         status_dict = {0: '关机', 1: '开机'}
         e_r.set(status_dict[var.get()])
 
-    def update_on_off(data: dict):
-        conn = pymysql.connect(host=DATABASES['HOST'],
-                               user=DATABASES['USER'],
-                               passwd=DATABASES['PASSWORD'],
-                               db=DATABASES['NAME'])
-        cur = conn.cursor()
+    def update_on_off(cursor, data: dict):
+        # equipment_port 需要确定
         for item in data.items():
-            cur.execute(
-                "update table set column=%s where column=%s" %
+            cursor.execute(
+                "update i_equipment_io set equipment_status=%s where equipment_port=%s" %
                 (item[1], item[0])
             )
-        conn.commit()
-        cur.close()
-        conn.close()
+
+    def insert_package(cursor, num: str):
+        cursor.execute("truncate i_od_parcel_landside")
+        cursor.execute("insert into i_od_parcel_landside select * from i_od_parcel_landside_all limit %s" % num)
+
+    def update_person(cursor, num: str):
+        # 需要指定 resource_id 范围
+        cursor.execute("update i_resource_limit set resouce_limit={} where resource_id like 'man_m%' ".format(num))
 
     def q_exit():
         if_exit = messagebox.askyesno("tkmessage", "要退出了，确定？")
