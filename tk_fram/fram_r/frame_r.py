@@ -7,6 +7,7 @@ from tk_fram.fram_r.frame_r_view import *
 import logging as lg
 
 import pymysql
+import time
 
 
 def init_app(master, wig):
@@ -171,9 +172,10 @@ def init_r_frame(root: Tk):
     def cost_of_item():
         """"""
         txtReceipt['state'] = NORMAL
-        txtReceipt.delete('1.0', END)
         txtReceipt.insert(END, '开始调用仿真函数\n')
+        start_time = time.time()
         main(text_txt_receipt=txtReceipt)
+        run_time = '%.2f' % (time.time() - start_time)
         txtReceipt.insert(END, '结束调用仿真函数\n')
         conn = pymysql.connect(host=DATABASES['HOST'],
                                user=DATABASES['USER'],
@@ -188,10 +190,11 @@ def init_r_frame(root: Tk):
         txtReceipt.insert(END, '最晚到达时间:\t\t\t' + result['later_time'] + '\n')
         txtReceipt.insert(END, '最后一票处理时间:\t\t\t' + result['last_solve_time']
                           + '\n')
-        txtReceipt.insert(END, '总处理时间:\t\t\t' + str(result['total_solve_time']) +
-                          '\n')
+        txtReceipt.insert(END, '总处理时间:\t\t\t' + '%2.f' %
+                          result['total_solve_time'] + '\n')
+        txtReceipt.insert(END, '仿真运行时间:\t\t\t' + run_time)
         txtReceipt['state'] = DISABLED
-        pass
+
 
     def update_data():
         """"""
@@ -397,7 +400,7 @@ def init_r_frame(root: Tk):
     lbl_unload.grid(row=0, column=3)
 
     # ###################     卸货区数据      =====================
-    status_dict = {0: '关机', 1: '开机'}
+    status_dict = {0: 'OFF', 1: 'ON'}
     btn_entry_dict = init_btn_entry_val_from_sql()
     # ===================     R1卸货区       =====================
     r1_1 = init_check_btn(
