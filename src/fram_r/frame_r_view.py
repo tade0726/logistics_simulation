@@ -17,10 +17,10 @@ FRAME_HEIGHT_BUTTON = 50  # 右侧底部界面button的总高度
 FRAME_HEIGHT_RIGHT_INFO_TITLE = 50  # 包裹设置界面高度
 
 DATABASES = {
-    'HOST': '',
-    'USER': '',
-    'PASSWORD': '',
-    'NAME': '',
+    'HOST': '10.0.149.36',
+    'USER': 'developer',
+    'PASSWORD': 'developer',
+    'NAME': 'test3',
     'CHARSET': 'utf8'
 }
 
