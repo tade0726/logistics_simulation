@@ -9,10 +9,6 @@ des:
 """
 
 
-# log settings
-import logging
-logging.basicConfig(level=logging.INFO)
-
 import simpy
 from datetime import datetime, timedelta
 import os
@@ -23,8 +19,7 @@ from src.controllers import TruckController
 from src.utils import PipelineRecord, TruckRecord, PackageRecord
 from src.vehicles import Pipeline, PipelineRes, BasePipeline
 from src.machine import Unload, Presort, Cross, Hospital, SecondarySort
-from src.config import MainConfig
-from src.config import TimeConfig
+from src.config import MainConfig, TimeConfig, logger
 
 
 __all__ = ["main"]
@@ -41,7 +36,7 @@ def main():
     # init trucks queues
     trucks_queue = simpy.FilterStore(env)
 
-    logging.info("loading config data")
+    logger.info("loading config data")
 
     # raw data prepare
     pipelines_table = get_pipelines()
@@ -54,7 +49,7 @@ def main():
     equipment_on_list, equipment_off_list = get_equipment_on_off()
 
     # init trucks controllers
-    logging.info("loading package data")
+    logger.info("loading package data")
     truck_controller = TruckController(env,
                                        trucks=trucks_queue,
                                        is_test=MainConfig.IS_TEST,
@@ -180,14 +175,14 @@ def main():
 
     # adding machines into processes
     for machine_type, machines in machines_dict.items():
-        logging.info(f"init {machine_type} machines")
+        logger.info(f"init {machine_type} machines")
         for machine in machines:
             env.process(machine.run())
 
-    logging.info("sim start..")
+    logger.info("sim start..")
     env.run()
-    logging.info("sim end..")
-    logging.info("collecting data")
+    logger.info("sim end..")
+    logger.info("collecting data")
 
     # checking data
     truck_data = []
@@ -211,7 +206,7 @@ def main():
         os.makedirs(SaveConfig.OUT_DIR)
 
     # process data
-    logging.info(msg="processing data")
+    logger.info(msg="processing data")
     # time stamp for db
     db_insert_time = datetime.now()
 
@@ -226,7 +221,7 @@ def main():
     machine_table = add_time(machine_table)
 
     # output data
-    logging.info("output data")
+    logger.info("output data")
 
     if MainConfig.SAVE_LOCAL:
         write_local('machine_table', machine_table)
@@ -240,7 +235,7 @@ def main():
     t_end = datetime.now()
     total_time = t_end - t_start
 
-    logging.info(f"total time: {total_time.total_seconds()} s")
+    logger.info(f"total time: {total_time.total_seconds()} s")
 
 
 if __name__ == '__main__':
