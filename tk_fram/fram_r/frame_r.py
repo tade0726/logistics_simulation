@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
-from src.fram_r import App, CheckBtnCreate, EntryCreate
-from src.fram_r import messagebox
-from src.fram_r.frame_r_view import *
+from tk_fram.fram_r import App, CheckBtnCreate, EntryCreate
+from tk_fram.fram_r import messagebox
+from tk_fram.fram_r.frame_r_view import *
 
 import pymysql
 
