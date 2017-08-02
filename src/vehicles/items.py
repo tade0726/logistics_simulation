@@ -16,7 +16,7 @@ import pandas as pd
 from collections import namedtuple, defaultdict
 from src.utils import PackageRecord, PipelineRecord, TruckRecord
 from src.controllers import PathGenerator
-import logging
+from src.config import logger
 
 __all__ = ["Package", "Truck", "Uld", "SmallBag", "SmallPackage", "Pipeline", "PipelineRes", "BasePipeline"]
 
@@ -64,13 +64,13 @@ class Package:
         if isinstance(record, PackageRecord):
             self.machine_data.append(record)
 
-            logging.debug(msg=f"Package: {record.package_id} , action: {record.action}"
+            logger.debug(msg=f"Package: {record.package_id} , action: {record.action}"
                              f", equipment: {record.equipment_id}, timestamp: {record.time_stamp}")
 
         elif isinstance(record, PipelineRecord):
             self.pipeline_data.append(record)
 
-            logging.debug(msg=f"Package: {record.package_id} , action: {record.action}"
+            logger.debug(msg=f"Package: {record.package_id} , action: {record.action}"
                               f", pipeline: {record.pipeline_id}, timestamp: {record.time_stamp}")
 
         else:

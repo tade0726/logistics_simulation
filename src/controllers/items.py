@@ -14,8 +14,7 @@ import pandas as pd
 from src.vehicles import Truck, Package, SmallPackage, SmallBag
 from src.utils import TruckRecord
 from src.db import get_vehicles
-import logging
-
+from src.config import logger
 
 __all__ = ["TruckController", ]
 
@@ -107,7 +106,7 @@ class TruckController:
     def controller(self):
         """
         """
-        logging.info(msg="init trucks..")
+        logger.info(msg="init trucks..")
         for keys, packages_record in self.trucks_dict.items():
             self.env.process(self._init_truck(keys, packages_record))
 
