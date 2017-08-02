@@ -22,7 +22,7 @@ def checking_pickle_file(table_name):
 
 
 def load_cache(func):
-    """decorator: cache to local csv"""
+    """decorator: cache to local"""
     @wraps(func)
     def wrapper(table_name):
         if not checking_pickle_file(table_name):
