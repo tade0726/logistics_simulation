@@ -189,7 +189,7 @@ class BasePipeline:
 
         item.insert_data(
             PipelineRecord(
-                pipeline_id=self.pipeline_id, # unload_error
+                pipeline_id=self.pipeline_id,  # pipeline name : unload_error
                 queue_id=self.queue_id,
                 package_id=item.item_id,
                 time_stamp=self.env.now,
