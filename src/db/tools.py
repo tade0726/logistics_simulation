@@ -105,7 +105,7 @@ def load_from_local(table_name: str, is_csv:bool=True):
     return table
 
 
-@load_cache(is_redis=True)
+@load_cache(is_redis=MainConfig.CACHE_REDIS)
 def load_from_mysql(table_name: str):
     """读取远程mysql数据表"""
     LOG.logger_font.info(msg=f"Reading mysql table {table_name}")

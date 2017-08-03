@@ -51,6 +51,7 @@ class MainConfig:
     SAVE_LOCAL = True
     IS_PARCEL_ONLY = True  # 只有 parcel 件
     IS_LAND_ONLY = False  # True 只有 landside, False landside airside
+    CACHE_REDIS = False
 
 
 def get_logger(logger_name: str):
