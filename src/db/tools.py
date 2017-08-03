@@ -22,8 +22,8 @@ def checking_pickle_file(table_name):
 
 
 def load_cache(is_redis: bool=True):
+    """decorator: cache"""
     def decorator(func):
-        """decorator: cache to local csv"""
         @wraps(func)
         def wrapper(table_name):
 
