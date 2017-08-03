@@ -96,7 +96,8 @@ class ConfigApp(object):
                 'width': FRAME_WIDTH_LEFT_ONE,
                 'height': FRAME_HEIGHT_LEFT_CENTER,
                 'bd': 8,
-                'relief': 'raise'},
+                'relief': 'raise'
+            },
             'pack': {'side': 'left'}
         },
         'LEFT_SET_PAD_CENTER_RIGHT': {
@@ -111,8 +112,8 @@ class ConfigApp(object):
             'attr': {
                 'width': FRAME_WIDTH_RIGHT,
                 'height': FRAME_HEIGHT_RIGHT_INFO_TITLE,
-                'bd': 8,
-                'relief': 'raise'
+                # 'bd': 8,
+                # 'relief': 'raise'
             },
             'pack': {'side': 'top'}
         },
@@ -141,14 +142,14 @@ class ConfigApp(object):
 class ConfigCheckBtn(object):
     """选择控件"""
     R_CHECK_BTN_ATTR = {
-        'font': ('Times', 19, 'bold'),
+        'font': ('Times', 18, 'bold'),
         'onvalue': 1,
         'offvalue': 0,
         'bd': 9,
         # 'height': 2,
             }
     R_ENTRY_ATTR = {
-        'font': ('Times', 19, 'bold'),
+        'font': ('Times', 18, 'bold'),
         'bd': 8,
         'width': 5,
         # 'height': 2,

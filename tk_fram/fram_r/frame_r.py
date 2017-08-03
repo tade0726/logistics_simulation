@@ -339,10 +339,10 @@ def init_r_frame(root: Tk):
     # ============================包裹设置参数========================
     lbl_package = Label(
         master=left_set_pad_package,
-        font=('Times', 12, 'bold'),
+        font=('Times', 14, 'bold'),
         text='仿真输入件量',
         bd=8,
-        height= 2,
+        height= 3,
         anchor='w'
     )
     lbl_package.grid(row=0, column=0)
@@ -357,17 +357,17 @@ def init_r_frame(root: Tk):
     # 标题
     lbl_resource = Label(
         master=left_set_pad_package,
-        font=('Times', 12, 'bold'),
+        font=('Times', 14, 'bold'),
         text='初分拣区卸货口人数：',
         bd=8,
-        height= 2,
+        height= 3,
         anchor='w'
     )
     lbl_resource.grid(row=0, column=2)
     # 选择人数
     person_res = Spinbox(
         master=left_set_pad_package,
-        width=33,
+        width=31,
         bd=8,
         # height=2,
         values=(1, 2))
@@ -378,12 +378,12 @@ def init_r_frame(root: Tk):
         master=left_set_pad_center_left,
         font=(
             'Times',
-            10,
+            14,
             'bold'
         ),
-        relief='raise',
+        # relief='raise',
         text='L2L-卸货口',
-        bd=8,
+        # bd=8,
         anchor='w'
     )
     lbl_unload.grid(row=0, column=0)
@@ -392,12 +392,12 @@ def init_r_frame(root: Tk):
         master=left_set_pad_center_right,
         font=(
             'Times',
-            10,
+            14,
             'bold'
         ),
-        relief='raise',
+        # relief='raise',
         text='L2L,L2A,L2S-卸货口',
-        bd=8,
+        # bd=8,
         anchor='w'
     )
     lbl_unload.grid(row=0, column=0)
@@ -642,9 +642,9 @@ def init_r_frame(root: Tk):
     # ============================仿真结果输出面板======================
     lbl_info = Label(
         master=right_output_pad_title,
-        font=('arial', 12, 'bold'),
+        font=('arial', 14, 'bold'),
         text='输出结果统计',
-        bd=2,
+        # bd=2,
         anchor='w'
     )
     lbl_info.grid(row=0, column=0)
@@ -652,7 +652,7 @@ def init_r_frame(root: Tk):
     # ============================输出信息面板=========================
     txtReceipt = Text(right_output_pad_info,
                       font=('Time', 14),
-                      height=20,
+                      height=24,
                       width=37,
                       bd=9,
                       bg="white",
