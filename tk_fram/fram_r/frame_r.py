@@ -190,11 +190,19 @@ def init_r_frame(root: Tk):
         conn.close()
 
         txtReceipt['state'] = NORMAL
-        txtReceipt.insert(END, '开始调用仿真函数\n')
+        txtReceipt.insert(END, '*******************************\n')
+        txtReceipt.insert(END, '开始调用仿真函数......\n')
+        root.update_idletasks()
         start_time = time.time()
         main(text_txt_receipt=txtReceipt)
         run_time = '%.2f' % (time.time() - start_time)
-        txtReceipt.insert(END, '结束调用仿真函数\n')
+        txtReceipt.insert(END, '仿真执行完毕\n')
+        root.update_idletasks()
+        time.sleep(0.5)
+        txtReceipt.insert(END, '开始读取仿真结果......\n')
+        root.update_idletasks()
+        time.sleep(0.5)
+        root.update_idletasks()
         conn = pymysql.connect(host=DATABASES['HOST'],
                                user=DATABASES['USER'],
                                passwd=DATABASES['PASSWORD'],
@@ -203,7 +211,7 @@ def init_r_frame(root: Tk):
         result = read_result(cur)
         cur.close()
         conn.close()
-        txtReceipt.delete('1.0', END)
+        txtReceipt.insert(END, '*******************************\n')
         txtReceipt.insert(END, '最早到达时间:\t' +
                           result['fast_time'].decode() + '\n')
         txtReceipt.insert(END, '最晚到达时间:\t' +
@@ -262,18 +270,22 @@ def init_r_frame(root: Tk):
 
         # # #  显示结果
         txtReceipt['state'] = NORMAL
-        #txtReceipt.delete('1.0', END)
-        time.sleep(1)
+        txtReceipt.delete('1.0', END)
+        root.update_idletasks()
         # ========================更改开关状态==============
         txtReceipt.insert(END, '机器开关状态更新......\n')
         update_on_off(cur, on_off_dict)
         conn.commit()
         txtReceipt.insert(END, '机器开关状态更新成功！\n')
+        root.update_idletasks()
+        time.sleep(0.5)
         # ======================== 插入测试数据=============
         txtReceipt.insert(END, '插入包裹仿真数据......\n')
         insert_package(cur, package_num.get())
         conn.commit()
         txtReceipt.insert(END, '插入包裹仿真数据成功！\n')
+        root.update_idletasks()
+        time.sleep(0.5)
         # ========================更改人员数量==============
         txtReceipt.insert(END, '设置人力资源数量......\n')
         update_person(cur, person_res.get())
