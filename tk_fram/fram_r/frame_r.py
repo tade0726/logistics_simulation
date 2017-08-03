@@ -247,7 +247,8 @@ def init_r_frame(root: Tk):
 
         # # #  显示结果
         txtReceipt['state'] = NORMAL
-        txtReceipt.delete('1.0', END)
+        #txtReceipt.delete('1.0', END)
+        time.sleep(1)
         # ========================更改开关状态==============
         txtReceipt.insert(END, '机器开关状态更新......\n')
         update_on_off(cur, on_off_dict)
@@ -263,6 +264,7 @@ def init_r_frame(root: Tk):
         update_person(cur, person_res.get())
         conn.commit()
         txtReceipt.insert(END, '人力资源设置完毕！\n')
+        txtReceipt['state'] = DISABLED
         cur.close()
         conn.close()
 
@@ -282,8 +284,15 @@ def init_r_frame(root: Tk):
     def insert_package(cursor, num: str):
 
         cursor.execute("truncate i_od_parcel_landside")
-        cursor.execute("insert into i_od_parcel_landside select * "
-                       " from i_od_parcel_landside_all limit %s" % num)
+        cursor.execute("insert into i_od_parcel_landside (parcel_id, "
+                       "src_dist_code, src_type, dest_dist_code, dest_zone_code,"
+                       " dest_type, plate_num, parcel_type, limit_type_code, "
+                       "arrive_time, send_time, inserted_on, modified_on) "
+                       "select parcel_id, src_dist_code, src_type, "
+                       "dest_dist_code, dest_zone_code, dest_type, plate_num, "
+                       "parcel_type, limit_type_code, arrive_time, send_time, "
+                       "inserted_on, modified_on from i_od_parcel_landside_all "
+                       "limit %s" % num)
 
     def update_person(cursor, num: str):
         # 需要指定 resource_id 范围
@@ -391,7 +400,7 @@ def init_r_frame(root: Tk):
         bd=8,
         anchor='w'
     )
-    lbl_unload.grid(row=0, column=3)
+    lbl_unload.grid(row=0, column=0)
 
     # ###################     卸货区数据      =====================
     status_dict = {0: 'OFF', 1: 'ON'}
@@ -642,7 +651,7 @@ def init_r_frame(root: Tk):
 
     # ============================输出信息面板=========================
     txtReceipt = Text(right_output_pad_info,
-                      font=('arial', 14),
+                      font=('Time', 14),
                       height=20,
                       width=37,
                       bd=9,
