@@ -254,4 +254,5 @@ def main(text_txt_receipt):
 
 
 if __name__ == '__main__':
-    main()
+    pass
+    # main()

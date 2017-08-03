@@ -23,9 +23,9 @@ class RedisConfig:
 
 
 class RemoteMySQLConfig:
-    HOST = "10.0.149.36"
-    USER = "developer"
-    PASS = "developer"
+    HOST = "10.0.149.62"
+    USER = "root"
+    PASS = "root123"
     DB = "test3"
     CHARSET = 'utf8'
 

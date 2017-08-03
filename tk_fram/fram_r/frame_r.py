@@ -177,6 +177,18 @@ def init_r_frame(root: Tk):
 
     def cost_of_item():
         """"""
+        conn = pymysql.connect(host=DATABASES['HOST'],
+                               user=DATABASES['USER'],
+                               passwd=DATABASES['PASSWORD'],
+                               db=DATABASES['NAME'])
+        cur = conn.cursor()
+        cur.execute("truncate o_machine_table")
+        cur.execute("truncate o_pipeline_table")
+        cur.execute("truncate o_truck_table")
+        conn.commit()
+        cur.close()
+        conn.close()
+
         txtReceipt['state'] = NORMAL
         txtReceipt.insert(END, '开始调用仿真函数\n')
         start_time = time.time()
@@ -192,13 +204,16 @@ def init_r_frame(root: Tk):
         cur.close()
         conn.close()
         txtReceipt.delete('1.0', END)
-        txtReceipt.insert(END, '最早到达时间:\t\t\t' + result['fast_time'] + '\n')
-        txtReceipt.insert(END, '最晚到达时间:\t\t\t' + result['later_time'] + '\n')
-        txtReceipt.insert(END, '最后一票处理时间:\t\t\t' + result['last_solve_time']
+        txtReceipt.insert(END, '最早到达时间:\t' +
+                          result['fast_time'].decode() + '\n')
+        txtReceipt.insert(END, '最晚到达时间:\t' +
+                          result['later_time'].decode() + '\n')
+        txtReceipt.insert(END, '最后一票处理时间:\t' +
+                          result['last_solve_time'].decode()
                           + '\n')
-        txtReceipt.insert(END, '总处理时间:\t\t\t' + '%2.f' %
+        txtReceipt.insert(END, '总处理时间(小时):\t' + '%2.f' %
                           result['total_solve_time'] + '\n')
-        txtReceipt.insert(END, '仿真运行时间:\t\t\t' + run_time)
+        txtReceipt.insert(END, '仿真运行时间(秒):\t' + str(run_time))
         txtReceipt['state'] = DISABLED
 
 
