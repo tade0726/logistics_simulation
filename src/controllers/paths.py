@@ -286,8 +286,15 @@ class PathGenerator(object):
                 end_node = small_trash_dic[end_node[0:3]]
                 return random.choice(self.all_paths[(start_node, end_node)]["all"])
         else:  # 包裹路线 & 小件包 小件打包节点到终分拣节点
-            end_node = random.choice(
-                self.reload_setting[(dest_code, "reload", dest_type)])
+            end_node_list = self.reload_setting.get((dest_code, "reload", dest_type), [])
+            if end_node_list:
+                end_node = random.choice(
+                    self.reload_setting[(dest_code, "reload", dest_type)])
+            else:
+                if dest_type == "L":
+                    end_node = random.choice(["c2_1", "c4_1"])
+                else:
+                    end_node = "c18_1"
             if start_node[0:3] in self.machine_pre_dict[
                 "land_unload"] and end_node[0:3] in self.machine_pre_dict[
                 "air_secondary"]:
@@ -321,7 +328,7 @@ if __name__ == "__main__":
     machine_pre_dict = machine_pre()
     hospital = set(machine_pre_dict["hospital"])
     security = set(machine_pre_dict["security"])
-    re_cal = True
+    re_cal = False
 
     if re_cal:
 
@@ -363,7 +370,7 @@ if __name__ == "__main__":
     print(
         ",".join(Paths.path_generator("u3_7", "752", "small_sort", "A")))  # 小件
     print(
-        ",".join(Paths.path_generator("c11_84", "571", "small_sort", "L")))  # 小件
+        ",".join(Paths.path_generator("c11_84", "5712", "small_sort", "L")))  # 小件
 
     # 生成100000条路线，测试进入医院区的概率是否为5%
     land_start_node = ["r5_1", "r5_2", "r5_3", "r5_4"]

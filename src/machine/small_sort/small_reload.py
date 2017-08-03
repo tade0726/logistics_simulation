@@ -21,12 +21,13 @@
 """
 
 
-from src.vehicles.items import SmallPackage, SmallBag, PackageRecord
-import simpy
+from src.vehicles.items import SmallBag, PackageRecord
 import time
 
 
 BAG_NUM = 15
+WAIT_TIME = 7200
+
 
 class SmallReload(object):
 
@@ -41,10 +42,15 @@ class SmallReload(object):
         self.pipeline_dict = pipeline_dict
         self.resource_dict = resource_dict
         self.equipment_resource_dict = equipment_resource_dict
+
+        self.store = []
+        self.counts = 0
+        self.store_is_full = self.env.event()
+
+        self.small_bag = []
+        self.small_bag_count = 0
+
         self.resource_set = self._set_machine_resource()
-        self.small_list = []
-        self.timer = 0
-        self.bag = self.env.event()
 
     def _set_machine_resource(self):
         self.equipment_id = self.machine_id[1]
@@ -52,50 +58,56 @@ class SmallReload(object):
         self.resource = self.resource_dict[self.resource_id]['resource']
         self.process_time = self.resource_dict[self.resource_id]['process_time']
         self.last_pipeline = self.pipeline_dict[self.machine_id]
-        self.bag_num = BAG_NUM
+        self.store_max = BAG_NUM
+        self.wait_time = WAIT_TIME
 
-    def check_bag(self):
-        while True:
-            if len(self.small_list) == 15:
-                self.bag.succeed()
-                self.bag = self.env.event()
+    def pack_up_small_bag(self, real_wait_time):
+        smallbag = SmallBag(self.env, self.store[0].attr, self.store[:])
+        smallbag.item_id = "98" + str(int(time.time() * 1000))[-10:]
+        smallbag.set_path(self.equipment_id)
+        smallbag.insert_data(
+            PackageRecord(
+                equipment_id=self.equipment_id,
+                package_id=smallbag.item_id,
+                time_stamp=self.env.now,
+                action="start", ))
+        # print(f"{self.env.now}, wait: {real_wait_time}, pack up smallbag: {self.small_bag[-1]}")
+        self.small_bag_count += 1
+        self.store.clear()
+        self.store_is_full = self.env.event()
 
-    def length(self):
-        return len(self.small_list)
+    def _timer(self):
+        start = self.env.now
+        yield self.store_is_full | self.env.timeout(self.wait_time)
+        end = self.env.now
+        real_wait_time = end - start
+        self.pack_up_small_bag(real_wait_time)
+        yield self.env.timeout(self.process_time)
+        self.put_small_bag()
 
-    def processing(self):
-        if self.length == self.bag_num:
-            # 取列表中第一个小件的信息作为小件包的信息
-            smallbag = SmallBag(self.env, self.small_list[0].attr,
-                                self.small_list)
-            # 重新生成小件包的id
-            smallbag.item_id = "98" + str(int(time.time()*1000))[-10:]
-            smallbag.set_path(self.equipment_id)
-            output_pipeline = smallbag.next_pipeline
-            self.small_list = []
-            # 记录机器开始打包信息
-            smallbag.insert_data(
-                PackageRecord(
-                    equipment_id=self.equipment_id,
-                    package_id=smallbag.item_id,
-                    time_stamp=self.env.now,
-                    action="start", ))
-            # 增加打包时间
-            yield self.env.timeout(self.process_time)
-            # 记录机器结束处理货物信息
-            smallbag.insert_data(
-                PackageRecord(
-                    equipment_id=self.equipment_id,
-                    package_id=smallbag.item_id,
-                    time_stamp=self.env.now,
-                    action="end", ))
-            # 放入下一步的传送带
-            self.pipeline_dict[output_pipeline].put(smallbag)
+    def put_package(self, item):
+
+        self.store.append(item)
+
+        if len(self.store) == 1:
+            self.env.process(self._timer())
+
+        elif len(self.store) == self.store_max:
+            self.store_is_full.succeed()
+
+    def put_small_bag(self):
+        if self.small_bag:
+            for i in range(len(self.small_bag)):
+                smallbag = self.small_bag.pop(0)
+                smallbag.insert_data(
+                    PackageRecord(
+                        equipment_id=self.equipment_id,
+                        package_id=smallbag.item_id,
+                        time_stamp=self.env.now,
+                        action="end", ))
+                self.pipeline_dict[smallbag.next_pipeline].put(smallbag)
 
     def run(self):
         while True:
             small = yield self.last_pipeline.get()
-            self.small_list.append(small)
-            if len(self.small_list) == 1:
-                self.timer = self.env.now
-            self.env.process(self.processing())
+            self.put_package(small)
