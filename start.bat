@@ -1,6 +1,1 @@
-@echo off 
-if "%1" == "h" goto begin 
-mshta vbscript:createobject("wscript.shell").run("%~nx0 h",0)(window.close)&&exit 
-:begin 
-cd F:\Git\hangzhou.tk.sf
-python manage.py
+activate py36_font && python D:\Git\hangzhou.tk.sf\manage.py
