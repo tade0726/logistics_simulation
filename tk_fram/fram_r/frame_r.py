@@ -219,7 +219,7 @@ def init_r_frame(root: Tk):
         txtReceipt.insert(END, '最后一票处理时间:\t' +
                           result['last_solve_time'].decode()
                           + '\n')
-        txtReceipt.insert(END, '总处理时间(小时):\t' + '%2.f' %
+        txtReceipt.insert(END, '总处理时间(小时):\t' + '%.2f' %
                           result['total_solve_time'] + '\n')
         txtReceipt.insert(END, '仿真运行时间(秒):\t' + str(run_time))
         txtReceipt['state'] = DISABLED
