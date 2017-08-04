@@ -315,7 +315,7 @@ def get_pipelines():
 
 def get_queue_io():
     """返回 data frame: queue_io , 只包含 normal_path == 1"""
-    table = get_pipelines()
+    table = load_from_mysql('i_queue_io')
     return table[table.normal_path == 1]
 
 
@@ -378,5 +378,5 @@ def get_equipment_on_off():
 
 
 if __name__ == "__main__":
-    test = get_unload_setting()
+    test = get_queue_io()
     print(test)
