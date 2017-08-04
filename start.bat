@@ -1,1 +1,0 @@
-activate py36_font && python D:\Git\hangzhou.tk.sf\manage.py
