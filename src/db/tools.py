@@ -314,12 +314,9 @@ def get_pipelines():
 
 
 def get_queue_io():
-    """返回 io 对: [(r1_1,  m1_1), (r1_3, m2_3), ]"""
+    """返回 data frame: queue_io , 只包含 normal_path == 1"""
     table = get_pipelines()
-    io_list = []
-    for _, row in table.iterrows():
-        io_list.append((row['equipment_port_last'], row['equipment_port_next']))
-    return io_list
+    return table[table.normal_path == 1]
 
 
 def get_equipment_process_time():
