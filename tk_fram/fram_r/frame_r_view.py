@@ -18,13 +18,13 @@ FRAME_HEIGHT_HEAD = 50  # 界面顶端主标题的高度
 #  ===================左侧设置界面高度设置============
 #                        50+50+500
 FRAME_HEIGHT_LEFT_PACKAGE = 50  # 包裹设置界面高度
-FRAME_HEIGHT_LEFT_SET_PAD_TITLE = 50  #  左侧设置界面标题高度
+FRAME_HEIGHT_LEFT_SET_PAD_TITLE = 50  # 左侧设置界面标题高度
 FRAME_HEIGHT_LEFT_CENTER = 500  # 左侧中间界面的总计高度
 
 #  ===================右侧输出界面高度设置============
 #                           50+50+500
-FRAME_HEIGHT_RIGHT_INFO_TITLE = 50  # 输出信息板标题高度
-FRAME_HEIGHT_RIGHT_INFO = 500  # 输出信息版高度
+FRAME_HEIGHT_RIGHT_INFO_TITLE = 40  # 输出信息板标题高度
+FRAME_HEIGHT_RIGHT_INFO = 510  # 输出信息版高度
 FRAME_HEIGHT_RIGHT_BUTTON = 50  # 右侧底部界面button的总高度
 
 DATABASES = {
@@ -94,17 +94,16 @@ class ConfigApp(object):
                 'width': FRAME_WIDTH_LEFT_ONE,
                 'height': FRAME_HEIGHT_LEFT_SET_PAD_TITLE,
                 'bd': 2,
-                'relief': 'raise'
+                # 'relief': 'raise'
             },
-            'pack': {
-                'side': 'left'}
+            'pack': {'side': 'left'}
         },
         'LEFT_SET_PAD_RIGHT_TITLE': {
             'attr': {
                 'width': FRAME_WIDTH_LEFT_TOW,
                 'height': FRAME_HEIGHT_LEFT_SET_PAD_TITLE,
                 'bd': 2,
-                'relief': 'raise'
+                # 'relief': 'raise'
             },
             'pack': {
                 'side': 'left'}
@@ -172,7 +171,10 @@ class ConfigCheckBtn(object):
         'font': ('Times', 15, 'bold'),
         'onvalue': 1,
         'offvalue': 0,
-        'bd': 9,
+        'bd': 6,
+        'height': 1,
+        'pady': 10,
+        # 'padx': 1,
         # 'height': 2,
             }
     R_ENTRY_ATTR = {
