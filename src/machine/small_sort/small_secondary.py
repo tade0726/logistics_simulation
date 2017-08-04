@@ -25,4 +25,5 @@ from src.machine.secondary_sort import SecondarySort
 
 
 class SmallSecondary(SecondarySort):
+    """处理资源传送带"""
     pass
