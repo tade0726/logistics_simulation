@@ -120,12 +120,11 @@ class SmallBag(Package):
 
         # 存储小件包裹
         self.store = small_packages
-        assert self._all_are_small_packages(), "SmallBag store SmallPackage only !!"
         self.store_size = len(self.store)
 
-    def _all_are_small_packages(self):
-        packages_bool = [isinstance(small_package, SmallPackage) for small_package in self.store]
-        return all(packages_bool)
+    def insert_data_small(self, record: namedtuple):
+        """给小件包裹添加记录"""
+        map(lambda x: x.instert_data(record), self.store)
 
     def __str__(self):
         display_dct = dict(self.attr)
