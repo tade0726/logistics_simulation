@@ -53,12 +53,12 @@ class SmallPrimary(object):
                                self.machine_id,
                                'not initial equipment_resource_dict!')
 
-    def processing(self, small: SmallBag):
+    def processing(self, small_bag: SmallBag):
         # 请求资源（工人)，一个工人处理一个小件包
         with self.resource.request() as req:
             yield req
             # 获取小件包中的所有小件
-            small_packages = small.store
+            small_packages = small_bag.store
             for small_package in small_packages:
                 # 生成小件的路径
                 small_package.set_path(self.equipment_id)
@@ -83,8 +83,14 @@ class SmallPrimary(object):
                 # 放入下一步的传送带
                 self.pipelines_dict[id_output_pip_line].put(small_package)
 
+            # clear small packages
+            small_bag.store.clear()
+            # collect small bag of the first state
+            self.pipelines_dict['small_bin'].put(small_bag)
+
+
     def run(self):
         while True:
-            small = yield self.input_pip_line.get()
+            small_bag = yield self.input_pip_line.get()
             # 有包裹就推送到资源模块
-            self.env.process(self.processing(small))
+            self.env.process(self.processing(small_bag))
