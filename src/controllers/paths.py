@@ -13,7 +13,7 @@
                                     版本更新日期：2017年7月  日
                                     版本更新工程师：
 
-                                    代码整体功能描述：生成所有包裹到陆侧的路径（暂不包含小件）
+                                    代码整体功能描述：生成所有包裹到陆侧的路径
                                                     调用generate_all_paths生成全体路径
                                                     调用path_choice生成某个包裹的路径
 
@@ -21,18 +21,22 @@
 
 ==================================================================================================================================================
 """
-__all__ = ["PathGenerator",'generate_all_paths' ]
+__all__ = ["PathGenerator", 'generate_all_paths']
 
 import random
 import pickle
 import os.path
 import networkx as nx
-from src.db.tools import get_reload_setting, SaveConfig, get_queue_io
+from src.db.tools import load_from_mysql, get_reload_setting, SaveConfig, get_equipment_on_off
+
+
+# 开关控制是否过滤不可用节点
+SWITCH = False
 
 
 def machine_pre():
-    return dict(land_unload = ["r1_", "r2_", "r3_", "r4_", "r5_"],
-                air_unload = ["a1_", "a2_", "a3_"],
+    return dict(land_unload=["r1_", "r2_", "r3_", "r4_", "r5_"],
+                air_unload=["a1_", "a2_", "a3_"],
                 small_presort=["u1_", "u2_", "u3_", "u4_", "u5_", "u6_", "u7_",
                                "u8_"],
                 land_small_secondary=["c7_", "c8_", "c9_", "c10",
@@ -48,7 +52,6 @@ def machine_pre():
 
 # 输入机器图，生成基本路径
 def generate_base_paths(machine_graph, start_nodes, end_nodes):
-    # 目前版本只生成空/陆到陆侧终分拣节点的包裹分拣路径
     base_path = {}
     for start_node in start_nodes:
         for end_node in end_nodes:
@@ -114,11 +117,10 @@ def add_cycle_paths(machine_graph, base_paths, cycle_nodes_group=None):
 
 # 生成所有路径
 def generate_all_paths():
-
     machine_pre_dict = machine_pre()
 
-    # parcel-path是一个临时使用的文件，不包含小件路径
-    edge_df = get_queue_io()
+    edge_df = load_from_mysql("i_queue_io")
+    edge_df = edge_df[edge_df["normal_path"] == 1]
 
     cycle_node = [machine_pre_dict["hospital"]]
     mgraph = nx.DiGraph()
@@ -173,7 +175,7 @@ def generate_all_paths():
         land_unload_node + air_unload_node, small_presort_node)
     small_path_2 = generate_base_paths(machine_graph.subgraph(
         small_presort_node + other_small_node + land_s_secondary_node + air_s_secondary_node),
-        small_presort_node, land_s_secondary_node)
+        small_presort_node, land_s_secondary_node + air_s_secondary_node)
     for key, value in small_path_1.items():
         all_paths[key] = {}
         all_paths[key]["all"] = value
@@ -181,9 +183,6 @@ def generate_all_paths():
         all_paths[key] = {}
         all_paths[key]["all"] = value
     print("Small sort paths added!")
-
-    # all_paths.update(small_path_1)
-    # all_paths.update(small_path_2)
 
     path_file = os.path.join(SaveConfig.DATA_DIR, "path")
     try:
@@ -202,33 +201,39 @@ class PathGenerator(object):
     调用类的path_generator方法生成路径
     """
 
-    def __init__(self, all_paths=None):
-        """
-        :param all_paths: 存储路径的字典，如果不输入，则从data文件夹下的path文件读取
-        """
-        # 现在的版本是读取data文件夹下的一个临时文件
+    def __init__(self):
         self.reload_setting = get_reload_setting()
         self.machine_pre_dict = machine_pre()
-        if all_paths is not None:
-            self.all_paths = all_paths
-        else:
-            path_file = os.path.join(SaveConfig.DATA_DIR, "path")
+        path_file = os.path.join(SaveConfig.DATA_DIR, "path")
+        if os.path.isfile(path_file):
             try:
                 with open(path_file, "rb") as pickle_path:
-                    self.all_paths = pickle.load(pickle_path)
+                    all_paths = pickle.load(pickle_path)
             except Exception as exc:
                 print(exc)
-                self.all_paths = None
+                all_paths = generate_all_paths()
+        else:
+            all_paths = generate_all_paths()
 
-    def path_generator(self, start_node, ident_des_zno, sort_type, dest_type,
-                       position=0):
+        if SWITCH:  # 节点开关处理
+            _, unavailable = get_equipment_on_off()
+
+            if unavailable:
+                for key, path_dic in all_paths.items():
+                    for type, path in path_dic.items():
+                        all_paths[key][type] = list(
+                            filter(lambda x: not set(x) & set(unavailable),
+                                   all_paths[key][type]))
+
+        self.all_paths = all_paths
+
+    def path_generator(self, start_node, dest_code, sort_type, dest_type):
         """
         选择路径
         :param start_node: 起点
-        :param ident_des_zno: 目的地代码
+        :param dest_code: 目的地代码
         :param sort_type: 分拣类型，small_sort和reload
         :param dest_type: 目的地类型，L和A
-        :param position: 小件路线的位置，卸货位-小件分拣机为1，小件分拣机内部为2，其他均为默认0
         :return: 节点列表
         """
 
@@ -237,6 +242,7 @@ class PathGenerator(object):
 
         # machine_dict = machine_pre()
 
+        # 小件分拣机中u节点和c节点的对应关系
         small_dic = dict(c5_=["u1_", "u2_", "u3_", "u4_"],
                          c6_=["u1_", "u2_", "u3_", "u4_"],
                          c7_=["u1_", "u2_", "u3_", "u4_"],
@@ -246,33 +252,66 @@ class PathGenerator(object):
                          c11=["u5_", "u6_", "u7_", "u8_"],
                          c12=["u5_", "u6_", "u7_", "u8_"])
 
-        if position == 1:
+        # 小件分拣机中找不到目的地时对应的垃圾槽口
+        small_trash_dic = dict(c5_ = "c9_1",
+                               c6_ = "c9_1",
+                               c7_ = "c9_1",
+                               c8_ = "c9_1",
+                               c9_ = "c8_1",
+                               c10 = "c8_1",
+                               c11 = "c8_1",
+                               c12 = "c8_1")
+
+        if sort_type == "reload" or start_node.startswith("c"):
+            position = 0
+        else:
+            if start_node.startswith("a") or start_node.startswith("r"):
+                position = 1
+            else:
+                position = 2
+
+        if position == 1:  # 小件包 从卸货位到拆包节点
             end_node = random.choice(small_dic[random.choice(
                 self.reload_setting[
-                    (ident_des_zno, sort_type, dest_type)])[0:3]]) + str(
+                    (dest_code, sort_type, dest_type)])[0:3]]) + str(
                 random.randint(1, 7))
             return random.choice(self.all_paths[(start_node, end_node)]["all"])
-        elif position == 2:
+        elif position == 2:  # 小件 从拆包节点到装包节点
             end_node = random.choice(
-                self.reload_setting[(ident_des_zno, sort_type, dest_type)])
-            return random.choice(self.all_paths[(start_node, end_node)]["all"])
-        else:
-            end_node = random.choice(
-                self.reload_setting[(ident_des_zno, sort_type, dest_type)])
+                self.reload_setting[(dest_code, sort_type, dest_type)])
+            path_list = self.all_paths.get((start_node, end_node), {"all": []})
+            if path_list["all"]:
+                return random.choice(self.all_paths[(start_node, end_node)]["all"])
+            else:  # 如果找不到路径，则规划到垃圾滑槽
+                end_node = small_trash_dic[end_node[0:3]]
+                return random.choice(self.all_paths[(start_node, end_node)]["all"])
+        else:  # 包裹路线 & 小件包 小件打包节点到终分拣节点
+            end_node_list = self.reload_setting.get((dest_code, "reload", dest_type), [])
+            if end_node_list:
+                end_node = random.choice(
+                    self.reload_setting[(dest_code, "reload", dest_type)])
+            else:
+                if dest_type == "L":
+                    end_node = random.choice(["c2_1", "c4_1"])
+                else:
+                    end_node = "c18_1"
             if start_node[0:3] in self.machine_pre_dict[
                 "land_unload"] and end_node[0:3] in self.machine_pre_dict[
                 "air_secondary"]:
-                security_prob = random.random()
+                security_prob = random.random()  # 安检概率
                 if security_prob <= 0.009:
                     path = random.choice(self.all_paths[(start_node, end_node)][
-                    "without hospital"])
+                                             "without hospital"])
                     security_node = list(
                         set(path) & set(self.machine_pre_dict["security"]))
                     if len(security_node) == 0:
-                        raise Exception("Error: There is no security check node in path!")
+                        raise Exception(
+                            "Error: There is no security check node in path!")
                     i = path.index(security_node[0])
-                    return path[:i+1]
-            hospital_prob = random.random()
+                    now = path[:i+1]
+                    now.append("c3_14")
+                    return now
+            hospital_prob = random.random()  # 医院区概率
             if hospital_prob <= 0.05:
                 return random.choice(
                     self.all_paths[(start_node, end_node)]["hospital"])
@@ -289,7 +328,7 @@ if __name__ == "__main__":
     machine_pre_dict = machine_pre()
     hospital = set(machine_pre_dict["hospital"])
     security = set(machine_pre_dict["security"])
-    re_cal = True
+    re_cal = False
 
     if re_cal:
 
@@ -325,23 +364,22 @@ if __name__ == "__main__":
     Paths = PathGenerator()
 
     # 给定起终点单条路线
-    print(",".join(Paths.path_generator("a1_1", "027", "reload", "A")))
-    print(",".join(Paths.path_generator("a1_1", "571J", "small_sort", "L", 1)))  # 小件
+    print(",".join(Paths.path_generator("r3_2", "027", "reload", "A")))
+    print(
+        ",".join(Paths.path_generator("a1_1", "752", "small_sort", "A")))  # 小件
+    print(
+        ",".join(Paths.path_generator("u3_7", "752", "small_sort", "A")))  # 小件
+    print(
+        ",".join(Paths.path_generator("c11_84", "5712", "small_sort", "L")))  # 小件
 
     # 生成100000条路线，测试进入医院区的概率是否为5%
-    # land_start_node = ["r1_1", "r1_2", "r1_3", "r1_4", "r2_1", "r2_2", "r2_3",
-    #                    "r2_4"]
-    # land_end_node = ["571J", "回流", "571JB", "571AE", "571QD", "571TP",
-    #                  "571QE", "571TQ", "571AJ", "571TK", "571CD", "571TB",
-    #                  "571AG", "571NF", "571QC", "571NA", "571DC", "571AQ",
-    #                  "571KL", "571HB", "571B", "571NB", "571AM", "571NH",
-    #                  "571PF", "C571H", "571BM"]
     land_start_node = ["r5_1", "r5_2", "r5_3", "r5_4"]
-    air_end_node = ["023", "592", "812H", "5940", "5950", "028", "771", "4310",
-                    "7710", "7700", "431H", "772", "027", "7311"]
+    air_end_node = ["023", "592", "812", "594", "595", "028", "771", "431",
+                    "771", "770", "431", "772", "027", "731"]
 
     paths = {"hospital": [], "without hospital": [], "security": [], "us": []}
     num = 0
+
     while num < 100000:
         start = random.choice(land_start_node)
         end = random.choice(air_end_node)
@@ -350,7 +388,7 @@ if __name__ == "__main__":
             paths["hospital"].append(path)
         else:
             paths["without hospital"].append(path)
-        if path[-1] in machine_pre_dict["security"]:
+        if path[-2] in machine_pre_dict["security"]:
             paths["us"].append(path)
         elif set(machine_pre_dict["security"]) & set(path):
             paths["security"].append(path)
