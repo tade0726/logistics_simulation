@@ -172,7 +172,7 @@ class Uld(Truck):
 
 
 class BasePipeline:
-
+    """基础管道，收集垃圾，或者错误"""
     def __init__(self,
                  env: simpy.Environment,
                  pipeline_id: str,
