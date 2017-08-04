@@ -75,7 +75,7 @@ class SmallReload(object):
                 equipment_id=self.equipment_id,
                 package_id=small_bag.item_id,
                 time_stamp=wait_time_stamp,
-                action="wait", ))
+                action="wait", ), to_small=False)
 
         small_bag.insert_data(
             PackageRecord(
