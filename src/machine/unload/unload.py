@@ -87,7 +87,7 @@ class Unload:
 
             # deal with nc parcel
             if package.attr['parcel_type'] == 'nc':
-                self.pipelines_dict["unload_error_packages"].put(package)
+                self.pipelines_dict["unload_error"].put(package)
             else:
                 # error package store in
                 try:
