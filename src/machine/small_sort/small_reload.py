@@ -47,7 +47,6 @@ class SmallReload(object):
         self.counts = 0
         self.store_is_full = self.env.event()
 
-        self.small_bag = []
         self.small_bag_count = 0
 
         self.resource_set = self._set_machine_resource()
@@ -61,29 +60,41 @@ class SmallReload(object):
         self.store_max = BAG_NUM
         self.wait_time = WAIT_TIME
 
-    def pack_up_small_bag(self, real_wait_time):
-        smallbag = SmallBag(self.env, self.store[0].attr, self.store[:])
-        smallbag.item_id = "98" + str(int(time.time() * 1000))[-10:]
-        smallbag.set_path(self.equipment_id)
-        smallbag.insert_data(
-            PackageRecord(
-                equipment_id=self.equipment_id,
-                package_id=smallbag.item_id,
-                time_stamp=self.env.now,
-                action="start", ))
-        # print(f"{self.env.now}, wait: {real_wait_time}, pack up smallbag: {self.small_bag[-1]}")
+    def pack_send(self, real_wait_time):
+
+        # init small_bag
+        small_bag = SmallBag(self.env, self.store[0].attr, self.store[:])
+        small_bag.item_id = "98" + str(int(time.time() * 1000))[-10:]
+        small_bag.set_path(self.equipment_id)
+
         self.small_bag_count += 1
         self.store.clear()
         self.store_is_full = self.env.event()
+
+        small_bag.insert_data(
+            PackageRecord(
+                equipment_id=self.equipment_id,
+                package_id=small_bag.item_id,
+                time_stamp=self.env.now,
+                action="start", ))
+
+        yield self.env.timeout(self.process_time)
+
+        small_bag.insert_data(
+            PackageRecord(
+                equipment_id=self.equipment_id,
+                package_id=small_bag.item_id,
+                time_stamp=self.env.now,
+                action="end", ))
+
+        self.pipeline_dict[small_bag.next_pipeline].put(small_bag)
 
     def _timer(self):
         start = self.env.now
         yield self.store_is_full | self.env.timeout(self.wait_time)
         end = self.env.now
         real_wait_time = end - start
-        self.pack_up_small_bag(real_wait_time)
-        yield self.env.timeout(self.process_time)
-        self.put_small_bag()
+        self.pack_send(real_wait_time)
 
     def put_package(self, item):
 
@@ -94,18 +105,6 @@ class SmallReload(object):
 
         elif len(self.store) == self.store_max:
             self.store_is_full.succeed()
-
-    def put_small_bag(self):
-        if self.small_bag:
-            for i in range(len(self.small_bag)):
-                smallbag = self.small_bag.pop(0)
-                smallbag.insert_data(
-                    PackageRecord(
-                        equipment_id=self.equipment_id,
-                        package_id=smallbag.item_id,
-                        time_stamp=self.env.now,
-                        action="end", ))
-                self.pipeline_dict[smallbag.next_pipeline].put(smallbag)
 
     def run(self):
         while True:
