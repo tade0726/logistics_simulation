@@ -189,6 +189,9 @@ def init_r_frame(root: Tk):
     e_r32 = StringVar()
     #  ==================================================
 
+    def analysis():
+        pass
+
     def cost_of_item():
         """"""
         conn = pymysql.connect(host=DATABASES['HOST'],
@@ -242,6 +245,13 @@ def init_r_frame(root: Tk):
 
     def update_data():
         """"""
+        if not package_num.get():
+            txtReceipt['state'] = NORMAL
+            txtReceipt.insert(END, '运行错误，请输入仿真件量！\n')
+            root.update_idletasks()
+            txtReceipt['state'] = DISABLED
+
+            return
         on_off_dict = {}
         on_off_dict['r1_1'] = r1_1.var.get()
         on_off_dict['r1_2'] = r1_2.var.get()
@@ -826,7 +836,7 @@ def init_r_frame(root: Tk):
         font=('Times', font_btn, 'bold'),
         width=width_btn,
         text="仿真分析",
-        command=cost_of_item
+        command=analysis
     ).grid(row=0, column=2)
     Button(
         master=right_output_pad_button,
