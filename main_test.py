@@ -115,7 +115,8 @@ def main():
     pipelines_dict["small_bin"] = BasePipeline(env,
                                                pipeline_id="small_bin",
                                                equipment_id="small_bin",
-                                               machine_type="small_bin")
+                                               machine_type="small_bin",
+                                               is_record=False)
 
 
     # prepare init machine dict
