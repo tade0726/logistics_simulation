@@ -94,15 +94,13 @@ class Package:
         return f"<package attr:{dict(display_dct)}, path: {self.planned_path}>"
 
 
-class SmallPackage:
+class SmallPackage(Package):
     """小件包裹"""
     def __init__(self,
                  env: simpy.Environment,
                  attr: pd.Series,):
 
-        # 包裹的所有信息都在 attr
-        self.attr = attr
-        # id
+        super(SmallPackage, self).__init__(env, attr,)
         self.item_id = self.attr["small_id"]
         # env
         self.env = env
