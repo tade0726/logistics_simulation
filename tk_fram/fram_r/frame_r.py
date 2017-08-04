@@ -213,15 +213,15 @@ def init_r_frame(root: Tk):
         conn.close()
         txtReceipt.insert(END, '*******************************\n')
         txtReceipt.insert(END, '最早到达时间:\t' +
-                          result['fast_time'].decode() + '\n')
+                          check_time(result['fast_time']) + '\n')
         txtReceipt.insert(END, '最晚到达时间:\t' +
-                          result['later_time'].decode() + '\n')
+                          check_time(result['later_time']) + '\n')
         txtReceipt.insert(END, '最后一票处理时间:\t' +
-                          result['last_solve_time'].decode()
+                          check_time(result['last_solve_time'])
                           + '\n')
         txtReceipt.insert(END, '总处理时间(小时):\t' + '%.2f' %
                           result['total_solve_time'] + '\n')
-        txtReceipt.insert(END, '仿真运行时间(秒):\t' + str(run_time))
+        txtReceipt.insert(END, '仿真运行时间(秒):\t' + check_time(run_time))
         txtReceipt['state'] = DISABLED
 
 
@@ -303,6 +303,12 @@ def init_r_frame(root: Tk):
             txt_r['disabledforeground'] = 'blue'
         else:
             txt_r['disabledforeground'] = 'SystemDisabledText'
+
+    def check_time(time):
+        if isinstance(time, str):
+            return time
+        elif isinstance(time, bytes):
+            return time.decode()
 
     def update_on_off(cursor, data: dict):
         # equipment_port 需要确定
