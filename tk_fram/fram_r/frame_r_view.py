@@ -2,25 +2,30 @@
 
 from tkinter import *
 
-FRAME_WIDTH = 1300  # 界面的总计宽度
+#  ====================宽度设置参数=================
+FRAME_WIDTH = 1100  # 界面的总计宽度
 FRAME_HEIGHT = 650  # 界面的总计高度
 
-FRAME_WIDTH_LEFT = 800  # 左侧界面的总计宽度
-FRAME_WIDTH_RIGHT = 600  # 右侧界面的总计宽度
+FRAME_WIDTH_LEFT = 700  # 左侧界面的总计宽度
+FRAME_WIDTH_RIGHT = 400  # 右侧界面的总计宽度
 
 FRAME_WIDTH_LEFT_ONE = 200  # 左侧界面的左宽度
-FRAME_WIDTH_LEFT_TOW = 600  # 左侧界面的右宽度
+FRAME_WIDTH_LEFT_TOW = 500  # 左侧界面的右宽度
 
+#  ===================高度设置参数===================
 FRAME_HEIGHT_HEAD = 50  # 界面顶端主标题的高度
 
+#  ===================左侧设置界面高度设置============
+#                        50+50+500
 FRAME_HEIGHT_LEFT_PACKAGE = 50  # 包裹设置界面高度
+FRAME_HEIGHT_LEFT_SET_PAD_TITLE = 50  #  左侧设置界面标题高度
+FRAME_HEIGHT_LEFT_CENTER = 500  # 左侧中间界面的总计高度
 
-FRAME_HEIGHT_LEFT_CENTER = 550  # 左侧中间界面的总计高度
-
-
-FRAME_HEIGHT_RIGHT_INFO_TITLE = 50  # 包裹设置界面高度
-FRAME_HEIGHT_RIGHT_INFO = 450  # 输出信息版高度
-FRAME_HEIGHT_RIGHT_BUTTON = 100  # 右侧底部界面button的总高度
+#  ===================右侧输出界面高度设置============
+#                           50+50+500
+FRAME_HEIGHT_RIGHT_INFO_TITLE = 50  # 输出信息板标题高度
+FRAME_HEIGHT_RIGHT_INFO = 500  # 输出信息版高度
+FRAME_HEIGHT_RIGHT_BUTTON = 50  # 右侧底部界面button的总高度
 
 DATABASES = {
     'HOST': '10.0.149.62',
@@ -74,14 +79,35 @@ class ConfigApp(object):
             'pack': {
                 'side': 'top'}
         },
-        'LEFT_SET_PAD_BOTTOM': {
+        'LEFT_SET_PAD_TITLE': {
             'attr': {
                 'width': FRAME_WIDTH_LEFT,
-                'height': 50,
-                'bd': 2,
-                'relief': 'raise'},
+                'height': FRAME_HEIGHT_LEFT_SET_PAD_TITLE,
+                # 'bd': 8,
+                # 'relief': 'raise'
+            },
             'pack': {
-                'side': 'bottom'}
+                'side': 'top'}
+        },
+        'LEFT_SET_PAD_LEFT_TITLE': {
+            'attr': {
+                'width': FRAME_WIDTH_LEFT_ONE,
+                'height': FRAME_HEIGHT_LEFT_SET_PAD_TITLE,
+                'bd': 2,
+                'relief': 'raise'
+            },
+            'pack': {
+                'side': 'left'}
+        },
+        'LEFT_SET_PAD_RIGHT_TITLE': {
+            'attr': {
+                'width': FRAME_WIDTH_LEFT_TOW,
+                'height': FRAME_HEIGHT_LEFT_SET_PAD_TITLE,
+                'bd': 2,
+                'relief': 'raise'
+            },
+            'pack': {
+                'side': 'left'}
         },
         'LEFT_SET_PAD_TOP_PACKAGE': {
             'attr': {
@@ -126,7 +152,7 @@ class ConfigApp(object):
                 'relief': 'raise',
                 # 'bg': '#A2B5CD'
             },
-            'pack': {'side': 'top'}
+            'pack': {'side': 'left'}
         },
         'RIGHT_BUTTON': {
             'attr': {
@@ -143,16 +169,16 @@ class ConfigApp(object):
 class ConfigCheckBtn(object):
     """选择控件"""
     R_CHECK_BTN_ATTR = {
-        'font': ('Times', 18, 'bold'),
+        'font': ('Times', 15, 'bold'),
         'onvalue': 1,
         'offvalue': 0,
         'bd': 9,
         # 'height': 2,
             }
     R_ENTRY_ATTR = {
-        'font': ('Times', 18, 'bold'),
+        'font': ('Times', 15, 'bold'),
         'bd': 8,
-        'width': 5,
+        'width': 6,
         # 'height': 2,
         'justify': 'left',
         'state': DISABLED
