@@ -27,7 +27,7 @@ import random
 import pickle
 import os.path
 import networkx as nx
-from src.db.tools import load_from_mysql, get_reload_setting, SaveConfig, get_equipment_on_off
+from src.db.tools import get_reload_setting, SaveConfig, get_equipment_on_off, get_queue_io
 
 
 # 开关控制是否过滤不可用节点
@@ -119,8 +119,7 @@ def add_cycle_paths(machine_graph, base_paths, cycle_nodes_group=None):
 def generate_all_paths():
     machine_pre_dict = machine_pre()
 
-    edge_df = load_from_mysql("i_queue_io")
-    edge_df = edge_df[edge_df["normal_path"] == 1]
+    edge_df = get_queue_io()
 
     cycle_node = [machine_pre_dict["hospital"]]
     mgraph = nx.DiGraph()
