@@ -34,7 +34,7 @@ def timer(func):
 @timer
 def test1():
     for i, x in enumerate(a):
-        if i < 10:
+        if i < 100:
             print(x)
         else:
             break
@@ -42,7 +42,7 @@ def test1():
 @timer
 def test2():
     for i, x in enumerate(b):
-        if i < 10:
+        if i < 100:
             print(x)
         else:
             break
