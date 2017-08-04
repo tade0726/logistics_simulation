@@ -461,7 +461,7 @@ def init_r_frame(root: Tk):
     r1_2.var.set(btn_entry_dict['r1_2'])
     e_r2.set(status_dict[r1_2.var.get()])
     if e_r2.get() == 'ON':
-        txt_r1_1['disabledforeground'] = 'blue'
+        txt_r1_2['disabledforeground'] = 'blue'
 
     txt_r1_3 = init_entry(
         master=left_set_pad_center_left, id = 'r1_3', text_var=e_r3)
