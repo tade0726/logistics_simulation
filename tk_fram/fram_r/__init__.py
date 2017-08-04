@@ -5,8 +5,6 @@ from .frame_r import init_r_frame
 from .frame_r_view import *
 
 
-root = Tk()
-
 def create_r_frame():
     """"""
     #  =======================添加主视图====================
