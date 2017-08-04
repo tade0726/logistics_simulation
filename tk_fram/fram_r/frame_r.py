@@ -194,6 +194,10 @@ def init_r_frame(root: Tk):
 
     def cost_of_item():
         """"""
+        if not package_num.get():
+            messagebox.askyesno("tkmessage", "运行错误， 请输入仿真件量！")
+            return
+
         conn = pymysql.connect(host=DATABASES['HOST'],
                                user=DATABASES['USER'],
                                passwd=DATABASES['PASSWORD'],
@@ -246,12 +250,9 @@ def init_r_frame(root: Tk):
     def update_data():
         """"""
         if not package_num.get():
-            txtReceipt['state'] = NORMAL
-            txtReceipt.insert(END, '运行错误，请输入仿真件量！\n')
-            root.update_idletasks()
-            txtReceipt['state'] = DISABLED
-
+            messagebox.askyesno("tkmessage", "运行错误， 请输入仿真件量！")
             return
+
         on_off_dict = {}
         on_off_dict['r1_1'] = r1_1.var.get()
         on_off_dict['r1_2'] = r1_2.var.get()
