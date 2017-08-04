@@ -105,10 +105,18 @@ def main():
                                                    equipment_id=pipeline_id,
                                                    machine_type="reload")
 
-    pipelines_dict["unload_error_packages"] = BasePipeline(env,
-                                                           pipeline_id="unload_error",
-                                                           equipment_id="unload_error",
-                                                           machine_type="error")
+    # for unload error
+    pipelines_dict["unload_error"] = BasePipeline(env,
+                                                  pipeline_id="unload_error",
+                                                  equipment_id="unload_error",
+                                                  machine_type="error")
+
+    # for small sort bin
+    pipelines_dict["small_bin"] = BasePipeline(env,
+                                               pipeline_id="small_bin",
+                                               equipment_id="small_bin",
+                                               machine_type="small_bin")
+
 
     # prepare init machine dict
     machine_init_dict = defaultdict(list)
