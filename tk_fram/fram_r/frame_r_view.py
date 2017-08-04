@@ -8,8 +8,8 @@ FRAME_HEIGHT = 650  # 界面的总计高度
 FRAME_WIDTH_LEFT = 800  # 左侧界面的总计宽度
 FRAME_WIDTH_RIGHT = 600  # 右侧界面的总计宽度
 
-FRAME_WIDTH_LEFT_ONE = 200  #左侧界面的左宽度
-FRAME_WIDTH_LEFT_TOW =600  # 左侧界面的右宽度
+FRAME_WIDTH_LEFT_ONE = 200  # 左侧界面的左宽度
+FRAME_WIDTH_LEFT_TOW = 600  # 左侧界面的右宽度
 
 FRAME_HEIGHT_HEAD = 50  # 界面顶端主标题的高度
 
@@ -29,6 +29,7 @@ DATABASES = {
     'NAME': 'test3',
     'CHARSET': 'utf8'
 }
+
 
 class ConfigApp(object):
     """"""
@@ -167,10 +168,10 @@ class ConfigCheckBtn(object):
     ENTRY_A_ROW_BASE = 1
     ENTRY_R_ROW_BASE = 1
     CHECK_BTN_R_ROW_BASE = 1
-    CHECK_BTN_A_ROW_BASE =1
+    CHECK_BTN_A_ROW_BASE = 1
 
     R_CHECK_BTN = {
-        'r1_1':{
+        'r1_1': {
             'attr': R_CHECK_BTN_ATTR,
             'grid': {
                 'row': CHECK_BTN_R_ROW_BASE+0,
