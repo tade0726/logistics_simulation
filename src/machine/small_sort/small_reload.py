@@ -21,7 +21,7 @@
 """
 
 
-from src.vehicles.items import SmallBag, PackageRecord
+from src.vehicles.items import SmallBag, PackageRecord, SmallPackage
 import time
 
 
@@ -45,11 +45,10 @@ class SmallReload(object):
 
         self.store = []
         self.counts = 0
+        self.small_bag_count = 0
         self.store_is_full = self.env.event()
 
-        self.small_bag_count = 0
-
-        self.resource_set = self._set_machine_resource()
+        self._set_machine_resource()
 
     def _set_machine_resource(self):
         self.equipment_id = self.machine_id[1]
@@ -60,16 +59,23 @@ class SmallReload(object):
         self.store_max = BAG_NUM
         self.wait_time = WAIT_TIME
 
-    def pack_send(self, real_wait_time):
+    def pack_send(self, wait_time_stamp: float):
 
         # init small_bag
         small_bag = SmallBag(self.env, self.store[0].attr, self.store[:])
-        small_bag.item_id = "98" + str(int(time.time() * 1000))[-10:]
+        small_bag.item_id = "98" + str(int(time.time() * 1000))[-10:]  # todo: need to confirm unique
         small_bag.set_path(self.equipment_id)
 
         self.small_bag_count += 1
         self.store.clear()
         self.store_is_full = self.env.event()
+
+        small_bag.insert_data(
+            PackageRecord(
+                equipment_id=self.equipment_id,
+                package_id=small_bag.item_id,
+                time_stamp=wait_time_stamp,
+                action="wait", ))
 
         small_bag.insert_data(
             PackageRecord(
@@ -90,15 +96,20 @@ class SmallReload(object):
         self.pipeline_dict[small_bag.next_pipeline].put(small_bag)
 
     def _timer(self):
-        start = self.env.now
+        wait_time_stamp = self.env.now
         yield self.store_is_full | self.env.timeout(self.wait_time)
-        end = self.env.now
-        real_wait_time = end - start
-        self.pack_send(real_wait_time)
+        self.pack_send(wait_time_stamp)
 
-    def put_package(self, item):
+    def put_package(self, small: SmallPackage):
 
-        self.store.append(item)
+        small.insert_data(
+            PackageRecord(
+                equipment_id=self.equipment_id,
+                package_id=small.item_id,
+                time_stamp=self.env.now,
+                action="start", ))
+
+        self.store.append(small)
 
         if len(self.store) == 1:
             self.env.process(self._timer())
