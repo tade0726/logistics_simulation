@@ -122,9 +122,12 @@ class SmallBag(Package):
         self.store = small_packages
         self.store_size = len(self.store)
 
-    def insert_data_small(self, record: namedtuple):
+    # change to decorator
+    def insert_data(self, record: namedtuple, to_small: bool=False):
         """给小件包裹添加记录"""
-        map(lambda x: x.instert_data(record), self.store)
+        if to_small:
+            map(lambda x: x.instert_data(record), self.store)
+        return super(SmallBag, self).insert_data(record)
 
     def __str__(self):
         display_dct = dict(self.attr)
