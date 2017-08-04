@@ -192,7 +192,7 @@ class BasePipeline:
         return self.queue.get()
 
     def put(self, item):
-
+        # control writing record
         if self.is_record:
             item.insert_data(
                 PipelineRecord(
