@@ -195,7 +195,11 @@ def init_r_frame(root: Tk):
     def cost_of_item():
         """"""
         if not package_num.get():
-            messagebox.askyesno("tkmessage", "运行错误， 请输入仿真件量！")
+            messagebox.askyesno("Tkinter-数据更新错误", "运行错误， 请输入仿真件量！")
+            return
+        if not person_res.get():
+            messagebox.askyesno("Tkinter-数据更新错误",
+                                "运行错误， 请输入初分拣区卸货口人数！")
             return
 
         conn = pymysql.connect(host=DATABASES['HOST'],
@@ -250,7 +254,11 @@ def init_r_frame(root: Tk):
     def update_data():
         """"""
         if not package_num.get():
-            messagebox.askyesno("tkmessage", "运行错误， 请输入仿真件量！")
+            messagebox.askyesno("Tkinter-数据更新错误", "运行错误， 请输入仿真件量！")
+            return
+        if not person_res.get():
+            messagebox.askyesno("Tkinter-数据更新错误",
+                                "运行错误， 请输入初分拣区卸货口人数！")
             return
 
         on_off_dict = {}
