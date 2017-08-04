@@ -2,7 +2,7 @@
 
 from tk_fram.fram_r import App, CheckBtnCreate, EntryCreate
 from tk_fram.fram_r import messagebox
-# from simpy_lib import main
+from simpy_lib import main
 from tk_fram.fram_r.frame_r_view import *
 import logging as lg
 
@@ -391,12 +391,14 @@ def init_r_frame(root: Tk):
             return
 
     # ==============================Heading===========================
-    lbl_info = Label(top,
-                     font=('Times', 12, 'bold'),
-                     text='\t\t\t\t杭州分拣中心仿真系统',
-                     bd=6,
-                     width=140,
-                     anchor='w')
+    lbl_info = Label(
+        top,
+        font=('Times', 12, 'bold'),
+        text='\t\t\t\t\t\t\t杭州分拣中心仿真系统',
+        bd=6,
+        width=119,
+        anchor='w'
+    )
     lbl_info.grid(row=0, column=0)
     # ============================包裹设置参数========================
     lbl_package = Label(
