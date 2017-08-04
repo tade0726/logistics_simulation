@@ -48,7 +48,7 @@ class TimeConfig:
 
 class MainConfig:
     IS_TEST = False
-    SAVE_LOCAL = True
+    SAVE_LOCAL = False
     IS_PARCEL_ONLY = True  # 只有 parcel 件
     IS_LAND_ONLY = False  # True 只有 landside, False landside airside
     CACHE_TYPE = 'redis'  # {None, "redis", "pkl"}
@@ -57,7 +57,7 @@ class MainConfig:
 def get_logger(logger_name: str):
 
     logger = logging.getLogger(logger_name)
-    logger.setLevel(level=logging.DEBUG)
+    logger.setLevel(level=logging.INFO)
     # add handlers
     ch = logging.StreamHandler()
     fh = logging.FileHandler(filename=join(SaveConfig.PROJECT_DIR, f"{logger_name}.log"), mode='w')
