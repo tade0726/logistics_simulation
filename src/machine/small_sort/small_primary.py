@@ -88,7 +88,6 @@ class SmallPrimary(object):
             # collect small bag of the first state
             self.pipelines_dict['small_bin'].put(small_bag)
 
-
     def run(self):
         while True:
             small_bag = yield self.input_pip_line.get()
