@@ -99,6 +99,7 @@ def main():
         else:
             raise ValueError("Pipeline init error!!")
 
+    # for reload collection
     for pipeline_id in reload_c_list:
         pipelines_dict[pipeline_id] = BasePipeline(env,
                                                    pipeline_id=pipeline_id,
