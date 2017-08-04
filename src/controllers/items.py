@@ -101,12 +101,12 @@ class TruckController:
         truck = Truck(env=self.env, item_id=truck_id, come_time=come_time,
                       packages=packages, truck_type=truck_type,
                       )
+        LOG.logger_font.debug(f"init truck: {truck_id}")
         self.env.process(self.latency(come_time, truck))
 
     def controller(self):
         """
         """
-        LOG.logger_font.info(msg="init trucks..")
         for keys, packages_record in self.trucks_dict.items():
             self.env.process(self._init_truck(keys, packages_record))
 

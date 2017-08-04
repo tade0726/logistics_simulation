@@ -115,7 +115,6 @@ def main():
     for pipeline_id, pipeline in pipelines_dict.items():
         machine_init_dict[pipeline.machine_type].append(pipeline_id)
 
-
     # init unload machines
     machines_dict = defaultdict(list)
 

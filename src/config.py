@@ -43,24 +43,24 @@ class SaveConfig:
 
 
 class TimeConfig:
-    ZERO_TIMESTAMP = datetime(2017, 6, 15, 21)
+    ZERO_TIMESTAMP = datetime(2017, 7, 25, 21)
 
 
 class MainConfig:
-    IS_TEST = True
+    IS_TEST = False
     SAVE_LOCAL = True
     IS_PARCEL_ONLY = True  # 只有 parcel 件
     IS_LAND_ONLY = False  # True 只有 landside, False landside airside
-    CACHE_TYPE = None  # {None, "redis", "pkl"}
+    CACHE_TYPE = 'redis'  # {None, "redis", "pkl"}
 
 
 def get_logger(logger_name: str):
 
     logger = logging.getLogger(logger_name)
-    logger.setLevel(level=logging.INFO)
+    logger.setLevel(level=logging.DEBUG)
     # add handlers
     ch = logging.StreamHandler()
-    fh = logging.FileHandler(filename=join(SaveConfig.PROJECT_DIR, f"{logger_name}.log"), mode='a')
+    fh = logging.FileHandler(filename=join(SaveConfig.PROJECT_DIR, f"{logger_name}.log"), mode='w')
     # add format
     formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
     # set format
