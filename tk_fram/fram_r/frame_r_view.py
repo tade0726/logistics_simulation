@@ -176,7 +176,7 @@ class ConfigCheckBtn(object):
         'pady': 10,
         # 'padx': 1,
         # 'height': 2,
-            }
+        }
     R_ENTRY_ATTR = {
         'font': ('Times', 15, 'bold'),
         'bd': 8,
