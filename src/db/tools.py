@@ -21,13 +21,14 @@ def checking_pickle_file(table_name):
     return isfile(join(SaveConfig.DATA_DIR, f"{table_name}.pkl"))
 
 
-def load_cache(is_redis: bool=True):
+def load_cache(cache_type: bool=None):
     """decorator: cache"""
+
     def decorator(func):
         @wraps(func)
         def wrapper(table_name):
 
-            if is_redis:
+            if cache_type == 'redis':
                 if RedisConfig.CONN.exists(table_name):
                     return load_from_redis(table_name)
                 else:
@@ -35,13 +36,17 @@ def load_cache(is_redis: bool=True):
                     write_redis(table_name, data=table)
                     return table
 
-            else:
+            elif cache_type == 'pkl':
                 if not checking_pickle_file(table_name):
                     table = func(table_name)
                     write_local(table_name, data=table, is_out=False, is_csv=False)
                     return table
                 else:
                     return load_from_local(table_name, is_csv=False)
+            elif not cache_type:
+                return func(table_name)
+            else:
+                ValueError("cache_type value do not expected!")
         return wrapper
     return decorator
 
@@ -51,7 +56,7 @@ def write_redis(table_name: str, data: pd.DataFrame,):
     data_seq = data.to_msgpack()
 
     try:
-        result = RedisConfig.CONN.setex(table_name, time=24 * 60 * 60, val=data_seq)
+        result = RedisConfig.CONN.setex(table_name, time=24 * 60 * 60, value=data_seq)
 
         if result:
             LOG.logger_font.info(f"Redis write table {table_name} succeed!")
@@ -105,7 +110,7 @@ def load_from_local(table_name: str, is_csv:bool=True):
     return table
 
 
-@load_cache(is_redis=MainConfig.CACHE_REDIS)
+@load_cache(cache_type=MainConfig.CACHE_TYPE)
 def load_from_mysql(table_name: str):
     """读取远程mysql数据表"""
     LOG.logger_font.info(msg=f"Reading mysql table {table_name}")
