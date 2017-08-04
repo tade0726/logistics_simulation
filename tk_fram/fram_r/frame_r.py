@@ -296,9 +296,13 @@ def init_r_frame(root: Tk):
         conn.close()
 
 
-    def chk_button_value(var, e_r):
+    def chk_button_value(var, e_r, txt_r):
         """"""
         e_r.set(status_dict[var.get()])
+        if e_r.get() == 'ON':
+            txt_r['disabledforeground'] = 'blue'
+        else:
+            txt_r['disabledforeground'] = 'SystemDisabledText'
 
     def update_on_off(cursor, data: dict):
         # equipment_port 需要确定
@@ -433,238 +437,329 @@ def init_r_frame(root: Tk):
     status_dict = {0: 'OFF', 1: 'ON'}
     btn_entry_dict = init_btn_entry_val_from_sql()
     # ===================     R1卸货区       =====================
-    r1_1 = init_check_btn(
-        master=left_set_pad_center_left, id='r1_1', var=var1,
-        command=lambda: chk_button_value(var1, e_r1))
     txt_r1_1 = init_entry(
         master=left_set_pad_center_left, id='r1_1', text_var=e_r1)
+    r1_1 = init_check_btn(
+        master=left_set_pad_center_left, id='r1_1', var=var1,
+        command=lambda: chk_button_value(var1, e_r1, txt_r1_1))
     r1_1.var.set(btn_entry_dict['r1_1'])
     e_r1.set(status_dict[r1_1.var.get()])
-    r1_2 = init_check_btn(
-        master=left_set_pad_center_left, id='r1_2', var=var2,
-        command=lambda: chk_button_value(var2, e_r2))
+    if e_r1.get() == 'ON':
+        txt_r1_1['disabledforeground'] = 'blue'
+
     txt_r1_2 = init_entry(
         master=left_set_pad_center_left, id='r1_2', text_var=e_r2)
+    r1_2 = init_check_btn(
+        master=left_set_pad_center_left, id='r1_2', var=var2,
+        command=lambda: chk_button_value(var2, e_r2, txt_r1_2))
     r1_2.var.set(btn_entry_dict['r1_2'])
     e_r2.set(status_dict[r1_2.var.get()])
-    r1_3 = init_check_btn(
-        master=left_set_pad_center_left, id='r1_3', var=var3,
-        command=lambda: chk_button_value(var3, e_r3))
+    if e_r2.get() == 'ON':
+        txt_r1_1['disabledforeground'] = 'blue'
+
     txt_r1_3 = init_entry(
         master=left_set_pad_center_left, id = 'r1_3', text_var=e_r3)
+    r1_3 = init_check_btn(
+        master=left_set_pad_center_left, id='r1_3', var=var3,
+        command=lambda: chk_button_value(var3, e_r3, txt_r1_3))
     r1_3.var.set(btn_entry_dict['r1_3'])
     e_r3.set(status_dict[r1_3.var.get()])
-    r1_4 = init_check_btn(
-        master=left_set_pad_center_left, id='r1_4', var=var4,
-        command=lambda: chk_button_value(var4, e_r4))
+    if e_r3.get() == 'ON':
+        txt_r1_3['disabledforeground'] = 'blue'
+
     txt_r1_4 = init_entry(
         master=left_set_pad_center_left, id='r1_4', text_var=e_r4)
+    r1_4 = init_check_btn(
+        master=left_set_pad_center_left, id='r1_4', var=var4,
+        command=lambda: chk_button_value(var4, e_r4, txt_r1_4))
     r1_4.var.set(btn_entry_dict['r1_4'])
     e_r4.set(status_dict[r1_4.var.get()])
+    if e_r4.get() == 'ON':
+        txt_r1_4['disabledforeground'] = 'blue'
 
     # =====================    R2卸货区       =====================
-    r2_1 = init_check_btn(
-        master=left_set_pad_center_left, id='r2_1', var=var5,
-        command=lambda: chk_button_value(var5, e_r5))
     txt_r2_1 = init_entry(
         master=left_set_pad_center_left, id='r2_1', text_var=e_r5)
+    r2_1 = init_check_btn(
+        master=left_set_pad_center_left, id='r2_1', var=var5,
+        command=lambda: chk_button_value(var5, e_r5, txt_r2_1))
     r2_1.var.set(btn_entry_dict['r2_1'])
     e_r5.set(status_dict[r2_1.var.get()])
-    r2_2 = init_check_btn(
-        master=left_set_pad_center_left, id='r2_2', var=var6,
-        command=lambda: chk_button_value(var6, e_r6))
+    if e_r5.get() == 'ON':
+        txt_r2_1['disabledforeground'] = 'blue'
+
     txt_r2_2 = init_entry(
         master=left_set_pad_center_left, id='r2_2', text_var=e_r6)
+    r2_2 = init_check_btn(
+        master=left_set_pad_center_left, id='r2_2', var=var6,
+        command=lambda: chk_button_value(var6, e_r6, txt_r2_2))
     r2_2.var.set(btn_entry_dict['r2_2'])
     e_r6.set(status_dict[r2_2.var.get()])
-    r2_3 = init_check_btn(
-        master=left_set_pad_center_left, id='r2_3', var=var7,
-        command=lambda: chk_button_value(var7, e_r7))
+    if e_r6.get() == 'ON':
+        txt_r2_2['disabledforeground'] = 'blue'
+
     txt_r2_3 = init_entry(
         master=left_set_pad_center_left, id='r2_3', text_var=e_r7)
+    r2_3 = init_check_btn(
+        master=left_set_pad_center_left, id='r2_3', var=var7,
+        command=lambda: chk_button_value(var7, e_r7, txt_r2_3))
     r2_3.var.set(btn_entry_dict['r2_3'])
     e_r7.set(status_dict[r2_3.var.get()])
-    r2_4 = init_check_btn(
-        master=left_set_pad_center_left, id='r2_4', var=var8,
-        command=lambda: chk_button_value(var8, e_r8))
+    if e_r7.get() == 'ON':
+        txt_r2_3['disabledforeground'] = 'blue'
+
     txt_r2_4 = init_entry(
         master=left_set_pad_center_left, id='r2_4', text_var=e_r8)
+    r2_4 = init_check_btn(
+        master=left_set_pad_center_left, id='r2_4', var=var8,
+        command=lambda: chk_button_value(var8, e_r8, txt_r2_4))
     r2_4.var.set(btn_entry_dict['r2_4'])
     e_r8.set(status_dict[r2_4.var.get()])
+    if e_r8.get() == 'ON':
+        txt_r2_4['disabledforeground'] = 'blue'
 
     # =======================    R3卸货区     =======================
-    r3_1 = init_check_btn(
-        master=left_set_pad_center_right, id='r3_1', var=var9,
-        command=lambda: chk_button_value(var9, e_r9))
     txt_r3_1 = init_entry(
         master=left_set_pad_center_right, id='r3_1', text_var=e_r9)
+    r3_1 = init_check_btn(
+        master=left_set_pad_center_right, id='r3_1', var=var9,
+        command=lambda: chk_button_value(var9, e_r9, txt_r3_1))
     r3_1.var.set(btn_entry_dict['r3_1'])
     e_r9.set(status_dict[r3_1.var.get()])
-    r3_2 = init_check_btn(
-        master=left_set_pad_center_right, id='r3_2', var=var10,
-        command=lambda: chk_button_value(var10, e_r10))
+    if e_r9.get() == 'ON':
+        txt_r3_1['disabledforeground'] = 'blue'
+
     txt_r3_2 = init_entry(
         master=left_set_pad_center_right, id='r3_2', text_var=e_r10)
+    r3_2 = init_check_btn(
+        master=left_set_pad_center_right, id='r3_2', var=var10,
+        command=lambda: chk_button_value(var10, e_r10, txt_r3_2))
     r3_2.var.set(btn_entry_dict['r3_2'])
     e_r10.set(status_dict[r3_2.var.get()])
-    r3_3 = init_check_btn(
-        master=left_set_pad_center_right, id='r3_3', var=var11,
-        command=lambda: chk_button_value(var11, e_r11))
+    if e_r10.get() == 'ON':
+        txt_r3_2['disabledforeground'] = 'blue'
+
     txt_r3_3 = init_entry(
         master=left_set_pad_center_right, id='r3_3', text_var=e_r11)
+    r3_3 = init_check_btn(
+        master=left_set_pad_center_right, id='r3_3', var=var11,
+        command=lambda: chk_button_value(var11, e_r11, txt_r3_3))
     r3_3.var.set(btn_entry_dict['r3_3'])
     e_r11.set(status_dict[r3_3.var.get()])
-    r3_4 = init_check_btn(
-        master=left_set_pad_center_right, id='r3_4', var=var12,
-        command=lambda: chk_button_value(var12, e_r12))
+    if e_r11.get() == 'ON':
+        txt_r3_3['disabledforeground'] = 'blue'
+
     txt_r3_4 = init_entry(
         master=left_set_pad_center_right, id='r3_4', text_var=e_r12)
+    r3_4 = init_check_btn(
+        master=left_set_pad_center_right, id='r3_4', var=var12,
+        command=lambda: chk_button_value(var12, e_r12, txt_r3_4))
     r3_4.var.set(btn_entry_dict['r3_4'])
     e_r12.set(status_dict[r3_4.var.get()])
-    r3_5 = init_check_btn(
-        master=left_set_pad_center_right, id='r3_5', var=var13,
-        command=lambda: chk_button_value(var13, e_r13))
+    if e_r12.get() == 'ON':
+        txt_r3_4['disabledforeground'] = 'blue'
+
     txt_r3_5 = init_entry(
         master=left_set_pad_center_right, id='r3_5', text_var=e_r13)
+    r3_5 = init_check_btn(
+        master=left_set_pad_center_right, id='r3_5', var=var13,
+        command=lambda: chk_button_value(var13, e_r13, txt_r3_5))
     r3_5.var.set(btn_entry_dict['r3_5'])
     e_r13.set(status_dict[r3_5.var.get()])
-    r3_6 = init_check_btn(
-        master=left_set_pad_center_right, id='r3_6', var=var14,
-        command=lambda: chk_button_value(var14, e_r14))
+    if e_r13.get() == 'ON':
+        txt_r3_5['disabledforeground'] = 'blue'
+
     txt_r3_6 = init_entry(
         master=left_set_pad_center_right, id='r3_6', text_var=e_r14)
+    r3_6 = init_check_btn(
+        master=left_set_pad_center_right, id='r3_6', var=var14,
+        command=lambda: chk_button_value(var14, e_r14, txt_r3_6))
     r3_6.var.set(btn_entry_dict['r3_6'])
     e_r14.set(status_dict[r3_6.var.get()])
-    r3_7 = init_check_btn(
-        master=left_set_pad_center_right, id='r3_7', var=var15,
-        command=lambda: chk_button_value(var15, e_r15))
+    if e_r14.get() == 'ON':
+        txt_r3_6['disabledforeground'] = 'blue'
+
     txt_r3_7 = init_entry(
         master=left_set_pad_center_right, id='r3_7', text_var=e_r15)
+    r3_7 = init_check_btn(
+        master=left_set_pad_center_right, id='r3_7', var=var15,
+        command=lambda: chk_button_value(var15, e_r15, txt_r3_7))
     r3_7.var.set(btn_entry_dict['r3_7'])
     e_r15.set(status_dict[r3_7.var.get()])
-    r3_8 = init_check_btn(
-        master=left_set_pad_center_right, id='r3_8', var=var16,
-        command=lambda: chk_button_value(var16, e_r16))
+    if e_r15.get() == 'ON':
+        txt_r3_7['disabledforeground'] = 'blue'
+
     txt_r3_8 = init_entry(
         master=left_set_pad_center_right, id='r3_8', text_var=e_r16)
+    r3_8 = init_check_btn(
+        master=left_set_pad_center_right, id='r3_8', var=var16,
+        command=lambda: chk_button_value(var16, e_r16, txt_r3_8))
     r3_8.var.set(btn_entry_dict['r3_8'])
     e_r16.set(status_dict[r3_8.var.get()])
-    r3_9 = init_check_btn(
-        master=left_set_pad_center_right, id='r3_9', var=var17,
-        command=lambda: chk_button_value(var17, e_r17))
+    if e_r16.get() == 'ON':
+        txt_r3_8['disabledforeground'] = 'blue'
+
     txt_r3_9 = init_entry(
         master=left_set_pad_center_right, id='r3_9', text_var=e_r17)
+    r3_9 = init_check_btn(
+        master=left_set_pad_center_right, id='r3_9', var=var17,
+        command=lambda: chk_button_value(var17, e_r17, txt_r3_9))
     r3_9.var.set(btn_entry_dict['r3_9'])
     e_r17.set(status_dict[r3_9.var.get()])
-    r3_10 = init_check_btn(
-        master=left_set_pad_center_right, id='r3_10', var=var18,
-        command=lambda: chk_button_value(var18, e_r18))
+    if e_r17.get() == 'ON':
+        txt_r3_9['disabledforeground'] = 'blue'
+
     txt_r3_10 = init_entry(
         master=left_set_pad_center_right, id='r3_10', text_var=e_r18)
+    r3_10 = init_check_btn(
+        master=left_set_pad_center_right, id='r3_10', var=var18,
+        command=lambda: chk_button_value(var18, e_r18, txt_r3_10))
     r3_10.var.set(btn_entry_dict['r3_10'])
     e_r18.set(status_dict[r3_10.var.get()])
+    if e_r18.get() == 'ON':
+        txt_r3_10['disabledforeground'] = 'blue'
 
     # ===========================R4卸货区==============================
-    r4_1 = init_check_btn(
-        master=left_set_pad_center_right, id='r4_1', var=var19,
-        command=lambda: chk_button_value(var19, e_r19))
     txt_r4_1 = init_entry(
         master=left_set_pad_center_right, id='r4_1', text_var=e_r19)
+    r4_1 = init_check_btn(
+        master=left_set_pad_center_right, id='r4_1', var=var19,
+        command=lambda: chk_button_value(var19, e_r19, txt_r4_1))
     r4_1.var.set(btn_entry_dict['r4_1'])
     e_r19.set(status_dict[r4_1.var.get()])
-    r4_2 = init_check_btn(
-        master=left_set_pad_center_right, id='r4_2', var=var20,
-        command=lambda: chk_button_value(var20, e_r20))
+    if e_r19.get() == 'ON':
+        txt_r4_1['disabledforeground'] = 'blue'
+
     txt_r4_2 = init_entry(
         master=left_set_pad_center_right, id='r4_2', text_var=e_r20)
+    r4_2 = init_check_btn(
+        master=left_set_pad_center_right, id='r4_2', var=var20,
+        command=lambda: chk_button_value(var20, e_r20, txt_r4_2))
     r4_2.var.set(btn_entry_dict['r4_2'])
     e_r20.set(status_dict[r4_2.var.get()])
-    r4_3 = init_check_btn(
-        master=left_set_pad_center_right, id='r4_3', var=var21,
-        command=lambda: chk_button_value(var21, e_r21))
+    if e_r20.get() == 'ON':
+        txt_r4_2['disabledforeground'] = 'blue'
+
     txt_r4_3 = init_entry(
         master=left_set_pad_center_right, id='r4_3', text_var=e_r21)
+    r4_3 = init_check_btn(
+        master=left_set_pad_center_right, id='r4_3', var=var21,
+        command=lambda: chk_button_value(var21, e_r21, txt_r4_3))
     r4_3.var.set(btn_entry_dict['r4_3'])
     e_r21.set(status_dict[r4_3.var.get()])
-    r4_4 = init_check_btn(
-        master=left_set_pad_center_right, id='r4_4', var=var22,
-        command=lambda: chk_button_value(var22, e_r22))
+    if e_r21.get() == 'ON':
+        txt_r4_3['disabledforeground'] = 'blue'
+
     txt_r4_4 = init_entry(
         master=left_set_pad_center_right, id='r4_4', text_var=e_r22)
+    r4_4 = init_check_btn(
+        master=left_set_pad_center_right, id='r4_4', var=var22,
+        command=lambda: chk_button_value(var22, e_r22, txt_r4_4))
     r4_4.var.set(btn_entry_dict['r4_4'])
     e_r22.set(status_dict[r4_4.var.get()])
-    r4_5 = init_check_btn(
-        master=left_set_pad_center_right, id='r4_5', var=var23,
-        command=lambda: chk_button_value(var23, e_r23))
+    if e_r22.get() == 'ON':
+        txt_r4_4['disabledforeground'] = 'blue'
+
     txt_r4_5 = init_entry(
         master=left_set_pad_center_right, id='r4_5', text_var=e_r23)
+    r4_5 = init_check_btn(
+        master=left_set_pad_center_right, id='r4_5', var=var23,
+        command=lambda: chk_button_value(var23, e_r23, txt_r4_5))
     r4_5.var.set(btn_entry_dict['r4_5'])
     e_r23.set(status_dict[r4_5.var.get()])
-    r4_6 = init_check_btn(
-        master=left_set_pad_center_right, id='r4_6', var=var24,
-        command=lambda: chk_button_value(var24, e_r24))
+    if e_r23.get() == 'ON':
+        txt_r4_5['disabledforeground'] = 'blue'
+
     txt_r4_6 = init_entry(
         master=left_set_pad_center_right, id='r4_6', text_var=e_r24)
+    r4_6 = init_check_btn(
+        master=left_set_pad_center_right, id='r4_6', var=var24,
+        command=lambda: chk_button_value(var24, e_r24, txt_r4_6))
     r4_6.var.set(btn_entry_dict['r4_6'])
     e_r24.set(status_dict[r4_6.var.get()])
-    r4_7 = init_check_btn(
-        master=left_set_pad_center_right, id='r4_7', var=var25,
-        command=lambda: chk_button_value(var25, e_r25))
+    if e_r24.get() == 'ON':
+        txt_r4_6['disabledforeground'] = 'blue'
+
     txt_r4_7 = init_entry(
         master=left_set_pad_center_right, id='r4_7', text_var=e_r25)
+    r4_7 = init_check_btn(
+        master=left_set_pad_center_right, id='r4_7', var=var25,
+        command=lambda: chk_button_value(var25, e_r25, txt_r4_7))
     r4_7.var.set(btn_entry_dict['r4_7'])
     e_r25.set(status_dict[r4_7.var.get()])
-    r4_8 = init_check_btn(
-        master=left_set_pad_center_right, id='r4_8', var=var26,
-        command=lambda: chk_button_value(var26, e_r26))
+    if e_r25.get() == 'ON':
+        txt_r4_7['disabledforeground'] = 'blue'
+
     txt_r4_8 = init_entry(
         master=left_set_pad_center_right, id='r4_8', text_var=e_r26)
+    r4_8 = init_check_btn(
+        master=left_set_pad_center_right, id='r4_8', var=var26,
+        command=lambda: chk_button_value(var26, e_r26, txt_r4_8))
     r4_8.var.set(btn_entry_dict['r4_8'])
     e_r26.set(status_dict[r4_8.var.get()])
-    r4_9 = init_check_btn(
-        master=left_set_pad_center_right, id='r4_9', var=var27,
-        command=lambda: chk_button_value(var27, e_r27))
+    if e_r26.get() == 'ON':
+        txt_r4_8['disabledforeground'] = 'blue'
+
     txt_r4_9 = init_entry(
         master=left_set_pad_center_right, id='r4_9', text_var=e_r27)
+    r4_9 = init_check_btn(
+        master=left_set_pad_center_right, id='r4_9', var=var27,
+        command=lambda: chk_button_value(var27, e_r27, txt_r4_9))
     r4_9.var.set(btn_entry_dict['r4_9'])
     e_r27.set(status_dict[r4_9.var.get()])
-    r4_10 = init_check_btn(
-        master=left_set_pad_center_right, id='r4_10', var=var28,
-        command=lambda: chk_button_value(var28, e_r28))
+    if e_r27.get() == 'ON':
+        txt_r4_9['disabledforeground'] = 'blue'
+
     txt_r4_10 = init_entry(
         master=left_set_pad_center_right, id='r4_10', text_var=e_r28)
+    r4_10 = init_check_btn(
+        master=left_set_pad_center_right, id='r4_10', var=var28,
+        command=lambda: chk_button_value(var28, e_r28, txt_r4_10))
     r4_10.var.set(btn_entry_dict['r4_10'])
     e_r28.set(status_dict[r4_10.var.get()])
+    if e_r28.get() == 'ON':
+        txt_r4_10['disabledforeground'] = 'blue'
 
     # # ======================== R5 卸货区 ============================
-    r5_1 = init_check_btn(
-        master=left_set_pad_center_right, id='r5_1', var=var29,
-        command=lambda: chk_button_value(var29, e_r29))
     txt_r5_1 = init_entry(
         master=left_set_pad_center_right, id='r5_1', text_var=e_r29)
+    r5_1 = init_check_btn(
+        master=left_set_pad_center_right, id='r5_1', var=var29,
+        command=lambda: chk_button_value(var29, e_r29, txt_r5_1))
     r5_1.var.set(btn_entry_dict['r5_1'])
     e_r29.set(status_dict[r5_1.var.get()])
-    r5_2 = init_check_btn(
-        master=left_set_pad_center_right, id='r5_2', var=var30,
-        command=lambda: chk_button_value(var30, e_r30))
+    if e_r29.get() == 'ON':
+        txt_r5_1['disabledforeground'] = 'blue'
+
     txt_r5_2 = init_entry(
         master=left_set_pad_center_right, id='r5_2', text_var=e_r30)
+    r5_2 = init_check_btn(
+        master=left_set_pad_center_right, id='r5_2', var=var30,
+        command=lambda: chk_button_value(var30, e_r30, txt_r5_2))
     r5_2.var.set(btn_entry_dict['r5_2'])
     e_r30.set(status_dict[r5_2.var.get()])
-    r5_3 = init_check_btn(
-        master=left_set_pad_center_right, id='r5_3', var=var31,
-        command=lambda: chk_button_value(var31, e_r31))
+    if e_r30.get() == 'ON':
+        txt_r5_2['disabledforeground'] = 'blue'
+
     txt_r5_3 = init_entry(
         master=left_set_pad_center_right, id='r5_3', text_var=e_r31)
+    r5_3 = init_check_btn(
+        master=left_set_pad_center_right, id='r5_3', var=var31,
+        command=lambda: chk_button_value(var31, e_r31, txt_r5_3))
     r5_3.var.set(btn_entry_dict['r5_3'])
     e_r31.set(status_dict[r5_3.var.get()])
-    r5_4 = init_check_btn(
-        master=left_set_pad_center_right, id='r5_4', var=var32,
-        command=lambda: chk_button_value(var32, e_r32))
+    if e_r31.get() == 'ON':
+        txt_r5_3['disabledforeground'] = 'blue'
+
     txt_r5_4 = init_entry(
         master=left_set_pad_center_right, id='r5_4', text_var=e_r32)
+    r5_4 = init_check_btn(
+        master=left_set_pad_center_right, id='r5_4', var=var32,
+        command=lambda: chk_button_value(var32, e_r32, txt_r5_4))
     r5_4.var.set(btn_entry_dict['r5_4'])
     e_r32.set(status_dict[r5_4.var.get()])
+    if e_r32.get() == 'ON':
+        txt_r5_4['disabledforeground'] = 'blue'
 
     # ============================仿真结果输出面板======================
     lbl_info = Label(
