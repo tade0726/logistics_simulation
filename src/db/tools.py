@@ -218,7 +218,7 @@ def get_reload_setting():
     table_name = "i_reload_setting"
     table = load_from_mysql(table_name)
     table_dict= \
-        table.groupby(['dest_zone_code', 'sorter_type', 'dest_type'])['equipment_port'].apply(set).apply(list).to_dict()
+        table.groupby(['ident_des_zno', 'sorter_type', 'dest_type'])['equipment_port'].apply(set).apply(list).to_dict()
     return table_dict
 
 
