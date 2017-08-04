@@ -85,17 +85,21 @@ class Unload:
                     time_stamp=self.env.now,
                     action="end",))
 
-            # error package store in
-            try:
-                package.set_path(package_start=self.machine_id)
-                self.pipelines_dict[package.next_pipeline].put(package)
-            except Exception as exc:
-                msg = f"error: {exc}, package: {package}, reload_port: {self.equipment_id}"
-                LOG.logger_font.error(msg)
-                LOG.logger_font.exception(exc)
+            # deal with nc parcel
+            if package.attr['parcel_type'] == 'nc':
                 self.pipelines_dict["unload_error_packages"].put(package)
+            else:
+                # error package store in
+                try:
+                    package.set_path(package_start=self.machine_id)
+                    self.pipelines_dict[package.next_pipeline].put(package)
+                except Exception as exc:
+                    msg = f"error: {exc}, package: {package}, reload_port: {self.equipment_id}"
+                    LOG.logger_font.error(msg)
+                    LOG.logger_font.exception(exc)
+                    self.pipelines_dict["unload_error_packages"].put(package)
 
-            self.packages_processed[process_idx].succeed()
+                self.packages_processed[process_idx].succeed()
 
     def run(self):
 
