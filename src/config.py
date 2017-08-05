@@ -77,6 +77,12 @@ class LOG:
     logger_font = get_logger("django")
 
 
+def generator_digit(n):
+    for i in reversed(range(int('9' * n))):
+        yield f"{i:0>{n}}"
+
+
 if __name__ == "__main__":
-    print(SaveConfig.DATA_DIR)
-    print(SaveConfig.OUT_DIR)
+    a = generator_digit(10)
+    print(next(a))
+    print(next(a))
