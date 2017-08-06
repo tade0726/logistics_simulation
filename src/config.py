@@ -78,7 +78,7 @@ class LOG:
 
 
 def generator_digit(n):
-    for i in reversed(range(int('9' * n))):
+    for i in range(int('9' * n)):
         yield f"{i:0>{n}}"
 
 class Small_code:
