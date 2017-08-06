@@ -43,7 +43,7 @@ class SmallReload(object):
         self.resource_dict = resource_dict
         self.equipment_resource_dict = equipment_resource_dict
 
-        self.store = []
+        self.store = list()
         self.counts = 0
         self.small_bag_count = 0
         self.store_is_full = self.env.event()
