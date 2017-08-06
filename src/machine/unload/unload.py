@@ -144,6 +144,8 @@ class Unload:
                     action="end",
                     store_size=truck.store_size))
 
+            # clear the packages
+            truck.store.clear()
             # truck is out
             self.done_trucks.put(truck)
             # vehicle turnaround time

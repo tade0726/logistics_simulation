@@ -81,6 +81,9 @@ def generator_digit(n):
     for i in reversed(range(int('9' * n))):
         yield f"{i:0>{n}}"
 
+class Small_code:
+    code_generator = generator_digit(10)
+
 
 if __name__ == "__main__":
     a = generator_digit(10)
