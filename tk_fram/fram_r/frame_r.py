@@ -1,9 +1,10 @@
 # -*- coding: utf-8 -*-
 
-from tk_fram.fram_r import App, CheckBtnCreate, EntryCreate
-from tk_fram.fram_r import messagebox
-from simpy_lib import main
-from tk_fram.fram_r.frame_r_view import *
+from tkinter import messagebox, Tk, Label, Entry, Button, Spinbox, Text
+from tkinter import IntVar, StringVar, NORMAL, END
+from .frame import App, CheckBtnCreate, EntryCreate
+# from simpy_lib import main
+from .frame_r_view import *
 import logging as lg
 
 import pymysql
