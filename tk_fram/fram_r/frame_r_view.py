@@ -28,10 +28,10 @@ FRAME_HEIGHT_RIGHT_INFO = 510  # 输出信息版高度
 FRAME_HEIGHT_RIGHT_BUTTON = 50  # 右侧底部界面button的总高度
 
 DATABASES = {
-    'HOST': 'localhost',
+    'HOST': '10.0.149.62',
     'USER': 'root',
-    'PASSWORD': 'gsvc123456',
-    'NAME': 'hangzhouhub',
+    'PASSWORD': 'root123',
+    'NAME': 'test3',
     'CHARSET': 'utf8'
 }
 
