@@ -3,9 +3,9 @@
 from tkinter import messagebox, Tk, Label, Entry, Button, Spinbox, Text
 from tkinter import IntVar, StringVar, NORMAL, END
 from .frame import App, CheckBtnCreate, EntryCreate
-# from simpy_lib import main
+from simpy_lib import main
 from .frame_r_view import *
-import logging as lg
+# import logging as lg
 
 import pymysql
 import time
