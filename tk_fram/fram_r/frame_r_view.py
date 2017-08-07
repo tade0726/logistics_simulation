@@ -31,7 +31,7 @@ DATABASES = {
     'HOST': '10.0.149.62',
     'USER': 'root',
     'PASSWORD': 'root123',
-    'NAME': 'test3',
+    'NAME': 'hangzhouhubland',
     'CHARSET': 'utf8'
 }
 
