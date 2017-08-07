@@ -133,4 +133,4 @@ out/*
 notebooks/*
 
 # 忽略bat文件
-*.bat
+# *.bat
