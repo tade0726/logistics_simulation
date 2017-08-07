@@ -202,6 +202,10 @@ def init_r_frame(root: Tk):
             messagebox.askyesno("Tkinter-数据更新错误",
                                 "运行错误， 请输入初分拣区卸货口人数！")
             return
+        if not UPDATED:
+            messagebox.askyesno("Tkinter-仿真启动错误",
+                                "运行错误， 请先执行数据更新！")
+            return
 
         conn = pymysql.connect(host=DATABASES['HOST'],
                                user=DATABASES['USER'],
@@ -329,6 +333,7 @@ def init_r_frame(root: Tk):
         cur.close()
         conn.close()
 
+        UPDATED = True
 
     def chk_button_value(var, e_r, txt_r):
         """"""

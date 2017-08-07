@@ -27,6 +27,8 @@ FRAME_HEIGHT_RIGHT_INFO_TITLE = 40  # 输出信息板标题高度
 FRAME_HEIGHT_RIGHT_INFO = 510  # 输出信息版高度
 FRAME_HEIGHT_RIGHT_BUTTON = 50  # 右侧底部界面button的总高度
 
+UPDATED = False
+
 DATABASES = {
     'HOST': '10.0.149.62',
     'USER': 'root',
