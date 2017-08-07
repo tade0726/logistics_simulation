@@ -275,10 +275,16 @@ def get_pipelines():
     # m: presort
     # i1 - i8: secondary_sort
     # i17 - i24: secondary_sort
-    # i9 - i16: small_sort
+    # u1 - u8: small_primary
+    # i9 - i16: small_secondary
+    # c5 - c12: small_reload
     # j: security
     # h: hospital
     # e, x: cross
+
+    ind_small_primary = tab_queue_io.equipment_port_next.str.startswith('u')
+    ind_small_secondary = tab_queue_io.equipment_port_next.isin([f'i{n}' for n in range(9, 17)])
+    ind_small_reload = tab_queue_io.equipment_port_next.isin([f'c{n}' for n in range(5, 13)])
 
     secon_sort_mark1 = [f'i{n}' for n in range(1, 9)]
     secon_sort_mark2 = [f'i{n}' for n in range(17, 25)]
@@ -286,7 +292,6 @@ def get_pipelines():
 
     ind_presort = tab_queue_io.equipment_port_next.str.startswith('m')
     ind_secondary_sort = tab_queue_io.equipment_port_next.apply(lambda x: x.split('_')[0]).isin(secon_sort_mark)
-    ind_small_sort = tab_queue_io.equipment_port_next.str.startswith('u')
     ind_security = tab_queue_io.equipment_port_next.str.startswith('j')
     ind_hospital = tab_queue_io.equipment_port_next.str.startswith('h')
     ind_cross = \
@@ -300,7 +305,11 @@ def get_pipelines():
 
     tab_queue_io.loc[ind_presort, "machine_type"] = "presort"
     tab_queue_io.loc[ind_secondary_sort, "machine_type"] = "secondary_sort"
-    tab_queue_io.loc[ind_small_sort, "machine_type"] = "small_sort"
+
+    tab_queue_io.loc[ind_small_primary, "machine_type"] = "small_primary"
+    tab_queue_io.loc[ind_small_secondary, "machine_type"] = "small_secondary"
+    tab_queue_io.loc[ind_small_reload, "machine_type"] = "small_reload"
+
     tab_queue_io.loc[ind_security, "machine_type"] = "security"
     tab_queue_io.loc[ind_cross, "machine_type"] = "cross"
     tab_queue_io.loc[ind_hospital, "machine_type"] = "hospital"
