@@ -34,12 +34,12 @@ class SmallReload(object):
     def __init__(self,
                  env,
                  machine_id,
-                 pipeline_dict=None,
+                 pipelines_dict=None,
                  resource_dict=None,
                  equipment_resource_dict=None):
         self.env = env
         self.machine_id = machine_id
-        self.pipeline_dict = pipeline_dict
+        self.pipelines_dict = pipelines_dict
         self.resource_dict = resource_dict
         self.equipment_resource_dict = equipment_resource_dict
 
@@ -55,7 +55,7 @@ class SmallReload(object):
         self.resource_id = self.equipment_resource_dict[self.equipment_id]
         self.resource = self.resource_dict[self.resource_id]['resource']
         self.process_time = self.resource_dict[self.resource_id]['process_time']
-        self.last_pipeline = self.pipeline_dict[self.machine_id]
+        self.last_pipeline = self.pipelines_dict[self.machine_id]
         self.store_max = BAG_NUM
         self.wait_time = WAIT_TIME
 
@@ -93,7 +93,7 @@ class SmallReload(object):
                 time_stamp=self.env.now,
                 action="end", ))
 
-        self.pipeline_dict[small_bag.next_pipeline].put(small_bag)
+        self.pipelines_dict[small_bag.next_pipeline].put(small_bag)
 
     def _timer(self):
         wait_time_stamp = self.env.now

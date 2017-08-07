@@ -17,8 +17,8 @@ from collections import defaultdict
 from src.db import *
 from src.controllers import TruckController
 from src.utils import PipelineRecord, TruckRecord, PackageRecord
-from src.vehicles import Pipeline, PipelineRes, BasePipeline
-from src.machine import Unload, Presort, Cross, Hospital, SecondarySort
+from src.vehicles import Pipeline, PipelineRes, BasePipeline, SmallBag
+from src.machine import *
 from src.config import MainConfig, TimeConfig, LOG
 
 
@@ -182,6 +182,48 @@ def main():
                 equipment_resource_dict=equipment_resource_dict,)
         )
 
+    # init security machines
+    for machine_id in machine_init_dict["security"]:
+        machines_dict["security"].append(
+            Security(
+                env,
+                machine_id=machine_id,
+                pipelines_dict=pipelines_dict,
+                resource_dict=resource_dict,
+                equipment_resource_dict=equipment_resource_dict,)
+        )
+
+    # init small_primary machines
+    for machine_id in machine_init_dict["small_primary"]:
+        machines_dict["small_primary"].append(
+            SmallPrimary(
+                env,
+                machine_id=machine_id,
+                pipelines_dict=pipelines_dict,
+                resource_dict=resource_dict,
+                equipment_resource_dict=equipment_resource_dict,)
+        )
+
+    # init small_secondary machines
+    for machine_id in machine_init_dict["small_secondary"]:
+        machines_dict["small_secondary"].append(
+            SecondarySort(
+                env,
+                machine_id=machine_id,
+                pipelines_dict=pipelines_dict,)
+        )
+
+    # init small_reload machines
+    for machine_id in machine_init_dict["small_reload"]:
+        machines_dict["small_reload"].append(
+            SmallReload(
+                env,
+                machine_id=machine_id,
+                pipelines_dict=pipelines_dict,
+                resource_dict=resource_dict,
+                equipment_resource_dict=equipment_resource_dict, )
+        )
+
     # adding machines into processes
     for machine_type, machines in machines_dict.items():
         LOG.logger_font.info(f"init {machine_type} machines")
@@ -193,23 +235,41 @@ def main():
     LOG.logger_font.info("sim end..")
     LOG.logger_font.info("collecting data")
 
-    # checking data
-    truck_data = []
-    pipeline_data = []
-    machine_data = []
+    # collecting data
+    truck_data = list()
+    pipeline_data = list()
+    machine_data = list()
 
+    small_package_machine_data = list()
+    small_package_pipeline_data = list()
+
+    small_bag_list = list()
+
+    # truck record
     for machine in machines_dict["unload"]:
         for truck in machine.done_trucks.items:
             truck_data.extend(truck.truck_data)
 
+    # machine and pipeline records
     for pipeline in pipelines_dict.values():
         for package in pipeline.queue.items:
             pipeline_data.extend(package.pipeline_data)
             machine_data.extend(package.machine_data)
+            if isinstance(package, SmallBag):
+                small_bag_list.append(package)
+
+    # small package records
+    for small_bag in small_bag_list:
+        for small_package in small_bag.store:
+            small_package_machine_data.extend(small_package.machine_data)
+            small_package_pipeline_data.extend(small_package.pipeline_data)
 
     truck_table = pd.DataFrame.from_records(truck_data, columns=TruckRecord._fields,)
     pipeline_table = pd.DataFrame.from_records(pipeline_data, columns=PipelineRecord._fields,)
     machine_table = pd.DataFrame.from_records(machine_data, columns=PackageRecord._fields,)
+
+    small_package_pipeline_table = pd.DataFrame.from_records(small_package_machine_data, columns=PipelineRecord._fields, )
+    small_package_machine_table = pd.DataFrame.from_records(small_package_pipeline_data, columns=PackageRecord._fields, )
 
     if not os.path.isdir(SaveConfig.OUT_DIR):
         os.makedirs(SaveConfig.OUT_DIR)
