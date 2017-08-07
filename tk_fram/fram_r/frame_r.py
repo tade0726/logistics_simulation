@@ -318,14 +318,14 @@ def init_r_frame(root: Tk):
         root.update_idletasks()
         time.sleep(0.5)
         # ======================== 插入测试数据=============
-        txtReceipt.insert(END, '插入包裹仿真数据......\n')
+        txtReceipt.insert(END, '插入%s件包裹仿真数据......\n' % package_num.get())
         insert_package(cur, package_num.get())
         conn.commit()
         txtReceipt.insert(END, '插入包裹仿真数据成功！\n')
         root.update_idletasks()
         time.sleep(0.5)
         # ========================更改人员数量==============
-        txtReceipt.insert(END, '设置人力资源数量......\n')
+        txtReceipt.insert(END, '设置人力资源数量为%s......\n' % person_res.get())
         update_person(cur, person_res.get())
         conn.commit()
         txtReceipt.insert(END, '人力资源设置完毕！\n')
