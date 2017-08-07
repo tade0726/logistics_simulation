@@ -21,9 +21,9 @@
 """
 
 
-from src.vehicles.items import SmallBag, PackageRecord, SmallPackage
 import time
-
+from src.vehicles.items import SmallBag, PackageRecord, SmallPackage
+from src.config import Small_code
 
 BAG_NUM = 15
 WAIT_TIME = 7200
@@ -63,7 +63,7 @@ class SmallReload(object):
 
         # init small_bag
         small_bag = SmallBag(self.env, self.store[0].attr, self.store[:])
-        small_bag.item_id = "98" + str(int(time.time() * 1000))[-10:]  # todo: need to confirm unique
+        small_bag.item_id = "98" + next(Small_code.code_generator)  # "98" + "0000000000" ~ "98" + "9999999999"
         small_bag.set_path(self.equipment_id)
 
         self.small_bag_count += 1
