@@ -3,7 +3,7 @@
 from tkinter import messagebox, Tk, Label, Entry, Button, Spinbox, Text
 from tkinter import IntVar, StringVar, NORMAL, END
 from .frame import App, CheckBtnCreate, EntryCreate
-# from simpy_lib import main
+from simpy_lib import main
 from .frame_r_view import *
 import logging as lg
 
@@ -202,7 +202,7 @@ def init_r_frame(root: Tk):
             messagebox.askyesno("Tkinter-数据更新错误",
                                 "运行错误， 请输入初分拣区卸货口人数！")
             return
-        if not UPDATED:
+        if not IS_UPDATED['state']:
             messagebox.askyesno("Tkinter-仿真启动错误",
                                 "运行错误， 请先执行数据更新！")
             return
@@ -333,7 +333,7 @@ def init_r_frame(root: Tk):
         cur.close()
         conn.close()
 
-        UPDATED = True
+        IS_UPDATED['state'] = True
 
     def chk_button_value(var, e_r, txt_r):
         """"""
