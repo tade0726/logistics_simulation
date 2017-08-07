@@ -3,7 +3,7 @@
 from .unload import Unload
 from .presort import Presort
 from .secondary_sort import SecondarySort
-from .small_sort import SmallSort
+from .small_sort import SmallPrimary, SmallSecondary, SmallReload
 from .security import Security
 from .reload import Reload
 from .hospital import Hospital
