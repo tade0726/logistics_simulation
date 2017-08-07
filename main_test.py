@@ -277,7 +277,7 @@ def main():
     # process data
     LOG.logger_font.info(msg="processing data")
     # time stamp for db
-    db_insert_time = datetime.now()
+    db_insert_time = t_start
 
     def add_time(table: pd.DataFrame):
         """添加仿真的时间戳， 以及运行的日期"""
@@ -289,6 +289,9 @@ def main():
     pipeline_table = add_time(pipeline_table)
     machine_table = add_time(machine_table)
 
+    small_package_pipeline_table = add_time(small_package_pipeline_table)
+    small_package_machine_table = add_time(small_package_machine_table)
+
     # output data
     LOG.logger_font.info("output data")
 
@@ -296,10 +299,14 @@ def main():
         write_local('machine_table', machine_table)
         write_local('pipeline_table', pipeline_table)
         write_local('truck_table', truck_table)
+        write_local('small_package_pipeline_table', small_package_pipeline_table)
+        write_local('small_package_machine_table', small_package_machine_table)
     else:
         write_mysql("pipeline_table", pipeline_table)
         write_mysql("truck_table", truck_table)
         write_mysql("machine_table", machine_table)
+        write_mysql('small_package_pipeline_table', small_package_pipeline_table)
+        write_mysql('small_package_machine_table', small_package_machine_table)
 
     t_end = datetime.now()
     total_time = t_end - t_start
