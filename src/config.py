@@ -60,7 +60,7 @@ def get_logger(logger_name: str):
     logger.setLevel(level=logging.INFO)
     # add handlers
     ch = logging.StreamHandler()
-    fh = logging.FileHandler(filename=join(SaveConfig.PROJECT_DIR, f"{logger_name}.log"), mode='a')
+    fh = logging.FileHandler(filename=join(SaveConfig.PROJECT_DIR, f"{logger_name}.log"), mode='w')
     # add format
     formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
     # set format
