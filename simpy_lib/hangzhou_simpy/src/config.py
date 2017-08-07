@@ -26,7 +26,7 @@ class RemoteMySQLConfig:
     HOST = "10.0.149.62"
     USER = "root"
     PASS = "root123"
-    DB = "test3"
+    DB = "hangzhouhubland"
     CHARSET = 'utf8'
 
     engine = create_engine(

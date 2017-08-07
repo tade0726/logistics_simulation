@@ -361,7 +361,7 @@ def init_r_frame(root: Tk):
                        "select parcel_id, src_dist_code, src_type, "
                        "dest_dist_code, dest_zone_code, dest_type, plate_num, "
                        "parcel_type, limit_type_code, arrive_time, send_time, "
-                       "inserted_on, modified_on from i_od_parcel_landside_all "
+                       "inserted_on, modified_on from i_od_parcel_landside_day "
                        "limit %s" % num)
 
     def update_person(cursor, num: str):
