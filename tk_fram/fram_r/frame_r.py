@@ -224,7 +224,7 @@ def init_r_frame(root: Tk):
         txtReceipt.insert(END, '开始调用仿真函数......\n')
         root.update_idletasks()
         start_time = time.time()
-        main(text_txt_receipt=txtReceipt)
+        main(run_arg=txtReceipt)
         run_time = '%.2f' % (time.time() - start_time)
         txtReceipt.insert(END, '仿真执行完毕\n')
         root.update_idletasks()

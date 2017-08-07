@@ -35,7 +35,7 @@ __all__ = ["main"]
 
 # todo: add parameters
 
-def main(text_txt_receipt):
+def main(run_arg):
 
     # start time
     t_start = datetime.now()
