@@ -9,5 +9,5 @@ from .reload import Reload
 from .hospital import Hospital
 from .cross import Cross
 
-__all__ = ["Unload", "Presort", "SecondarySort", "SmallSort", "Security",
-           "Reload", "Hospital", "Cross"]
+__all__ = ["Unload", "Presort", "SecondarySort", "SmallPrimary", "SmallSecondary", "SmallReload" 
+           "Security", "Reload", "Hospital", "Cross"]
