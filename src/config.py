@@ -49,7 +49,7 @@ class TimeConfig:
 class MainConfig:
     IS_TEST = False
     SAVE_LOCAL = False
-    IS_PARCEL_ONLY = True  # 只有 parcel 件
+    IS_PARCEL_ONLY = False  # 只有 parcel 件
     IS_LAND_ONLY = False  # True 只有 landside, False landside airside
     CACHE_TYPE = 'redis'  # {None, "redis", "pkl"}
 
@@ -80,6 +80,7 @@ class LOG:
 def generator_digit(n):
     for i in range(int('9' * n)):
         yield f"{i:0>{n}}"
+
 
 class Small_code:
     code_generator = generator_digit(10)
