@@ -58,7 +58,7 @@ def main():
     truck_controller.controller()
 
     # equipment setting from unload
-    unload_setting_dict = {key: val for key, val in unload_setting_dict_src.items() if key in equipment_on_list}
+    unload_setting_dict = {key: val for key, val in unload_setting_dict_src.items() if key not in equipment_off_list}
 
     # c_port list
     reload_c_list = list()
