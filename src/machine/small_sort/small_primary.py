@@ -15,7 +15,7 @@
 """
 from src.vehicles.items import SmallBag
 from src.utils import PackageRecord
-
+from src.config import LOG
 
 class SmallPrimary(object):
     """
@@ -60,8 +60,6 @@ class SmallPrimary(object):
             # 获取小件包中的所有小件
             small_packages = small_bag.store
             for small_package in small_packages:
-                # 生成小件的路径
-                small_package.set_path(self.equipment_id)
                 # 获取出口队列id
                 id_output_pip_line = small_package.next_pipeline
                 # 记录机器开始处理货物信息
@@ -80,8 +78,18 @@ class SmallPrimary(object):
                         package_id=small_package.item_id,
                         time_stamp=self.env.now,
                         action="end", ))
-                # 放入下一步的传送带
-                self.pipelines_dict[id_output_pip_line].put(small_package)
+
+                # 生成小件的路径
+                try:
+                    small_package.set_path(self.equipment_id)
+                    # 放入下一步的传送带
+                    self.pipelines_dict[id_output_pip_line].put(small_package)
+                except Exception as exc:
+                    msg = f"error: {exc}, package: {package}, reload_port: {self.equipment_id}"
+                    LOG.logger_font.error(msg)
+                    LOG.logger_font.exception(exc)
+                    # 收集错错误的小件包裹
+                    self.pipelines_dict["small_primary_error"].put(small_package)
 
             # clear small packages
             small_bag.store.clear()
