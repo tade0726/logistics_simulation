@@ -1,8 +1,8 @@
-#
-from tkinter import messagebox
-from .frame import App, CheckBtnCreate, EntryCreate
+# -*- coding: utf-8 -*-
+
+from tkinter import Tk
 from .frame_r import init_r_frame
-from .frame_r_view import *
+from .frame_r_view import FRAME_WIDTH, FRAME_HEIGHT
 
 
 def create_r_frame():

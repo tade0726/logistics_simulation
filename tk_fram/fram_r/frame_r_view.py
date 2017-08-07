@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from tkinter import *
+from tkinter import DISABLED
 
 #  ====================宽度设置参数=================
 FRAME_WIDTH = 1100  # 界面的总计宽度
