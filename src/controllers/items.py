@@ -56,7 +56,7 @@ class TruckController:
 
     def _init_small_bag(self, small_bag_record: pd.Series):
         parcel_id = small_bag_record.get("parcel_id")
-        small_package_records = self.truck_small_dict.get(parcel_id, [])
+        small_package_records = self.truck_small_dict[parcel_id]
         small_packages = [self._init_package(cls=SmallPackage, package_record=record) for record in small_package_records]
         return SmallBag(env=self.env, attr=small_bag_record, small_packages=small_packages)
 
@@ -83,12 +83,12 @@ class TruckController:
         for _, package_record in packages_record.iterrows():
             parcel_type = package_record['parcel_type']
 
-            if parcel_type == 'parcel':
+            if parcel_type in ['parcel', 'nc']:
                 package = self._init_package(cls=Package, package_record=package_record)
             elif parcel_type == 'small':
                 package = self._init_small_bag(small_bag_record=package_record)
             else:
-                raise ValueError("parcel_type is either parcel or small!!")
+                raise ValueError("parcel_type can only be parcel/small/nc!!")
 
             packages.append(package)
 

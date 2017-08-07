@@ -47,8 +47,8 @@ class TimeConfig:
 
 
 class MainConfig:
-    IS_TEST = False
-    SAVE_LOCAL = False
+    IS_TEST = True
+    SAVE_LOCAL = True
     IS_PARCEL_ONLY = False  # 只有 parcel 件
     IS_LAND_ONLY = False  # True 只有 landside, False landside airside
     CACHE_TYPE = 'redis'  # {None, "redis", "pkl"}
@@ -60,7 +60,7 @@ def get_logger(logger_name: str):
     logger.setLevel(level=logging.INFO)
     # add handlers
     ch = logging.StreamHandler()
-    fh = logging.FileHandler(filename=join(SaveConfig.PROJECT_DIR, f"{logger_name}.log"), mode='w')
+    fh = logging.FileHandler(filename=join(SaveConfig.PROJECT_DIR, f"{logger_name}.log"), mode='a')
     # add format
     formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
     # set format

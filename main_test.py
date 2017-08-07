@@ -70,7 +70,9 @@ def main():
     for _, row in resource_table.iterrows():
         resource_id = row['resource_id']
         process_time = row['process_time']
-        resource_limit = row['resource_limit']
+        # fixme: temp change
+        # resource_limit = row['resource_limit']
+        resource_limit = row['resource_number']
         # add info
         if resource_limit:
             resource_dict[resource_id]["resource"] = simpy.Resource(env=env, capacity=resource_limit)
