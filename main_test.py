@@ -121,6 +121,21 @@ def main():
                                                machine_type="small_bin",
                                                is_record=False)
 
+    # for small_primary_error
+    pipelines_dict["small_primary_error"] = BasePipeline(env,
+                                                         pipeline_id="small_primary_error",
+                                                         equipment_id="small_primary_error",
+                                                         machine_type="error",
+                                                         is_record=False)
+
+    # for small_reload_error
+    pipelines_dict["small_reload_error"] = BasePipeline(env,
+                                                        pipeline_id="small_reload_error",
+                                                        equipment_id="small_reload_error",
+                                                        machine_type="error",
+                                                        is_record=False)
+
+
 
     # prepare init machine dict
     machine_init_dict = defaultdict(list)

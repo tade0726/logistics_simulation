@@ -85,7 +85,7 @@ class SmallPrimary(object):
                     # 放入下一步的传送带
                     self.pipelines_dict[id_output_pip_line].put(small_package)
                 except Exception as exc:
-                    msg = f"error: {exc}, package: {package}, reload_port: {self.equipment_id}"
+                    msg = f"error: {exc}, package: {small_package}, equipment_id: {self.equipment_id}"
                     LOG.logger_font.error(msg)
                     LOG.logger_font.exception(exc)
                     # 收集错错误的小件包裹

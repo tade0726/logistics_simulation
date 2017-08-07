@@ -21,9 +21,9 @@
 """
 
 
-import time
 from src.vehicles.items import SmallBag, PackageRecord, SmallPackage
-from src.config import Small_code
+from src.config import Small_code, LOG
+
 
 BAG_NUM = 15
 WAIT_TIME = 7200
@@ -64,7 +64,6 @@ class SmallReload(object):
         # init small_bag
         small_bag = SmallBag(self.env, self.store[0].attr, self.store[:])
         small_bag.item_id = "98" + next(Small_code.code_generator)  # "98" + "0000000000" ~ "98" + "9999999999"
-        small_bag.set_path(self.equipment_id)
 
         self.small_bag_count += 1
         self.store.clear()
@@ -93,7 +92,15 @@ class SmallReload(object):
                 time_stamp=self.env.now,
                 action="end", ))
 
-        self.pipelines_dict[small_bag.next_pipeline].put(small_bag)
+        try:
+            small_bag.set_path(self.equipment_id)
+            self.pipelines_dict[small_bag.next_pipeline].put(small_bag)
+        except Exception as exc:
+            msg = f"error: {exc}, package: {small_bag}, equipment_id: {self.equipment_id}"
+            LOG.logger_font.error(msg)
+            LOG.logger_font.exception(exc)
+            # 收集错错误的小件包裹
+            self.pipelines_dict["small_reload_error"].put(small_bag)
 
     def _timer(self):
         wait_time_stamp = self.env.now

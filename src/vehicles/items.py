@@ -99,7 +99,8 @@ class SmallPackage(Package):
     def __init__(self,
                  env: simpy.Environment,
                  attr: pd.Series,):
-
+        # add for Package class compatible
+        attr.loc['parcel_id'] = None
         super(SmallPackage, self).__init__(env, attr,)
         self.item_id = self.attr["small_id"]
         # env

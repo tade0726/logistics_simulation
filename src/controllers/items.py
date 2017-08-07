@@ -55,9 +55,9 @@ class TruckController:
         return cls(env=self.env, attr=package_record)
 
     def _init_small_bag(self, small_bag_record: pd.Series):
-        parcel_id = small_bag_record.get("parcel_id")
+        parcel_id = small_bag_record["parcel_id"]
         small_package_records = self.truck_small_dict[parcel_id]
-        small_packages = [self._init_package(cls=SmallPackage, package_record=record) for record in small_package_records]
+        small_packages = [self._init_package(cls=SmallPackage, package_record=record) for _, record in small_package_records.iterrows()]
         return SmallBag(env=self.env, attr=small_bag_record, small_packages=small_packages)
 
     def latency(self, come_time, item: Truck):
