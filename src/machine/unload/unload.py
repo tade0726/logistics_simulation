@@ -97,7 +97,7 @@ class Unload:
                     msg = f"error: {exc}, package: {package}, reload_port: {self.equipment_id}"
                     LOG.logger_font.error(msg)
                     LOG.logger_font.exception(exc)
-                    self.pipelines_dict["unload_error_packages"].put(package)
+                    self.pipelines_dict["unload_error"].put(package)
 
                 self.packages_processed[process_idx].succeed()
 
