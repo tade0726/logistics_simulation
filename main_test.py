@@ -135,8 +135,6 @@ def main():
                                                         machine_type="error",
                                                         is_record=False)
 
-
-
     # prepare init machine dict
     machine_init_dict = defaultdict(list)
     for pipeline_id, pipeline in pipelines_dict.items():
@@ -237,8 +235,7 @@ def main():
                 env,
                 machine_id=machine_id,
                 pipelines_dict=pipelines_dict,
-                resource_dict=resource_dict,
-                equipment_resource_dict=equipment_resource_dict, )
+                equipment_process_time_dict=equipment_process_time_dict, )
         )
 
     # adding machines into processes
@@ -271,12 +268,14 @@ def main():
     # machine and pipeline records
     for pipeline in pipelines_dict.values():
         for package in pipeline.queue.items:
-            pipeline_data.extend(package.pipeline_data)
-            machine_data.extend(package.machine_data)
+            if not isinstance(package, SmallPackage):
+                pipeline_data.extend(package.pipeline_data)
+                machine_data.extend(package.machine_data)
+            else:
+                small_package_list.append(package)
+
             if isinstance(package, SmallBag):
                 small_bag_list.append(package)
-            if isinstance(package, SmallPackage):
-                small_package_list.append(package)
 
     # small package records
     for small_package in small_package_list:
@@ -326,9 +325,9 @@ def main():
         write_local('small_package_pipeline_table', small_package_pipeline_table)
         write_local('small_package_machine_table', small_package_machine_table)
     else:
+        write_mysql("machine_table", machine_table)
         write_mysql("pipeline_table", pipeline_table)
         write_mysql("truck_table", truck_table)
-        write_mysql("machine_table", machine_table)
         write_mysql('small_package_pipeline_table', small_package_pipeline_table)
         write_mysql('small_package_machine_table', small_package_machine_table)
 

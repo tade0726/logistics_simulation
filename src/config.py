@@ -17,9 +17,9 @@ import logging
 
 
 class MainConfig:
-    IS_TEST = True
+    IS_TEST = False
     SAVE_LOCAL = True
-    IS_PARCEL_ONLY = False  # 只有 parcel 件
+    IS_PARCEL_ONLY = True  # 只有 parcel 件
     IS_LAND_ONLY = False  # True 只有 landside, False landside airside
     CACHE_TYPE = 'redis'  # {None, "redis", "pkl"}
     LOCAL_DB = True  # control the which DB using
