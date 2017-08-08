@@ -34,14 +34,12 @@ class SmallReload(object):
     def __init__(self,
                  env,
                  machine_id,
-                 pipelines_dict=None,
-                 resource_dict=None,
-                 equipment_resource_dict=None):
+                 pipelines_dict:dict,
+                 equipment_process_time_dict:dict):
         self.env = env
         self.machine_id = machine_id
         self.pipelines_dict = pipelines_dict
-        self.resource_dict = resource_dict
-        self.equipment_resource_dict = equipment_resource_dict
+        self.equipment_process_time_dict = equipment_process_time_dict
 
         self.store = list()
         self.counts = 0
@@ -52,9 +50,7 @@ class SmallReload(object):
 
     def _set_machine_resource(self):
         self.equipment_id = self.machine_id[1]
-        self.resource_id = self.equipment_resource_dict[self.equipment_id]
-        self.resource = self.resource_dict[self.resource_id]['resource']
-        self.process_time = self.resource_dict[self.resource_id]['process_time']
+        self.process_time = self.equipment_process_time_dict[self.equipment_id]
         self.last_pipeline = self.pipelines_dict[self.machine_id]
         self.store_max = BAG_NUM
         self.wait_time = WAIT_TIME
