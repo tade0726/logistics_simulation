@@ -69,11 +69,11 @@ def save_to_past_run(cursor):
     cursor.execute(
         "insert into i_od_parcel_landside_past_run "
         "(run_time, parcel_id, src_dist_code, src_type, dest_dist_code, "
-        "dest_zone_code, dest_type, uld_num, plate_num, parcel_type, "
+        "dest_zone_code, dest_type, plate_num, parcel_type, "
         "limit_type_code, arrive_time, send_time, inserted_on, modified_on) "
         "select "
         "inserted_on, parcel_id, src_dist_code, src_type, dest_dist_code, "
-        "dest_zone_code, dest_type, uld_num, plate_num, parcel_type, "
+        "dest_zone_code, dest_type, plate_num, parcel_type, "
         "limit_type_code, arrive_time, send_time, inserted_on, modified_on "
         "from i_od_parcel_landside"
     )

@@ -6,9 +6,11 @@ from .frame import App, CheckBtnCreate, EntryCreate
 from simpy_lib import main
 from .frame_r_view import *
 # import logging as lg
+from .db_api import *
 
 import pymysql
 import time
+from datetime import datetime
 
 
 def init_app(master, wig):
@@ -190,23 +192,58 @@ def init_r_frame(root: Tk):
     e_r32 = StringVar()
     #  ==================================================
 
-    def analysis():
-        pass
-
-    def cost_of_item():
-        """"""
+    def save_data():
         if not package_num.get():
-            messagebox.askyesno("Tkinter-数据更新错误", "运行错误， 请输入仿真件量！")
+            messagebox.askyesno("Tkinter-数据更新错误", "运行错误，请输入仿真件量！")
             return
         if not person_res.get():
             messagebox.askyesno("Tkinter-数据更新错误",
-                                "运行错误， 请输入初分拣区卸货口人数！")
+                                "运行错误，请输入初分拣区卸货口人数！")
             return
-        if not IS_UPDATED['state']:
-            messagebox.askyesno("Tkinter-仿真启动错误",
-                                "运行错误， 请先执行数据更新！")
+        if Flag['save_data'] > 0:
+            messagebox.askyesno("Tkinter-数据保存错误",
+                                "数据已经保存，请勿重复操作！")
             return
+        if Flag['cost_of_item'] == 0:
+            messagebox.askyesno("Tkinter-数据保存错误",
+                                "运行错误，请先执行仿真！")
+            return
+        txtReceipt['state'] = NORMAL
+        txtReceipt.insert(END, '*******************************\n')
+        txtReceipt.insert(END, '开始储存数据......\n')
+        root.update_idletasks()
+        conn = pymysql.connect(host=DATABASES['HOST'],
+                               user=DATABASES['USER'],
+                               passwd=DATABASES['PASSWORD'],
+                               db=DATABASES['NAME'])
+        cur = conn.cursor()
+        save_to_past_run(cur)
+        conn.commit()
+        cur.close()
+        conn.close()
+        txtReceipt.insert(END, '数据存储完毕！\n'
+                               '*******************************\n')
+        txtReceipt['state'] = DISABLED
+        Flag['save_data'] += 1
 
+    def run_sim():
+        """"""
+        if not package_num.get():
+            messagebox.askyesno("Tkinter-数据更新错误","运行错误， 请输入仿真件量！")
+            return
+        if not person_res.get():
+            messagebox.askyesno("Tkinter-数据更新错误",
+                                "运行错误，请输入初分拣区卸货口人数！")
+            return
+        if Flag['update_data'] == 0:
+            messagebox.askyesno("Tkinter-仿真启动错误",
+                                "运行错误，请先执行数据更新！")
+            return
+        if Flag['cost_of_item'] > 0:
+            messagebox.askyesno("Tkinter-仿真启动错误",
+                                "仿真已经运行完成，请勿重复操作！")
+            return
+        run_arg = Flag['run_time']
         conn = pymysql.connect(host=DATABASES['HOST'],
                                user=DATABASES['USER'],
                                passwd=DATABASES['PASSWORD'],
@@ -216,15 +253,13 @@ def init_r_frame(root: Tk):
         cur.execute("truncate o_pipeline_table")
         cur.execute("truncate o_truck_table")
         conn.commit()
-        cur.close()
-        conn.close()
 
         txtReceipt['state'] = NORMAL
         txtReceipt.insert(END, '*******************************\n')
         txtReceipt.insert(END, '开始调用仿真函数......\n')
         root.update_idletasks()
         start_time = time.time()
-        main(run_arg=txtReceipt)
+        main(run_arg)
         run_time = '%.2f' % (time.time() - start_time)
         txtReceipt.insert(END, '仿真执行完毕\n')
         root.update_idletasks()
@@ -233,11 +268,6 @@ def init_r_frame(root: Tk):
         root.update_idletasks()
         time.sleep(0.5)
         root.update_idletasks()
-        conn = pymysql.connect(host=DATABASES['HOST'],
-                               user=DATABASES['USER'],
-                               passwd=DATABASES['PASSWORD'],
-                               db=DATABASES['NAME'])
-        cur = conn.cursor()
         result = read_result(cur)
         cur.close()
         conn.close()
@@ -251,19 +281,23 @@ def init_r_frame(root: Tk):
                           + '\n')
         txtReceipt.insert(END, '总处理时间(小时):\t' + '%.2f' %
                           result['total_solve_time'] + '\n')
-        txtReceipt.insert(END, '仿真运行时间(秒):\t' + check_time(run_time))
+        txtReceipt.insert(END, '仿真运行时间(秒):\t' + check_time(run_time) + '\n')
         txtReceipt['state'] = DISABLED
-
+        root.update_idletasks()
+        Flag['cost_of_item'] += 1
+        Flag['save_data'] = 0
 
 
     def update_data():
         """"""
+        Flag['run_time'] = datetime.now()
+        run_arg = Flag['run_time']
         if not package_num.get():
-            messagebox.askyesno("Tkinter-数据更新错误", "运行错误， 请输入仿真件量！")
+            messagebox.askyesno("Tkinter-数据更新错误", "运行错误，请输入仿真件量！")
             return
         if not person_res.get():
             messagebox.askyesno("Tkinter-数据更新错误",
-                                "运行错误， 请输入初分拣区卸货口人数！")
+                                "运行错误，请输入初分拣区卸货口人数！")
             return
 
         on_off_dict = {}
@@ -312,28 +346,29 @@ def init_r_frame(root: Tk):
         root.update_idletasks()
         # ========================更改开关状态==============
         txtReceipt.insert(END, '机器开关状态更新......\n')
-        update_on_off(cur, on_off_dict)
+        update_on_off(cur, on_off_dict, run_arg)
         conn.commit()
         txtReceipt.insert(END, '机器开关状态更新成功！\n')
         root.update_idletasks()
         time.sleep(0.5)
         # ======================== 插入测试数据=============
         txtReceipt.insert(END, '插入%s件包裹仿真数据......\n' % package_num.get())
-        insert_package(cur, package_num.get())
+        insert_package(cur, package_num.get(), run_arg)
         conn.commit()
         txtReceipt.insert(END, '插入包裹仿真数据成功！\n')
         root.update_idletasks()
         time.sleep(0.5)
         # ========================更改人员数量==============
         txtReceipt.insert(END, '设置人力资源数量为%s......\n' % person_res.get())
-        update_person(cur, person_res.get())
+        update_person(cur, person_res.get(), run_arg)
         conn.commit()
         txtReceipt.insert(END, '人力资源设置完毕！\n')
         txtReceipt['state'] = DISABLED
         cur.close()
         conn.close()
 
-        IS_UPDATED['state'] = True
+        Flag['update_data'] += 1
+        Flag['cost_of_item'] = 0
 
     def chk_button_value(var, e_r, txt_r):
         """"""
@@ -349,54 +384,6 @@ def init_r_frame(root: Tk):
         elif isinstance(time, bytes):
             return time.decode()
 
-    def update_on_off(cursor, data: dict):
-        # equipment_port 需要确定
-        for item in data.items():
-            cursor.execute(
-                "update i_equipment_io set equipment_status=%s where "
-                "equipment_port='%s'" % (item[1], item[0])
-            )
-
-    def insert_package(cursor, num: str):
-
-        cursor.execute("truncate i_od_parcel_landside")
-        cursor.execute("insert into i_od_parcel_landside (parcel_id, "
-                       "src_dist_code, src_type, dest_dist_code, dest_zone_code,"
-                       " dest_type, plate_num, parcel_type, limit_type_code, "
-                       "arrive_time, send_time, inserted_on, modified_on) "
-                       "select parcel_id, src_dist_code, src_type, "
-                       "dest_dist_code, dest_zone_code, dest_type, plate_num, "
-                       "parcel_type, limit_type_code, arrive_time, send_time, "
-                       "inserted_on, modified_on from i_od_parcel_landside_day "
-                       "limit %s" % num)
-
-    def update_person(cursor, num: str):
-        # 需要指定 resource_id 范围
-        cursor.execute("update i_resource_limit set resource_limit={} where "
-                       "resource_id like 'man_m%' ".format(num))
-
-    def read_result(cursor):
-        cursor.execute("select run_time from o_machine_table order by run_time "
-                       "desc limit 1")
-        run_time = cursor.fetchone()[0]
-        cursor.execute(
-            "select min(cast(real_time_stamp as datetime)), "
-            "max(cast(real_time_stamp as datetime)) from o_machine_table where "
-            "action='wait' and run_Time='{}' and equipment_id like 'r%'".format(
-                run_time))
-
-        fast_time, later_time = cursor.fetchone()
-        cursor.execute(
-            "select max(cast(real_time_stamp as datetime)), "
-            "(max(time_stamp)-min(time_stamp))/3600 from o_machine_table where "
-            "action='wait' and run_Time='{}'".format(run_time))
-        last_solve_time, total_solve_time = cursor.fetchone()
-        return {
-            'fast_time': fast_time,
-            'later_time': later_time,
-            'last_solve_time': last_solve_time,
-            'total_solve_time': total_solve_time
-        }
 
     def q_exit():
         if_exit = messagebox.askyesno("tkmessage", "要退出了，确定？")
@@ -845,15 +832,15 @@ def init_r_frame(root: Tk):
         font=('Times', font_btn, 'bold'),
         width=width_btn,
         text="启动仿真",
-        command=cost_of_item
+        command=run_sim
     ).grid(row=0, column=1)
     Button(
         master=right_output_pad_button,
         padx=btn_padx, pady=btn_pady, fg="black",
         font=('Times', font_btn, 'bold'),
         width=width_btn,
-        text="仿真分析",
-        command=analysis
+        text="存储数据",
+        command=save_data
     ).grid(row=0, column=2)
     Button(
         master=right_output_pad_button,

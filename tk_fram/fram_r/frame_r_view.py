@@ -28,7 +28,12 @@ FRAME_HEIGHT_RIGHT_INFO = 510  # 输出信息版高度
 FRAME_HEIGHT_RIGHT_BUTTON = 50  # 右侧底部界面button的总高度
 
 # 判断数据更新操作是否已执行
-IS_UPDATED = {'state': False}
+Flag = {
+    'update_data': 0,
+    'cost_of_item': 0,
+    'save_data': 0,
+    'run_time': None
+}
 
 DATABASES = {
     'HOST': '10.0.149.62',
