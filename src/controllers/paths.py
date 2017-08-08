@@ -27,6 +27,8 @@ import random
 import pickle
 import os.path
 import networkx as nx
+from functools import reduce
+
 from src.db.tools import get_reload_setting, SaveConfig, get_equipment_on_off, get_queue_io
 
 
@@ -269,13 +271,13 @@ class PathGenerator(object):
             else:
                 position = 2
 
-        if position == 1:  # 小件包 从卸货位到拆包节点
+        if position == 1:  # 小件包从卸货位到拆包节点
             c_ports = self.reload_setting.get((dest_code, sort_type, dest_type))
             if c_ports:
                 end_node = random.choice(small_dic[random.choice(c_ports)[0:3]]) + str(random.randint(1, 7))
             # 假如找不到小件槽口，随机给予 u 槽口
             else:
-                all_u_port_pre = set(small_dic.values())
+                all_u_port_pre = list(reduce(lambda x,y: set(x) | set(y), small_dic.values()))
                 end_node = random.choice(all_u_port_pre) + str(random.randint(1, 7))
             return random.choice(self.all_paths[(start_node, end_node)]["all"])
         elif position == 2:  # 小件 从拆包节点到装包节点
@@ -297,9 +299,7 @@ class PathGenerator(object):
                     end_node = random.choice(["c2_1", "c4_1"])
                 else:
                     end_node = "c18_1"
-            if start_node[0:3] in self.machine_pre_dict[
-                "land_unload"] and end_node[0:3] in self.machine_pre_dict[
-                "air_secondary"]:
+            if start_node[0:3] in self.machine_pre_dict["land_unload"] and end_node[0:3] in self.machine_pre_dict["air_secondary"]:
                 security_prob = random.random()  # 安检概率
                 if security_prob <= 0.009:
                     path = random.choice(self.all_paths[(start_node, end_node)][
