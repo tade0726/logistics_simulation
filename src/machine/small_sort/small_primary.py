@@ -17,6 +17,7 @@ from src.vehicles.items import SmallBag
 from src.utils import PackageRecord
 from src.config import LOG
 
+
 class SmallPrimary(object):
     """
     小件拆包机的仿真
