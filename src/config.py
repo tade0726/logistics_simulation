@@ -24,11 +24,19 @@ class RedisConfig:
 
 
 class RemoteMySQLConfig:
-    HOST = "10.0.149.36"
-    USER = "developer"
-    PASS = "developer"
-    DB = "hangzhouhubqa"
-    CHARSET = 'utf8'
+    if MainConfig.LOCAL_DB:
+        HOST = "localhost"
+        USER = "root"
+        PASS = "zp913913"
+        DB = "hangzhouhubqa"
+        CHARSET = 'utf8'
+
+    else:
+        HOST = "10.0.149.36"
+        USER = "developer"
+        PASS = "developer"
+        DB = "hangzhouhubqa"
+        CHARSET = 'utf8'
 
     engine = create_engine(
         f'mysql+pymysql://{USER}:{PASS}@{HOST}/{DB}?charset={CHARSET}',
@@ -52,6 +60,7 @@ class MainConfig:
     IS_PARCEL_ONLY = False  # 只有 parcel 件
     IS_LAND_ONLY = False  # True 只有 landside, False landside airside
     CACHE_TYPE = 'redis'  # {None, "redis", "pkl"}
+    LOCAL_DB = True  # control the which DB using
 
 
 def get_logger(logger_name: str):
