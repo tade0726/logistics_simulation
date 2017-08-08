@@ -284,9 +284,12 @@ def get_pipelines():
     # h: hospital
     # e, x: cross
 
+    # match with the small sort..
     ind_small_primary = tab_queue_io.equipment_port_next.str.startswith('u')
-    ind_small_secondary = tab_queue_io.equipment_port_next.isin([f'i{n}' for n in range(9, 17)])
-    ind_small_reload = tab_queue_io.equipment_port_next.isin([f'c{n}' for n in range(5, 13)])
+    ind_small_secondary = \
+        tab_queue_io.equipment_port_next.apply(lambda x: x.split('_')[0]).isin([f'i{n}' for n in range(9, 17)])
+    ind_small_reload = \
+        tab_queue_io.equipment_port_next.apply(lambda x: x.split('_')[0]).isin([f'c{n}' for n in range(5, 13)])
 
     secon_sort_mark1 = [f'i{n}' for n in range(1, 9)]
     secon_sort_mark2 = [f'i{n}' for n in range(17, 25)]
