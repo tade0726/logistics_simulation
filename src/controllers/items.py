@@ -24,9 +24,9 @@ class TruckController:
     def __init__(self,
                  env: simpy.Environment,
                  trucks: simpy.FilterStore,
-                 is_test: bool=False,
-                 is_parcel_only: bool=True,
-                 is_land_only:bool=True):
+                 is_test: bool,
+                 is_parcel_only: bool,
+                 is_land_only:bool):
 
         self.env = env
         self.trucks = trucks
@@ -99,8 +99,7 @@ class TruckController:
         # LL/LA/AA/AA
         truck_type = src_type + package_dest_type
         truck = Truck(env=self.env, item_id=truck_id, come_time=come_time,
-                      packages=packages, truck_type=truck_type,
-                      )
+                      packages=packages, truck_type=truck_type,)
         LOG.logger_font.debug(f"init truck: {truck_id}")
         self.env.process(self.latency(come_time, truck))
 

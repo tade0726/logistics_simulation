@@ -138,7 +138,7 @@ def get_trucks(is_test: bool=False):
 
 
 def get_vehicles(is_land: bool,
-                 is_test: bool = False,
+                 is_test: bool,
                  is_parcel_only: bool = False,):
     """
     返回 uld 或者 truck 数据，字典形式：

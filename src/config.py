@@ -23,6 +23,7 @@ class MainConfig:
     IS_LAND_ONLY = False  # True 只有 landside, False landside airside
     CACHE_TYPE = 'redis'  # {None, "redis", "pkl"}
     LOCAL_DB = True  # control the which DB using
+    ALL_OPEN = True  # no more equipment limit
 
 
 class RedisConfig:

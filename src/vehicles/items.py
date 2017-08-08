@@ -102,8 +102,6 @@ class SmallPackage(Package):
         # add for Package class compatible
         super(SmallPackage, self).__init__(env, attr,)
         self.item_id = self.attr["small_id"]
-        # env
-        self.env = env
 
     def insert_data(self, record: namedtuple):
         new_record = record._replace(package_id=self.item_id)
@@ -149,15 +147,10 @@ class Truck:
         self.item_id = item_id
         self.come_time = come_time
         self.store = packages
-        assert self._all_are_packages(), "Truck store Package only !!"
-        self.store_size = len(self.store)
         self.truck_type = truck_type
         self.env = env
-        self.truck_data = []
-
-    def _all_are_packages(self):
-        packages_bool = [isinstance(package, Package) for package in self.store]
-        return all(packages_bool)
+        self.truck_data = list()
+        self.store_size = len(self.store)
 
     def insert_data(self, record: namedtuple):
 
