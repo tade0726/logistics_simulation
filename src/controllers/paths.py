@@ -270,10 +270,13 @@ class PathGenerator(object):
                 position = 2
 
         if position == 1:  # 小件包 从卸货位到拆包节点
-            end_node = random.choice(small_dic[random.choice(
-                self.reload_setting[
-                    (dest_code, sort_type, dest_type)])[0:3]]) + str(
-                random.randint(1, 7))
+            c_ports = self.reload_setting.get((dest_code, sort_type, dest_type))
+            if c_ports:
+                end_node = random.choice(small_dic[random.choice(c_ports)[0:3]]) + str(random.randint(1, 7))
+            # 假如找不到小件槽口，随机给予 u 槽口
+            else:
+                all_u_port_pre = set(small_dic.values())
+                end_node = random.choice(all_u_port_pre) + str(random.randint(1, 7))
             return random.choice(self.all_paths[(start_node, end_node)]["all"])
         elif position == 2:  # 小件 从拆包节点到装包节点
             end_node = random.choice(
