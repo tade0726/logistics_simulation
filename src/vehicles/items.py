@@ -91,7 +91,7 @@ class Package:
 
     def __str__(self):
         display_dct = dict(self.attr)
-        return f"<package attr:{dict(display_dct)}, path: {self.planned_path}>"
+        return f"<Package attr:{dict(display_dct)}, path: {self.planned_path}>"
 
 
 class SmallPackage(Package):
@@ -109,7 +109,7 @@ class SmallPackage(Package):
 
     def __str__(self):
         display_dct = dict(self.attr)
-        return f"<SmallBag attr:{dict(display_dct)}>"
+        return f"<SmallPackage attr:{dict(display_dct)}>"
 
 
 class SmallBag(Package):
@@ -160,7 +160,7 @@ class Truck:
             raise ValueError("Wrong type of record")
 
     def __str__(self):
-        return f"<truck_id: {self.item_id}, come_time: {self.come_time}, store_size:{self.store_size}>"
+        return f"<Truck truck_id: {self.item_id}, come_time: {self.come_time}, store_size:{self.store_size}>"
 
 
 class Uld(Truck):

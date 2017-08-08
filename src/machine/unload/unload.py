@@ -60,7 +60,7 @@ class Unload:
             self.vehicle_turnaround_time = self.equipment_parameters[self.equipment_name]["vehicle_turnaround_time"]
 
         else:
-            raise RuntimeError('cross machine',
+            raise RuntimeError('unload machine',
                                self.machine_id,
                                'not initial equipment_resource_dict!')
 
@@ -143,9 +143,6 @@ class Unload:
                     time_stamp=self.env.now,
                     action="end",
                     store_size=truck.store_size))
-
-            # clear the packages
-            truck.store.clear()
             # truck is out
             self.done_trucks.put(truck)
             # vehicle turnaround time

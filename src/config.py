@@ -67,7 +67,7 @@ class TimeConfig:
 def get_logger(logger_name: str):
 
     logger = logging.getLogger(logger_name)
-    logger.setLevel(level=logging.DEBUG)
+    logger.setLevel(level=logging.INFO)
     # add handlers
     ch = logging.StreamHandler()
     fh = logging.FileHandler(filename=join(SaveConfig.PROJECT_DIR, f"{logger_name}.log"), mode='w')

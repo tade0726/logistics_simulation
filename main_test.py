@@ -256,6 +256,9 @@ def main():
 
     LOG.logger_font.info("sim start..")
     env.run()
+    num_of_trucks = len(trucks_queue.items)
+    assert num_of_trucks == 0, ValueError("Truck queue should be empty!!")
+    LOG.logger_font.info(f"{num_of_trucks} trucks leave in queue")
     LOG.logger_font.info("sim end..")
     LOG.logger_font.info("collecting data")
 
