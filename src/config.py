@@ -19,7 +19,7 @@ import logging
 class MainConfig:
     IS_TEST = False
     SAVE_LOCAL = True
-    IS_PARCEL_ONLY = True  # 只有 parcel 件
+    IS_PARCEL_ONLY = False  # 只有 parcel 件
     IS_LAND_ONLY = False  # True 只有 landside, False landside airside
     CACHE_TYPE = 'redis'  # {None, "redis", "pkl"}
     LOCAL_DB = True  # control the which DB using
@@ -66,7 +66,7 @@ class TimeConfig:
 def get_logger(logger_name: str):
 
     logger = logging.getLogger(logger_name)
-    logger.setLevel(level=logging.INFO)
+    logger.setLevel(level=logging.DEBUG)
     # add handlers
     ch = logging.StreamHandler()
     fh = logging.FileHandler(filename=join(SaveConfig.PROJECT_DIR, f"{logger_name}.log"), mode='w')
