@@ -106,6 +106,10 @@ class SmallPackage(Package):
         # env
         self.env = env
 
+    def insert_data(self, record: namedtuple):
+        new_record = record._replace(package_id=self.item_id)
+        return super(SmallPackage, self).insert_data(new_record)
+
     def __str__(self):
         display_dct = dict(self.attr)
         return f"<SmallBag attr:{dict(display_dct)}>"
@@ -127,7 +131,7 @@ class SmallBag(Package):
     def insert_data(self, record: namedtuple, to_small: bool=True):
         """给小件包裹添加记录"""
         if to_small:
-            map(lambda x: x.instert_data(record), self.store)
+            list(map(lambda x: x.insert_data(record), self.store))
         return super(SmallBag, self).insert_data(record)
 
     def __str__(self):
