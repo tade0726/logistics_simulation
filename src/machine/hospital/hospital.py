@@ -26,6 +26,7 @@
 import simpy
 from src.vehicles.items import Package
 from src.utils import PackageRecord
+from src.config import LOG
 
 
 class Hospital(object):
@@ -71,7 +72,6 @@ class Hospital(object):
         with self.resource.request() as req:
             yield req
             # 获取出口队列id
-            id_output_pip_line = package.next_pipeline
             package.insert_data(
                 PackageRecord(
                     equipment_id=self.equipment_id,
@@ -87,8 +87,13 @@ class Hospital(object):
                     time_stamp=self.env.now,
                     action="end", ))
             # 放入下一步的传送带
-            self.pipelines_dict[id_output_pip_line].put(package)
-
+            try:
+                self.pipelines_dict[package.next_pipeline].put(package)
+            except Exception as exc:
+                self.pipelines_dict['error'].put(package)
+                msg = f"error: {exc}, package: {package}, equipment_id: {self.equipment_id}"
+                LOG.logger_font.error(msg)
+                LOG.logger_font.exception(exc)
     def run(self):
         while True:
             package = yield self.input_pip_line.get()

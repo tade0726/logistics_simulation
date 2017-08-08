@@ -23,9 +23,7 @@
 
 
 import simpy
-from src.vehicles import Package
-from src.utils import PackageRecord
-
+from src.config import LOG
 
 class SecondarySort(object):
 
@@ -49,6 +47,10 @@ class SecondarySort(object):
     def run(self):
         while True:
             package = yield self.input_pip_line.get()
-            next_pipeline = package.next_pipeline
-            self.pipelines_dict[next_pipeline].put(package)
-
+            try:
+                self.pipelines_dict[package.next_pipeline].put(package)
+            except Exception as exc:
+                self.pipelines_dict['error'].put(package)
+                msg = f"error: {exc}, package: {package}, equipment_id: {self.equipment_id}"
+                LOG.logger_font.error(msg)
+                LOG.logger_font.exception(exc)

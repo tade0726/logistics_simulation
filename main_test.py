@@ -117,6 +117,13 @@ def main():
                                                   equipment_id="unload_error",
                                                   machine_type="error")
 
+    # for unload error
+    pipelines_dict["error"] = BasePipeline(env,
+                                           pipeline_id="error",
+                                           equipment_id="error",
+                                           machine_type="error")
+
+
     # for small sort bin
     pipelines_dict["small_bin"] = BasePipeline(env,
                                                pipeline_id="small_bin",
