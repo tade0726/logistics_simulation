@@ -17,7 +17,7 @@ from collections import defaultdict
 from src.db import *
 from src.controllers import TruckController
 from src.utils import PipelineRecord, TruckRecord, PackageRecord
-from src.vehicles import Pipeline, PipelineRes, BasePipeline, SmallBag
+from src.vehicles import Pipeline, PipelineRes, BasePipeline, SmallBag, SmallPackage
 from src.machine import *
 from src.config import MainConfig, TimeConfig, LOG
 
@@ -261,6 +261,7 @@ def main():
     small_package_pipeline_data = list()
 
     small_bag_list = list()
+    small_package_list = list()
 
     # truck record
     for machine in machines_dict["unload"]:
@@ -274,8 +275,14 @@ def main():
             machine_data.extend(package.machine_data)
             if isinstance(package, SmallBag):
                 small_bag_list.append(package)
+            if isinstance(package, SmallPackage):
+                small_package_list.append(package)
 
     # small package records
+    for small_package in small_package_list:
+        small_package_machine_data.extend(small_package.machine_data)
+        small_package_pipeline_data.extend(small_package.pipeline_data)
+
     for small_bag in small_bag_list:
         for small_package in small_bag.store:
             small_package_machine_data.extend(small_package.machine_data)
@@ -285,8 +292,8 @@ def main():
     pipeline_table = pd.DataFrame.from_records(pipeline_data, columns=PipelineRecord._fields,)
     machine_table = pd.DataFrame.from_records(machine_data, columns=PackageRecord._fields,)
 
-    small_package_pipeline_table = pd.DataFrame.from_records(small_package_machine_data, columns=PipelineRecord._fields, )
-    small_package_machine_table = pd.DataFrame.from_records(small_package_pipeline_data, columns=PackageRecord._fields, )
+    small_package_pipeline_table = pd.DataFrame.from_records(small_package_pipeline_data, columns=PipelineRecord._fields, )
+    small_package_machine_table = pd.DataFrame.from_records(small_package_machine_data, columns=PackageRecord._fields, )
 
     if not os.path.isdir(SaveConfig.OUT_DIR):
         os.makedirs(SaveConfig.OUT_DIR)
