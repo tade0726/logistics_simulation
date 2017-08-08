@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-
 """
 Author: Ted
 Date: 2017-07-13
@@ -9,11 +8,21 @@ Des:
 
 """
 
+
 from sqlalchemy import create_engine
 from os.path import realpath, join, split
 from datetime import datetime
 import redis
 import logging
+
+
+class MainConfig:
+    IS_TEST = True
+    SAVE_LOCAL = True
+    IS_PARCEL_ONLY = False  # 只有 parcel 件
+    IS_LAND_ONLY = False  # True 只有 landside, False landside airside
+    CACHE_TYPE = 'redis'  # {None, "redis", "pkl"}
+    LOCAL_DB = True  # control the which DB using
 
 
 class RedisConfig:
@@ -52,15 +61,6 @@ class SaveConfig:
 
 class TimeConfig:
     ZERO_TIMESTAMP = datetime(2017, 7, 25, 21)
-
-
-class MainConfig:
-    IS_TEST = True
-    SAVE_LOCAL = True
-    IS_PARCEL_ONLY = False  # 只有 parcel 件
-    IS_LAND_ONLY = False  # True 只有 landside, False landside airside
-    CACHE_TYPE = 'redis'  # {None, "redis", "pkl"}
-    LOCAL_DB = True  # control the which DB using
 
 
 def get_logger(logger_name: str):
