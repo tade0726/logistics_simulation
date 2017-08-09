@@ -13,6 +13,8 @@
                                     代码整体功能描述：小件分拣机的拆包模块；
 ==================================================================================================================================================
 """
+import copy
+
 from src.vehicles.items import SmallBag
 from src.utils import PackageRecord
 from src.config import LOG
@@ -60,7 +62,8 @@ class SmallPrimary(object):
         with self.resource.request() as req:
             yield req
             # 获取小件包中的所有小件
-            for small_package in small_bag.store:
+            small_bag_store = copy.deepcopy(small_bag.store)
+            for small_package in small_bag_store:
                 # 记录机器开始处理货物信息
                 small_package.insert_data(
                     PackageRecord(
