@@ -45,6 +45,7 @@ class SmallReload(object):
         self.counts = 0
         self.small_bag_count = 0
         self.store_is_full = self.env.event()
+        self.small_bag_gone = self.env.event()
 
         self._set_machine_resource()
 
@@ -105,6 +106,7 @@ class SmallReload(object):
 
         self.small_bag_count += 1
         self.store_is_full = self.env.event()
+        self.small_bag_gone.succeed()
 
     def _timer(self):
         wait_time_stamp = self.env.now
@@ -112,6 +114,10 @@ class SmallReload(object):
         self.env.process(self.pack_send(wait_time_stamp))
 
     def put_package(self, small: SmallPackage):
+
+        if len(self.store) == 0:
+            yield self.small_bag_gone
+            self.small_bag_gone = self.env.event()
 
         small.insert_data(
             PackageRecord(
