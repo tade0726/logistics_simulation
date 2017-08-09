@@ -82,7 +82,7 @@ class SmallReload(object):
                 equipment_id=self.equipment_id,
                 package_id=small_bag.item_id,
                 time_stamp=self.env.now,
-                action="start", to_small=False))
+                action="start",), to_small=False)
 
         yield self.env.timeout(self.process_time)
 
