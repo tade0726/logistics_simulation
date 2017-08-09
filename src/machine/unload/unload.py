@@ -8,7 +8,10 @@ des:
 
 unload modules
 """
+
+import copy
 import simpy
+
 from collections import defaultdict
 from src.vehicles import Package
 from src.utils import TruckRecord, PackageRecord
@@ -118,7 +121,10 @@ class Unload:
             # init packages_processed empty
             self.packages_processed = dict()
 
-            for process_idx, package in enumerate(truck.store):
+            # make a deep copy
+            truck_store = copy.deepcopy(truck.store)
+
+            for process_idx, package in enumerate(truck_store):
 
                 # add package wait data
                 package.insert_data(
@@ -143,6 +149,8 @@ class Unload:
                     time_stamp=self.env.now,
                     action="end",
                     store_size=truck.store_size))
+            # clear package store
+            truck.store.clear()
             # truck is out
             self.done_trucks_q.put(truck)
             # vehicle turnaround time
