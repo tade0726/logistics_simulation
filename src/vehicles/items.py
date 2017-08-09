@@ -94,8 +94,7 @@ class Package:
 class SmallPackage(Package):
     """小件包裹"""
     def __init__(self,
-                 attr: pd.Series,
-                 path_g: PathGenerator):
+                 attr: pd.Series,):
         # add for Package class compatible
         super(SmallPackage, self).__init__(attr, path_g)
         self.item_id = self.attr["small_id"]
@@ -113,8 +112,7 @@ class SmallBag(Package):
     """小件包"""
     def __init__(self,
                  attr: pd.Series,
-                 small_packages: list,
-                 path_g: PathGenerator):
+                 small_packages: list,):
 
         super(SmallBag, self).__init__(attr, path_g)
 
