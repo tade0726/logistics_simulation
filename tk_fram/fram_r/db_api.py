@@ -1,9 +1,12 @@
-def update_on_off(cursor, data: dict, run_arg):
+from .frame_r_view import CHECK_BTN_ENTRY_DIC
+
+
+def update_on_off(cursor, run_arg):
     # equipment_port 需要确定
-    for item in data.items():
+    for key, value in CHECK_BTN_ENTRY_DIC.items():
         cursor.execute(
             "update i_equipment_io set equipment_status=%s where "
-            "equipment_port='%s'" % (item[1], item[0])
+            "equipment_port='%s'" % (value.var.get(), key)
         )
     cursor.execute("update i_equipment_io set inserted_on='%s'" % run_arg)
 

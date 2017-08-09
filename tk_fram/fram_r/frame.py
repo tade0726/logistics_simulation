@@ -2,7 +2,11 @@
 
 from tkinter import Frame
 from tkinter import Checkbutton
-from tkinter import Entry
+from tkinter import Entry, IntVar, StringVar
+from .frame_r_view import ConfigCheckBtn, DATABASES, BTN_ENTRY_DICT, \
+    ENTRY_STATUS_DIC
+
+from pymysql import connect
 
 
 class App(Frame):
@@ -76,6 +80,53 @@ class CheckBtnCreate(Checkbutton):
         return return_cls
 
 
+def init_check_btn(master, id, var, command):
+    """"""
+    return CheckBtnCreate(
+        master=master,
+        grid_dic=ConfigCheckBtn.R_CHECK_BTN[id]['grid'],
+        attr_dic=ConfigCheckBtn.R_CHECK_BTN[id]['attr'],
+        id=id,
+        var=var,
+        command=command
+    )
+
+
+def init_btn_entry_val_from_sql():
+    """"""
+    conn = connect(
+        host=DATABASES['HOST'],
+        user=DATABASES['USER'],
+        passwd=DATABASES['PASSWORD'],
+        db=DATABASES['NAME']
+    )
+    cur = conn.cursor()
+    cur.execute("select equipment_port, equipment_status from i_equipment_io "
+                "where equipment_id like 'r%'")
+    result = cur.fetchall()
+    for item in result:
+        BTN_ENTRY_DICT[item[0]] = item[1]
+    cur.close()
+    conn.close()
+    return BTN_ENTRY_DICT
+
+
+def init_entry(master, id, text_var):
+    """
+
+    :param master:
+    :param id:
+    :param var:
+    :return:
+    """
+    return EntryCreate(
+        master=master,
+        attr_dic=ConfigCheckBtn.R_ENTRY[id]['attr'],
+        grid_dic=ConfigCheckBtn.R_ENTRY[id]['grid'],
+        text_var=text_var
+    )
+
+
 class EntryCreate(Entry):
     """"""
     def __init__(
@@ -108,3 +159,42 @@ class EntryCreate(Entry):
             self.grid(self.grid_dic)
         else:
             self.grid()
+
+
+class CheckBtnEntry(object):
+
+    def __init__(self, w_id, master):
+        self.w_id = w_id
+        self.master = master
+        self.var = IntVar()
+        self.string = StringVar()
+        self.entry = self.init_entry()
+        self.check_btn = self.init_check_btn()
+
+    def init_entry(self):
+        return init_entry(
+            master=self.master,
+            id=self.w_id,
+            text_var=self.string
+        )
+
+    def init_check_btn(self):
+        return init_check_btn(
+            master=self.master,
+            id=self.w_id,
+            var=self.var,
+            command=self.chk_button_value
+        )
+
+    def init_on_off_status(self):
+        self.var.set(BTN_ENTRY_DICT[self.w_id])
+        self.string.set(ENTRY_STATUS_DIC[self.var.get()])
+        if self.string.get() == 'ON':
+            self.entry['disabledforeground'] = 'blue'
+
+    def chk_button_value(self):
+        self.string.set(ENTRY_STATUS_DIC[self.var.get()])
+        if self.string.get() == 'ON':
+            self.entry['disabledforeground'] = 'blue'
+        else:
+            self.entry['disabledforeground'] = 'SystemDisabledText'

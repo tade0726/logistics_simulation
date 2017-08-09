@@ -35,6 +35,12 @@ Flag = {
     'run_time': None
 }
 
+ENTRY_STATUS_DIC = {0: 'OFF', 1: 'ON'}
+
+BTN_ENTRY_DICT = {}
+
+CHECK_BTN_ENTRY_DIC = {}
+
 DATABASES = {
     'HOST': '10.0.149.62',
     'USER': 'root',
