@@ -23,7 +23,6 @@ __all__ = ["Package", "Truck", "Uld", "SmallBag", "SmallPackage", "Pipeline", "P
 class Package:
     """包裹"""
     def __init__(self,
-                 env: simpy.Environment,
                  attr: pd.Series,
                  path_g: PathGenerator):
 
@@ -31,8 +30,6 @@ class Package:
         self.attr = attr
         # id
         self.item_id = self.attr["parcel_id"]
-        # env
-        self.env = env
         # data store
         self.machine_data = list()
         self.pipeline_data = list()
@@ -95,11 +92,10 @@ class Package:
 class SmallPackage(Package):
     """小件包裹"""
     def __init__(self,
-                 env: simpy.Environment,
                  attr: pd.Series,
                  path_g: PathGenerator):
         # add for Package class compatible
-        super(SmallPackage, self).__init__(env, attr, path_g)
+        super(SmallPackage, self).__init__(attr, path_g)
         self.item_id = self.attr["small_id"]
 
     def insert_data(self, record: namedtuple):
@@ -113,12 +109,12 @@ class SmallPackage(Package):
 
 class SmallBag(Package):
     """小件包"""
-    def __init__(self, env: simpy.Environment,
+    def __init__(self,
                  attr: pd.Series,
                  small_packages: list,
                  path_g: PathGenerator):
 
-        super(SmallBag, self).__init__(env, attr, path_g)
+        super(SmallBag, self).__init__(attr, path_g)
 
         # 存储小件包裹
         self.store = small_packages.copy()
@@ -138,7 +134,7 @@ class SmallBag(Package):
 
 class Truck:
     """货车"""
-    def __init__(self, env: simpy.Environment, item_id: str, come_time: int, truck_type: str, packages: list):
+    def __init__(self, item_id: str, come_time: int, truck_type: str, packages: list):
         """
         :param truck_id: self explain
         :param come_time: self explain
@@ -148,7 +144,6 @@ class Truck:
         self.come_time = come_time
         self.store = packages
         self.truck_type = truck_type
-        self.env = env
         self.truck_data = list()
         self.store_size = len(self.store)
 
