@@ -123,7 +123,6 @@ def main():
                                            equipment_id="error",
                                            machine_type="error")
 
-
     # for small sort bin
     pipelines_dict["small_bin"] = BasePipeline(env,
                                                pipeline_id="small_bin",
@@ -144,6 +143,9 @@ def main():
                                                         equipment_id="small_reload_error",
                                                         machine_type="error",
                                                         is_record=False)
+
+    # for truck done unload
+    pipelines_dict['truck_done_unload'] = simpy.Store(env)
 
     # prepare init machine dict
     machine_init_dict = defaultdict(list)
