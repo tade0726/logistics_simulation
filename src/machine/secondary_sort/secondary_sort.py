@@ -50,7 +50,7 @@ class SecondarySort(object):
             try:
                 self.pipelines_dict[package.next_pipeline].put(package)
             except Exception as exc:
+                self.pipelines_dict['error'].put(package)
                 msg = f"error: {exc}, package: {package}, equipment_id: {self.equipment_id}"
                 LOG.logger_font.error(msg)
                 LOG.logger_font.exception(exc)
-                self.pipelines_dict['error'].put(package)
