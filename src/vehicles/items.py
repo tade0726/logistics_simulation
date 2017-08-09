@@ -112,12 +112,12 @@ class SmallBag(Package):
     """小件包"""
     def __init__(self,
                  attr: pd.Series,
-                 small_packages: list,):
+                 small_packages,):
 
         super(SmallBag, self).__init__(attr)
 
         # 存储小件包裹
-        self.store = small_packages.copy()
+        self.store = small_packages
         self.store_size = len(self.store)
 
     # change to decorator
