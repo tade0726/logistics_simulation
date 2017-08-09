@@ -21,7 +21,6 @@
 
 ==================================================================================================================================================
 """
-__all__ = ["PathGenerator", 'generate_all_paths']
 
 import random
 import pickle
@@ -30,6 +29,8 @@ import networkx as nx
 from functools import reduce
 
 from src.db.tools import get_reload_setting, SaveConfig, get_equipment_on_off, get_queue_io
+
+__all__ = ["PathGenerator", "generate_all_paths'"]
 
 
 # 开关控制是否过滤不可用节点
