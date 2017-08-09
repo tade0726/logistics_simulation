@@ -49,6 +49,7 @@ class Package:
         self.ident_des_zno = self.attr["ident_des_zno"]
         self.dest_type = self.attr["dest_type"]
         self.parcel_type = self.attr["parcel_type"]
+        # parcel_type: {'nc', 'small', 'parcel'}
         self.sorter_type = "small_sort" if self.parcel_type == "small" else "reload"
 
     # use in unload machine
