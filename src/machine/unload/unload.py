@@ -39,7 +39,6 @@ class Unload:
         self.equipment_resource_dict = equipment_resource_dict
         self.equipment_parameters = equipment_parameters
 
-        self.num_of_truck = 0
         self.packages_processed = dict()
         self.done_trucks = simpy.Store(env)
         # data store
@@ -98,8 +97,8 @@ class Unload:
                     LOG.logger_font.error(msg)
                     LOG.logger_font.exception(exc)
                     self.pipelines_dict["unload_error"].put(package)
-
-                self.packages_processed[process_idx].succeed()
+            # keep this line in right indent
+            self.packages_processed[process_idx].succeed()
 
     def run(self):
 
