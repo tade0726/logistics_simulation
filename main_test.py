@@ -145,7 +145,11 @@ def main():
                                                         is_record=False)
 
     # for truck done unload
-    pipelines_dict['truck_done_unload'] = simpy.Store(env)
+    pipelines_dict['truck_done_unload'] = BasePipeline(env,
+                                                       pipeline_id="small_reload_error",
+                                                       equipment_id="small_reload_error",
+                                                       machine_type="error",
+                                                       is_record=False)
 
     # prepare init machine dict
     machine_init_dict = defaultdict(list)
@@ -276,9 +280,8 @@ def main():
     small_package_list = list()
 
     # truck record
-    for machine in machines_dict["unload"]:
-        for truck in machine.done_trucks.items:
-            truck_data.extend(truck.truck_data)
+    for truck in pipelines_dict['truck_done_unload'].items:
+        truck_data.extend(truck.truck_data)
 
     # machine and pipeline records
     for pipeline in pipelines_dict.values():
