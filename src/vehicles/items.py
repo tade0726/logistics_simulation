@@ -121,7 +121,7 @@ class SmallBag(Package):
         super(SmallBag, self).__init__(env, attr,)
 
         # 存储小件包裹
-        self.store = small_packages
+        self.store = small_packages.copy()
         self.store_size = len(self.store)
 
     # change to decorator
@@ -146,11 +146,17 @@ class Truck:
         """
         self.item_id = item_id
         self.come_time = come_time
-        self.store = packages
+        self.store = simpy.Store(env)
         self.truck_type = truck_type
         self.env = env
         self.truck_data = list()
-        self.store_size = len(self.store)
+        self.store_size = len(self.store.items)
+
+        self._put_package(packages)
+
+    def _put_package(self, packages):
+        for package in packages:
+            self.store.put(package)
 
     def insert_data(self, record: namedtuple):
 
