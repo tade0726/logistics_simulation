@@ -25,7 +25,7 @@ class Package:
     def __init__(self,
                  env: simpy.Environment,
                  attr: pd.Series,
-                 path_generator: PathGenerator):
+                 path_g: PathGenerator):
 
         # 包裹的所有信息都在 attr
         self.attr = attr
@@ -34,10 +34,10 @@ class Package:
         # env
         self.env = env
         # data store
-        self.machine_data = []
-        self.pipeline_data = []
+        self.machine_data = list()
+        self.pipeline_data = list()
         # path_generator
-        self.path_g = path_generator
+        self.path_g = path_g
         # paths
         self.planned_path = None
         self.path = None
@@ -97,9 +97,9 @@ class SmallPackage(Package):
     def __init__(self,
                  env: simpy.Environment,
                  attr: pd.Series,
-                 path_generator: PathGenerator):
+                 path_g: PathGenerator):
         # add for Package class compatible
-        super(SmallPackage, self).__init__(env, attr, path_generator)
+        super(SmallPackage, self).__init__(env, attr, path_g)
         self.item_id = self.attr["small_id"]
 
     def insert_data(self, record: namedtuple):
@@ -116,9 +116,9 @@ class SmallBag(Package):
     def __init__(self, env: simpy.Environment,
                  attr: pd.Series,
                  small_packages: list,
-                 path_generator: PathGenerator):
+                 path_g: PathGenerator):
 
-        super(SmallBag, self).__init__(env, attr, path_generator)
+        super(SmallBag, self).__init__(env, attr, path_g)
 
         # 存储小件包裹
         self.store = small_packages.copy()
@@ -146,7 +146,7 @@ class Truck:
         """
         self.item_id = item_id
         self.come_time = come_time
-        self.store = list()
+        self.store = packages
         self.truck_type = truck_type
         self.env = env
         self.truck_data = list()
