@@ -40,10 +40,9 @@ class Unload:
         self.equipment_parameters = equipment_parameters
 
         self.packages_processed = dict()
-        self.done_trucks = simpy.Store(env)
         # data store
-        self.truck_records = []
-        self.package_records = []
+        self.truck_records = list()
+        self.package_records = list()
 
         self.resource_set = self._set_machine_resource()
 
@@ -143,7 +142,7 @@ class Unload:
                     action="end",
                     store_size=truck.store_size))
             # truck is out
-            self.done_trucks.put(truck)
+            self.pipelines_dict['truck_done_unload'].put(truck)
             # vehicle turnaround time
             yield self.env.timeout(self.vehicle_turnaround_time)
 
