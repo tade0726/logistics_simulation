@@ -12,7 +12,6 @@ Uld class
 """
 import simpy
 import pandas as pd
-import copy
 
 from collections import namedtuple, defaultdict
 from src.utils import PackageRecord, PipelineRecord, TruckRecord, PathGenerator
@@ -122,8 +121,7 @@ class SmallBag(Package):
         self.store_size = len(self.store)
 
     def get_all_package(self):
-        all_packages = [self.store.pop(0) for _ in range(self.store_size)]
-        return copy.deepcopy(all_packages)
+        return [self.store.pop(0) for _ in range(self.store_size)]
 
     # change to decorator
     def insert_data(self, record: namedtuple, to_small: bool=True):
