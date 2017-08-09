@@ -146,26 +146,11 @@ class Truck:
         """
         self.item_id = item_id
         self.come_time = come_time
-        self.store = simpy.Store(env)
+        self.store = list()
         self.truck_type = truck_type
         self.env = env
         self.truck_data = list()
-        self.store_size = len(self.store.items)
-
-        self._put_package(packages)
-
-    def _put_package(self, packages):
-        for package in packages:
-            self.store.put(package)
-
-    def _get_package(self):
-        def _get_all_package():
-            while self.store.items:
-                yield self.store
-        return _get_all_package()
-
-    def get_all_packages(self):
-        return list(self._get_package())
+        self.store_size = len(self.store)
 
     def insert_data(self, record: namedtuple):
 
