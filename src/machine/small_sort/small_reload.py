@@ -58,12 +58,8 @@ class SmallReload(object):
     def pack_send(self, wait_time_stamp: float):
 
         # init small_bag
-        small_bag = SmallBag(self.env, self.store[0].attr, self.store[:])
+        small_bag = SmallBag(self.env, self.store.copy()[0].attr, self.store.copy())
         small_bag.item_id = "98" + next(Small_code.code_generator)  # "98" + "0000000000" ~ "98" + "9999999999"
-
-        self.small_bag_count += 1
-        self.store.clear()
-        self.store_is_full = self.env.event()
 
         small_bag.insert_data(
             PackageRecord(
@@ -97,6 +93,10 @@ class SmallReload(object):
             LOG.logger_font.exception(exc)
             # 收集错错误的小件包裹
             self.pipelines_dict["small_reload_error"].put(small_bag)
+
+        self.small_bag_count += 1
+        self.store.clear()
+        self.store_is_full = self.env.event()
 
     def _timer(self):
         wait_time_stamp = self.env.now
