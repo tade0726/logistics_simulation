@@ -23,6 +23,7 @@ class Unload:
                  unload_setting_dict: dict,
                  reload_setting_dict: dict,
                  trucks_q: simpy.FilterStore,
+                 done_trucks_q: simpy.Store,
                  pipelines_dict: dict,
                  resource_dict: defaultdict,
                  equipment_resource_dict: dict,
@@ -34,6 +35,7 @@ class Unload:
         self.unload_setting_dict = unload_setting_dict
         self.reload_setting_dict = reload_setting_dict
         self.trucks_q = trucks_q
+        self.done_trucks_q = done_trucks_q
         self.pipelines_dict = pipelines_dict
         self.resource_dict = resource_dict
         self.equipment_resource_dict = equipment_resource_dict
@@ -142,7 +144,7 @@ class Unload:
                     action="end",
                     store_size=truck.store_size))
             # truck is out
-            self.pipelines_dict['truck_done_unload'].put(truck)
+            self.done_trucks_q.put(truck)
             # vehicle turnaround time
             yield self.env.timeout(self.vehicle_turnaround_time)
 

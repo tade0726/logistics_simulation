@@ -17,7 +17,7 @@ import logging
 
 
 class MainConfig:
-    IS_TEST = False
+    IS_TEST = True
     SAVE_LOCAL = True
     IS_PARCEL_ONLY = False  # 只有 parcel 件
     IS_LAND_ONLY = False  # True 只有 landside, False landside airside

@@ -35,6 +35,7 @@ def main():
     env = simpy.Environment()
     # init trucks queues
     trucks_queue = simpy.FilterStore(env)
+    done_trucks_queue = simpy.Store(env)
 
     LOG.logger_font.info("loading config data")
 
@@ -166,6 +167,7 @@ def main():
                    unload_setting_dict=unload_setting_dict,
                    reload_setting_dict=reload_setting_dict,
                    trucks_q=trucks_queue,
+                   done_trucks_q=done_trucks_queue,
                    pipelines_dict=pipelines_dict,
                    resource_dict=resource_dict,
                    equipment_resource_dict=equipment_resource_dict,
@@ -280,7 +282,7 @@ def main():
     small_package_list = list()
 
     # truck record
-    for truck in pipelines_dict['truck_done_unload'].items:
+    for truck in done_trucks_queue.items:
         truck_data.extend(truck.truck_data)
 
     # machine and pipeline records
