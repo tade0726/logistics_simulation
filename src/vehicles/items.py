@@ -96,7 +96,7 @@ class SmallPackage(Package):
     def __init__(self,
                  attr: pd.Series,):
         # add for Package class compatible
-        super(SmallPackage, self).__init__(attr, path_g)
+        super(SmallPackage, self).__init__(attr)
         self.item_id = self.attr["small_id"]
 
     def insert_data(self, record: namedtuple):
@@ -114,7 +114,7 @@ class SmallBag(Package):
                  attr: pd.Series,
                  small_packages: list,):
 
-        super(SmallBag, self).__init__(attr, path_g)
+        super(SmallBag, self).__init__(attr)
 
         # 存储小件包裹
         self.store = small_packages.copy()
