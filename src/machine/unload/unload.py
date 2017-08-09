@@ -120,11 +120,7 @@ class Unload:
 
             # init packages_processed empty
             self.packages_processed = dict()
-
-            # make a deep copy
-            truck_store = copy.deepcopy(truck.store)
-
-            for process_idx, package in enumerate(truck_store):
+            for process_idx, package in enumerate(truck.store):
 
                 # add package wait data
                 package.insert_data(
@@ -149,8 +145,6 @@ class Unload:
                     time_stamp=self.env.now,
                     action="end",
                     store_size=truck.store_size))
-            # clear package store
-            truck.store.clear()
             # truck is out
             self.done_trucks_q.put(truck)
             # vehicle turnaround time
