@@ -19,15 +19,13 @@ from src.config import LOG
 
 __all__ = ["Package", "Truck", "Uld", "SmallBag", "SmallPackage", "Pipeline", "PipelineRes", "BasePipeline"]
 
-# init path generator
-path_generator = PathGenerator()
-
 
 class Package:
     """包裹"""
     def __init__(self,
                  env: simpy.Environment,
-                 attr: pd.Series,):
+                 attr: pd.Series,
+                 path_generator:PathGenerator):
 
         # 包裹的所有信息都在 attr
         self.attr = attr
@@ -39,7 +37,7 @@ class Package:
         self.machine_data = []
         self.pipeline_data = []
         # path_generator
-        self.path_generator = path_generator.path_generator
+        self.path_g = path_generator
         # paths
         self.planned_path = None
         self.path = None
@@ -54,7 +52,7 @@ class Package:
 
     # use in unload machine
     def set_path(self, package_start):
-        path = path_generator.path_generator(package_start, self.ident_des_zno, self.sorter_type, self.dest_type)
+        path = self.path_g.path_generator(package_start, self.ident_des_zno, self.sorter_type, self.dest_type)
         self.planned_path = tuple(path)
         self.path = list(self.planned_path)
         self.next_pipeline = self.planned_path[:2]
@@ -98,9 +96,10 @@ class SmallPackage(Package):
     """小件包裹"""
     def __init__(self,
                  env: simpy.Environment,
-                 attr: pd.Series,):
+                 attr: pd.Series,
+                 path_generator: PathGenerator):
         # add for Package class compatible
-        super(SmallPackage, self).__init__(env, attr,)
+        super(SmallPackage, self).__init__(env, attr, path_generator)
         self.item_id = self.attr["small_id"]
 
     def insert_data(self, record: namedtuple):
@@ -116,9 +115,10 @@ class SmallBag(Package):
     """小件包"""
     def __init__(self, env: simpy.Environment,
                  attr: pd.Series,
-                 small_packages: list):
+                 small_packages: list,
+                 path_generator: PathGenerator):
 
-        super(SmallBag, self).__init__(env, attr,)
+        super(SmallBag, self).__init__(env, attr, path_generator)
 
         # 存储小件包裹
         self.store = small_packages.copy()

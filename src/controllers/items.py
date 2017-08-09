@@ -12,11 +12,13 @@
 import simpy
 import pandas as pd
 from src.vehicles import Truck, Package, SmallPackage, SmallBag
-from src.utils import TruckRecord
+from src.utils import TruckRecord, PathGenerator
 from src.db import get_vehicles
 from src.config import LOG
 
 __all__ = ["TruckController", ]
+
+path_g = PathGenerator()
 
 
 class TruckController:
@@ -26,7 +28,7 @@ class TruckController:
                  trucks: simpy.FilterStore,
                  is_test: bool,
                  is_parcel_only: bool,
-                 is_land_only:bool):
+                 is_land_only:bool,):
 
         self.env = env
         self.trucks = trucks
@@ -34,6 +36,8 @@ class TruckController:
         self.is_parcel_only = is_parcel_only
         self.is_land_only = is_land_only
         self._init_truck_data()
+        # path generator
+        self.path_generator = path_g
         # counts
         self.small_bag_counts = 0
         self.small_package_counts = 0
@@ -55,7 +59,7 @@ class TruckController:
         self.truck_small_dict = truck_small_dict
 
     def _init_package(self, cls: type, package_record: pd.Series):
-        return cls(env=self.env, attr=package_record)
+        return cls(env=self.env, attr=package_record, path_generator=self.path_generator)
 
     def _init_small_bag(self, small_bag_record: pd.Series):
         parcel_id = small_bag_record["parcel_id"]
@@ -63,7 +67,7 @@ class TruckController:
         small_packages = [self._init_package(cls=SmallPackage, package_record=record) for _, record in small_package_records.iterrows()]
         self.small_bag_counts +=1
         self.small_package_counts += len(small_packages)
-        return SmallBag(env=self.env, attr=small_bag_record, small_packages=small_packages)
+        return SmallBag(env=self.env, attr=small_bag_record, small_packages=small_packages, path_generator=self.path_generator)
 
     def latency(self, come_time, item: Truck):
         """模拟货车到达时间"""
