@@ -1,5 +1,24 @@
-from .frame_r_view import CHECK_BTN_ENTRY_DIC
+from .frame_r_view import CHECK_BTN_ENTRY_DIC, DATABASES, BTN_ENTRY_DICT
+from pymysql import connect
 
+
+def init_btn_entry_val_from_sql():
+    """"""
+    conn = connect(
+        host=DATABASES['HOST'],
+        user=DATABASES['USER'],
+        passwd=DATABASES['PASSWORD'],
+        db=DATABASES['NAME']
+    )
+    cur = conn.cursor()
+    cur.execute("select equipment_port, equipment_status from i_equipment_io "
+                "where equipment_id like 'r%'")
+    result = cur.fetchall()
+    for item in result:
+        BTN_ENTRY_DICT[item[0]] = item[1]
+    cur.close()
+    conn.close()
+    return BTN_ENTRY_DICT
 
 def update_on_off(cursor, run_arg):
     # equipment_port 需要确定

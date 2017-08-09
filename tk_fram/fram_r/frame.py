@@ -84,31 +84,12 @@ def init_check_btn(master, id, var, command):
     """"""
     return CheckBtnCreate(
         master=master,
-        grid_dic=ConfigCheckBtn.R_CHECK_BTN[id]['grid'],
-        attr_dic=ConfigCheckBtn.R_CHECK_BTN[id]['attr'],
+        grid_dic=ConfigCheckBtn.CHECK_BTN[id]['grid'],
+        attr_dic=ConfigCheckBtn.CHECK_BTN[id]['attr'],
         id=id,
         var=var,
         command=command
     )
-
-
-def init_btn_entry_val_from_sql():
-    """"""
-    conn = connect(
-        host=DATABASES['HOST'],
-        user=DATABASES['USER'],
-        passwd=DATABASES['PASSWORD'],
-        db=DATABASES['NAME']
-    )
-    cur = conn.cursor()
-    cur.execute("select equipment_port, equipment_status from i_equipment_io "
-                "where equipment_id like 'r%'")
-    result = cur.fetchall()
-    for item in result:
-        BTN_ENTRY_DICT[item[0]] = item[1]
-    cur.close()
-    conn.close()
-    return BTN_ENTRY_DICT
 
 
 def init_entry(master, id, text_var):
@@ -121,8 +102,8 @@ def init_entry(master, id, text_var):
     """
     return EntryCreate(
         master=master,
-        attr_dic=ConfigCheckBtn.R_ENTRY[id]['attr'],
-        grid_dic=ConfigCheckBtn.R_ENTRY[id]['grid'],
+        attr_dic=ConfigCheckBtn.ENTRY[id]['attr'],
+        grid_dic=ConfigCheckBtn.ENTRY[id]['grid'],
         text_var=text_var
     )
 

@@ -23,6 +23,8 @@ def init_app(master, wig):
 
 def init_r_frame(root: Tk):
     """"""
+    config_view = CheckBtnEntryView()
+    config_view.init_view()
     #  ===================顶部标题面板================
     top = init_app(
         master=root, wig='TOP_FRAME'
@@ -81,6 +83,7 @@ def init_r_frame(root: Tk):
         wig='RIGHT_OUTPUT_PAD_INFO'
     )
 
+    init_btn_entry_val_from_sql()
 
     def save_data():
         if not package_num.get():
@@ -317,9 +320,15 @@ def init_r_frame(root: Tk):
     lbl_unload.grid(row=0, column=0)
 
     # ===================     卸货区数据      =====================
-    for w_id in ConfigCheckBtn.WIG_ID:
+    for w_id in ConfigCheckBtn.WIG_ID_LEFT:
         CHECK_BTN_ENTRY_DIC[w_id] = CheckBtnEntry(
             w_id, left_set_pad_center_left
+        )
+        CHECK_BTN_ENTRY_DIC[w_id].init_on_off_status()
+
+    for w_id in ConfigCheckBtn.WIG_ID_RIGHT:
+        CHECK_BTN_ENTRY_DIC[w_id] = CheckBtnEntry(
+            w_id, left_set_pad_center_right
         )
         CHECK_BTN_ENTRY_DIC[w_id].init_on_off_status()
 
