@@ -14,8 +14,7 @@ import simpy
 import pandas as pd
 
 from collections import namedtuple, defaultdict
-from src.utils import PackageRecord, PipelineRecord, TruckRecord
-from src.controllers import PathGenerator
+from src.utils import PackageRecord, PipelineRecord, TruckRecord, PathGenerator
 from src.config import LOG
 
 __all__ = ["Package", "Truck", "Uld", "SmallBag", "SmallPackage", "Pipeline", "PipelineRes", "BasePipeline"]
