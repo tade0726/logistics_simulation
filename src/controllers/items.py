@@ -34,6 +34,9 @@ class TruckController:
         self.is_parcel_only = is_parcel_only
         self.is_land_only = is_land_only
         self._init_truck_data()
+        # counts
+        self.small_bag_counts = 0
+        self.small_package_counts = 0
 
     def _init_truck_data(self):
 
@@ -58,6 +61,8 @@ class TruckController:
         parcel_id = small_bag_record["parcel_id"]
         small_package_records = self.truck_small_dict[parcel_id]
         small_packages = [self._init_package(cls=SmallPackage, package_record=record) for _, record in small_package_records.iterrows()]
+        self.small_bag_counts +=1
+        self.small_package_counts += len(small_packages)
         return SmallBag(env=self.env, attr=small_bag_record, small_packages=small_packages)
 
     def latency(self, come_time, item: Truck):
