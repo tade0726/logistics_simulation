@@ -125,32 +125,27 @@ def main():
                                            machine_type="error")
 
     # for small sort bin
-    pipelines_dict["small_bin"] = BasePipeline(env,
-                                               pipeline_id="small_bin",
-                                               equipment_id="small_bin",
-                                               machine_type="small_bin",
-                                               is_record=False)
+    pipelines_dict["small_bag_done"] = BasePipeline(env,
+                                                    pipeline_id="small_bag_done",
+                                                    equipment_id="small_bag_done",
+                                                    machine_type="small_bag_done",
+                                                    is_record=False)
 
     # for small_primary_error
     pipelines_dict["small_primary_error"] = BasePipeline(env,
                                                          pipeline_id="small_primary_error",
                                                          equipment_id="small_primary_error",
                                                          machine_type="error",
-                                                         is_record=False)
+                                                         is_record=True)  # data will be collected
 
     # for small_reload_error
     pipelines_dict["small_reload_error"] = BasePipeline(env,
                                                         pipeline_id="small_reload_error",
                                                         equipment_id="small_reload_error",
                                                         machine_type="error",
-                                                        is_record=False)
+                                                        is_record=True)  # data will be collected
 
-    # for truck done unload
-    pipelines_dict['truck_done_unload'] = BasePipeline(env,
-                                                       pipeline_id="small_reload_error",
-                                                       equipment_id="small_reload_error",
-                                                       machine_type="error",
-                                                       is_record=False)
+
 
     # prepare init machine dict
     machine_init_dict = defaultdict(list)

@@ -55,6 +55,7 @@ class SmallPrimary(object):
                                'not initial equipment_resource_dict!')
 
     def processing(self, small_bag: SmallBag):
+        assert isinstance(small_bag, SmallBag), "Wrong Type of package"
         # 请求资源（工人)，一个工人处理一个小件包
         with self.resource.request() as req:
             yield req
@@ -76,7 +77,6 @@ class SmallPrimary(object):
                         package_id=small_package.item_id,
                         time_stamp=self.env.now,
                         action="end", ))
-
                 # 生成小件的路径
                 try:
                     small_package.set_path(self.equipment_id)
@@ -92,7 +92,7 @@ class SmallPrimary(object):
             # clear the small package, cos they have been copy and move to next pipelines
             small_bag.store.clear()
             # collect small bag of the first state
-            self.pipelines_dict['small_bin'].put(small_bag)
+            self.pipelines_dict['small_bag_done'].put(small_bag)
 
     def run(self):
         while True:
