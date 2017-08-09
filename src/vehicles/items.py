@@ -158,6 +158,15 @@ class Truck:
         for package in packages:
             self.store.put(package)
 
+    def _get_package(self):
+        def _get_all_package():
+            while self.store.items:
+                yield self.store
+        return _get_all_package()
+
+    def get_all_packages(self):
+        return list(self._get_package())
+
     def insert_data(self, record: namedtuple):
 
         if isinstance(record, TruckRecord):
