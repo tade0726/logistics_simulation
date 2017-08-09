@@ -25,7 +25,7 @@ class Package:
     def __init__(self,
                  env: simpy.Environment,
                  attr: pd.Series,
-                 path_generator:PathGenerator):
+                 path_generator: PathGenerator):
 
         # 包裹的所有信息都在 attr
         self.attr = attr
