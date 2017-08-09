@@ -2,12 +2,11 @@
 
 from tkinter import messagebox, Tk, Label, Entry, Button, Spinbox, Text
 from tkinter import NORMAL, END
-from .frame import App
+from .frame import App, CheckBtnEntry
 from simpy_lib import main
 from .frame_r_view import *
 # import logging as lg
 from .db_api import *
-from .frame import CheckBtnEntry
 
 
 import pymysql
