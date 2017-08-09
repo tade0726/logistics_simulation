@@ -61,12 +61,13 @@ class SmallReload(object):
             pop_number = len(self.store)
         else:
             pop_number = self.store_max
-        return [self.store.pop(0) for _ in range(pop_number)]
+        store = [self.store.pop(0) for _ in range(pop_number)]
+        return store
 
     def pack_send(self, wait_time_stamp: float):
         # init small_bag
         store = self._get_small_package()
-        small_bag = SmallBag(self.env, store[0].attr, store)
+        small_bag = SmallBag(store[0].attr, store)
         small_bag.item_id = "98" + next(Small_code.code_generator)  # "98" + "0000000000" ~ "98" + "9999999999"
 
         small_bag.insert_data(
@@ -108,7 +109,7 @@ class SmallReload(object):
     def _timer(self):
         wait_time_stamp = self.env.now
         yield self.store_is_full | self.env.timeout(self.wait_time)
-        self.pack_send(wait_time_stamp)
+        self.env.process(self.pack_send(wait_time_stamp))
 
     def put_package(self, small: SmallPackage):
 
