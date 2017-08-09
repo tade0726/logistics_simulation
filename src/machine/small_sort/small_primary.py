@@ -84,11 +84,11 @@ class SmallPrimary(object):
                     # 放入下一步的传送带
                     self.pipelines_dict[small_package.next_pipeline].put(small_package)
                 except Exception as exc:
+                    self.pipelines_dict["small_primary_error"].put(small_package)
                     msg = f"error: {exc}, package: {small_package}, equipment_id: {self.equipment_id}"
                     LOG.logger_font.error(msg)
                     LOG.logger_font.exception(exc)
                     # 收集错错误的小件包裹
-                    self.pipelines_dict["small_primary_error"].put(small_package)
 
             # collect small bag of the first state
             self.pipelines_dict['small_bag_done'].put(small_bag)
