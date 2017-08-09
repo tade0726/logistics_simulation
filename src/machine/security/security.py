@@ -15,6 +15,7 @@
 """
 from src.vehicles.items import Package
 from src.utils import PackageRecord
+from src.config import LOG
 
 
 class Security:
