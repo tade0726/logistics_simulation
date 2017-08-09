@@ -120,6 +120,9 @@ class SmallBag(Package):
         self.store = small_packages
         self.store_size = len(self.store)
 
+    def get_all_package(self):
+        return [self.store.pop(0) for _ in range(self.store_size)]
+
     # change to decorator
     def insert_data(self, record: namedtuple, to_small: bool=True):
         """给小件包裹添加记录"""
@@ -146,6 +149,9 @@ class Truck:
         self.truck_type = truck_type
         self.truck_data = list()
         self.store_size = len(self.store)
+
+    def get_all_package(self):
+        return [self.store.pop(0) for _ in range(self.store_size)]
 
     def insert_data(self, record: namedtuple):
 

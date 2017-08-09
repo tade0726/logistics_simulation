@@ -20,7 +20,7 @@
 ==================================================================================================================================================
 """
 
-
+import simpy
 from src.vehicles.items import SmallBag, PackageRecord, SmallPackage
 from src.config import Small_code, LOG
 
@@ -55,10 +55,18 @@ class SmallReload(object):
         self.store_max = BAG_NUM
         self.wait_time = WAIT_TIME
 
-    def pack_send(self, wait_time_stamp: float):
+    def _get_small_package(self):
+        """pop out package"""
+        if len(self.store) <= self.store_max:
+            pop_number = len(self.store)
+        else:
+            pop_number = self.store_max
+        return [self.store.pop(0) for _ in range(pop_number)]
 
+    def pack_send(self, wait_time_stamp: float):
         # init small_bag
-        small_bag = SmallBag(self.env, self.store.copy()[0].attr, self.store.copy())
+        store = self._get_small_package()
+        small_bag = SmallBag(self.env, store[0].attr, store)
         small_bag.item_id = "98" + next(Small_code.code_generator)  # "98" + "0000000000" ~ "98" + "9999999999"
 
         small_bag.insert_data(
@@ -95,7 +103,6 @@ class SmallReload(object):
             self.pipelines_dict["small_reload_error"].put(small_bag)
 
         self.small_bag_count += 1
-        self.store.clear()
         self.store_is_full = self.env.event()
 
     def _timer(self):

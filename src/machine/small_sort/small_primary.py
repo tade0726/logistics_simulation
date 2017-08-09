@@ -13,8 +13,6 @@
                                     代码整体功能描述：小件分拣机的拆包模块；
 ==================================================================================================================================================
 """
-import copy
-
 from src.vehicles.items import SmallBag
 from src.utils import PackageRecord
 from src.config import LOG
@@ -61,9 +59,9 @@ class SmallPrimary(object):
         # 请求资源（工人)，一个工人处理一个小件包
         with self.resource.request() as req:
             yield req
-            # 获取小件包中的所有小件
-            small_bag_store = copy.deepcopy(small_bag.store)
-            for small_package in small_bag_store:
+            # 获取小件包中的所有小
+            small_packages = small_bag.get_all_package()
+            for small_package in small_packages:
                 # 记录机器开始处理货物信息
                 small_package.insert_data(
                     PackageRecord(
@@ -92,8 +90,6 @@ class SmallPrimary(object):
                     # 收集错错误的小件包裹
                     self.pipelines_dict["small_primary_error"].put(small_package)
 
-            # clear the small package, cos they have been copy and move to next pipelines
-            small_bag.store.clear()
             # collect small bag of the first state
             self.pipelines_dict['small_bag_done'].put(small_bag)
 

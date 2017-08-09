@@ -9,7 +9,6 @@ des:
 unload modules
 """
 
-import copy
 import simpy
 
 from collections import defaultdict
@@ -120,7 +119,8 @@ class Unload:
 
             # init packages_processed empty
             self.packages_processed = dict()
-            for process_idx, package in enumerate(truck.store):
+            packages = truck.get_all_package()
+            for process_idx, package in enumerate(packages):
 
                 # add package wait data
                 package.insert_data(

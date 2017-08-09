@@ -54,7 +54,8 @@ class TruckController:
         self.trucks_dict = trucks_dict
         self.truck_small_dict = truck_small_dict
 
-    def _init_package(self, cls: type, package_record: pd.Series):
+    @staticmethod
+    def _init_package(cls: type, package_record: pd.Series):
         return cls(attr=package_record)
 
     def _init_small_bag(self, small_bag_record: pd.Series):
