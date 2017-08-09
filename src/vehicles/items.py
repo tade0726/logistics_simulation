@@ -20,11 +20,13 @@ from src.config import LOG
 __all__ = ["Package", "Truck", "Uld", "SmallBag", "SmallPackage", "Pipeline", "PipelineRes", "BasePipeline"]
 
 
+path_g = PathGenerator()
+
+
 class Package:
     """包裹"""
     def __init__(self,
-                 attr: pd.Series,
-                 path_g: PathGenerator):
+                 attr: pd.Series,):
 
         # 包裹的所有信息都在 attr
         self.attr = attr

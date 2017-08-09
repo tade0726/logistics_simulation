@@ -18,8 +18,6 @@ from src.config import LOG
 
 __all__ = ["TruckController", ]
 
-path_g = PathGenerator()
-
 
 class TruckController:
 
@@ -36,8 +34,6 @@ class TruckController:
         self.is_parcel_only = is_parcel_only
         self.is_land_only = is_land_only
         self._init_truck_data()
-        # path generator
-        self.path_generator = path_g
         # counts
         self.small_bag_counts = 0
         self.small_package_counts = 0
@@ -59,7 +55,7 @@ class TruckController:
         self.truck_small_dict = truck_small_dict
 
     def _init_package(self, cls: type, package_record: pd.Series):
-        return cls(env=self.env, attr=package_record, path_generator=self.path_generator)
+        return cls(attr=package_record)
 
     def _init_small_bag(self, small_bag_record: pd.Series):
         parcel_id = small_bag_record["parcel_id"]
@@ -67,7 +63,7 @@ class TruckController:
         small_packages = [self._init_package(cls=SmallPackage, package_record=record) for _, record in small_package_records.iterrows()]
         self.small_bag_counts +=1
         self.small_package_counts += len(small_packages)
-        return SmallBag(env=self.env, attr=small_bag_record, small_packages=small_packages, path_generator=self.path_generator)
+        return SmallBag(attr=small_bag_record, small_packages=small_packages)
 
     def latency(self, come_time, item: Truck):
         """模拟货车到达时间"""
@@ -107,7 +103,7 @@ class TruckController:
         package_dest_type = 'A' if 'A' in list(set(package.dest_type for package in packages)) else 'L'
         # LL/LA/AA/AA
         truck_type = src_type + package_dest_type
-        truck = Truck(env=self.env, item_id=truck_id, come_time=come_time,
+        truck = Truck(item_id=truck_id, come_time=come_time,
                       packages=packages, truck_type=truck_type,)
         LOG.logger_font.debug(f"init truck: {truck_id}")
         self.env.process(self.latency(come_time, truck))
