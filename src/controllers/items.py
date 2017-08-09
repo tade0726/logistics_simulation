@@ -8,8 +8,8 @@
 存放车辆的控制器，机器及队列的监视器
 
 """
-import simpy
 
+import simpy
 import pandas as pd
 from src.vehicles import Truck, Package, SmallPackage, SmallBag
 from src.utils import TruckRecord
