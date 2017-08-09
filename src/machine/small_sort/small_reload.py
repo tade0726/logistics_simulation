@@ -96,11 +96,11 @@ class SmallReload(object):
             small_bag.set_path(self.equipment_id)
             self.pipelines_dict[small_bag.next_pipeline].put(small_bag)
         except Exception as exc:
+            # 收集错错误的小件包裹
+            self.pipelines_dict["small_reload_error"].put(small_bag)
             msg = f"error: {exc}, package: {small_bag}, equipment_id: {self.equipment_id}"
             LOG.logger_font.error(msg)
             LOG.logger_font.exception(exc)
-            # 收集错错误的小件包裹
-            self.pipelines_dict["small_reload_error"].put(small_bag)
 
         self.small_bag_count += 1
         self.store_is_full = self.env.event()
