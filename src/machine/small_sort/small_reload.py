@@ -46,6 +46,7 @@ class SmallReload(object):
         self.small_bag_count = 0
         self.store_is_full = self.env.event()
         self.small_bag_gone = self.env.event()
+        self.small_bag_gone.succeed()
 
         self._set_machine_resource()
 
