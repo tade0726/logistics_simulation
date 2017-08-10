@@ -12,8 +12,9 @@ Uld class
 """
 import simpy
 import pandas as pd
-
 from collections import namedtuple, defaultdict
+import random
+
 from src.utils import PackageRecord, PipelineRecord, TruckRecord, PathGenerator
 from src.config import LOG
 
@@ -111,9 +112,9 @@ class SmallPackage(Package):
 class SmallBag(Package):
     """小件包"""
     def __init__(self,
-                 attr: pd.Series,
                  small_packages,):
-
+        # random choice a small_packages as attr
+        attr = random.choice(small_packages).attr
         super(SmallBag, self).__init__(attr)
 
         # 存储小件包裹
