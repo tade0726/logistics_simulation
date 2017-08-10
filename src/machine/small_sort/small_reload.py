@@ -42,8 +42,8 @@ class SmallReload(object):
 
         self.store = list()
         self.small_bag_count = 0
+        # event for control
         self.store_is_full = self.env.event()
-
         self._set_machine_resource()
 
     def _set_machine_resource(self):
@@ -102,7 +102,6 @@ class SmallReload(object):
             LOG.logger_font.exception(exc)
 
         self.small_bag_count += 1
-        self.store_is_full = self.env.event()
 
     def _timer(self):
         wait_time_stamp = self.env.now
@@ -125,6 +124,7 @@ class SmallReload(object):
 
         elif len(self.store) == self.store_max:
             self.store_is_full.succeed()
+            self.store_is_full = self.env.event()
 
     def run(self):
         while True:
