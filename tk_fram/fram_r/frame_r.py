@@ -43,7 +43,7 @@ def init_r_frame(root: Tk):
         master=left,
         wig='LEFT_SET_PAD_TITLE'
     )
-    #
+
     left_set_pad_left_title = init_app(
         master=left_set_pad_title,
         wig='LEFT_SET_PAD_LEFT_TITLE'
@@ -81,14 +81,22 @@ def init_r_frame(root: Tk):
     init_btn_entry_val_from_sql()
 
     # ==================================================
-
     canvas_left = Canvas(left_set_pad_center_left)
     scrollbar = Scrollbar(left_set_pad_center_left)
     scrollbar.config(command=canvas_left.yview)
     canvas_left.config(yscrollcommand=scrollbar.set)
     scrollbar.pack(side="right", fill=Y)
-    canvas_left.pack(side="left", expand=YES, fill=BOTH)
-    frame_left = Frame(canvas_left, width=100, height=100)
+    canvas_left.config(
+        width=160,
+        height=480
+    )
+    canvas_left.pack(
+        side="left",
+        expand=YES,
+        fill=BOTH
+    )
+
+    frame_left = Frame(canvas_left, width=50, height=100)
     frame_left.pack(side="top", fill=BOTH)
     canvas_left.create_window(0, 0, window=frame_left, anchor="nw")
 
@@ -124,8 +132,8 @@ def init_r_frame(root: Tk):
         # width=2
     )
     package_num.grid(row=0, column=1)
-    # # ============================资源配置=============================
-    # # 标题
+    # ============================资源配置=============================
+    # 标题
     lbl_resource = Label(
         master=left_set_pad_package,
         font=('Times', 10, 'bold'),
@@ -143,7 +151,7 @@ def init_r_frame(root: Tk):
         # height=2,
         values=(1, 2))
     person_res.grid(row=0, column=3)
-    # # ============================机器配置==========================
+    # ============================机器配置==========================
     # 路侧卸货标题-L2L
     lbl_unload = Label(
         master=left_set_pad_left_title,
@@ -179,7 +187,8 @@ def init_r_frame(root: Tk):
             w_id, frame_left
         )
         CHECK_BTN_ENTRY_DIC[w_id].init_on_off_status()
-        canvas_left["scrollregion"] = "%d %d %d %d" % (bas[0], bas[1], bas[2], bas[3])
+        canvas_left["scrollregion"] = "%d %d %d %d" % \
+                                      (bas[0], bas[1], bas[2], bas[3])
         bas[3] += 60
 
     for w_id in ConfigCheckBtn.WIG_ID_RIGHT:
@@ -187,7 +196,6 @@ def init_r_frame(root: Tk):
             w_id, left_set_pad_center_right
         )
         CHECK_BTN_ENTRY_DIC[w_id].init_on_off_status()
-
     # ============================仿真结果输出面板======================
     lbl_info = Label(
         master=right_output_pad_title,

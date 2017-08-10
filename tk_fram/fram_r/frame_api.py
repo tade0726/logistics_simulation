@@ -6,7 +6,7 @@ from tkinter import messagebox
 
 from .db_api import Mysql, insert_package, update_on_off, save_to_past_run, \
     read_result, update_person
-from simpy_lib import main
+# from simpy_lib import main
 from .frame_r_view import Flag
 
 
