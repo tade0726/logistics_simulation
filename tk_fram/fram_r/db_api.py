@@ -14,16 +14,20 @@ class Mysql(object):
                        passwd=self.db_config['PASSWORD'],
                        db=self.db_config['NAME'])
 
+
 def init_btn_entry_val_from_sql():
     """"""
     conn = Mysql().connect
     with conn as cur:
-        cur.execute("select equipment_port, equipment_status from i_equipment_io "
-                    "where equipment_id like 'r%'")
+        cur.execute(
+            "select equipment_port, equipment_status from i_equipment_io "
+            "where equipment_id like 'r%'"
+        )
         result = cur.fetchall()
     for item in result:
         BTN_ENTRY_DICT[item[0]] = item[1]
     return BTN_ENTRY_DICT
+
 
 def update_on_off(cursor, run_arg):
     # equipment_port 需要确定
