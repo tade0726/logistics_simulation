@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
-from tkinter import Tk, Label, Entry, Button, Spinbox, Text
+from tkinter import Tk, Label, Entry, Button, Spinbox, Text, Canvas, Y, BOTH, \
+    YES, Frame, Scrollbar
 from .frame import App, CheckBtnEntry
 from .frame_r_view import *
 # import logging as lg
@@ -78,6 +79,22 @@ def init_r_frame(root: Tk):
     )
 
     init_btn_entry_val_from_sql()
+
+    # ==================================================
+
+    canvas_left = Canvas(left_set_pad_center_left)
+    scrollbar = Scrollbar(left_set_pad_center_left)
+    scrollbar.config(command=canvas_left.yview)
+    canvas_left.config(yscrollcommand=scrollbar.set)
+    scrollbar.pack(side="right", fill=Y)
+    canvas_left.pack(side="left", expand=YES, fill=BOTH)
+    frame_left = Frame(canvas_left, width=100, height=100)
+    frame_left.pack(side="top", fill=BOTH)
+    canvas_left.create_window(0, 0, window=frame_left, anchor="nw")
+
+    bas = [0, 0, 0 ,100]
+
+    # ==================================================
 
 
     # ==============================Heading===========================
@@ -159,9 +176,11 @@ def init_r_frame(root: Tk):
     # ===================     卸货区数据      =====================
     for w_id in ConfigCheckBtn.WIG_ID_LEFT:
         CHECK_BTN_ENTRY_DIC[w_id] = CheckBtnEntry(
-            w_id, left_set_pad_center_left
+            w_id, frame_left
         )
         CHECK_BTN_ENTRY_DIC[w_id].init_on_off_status()
+        canvas_left["scrollregion"] = "%d %d %d %d" % (bas[0], bas[1], bas[2], bas[3])
+        bas[3] += 60
 
     for w_id in ConfigCheckBtn.WIG_ID_RIGHT:
         CHECK_BTN_ENTRY_DIC[w_id] = CheckBtnEntry(
