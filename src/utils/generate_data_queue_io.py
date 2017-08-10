@@ -7,8 +7,6 @@ build a queue table and insert to mysql
 
 """
 
-
-
 import sys
 sys.path.append('..')
 
@@ -16,6 +14,7 @@ import pandas as pd
 import numpy as np
 from itertools import product
 from src.db import *
+from src.config import *
 
 
 def main():
