@@ -117,8 +117,6 @@ class Unload:
                     action="start",
                     store_size=truck.store_size))
 
-            # init packages_processed empty
-            self.packages_processed = dict()
             packages = truck.get_all_package()
             for process_idx, package in enumerate(packages):
 
@@ -136,6 +134,8 @@ class Unload:
 
             # all the package are processed
             yield self.env.all_of(self.packages_processed.values())
+            # init packages_processed empty
+            self.packages_processed = dict()
 
             # insert data
             truck.insert_data(
