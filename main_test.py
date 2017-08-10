@@ -75,9 +75,7 @@ def main():
     for _, row in resource_table.iterrows():
         resource_id = row['resource_id']
         process_time = row['process_time']
-        # fixme: temp change
-        # resource_limit = row['resource_limit']
-        resource_limit = row['resource_number']
+        resource_limit = row['resource_limit']
         # add info
         if resource_limit:
             resource_dict[resource_id]["resource"] = simpy.Resource(env=env, capacity=resource_limit)
@@ -293,15 +291,20 @@ def main():
             if isinstance(package, SmallBag):
                 small_bag_list.append(package)
 
+    small_package_counts = 0
     # small package records
     for small_package in small_package_list:
         small_package_machine_data.extend(small_package.machine_data)
         small_package_pipeline_data.extend(small_package.pipeline_data)
+        small_package_counts += 1
 
     for small_bag in small_bag_list:
         for small_package in small_bag.store:
             small_package_machine_data.extend(small_package.machine_data)
             small_package_pipeline_data.extend(small_package.pipeline_data)
+            small_package_counts += 1
+
+    LOG.logger_font.info(f"small_package counts: {small_package_counts}")
 
     truck_table = pd.DataFrame.from_records(truck_data, columns=TruckRecord._fields,)
     pipeline_table = pd.DataFrame.from_records(pipeline_data, columns=PipelineRecord._fields,)
