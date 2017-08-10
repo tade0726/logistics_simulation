@@ -20,7 +20,6 @@
 ==================================================================================================================================================
 """
 
-import simpy
 from src.vehicles.items import SmallBag, PackageRecord, SmallPackage
 from src.config import Small_code, LOG
 
