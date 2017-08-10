@@ -87,33 +87,27 @@ def init_r_frame(root: Tk):
 
     def save_data():
         if not package_num.get():
-            messagebox.askyesno("Tkinter-数据更新错误", "运行错误，请输入仿真件量！")
+            messagebox.showerror("Tkinter-数据更新错误", "运行错误，请输入仿真件量！")
             return
         if not person_res.get():
-            messagebox.askyesno("Tkinter-数据更新错误",
-                                "运行错误，请输入初分拣区卸货口人数！")
+            messagebox.showerror("Tkinter-数据更新错误",
+                                 "运行错误，请输入初分拣区卸货口人数！")
             return
         if Flag['save_data'] > 0:
-            messagebox.askyesno("Tkinter-数据保存错误",
-                                "数据已经保存，请勿重复操作！")
+            messagebox.showerror("Tkinter-数据保存错误",
+                                 "数据已经保存，请勿重复操作！")
             return
-        if Flag['cost_of_item'] == 0:
-            messagebox.askyesno("Tkinter-数据保存错误",
-                                "运行错误，请先执行仿真！")
+        if Flag['run_sim'] == 0:
+            messagebox.showerror("Tkinter-数据保存错误",
+                                 "运行错误，请先执行仿真！")
             return
         txtReceipt['state'] = NORMAL
         txtReceipt.insert(END, '*******************************\n')
         txtReceipt.insert(END, '开始储存数据......\n')
         root.update_idletasks()
-        conn = pymysql.connect(host=DATABASES['HOST'],
-                               user=DATABASES['USER'],
-                               passwd=DATABASES['PASSWORD'],
-                               db=DATABASES['NAME'])
-        cur = conn.cursor()
-        save_to_past_run(cur)
-        conn.commit()
-        cur.close()
-        conn.close()
+        conn = Mysql().connect
+        with conn as cur:
+            save_to_past_run(cur)
         txtReceipt.insert(END, '数据存储完毕！\n'
                                '*******************************\n')
         txtReceipt['state'] = DISABLED
@@ -122,30 +116,28 @@ def init_r_frame(root: Tk):
     def run_sim():
         """"""
         if not package_num.get():
-            messagebox.askyesno("Tkinter-数据更新错误","运行错误， 请输入仿真件量！")
+            messagebox.showerror("Tkinter-数据更新错误","运行错误， 请输入仿真件量！")
             return
         if not person_res.get():
-            messagebox.askyesno("Tkinter-数据更新错误",
-                                "运行错误，请输入初分拣区卸货口人数！")
+            messagebox.showerror("Tkinter-数据更新错误",
+                                 "运行错误，请输入初分拣区卸货口人数！")
             return
         if Flag['update_data'] == 0:
-            messagebox.askyesno("Tkinter-仿真启动错误",
-                                "运行错误，请先执行数据更新！")
+            messagebox.showerror("Tkinter-仿真启动错误",
+                                 "运行错误，请先执行数据更新！")
             return
-        if Flag['cost_of_item'] > 0:
-            messagebox.askyesno("Tkinter-仿真启动错误",
-                                "仿真已经运行完成，请勿重复操作！")
+        if Flag['run_sim'] > 0:
+            messagebox.showerror("Tkinter-仿真启动错误",
+                                 "仿真已经运行完成，请勿重复操作！")
             return
         run_arg = Flag['run_time']
-        conn = pymysql.connect(host=DATABASES['HOST'],
-                               user=DATABASES['USER'],
-                               passwd=DATABASES['PASSWORD'],
-                               db=DATABASES['NAME'])
-        cur = conn.cursor()
-        cur.execute("truncate o_machine_table")
-        cur.execute("truncate o_pipeline_table")
-        cur.execute("truncate o_truck_table")
-        conn.commit()
+        conn = Mysql().connect
+        with conn as cur:
+            cur.execute(
+                "truncate o_machine_table;"
+                "truncate o_pipeline_table;"
+                "truncate o_truck_table"
+            )
 
         txtReceipt['state'] = NORMAL
         txtReceipt.insert(END, '*******************************\n')
@@ -161,9 +153,8 @@ def init_r_frame(root: Tk):
         root.update_idletasks()
         time.sleep(0.5)
         root.update_idletasks()
-        result = read_result(cur)
-        cur.close()
-        conn.close()
+        with conn as cur:
+            result = read_result(cur)
         txtReceipt.insert(END, '*******************************\n')
         txtReceipt.insert(END, '最早到达时间:\t' +
                           check_time(result['fast_time']) + '\n')
@@ -177,7 +168,7 @@ def init_r_frame(root: Tk):
         txtReceipt.insert(END, '仿真运行时间(秒):\t' + check_time(run_time) + '\n')
         txtReceipt['state'] = DISABLED
         root.update_idletasks()
-        Flag['cost_of_item'] += 1
+        Flag['run_sim'] += 1
         Flag['save_data'] = 0
 
 
@@ -186,18 +177,12 @@ def init_r_frame(root: Tk):
         Flag['run_time'] = datetime.now()
         run_arg = Flag['run_time']
         if not package_num.get():
-            messagebox.askyesno("Tkinter-数据更新错误", "运行错误，请输入仿真件量！")
+            messagebox.showerror("Tkinter-数据更新错误", "运行错误，请输入仿真件量！")
             return
         if not person_res.get():
-            messagebox.askyesno("Tkinter-数据更新错误",
-                                "运行错误，请输入初分拣区卸货口人数！")
+            messagebox.showerror("Tkinter-数据更新错误",
+                                 "运行错误，请输入初分拣区卸货口人数！")
             return
-
-        conn = pymysql.connect(host=DATABASES['HOST'],
-                               user=DATABASES['USER'],
-                               passwd=DATABASES['PASSWORD'],
-                               db=DATABASES['NAME'])
-        cur = conn.cursor()
 
         # # #  显示结果
         txtReceipt['state'] = NORMAL
@@ -205,29 +190,29 @@ def init_r_frame(root: Tk):
         root.update_idletasks()
         # ========================更改开关状态==============
         txtReceipt.insert(END, '机器开关状态更新......\n')
-        update_on_off(cur, run_arg)
-        conn.commit()
+        conn = Mysql().connect
+        with conn as cur:
+            update_on_off(cur, run_arg)
+
         txtReceipt.insert(END, '机器开关状态更新成功！\n')
         root.update_idletasks()
         time.sleep(0.5)
         # ======================== 插入测试数据=============
         txtReceipt.insert(END, '插入%s件包裹仿真数据......\n' % package_num.get())
-        insert_package(cur, package_num.get(), run_arg)
-        conn.commit()
+        with conn as cur:
+            insert_package(cur, package_num.get(), run_arg)
         txtReceipt.insert(END, '插入包裹仿真数据成功！\n')
         root.update_idletasks()
         time.sleep(0.5)
         # ========================更改人员数量==============
         txtReceipt.insert(END, '设置人力资源数量为%s......\n' % person_res.get())
-        update_person(cur, person_res.get(), run_arg)
-        conn.commit()
+        with conn as cur:
+            update_person(cur, person_res.get(), run_arg)
         txtReceipt.insert(END, '人力资源设置完毕！\n')
         txtReceipt['state'] = DISABLED
-        cur.close()
-        conn.close()
 
         Flag['update_data'] += 1
-        Flag['cost_of_item'] = 0
+        Flag['run_sim'] = 0
 
 
     def check_time(out_time):
