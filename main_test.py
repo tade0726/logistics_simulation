@@ -20,7 +20,7 @@ from src.controllers import TruckController
 from src.utils import PipelineRecord, TruckRecord, PackageRecord
 from src.vehicles import Pipeline, PipelineRes, BasePipeline, SmallBag, SmallPackage
 from src.machine import *
-from src.config import MainConfig, TimeConfig, LOG
+from src.config import MainConfig, TimeConfig, LOG, SaveConfig
 
 
 __all__ = ["main"]
@@ -262,7 +262,6 @@ def main():
     env.run()
     num_of_trucks = len(trucks_queue.items)
     assert num_of_trucks == 0, ValueError("Truck queue should be empty!!")
-    LOG.logger_font.info(f"small package counts: {truck_controller.small_package_counts}, small bag counts: {truck_controller.small_bag_counts}")
     LOG.logger_font.info(f"{num_of_trucks} trucks leave in queue")
     LOG.logger_font.info("sim end..")
     LOG.logger_font.info("collecting data")
