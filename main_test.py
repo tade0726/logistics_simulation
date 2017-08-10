@@ -11,6 +11,7 @@ des:
 
 import simpy
 from datetime import datetime, timedelta
+import pandas as pd
 import os
 from collections import defaultdict
 
