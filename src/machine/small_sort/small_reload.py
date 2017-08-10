@@ -113,7 +113,6 @@ class SmallReload(object):
 
     def put_package(self, small: SmallPackage):
 
-
         small.insert_data(
             PackageRecord(
                 equipment_id=self.equipment_id,
