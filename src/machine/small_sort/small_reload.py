@@ -41,7 +41,6 @@ class SmallReload(object):
         self.equipment_process_time_dict = equipment_process_time_dict
 
         self.store = list()
-        self.counts = 0
         self.small_bag_count = 0
         self.store_is_full = self.env.event()
 
