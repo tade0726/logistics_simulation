@@ -301,7 +301,7 @@ class PathGenerator(object):
             #     end_node = 'c8_1' if start_node_equipment in [f'u{i}' for i in range(1, 5)] else 'c9_1'
             # return random.choice(self.all_paths[(start_node, end_node)]["all"])
 
-        else:  # 包裹路线 & 小件包 小件打包节点到终分拣节点   a/r - c (reload)
+        else:  # 包裹路线 & 小件包 小件打包节点到终分拣节点   a/r - c (reload) &
             end_node_list = self.reload_setting.get((dest_code, "reload", dest_type), [])
             if end_node_list:
                 end_node = random.choice(
@@ -330,9 +330,13 @@ class PathGenerator(object):
                 return random.choice(
                     self.all_paths[(start_node, end_node)]["hospital"])
             else:
-                return random.choice(
-                    self.all_paths[(start_node, end_node)][
-                        "without hospital"])
+                # small sort 垃圾滑槽直接到 reload
+                if start_node in ['c8_1', 'c9_1']:
+                    return [start_node, end_node]
+                else:
+                    return random.choice(
+                        self.all_paths[(start_node, end_node)][
+                            "without hospital"])
 
 
 if __name__ == "__main__":
