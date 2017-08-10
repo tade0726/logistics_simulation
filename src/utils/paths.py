@@ -330,13 +330,9 @@ class PathGenerator(object):
                 return random.choice(
                     self.all_paths[(start_node, end_node)]["hospital"])
             else:
-                # small sort 垃圾滑槽直接到 reload
-                if start_node in ['c8_1', 'c9_1']:
-                    return [start_node, end_node]
-                else:
-                    return random.choice(
-                        self.all_paths[(start_node, end_node)][
-                            "without hospital"])
+                return random.choice(
+                    self.all_paths[(start_node, end_node)][
+                        "without hospital"])
 
 
 if __name__ == "__main__":
