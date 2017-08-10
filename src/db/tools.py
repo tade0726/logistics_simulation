@@ -181,6 +181,10 @@ def get_vehicles(is_land: bool,
         table_parcel = table_parcel1.append(table_parcel2).append(table_parcel3)
         # filter small
         table_small = table_small[table_small["parcel_id"].isin(table_parcel.parcel_id)]
+        parcel_counts = len(table_parcel['parcel_id'].unique())
+        small_counts = len(table_small['small_id'].unique())
+
+        LOG.logger_font.info(f"IS_LAND: {is_land}, input data, parcel counts: {parcel_counts}, small packages: {small_counts}")
 
     if not is_land:
         # fixme: using parcel_id as plate_num, cos lack of plate_num for uld
