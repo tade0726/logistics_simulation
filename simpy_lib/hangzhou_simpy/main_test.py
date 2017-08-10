@@ -223,7 +223,7 @@ def main(run_arg):
     # process data
     logging.info(msg="processing data")
     # time stamp for db
-    db_insert_time = datetime.now()
+    db_insert_time = run_arg
 
     def add_time(table: pd.DataFrame):
         """添加仿真的时间戳， 以及运行的日期"""
