@@ -272,7 +272,7 @@ class PathGenerator(object):
             else:
                 position = 2
 
-        if position == 1:  # 小件包从卸货位到拆包节点
+        if position == 1:  # 小件包(small bag) 从卸货位到拆包节点 r/a - u
             c_ports = self.reload_setting.get((dest_code, sort_type, dest_type))
             if c_ports:
                 end_node = random.choice(small_dic[random.choice(c_ports)[0:3]]) + str(random.randint(1, 7))
@@ -281,16 +281,15 @@ class PathGenerator(object):
                 all_u_port_pre = list(reduce(lambda x,y: set(x) | set(y), small_dic.values()))
                 end_node = random.choice(all_u_port_pre) + str(random.randint(1, 7))
             return random.choice(self.all_paths[(start_node, end_node)]["all"])
-        elif position == 2:  # 小件 从拆包节点到装包节点
-            end_node = random.choice(
-                self.reload_setting[(dest_code, sort_type, dest_type)])
-            path_list = self.all_paths.get((start_node, end_node), {"all": []})
-            if path_list["all"]:
-                return random.choice(self.all_paths[(start_node, end_node)]["all"])
+        elif position == 2:  # 小件(small package) 从拆包节点到装包节点   u - c(small)
+            c_ports = self.reload_setting.get((dest_code, sort_type, dest_type))
+            if c_ports:
+                end_node = random.choice(c_ports)
             else:  # 如果找不到路径，则规划到垃圾滑槽
-                end_node = small_trash_dic[end_node[0:3]]
+                start_node_equipment = start_node.split('_')[0]
+                end_node = 'c8_1' if start_node_equipment in [f'u{i}' for i in range(1, 5)] else 'c9_1'
                 return random.choice(self.all_paths[(start_node, end_node)]["all"])
-        else:  # 包裹路线 & 小件包 小件打包节点到终分拣节点
+        else:  # 包裹路线 & 小件包 小件打包节点到终分拣节点   a/r - c (reload)
             end_node_list = self.reload_setting.get((dest_code, "reload", dest_type), [])
             if end_node_list:
                 end_node = random.choice(
