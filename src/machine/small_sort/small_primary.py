@@ -59,7 +59,7 @@ class SmallPrimary(object):
         # 请求资源（工人)，一个工人处理一个小件包
         with self.resource.request() as req:
             yield req
-            # 获取小件包中的所有小
+            # 获取小件包中的所有小件
             small_packages = small_bag.get_all_package()
             for small_package in small_packages:
                 # 记录机器开始处理货物信息
