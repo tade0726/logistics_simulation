@@ -65,7 +65,7 @@ class SmallReload(object):
     def pack_send(self, wait_time_stamp: float):
         # init small_bag
         store = self._get_small_package()
-        small_bag = SmallBag(store[0].attr, store)
+        small_bag = SmallBag(store)
         small_bag.item_id = "98" + next(Small_code.code_generator)  # "98" + "0000000000" ~ "98" + "9999999999"
 
         small_bag.insert_data(
