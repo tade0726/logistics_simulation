@@ -40,15 +40,12 @@ SWITCH = False
 def machine_pre():
     return dict(land_unload=["r1_", "r2_", "r3_", "r4_", "r5_"],
                 air_unload=["a1_", "a2_", "a3_"],
-                small_presort=["u1_", "u2_", "u3_", "u4_", "u5_", "u6_", "u7_",
-                               "u8_"],
-                land_small_secondary=["c7_", "c8_", "c9_", "c10",
-                                      "c11", "c12"],
+                small_presort=["u1_", "u2_", "u3_", "u4_", "u5_", "u6_", "u7_", "u8_"],
+                land_small_secondary=["c7_", "c8_", "c9_", "c10", "c11", "c12"],
                 air_small_secondary=["c5_", "c6_"],
                 land_secondary=["c1_", "c2_", "c3_", "c4_"],
                 air_secondary=["c13", "c14", "c15", "c16", "c17", "c18"],
-                other_small=["i9_", "i10", "i11", "i12", "i13", "i14", "i15",
-                             "i16"],
+                other_small=["i9_", "i10", "i11", "i12", "i13", "i14", "i15", "i16"],
                 hospital=["h1_1", "h2_1", "h3_1"],
                 security=[f"j{i+1}_1" for i in range(41)])
 
@@ -301,8 +298,9 @@ class PathGenerator(object):
             #     end_node = 'c8_1' if start_node_equipment in [f'u{i}' for i in range(1, 5)] else 'c9_1'
             # return random.choice(self.all_paths[(start_node, end_node)]["all"])
 
-        else:  # 包裹路线 & 小件包 小件打包节点到终分拣节点   a/r - c (reload) &
+        elif position == 0:  # 包裹路线 & 小件包 小件打包节点到终分拣节点   a/r - c (reload) & c(small ) - c(reload)
             end_node_list = self.reload_setting.get((dest_code, "reload", dest_type), [])
+
             if end_node_list:
                 end_node = random.choice(
                     self.reload_setting[(dest_code, "reload", dest_type)])
@@ -311,28 +309,34 @@ class PathGenerator(object):
                     end_node = random.choice(["c2_1", "c4_1"])
                 else:
                     end_node = "c18_1"
-            if start_node[0:3] in self.machine_pre_dict["land_unload"] and end_node[0:3] in self.machine_pre_dict["air_secondary"]:
+
+            # land to air
+            if start_node[0:3] in self.machine_pre_dict["land_unload"] \
+                    and end_node[0:3] in self.machine_pre_dict["air_secondary"]:
+
                 security_prob = random.random()  # 安检概率
+
                 if security_prob <= 0.009:
-                    path = random.choice(self.all_paths[(start_node, end_node)][
-                                             "without hospital"])
-                    security_node = list(
-                        set(path) & set(self.machine_pre_dict["security"]))
+
+                    path = random.choice(self.all_paths[(start_node, end_node)]["without hospital"])
+                    security_node = list(set(path) & set(self.machine_pre_dict["security"]))
                     if len(security_node) == 0:
-                        raise Exception(
-                            "Error: There is no security check node in path!")
+                        raise Exception("Error: There is no security check node in path!")
                     i = path.index(security_node[0])
                     now = path[:i+1]
                     now.append("c3_14")
                     return now
+
             hospital_prob = random.random()  # 医院区概率
-            if hospital_prob <= 0.05:
-                return random.choice(
-                    self.all_paths[(start_node, end_node)]["hospital"])
-            else:
-                return random.choice(
-                    self.all_paths[(start_node, end_node)][
-                        "without hospital"])
+
+            try:
+                if hospital_prob <= 0.05:
+                    return random.choice(self.all_paths[(start_node, end_node)]["hospital"])
+                else:
+                    return random.choice(self.all_paths[(start_node, end_node)]["without hospital"])
+
+            except KeyError:
+                return [start_node, end_node]
 
 
 if __name__ == "__main__":
