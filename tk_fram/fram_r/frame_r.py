@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
 
 from tkinter import Tk, Label, Entry, Button, Spinbox, Text, Canvas, Y, BOTH, \
-    YES, Frame, Scrollbar
+    YES, Frame, Scrollbar, StringVar
+from tkinter.ttk import Combobox
 from .frame import App, CheckBtnEntryList
 from .frame_r_view import *
 # import logging as lg
@@ -81,47 +82,47 @@ def init_r_frame(root: Tk):
     init_btn_entry_val_from_sql()
 
     # ======================left- top1============================
-    canvas_left = Canvas(left_set_pad_center_up)
-    scrollbar = Scrollbar(left_set_pad_center_up)
-    scrollbar.config(command=canvas_left.yview)
-    canvas_left.config(yscrollcommand=scrollbar.set)
-    scrollbar.pack(side="right", fill=Y)
-    canvas_left.config(
+    canvas_up = Canvas(left_set_pad_center_up)
+    scrollbar_up = Scrollbar(left_set_pad_center_up)
+    scrollbar_up.config(command=canvas_up.yview)
+    canvas_up.config(yscrollcommand=scrollbar_up.set)
+    scrollbar_up.pack(side="right", fill=Y)
+    canvas_up.config(
         width=645,
         height=250
     )
-    canvas_left.pack(
+    canvas_up.pack(
         side="left",
         expand=YES,
         fill=BOTH
     )
 
-    frame_left = Frame(canvas_left, width=50, height=100)
-    frame_left.pack(side="top", fill=BOTH)
-    canvas_left.create_window(0, 0, window=frame_left, anchor="nw")
+    frame_up = Frame(canvas_up, width=50, height=100)
+    frame_up.pack(side="top", fill=BOTH)
+    canvas_up.create_window(0, 0, window=frame_up, anchor="nw")
 
-    bas = [0, 0, 0 ,50]
+    bas_up = [0, 0, 0 ,50]
     # ======================left- top2============================
-    # canvas_left = Canvas(left_set_pad_center_down)
-    # scrollbar = Scrollbar(left_set_pad_center_down)
-    # scrollbar.config(command=canvas_left.yview)
-    # canvas_left.config(yscrollcommand=scrollbar.set)
-    # scrollbar.pack(side="right", fill=Y)
-    # canvas_left.config(
-    #     width=645,
-    #     height=250
-    # )
-    # canvas_left.pack(
-    #     side="left",
-    #     expand=YES,
-    #     fill=BOTH
-    # )
-    #
-    # frame_left = Frame(canvas_left, width=50, height=100)
-    # frame_left.pack(side="top", fill=BOTH)
-    # canvas_left.create_window(0, 0, window=frame_left, anchor="nw")
-    #
-    # bas = [0, 0, 0, 100]
+    canvas_down = Canvas(left_set_pad_center_down)
+    scrollbar_down = Scrollbar(left_set_pad_center_down)
+    scrollbar_down.config(command=canvas_down.yview)
+    canvas_down.config(yscrollcommand=scrollbar_down.set)
+    scrollbar_down.pack(side="right", fill=Y)
+    canvas_down.config(
+        width=645,
+        height=250
+    )
+    canvas_down.pack(
+        side="left",
+        expand=YES,
+        fill=BOTH
+    )
+
+    frame_down = Frame(canvas_down, width=50, height=100)
+    frame_down.pack(side="top", fill=BOTH)
+    canvas_down.create_window(0, 0, window=frame_down, anchor="nw")
+
+    bas_down = [0, 0, 0, 50]
     # ==================================================
 
 
@@ -165,12 +166,15 @@ def init_r_frame(root: Tk):
     )
     lbl_resource.grid(row=0, column=2)
     # 选择人数
-    person_res = Spinbox(
+    date = StringVar()
+    person_res = Combobox(
         master=left_set_pad_package,
         width=31,
-        bd=8,
+        #bd=8,
         # height=2,
-        values=(1, 2))
+        textvariable=date,
+        values=TIME_LIST
+    )
     person_res.grid(row=0, column=3)
     # ============================机器配置==========================
     # 路侧卸货标题-L2L
@@ -206,19 +210,26 @@ def init_r_frame(root: Tk):
     for w_id in ConfigFrame.WIG_ID_R:
         CHECK_BTN_ENTRY_DIC[w_id] = CheckBtnEntryList(
             w_id,
-            frame_left,
+            frame_up,
             LIST_VALUE_COMBOBOX['R']
         )
         CHECK_BTN_ENTRY_DIC[w_id].init_on_off_status()
-        canvas_left["scrollregion"] = "%d %d %d %d" % \
-                                      (bas[0], bas[1], bas[2], bas[3])
-        bas[3] += 50/3
+        canvas_up["scrollregion"] = "%d %d %d %d" % \
+                                      (bas_up[0], bas_up[1], bas_up[2],
+                                       bas_up[3])
+        bas_up[3] += 50/3
     #
-    # for w_id in ConfigCheckBtn.WIG_ID_RIGHT:
-    #     CHECK_BTN_ENTRY_DIC[w_id] = CheckBtnEntry(
-    #         w_id, left_set_pad_center_right
-    #     )
-    #     CHECK_BTN_ENTRY_DIC[w_id].init_on_off_status()
+    for w_id in ConfigFrame.WIG_ID_M:
+        CHECK_BTN_ENTRY_DIC[w_id] = CheckBtnEntryList(
+            w_id,
+            frame_down,
+            LIST_VALUE_COMBOBOX['M']
+        )
+        CHECK_BTN_ENTRY_DIC[w_id].init_on_off_status()
+        canvas_down["scrollregion"] = "%d %d %d %d" % \
+                                      (bas_down[0], bas_down[1], bas_down[2],
+                                       bas_down[3])
+        bas_down[3] += 50/3
     # ============================仿真结果输出面板======================
     lbl_info = Label(
         master=right_output_pad_title,

@@ -3,11 +3,9 @@
 from tkinter import Frame
 from tkinter.ttk import Combobox
 from tkinter import Checkbutton
-from tkinter import Entry, IntVar, StringVar
-from .frame_r_view import ConfigFrame, DATABASES, BTN_ENTRY_DICT, \
+from tkinter import Entry, IntVar, StringVar, DISABLED
+from .frame_r_view import ConfigFrame, BTN_ENTRY_DICT, \
     ENTRY_STATUS_DIC
-
-from pymysql import connect
 
 
 class App(Frame):
@@ -237,6 +235,8 @@ class CheckBtnEntryList(object):
         )
 
     def init_on_off_status(self):
+        if 'm' in self.w_id:
+            self.check_btn['state'] = DISABLED
         self.var.set(BTN_ENTRY_DICT[self.w_id])
         self.string.set(ENTRY_STATUS_DIC[self.var.get()])
         if self.string.get() == 'ON':
