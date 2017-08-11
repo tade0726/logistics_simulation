@@ -180,11 +180,6 @@ def get_vehicles(is_land: bool,
         table_parcel3 = table_parcel[table_parcel.parcel_type == 'parcel'].sample(125)
         table_parcel = table_parcel1.append(table_parcel2).append(table_parcel3)
         # filter small
-        table_small = table_small[table_small["parcel_id"].isin(table_parcel.parcel_id)]
-        parcel_counts = len(table_parcel['parcel_id'].unique())
-        small_counts = len(table_small['small_id'].unique())
-
-        LOG.logger_font.info(f"IS_LAND: {is_land}, input data, parcel counts: {parcel_counts}, small packages: {small_counts}")
 
     if not is_land:
         # fixme: using parcel_id as plate_num, cos lack of plate_num for uld
@@ -197,6 +192,12 @@ def get_vehicles(is_land: bool,
 
     table_small["arrive_time"] = (pd.to_datetime(table_small["arrive_time"]) - TimeConfig.ZERO_TIMESTAMP) \
         .apply(lambda x: x.total_seconds() if x.total_seconds() > 0 else 0)
+
+    table_small = table_small[table_small["parcel_id"].isin(table_parcel.parcel_id)]
+    parcel_counts = len(table_parcel['parcel_id'].unique())
+    small_counts = len(table_small['small_id'].unique())
+
+    LOG.logger_font.info(f"IS_LAND: {is_land}, input data, parcel counts: {parcel_counts}, small packages: {small_counts}")
 
     # 'plate_num' 是货车／飞机／的编号
     parcel_dict = dict(list(table_parcel.groupby(['plate_num', 'arrive_time', 'src_type', ])))
