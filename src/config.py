@@ -22,7 +22,7 @@ class MainConfig:
     IS_PARCEL_ONLY = False  # 只有 parcel 件
     IS_LAND_ONLY = False  # True 只有 landside, False landside airside
     CACHE_TYPE = 'redis'  # {None, "redis", "pkl"}
-    LOCAL_DB = False  # control the which DB using
+    LOCAL_DB = False  # control which DB using
     ALL_OPEN = False  # no more equipment limit
     O_DATA_SUFFIX = '_0'  # o table SUFFIX
 
