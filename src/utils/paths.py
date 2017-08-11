@@ -328,21 +328,24 @@ class PathGenerator(object):
                     return now
 
             # try
-            ret_paths = self.all_paths.get((start_node, end_node))
-            if ret_paths:
-                ret_path = random.choice(ret_paths)
-                hospital_prob = random.random()  # 医院区概率
+            ret_paths_dict = self.all_paths.get((start_node, end_node))
 
+            if ret_paths_dict:
+
+                hospital_prob = random.random()  # 医院区概率
                 if hospital_prob <= 0.05:
-                    return ret_path["hospital"]
+                    ret_paths = ret_paths_dict["hospital"]
                 else:
-                    return ret_path["without hospital"]
+                    ret_paths = ret_paths_dict["without hospital"]
+
+                if ret_paths:
+                    ret_path = random.choice(ret_paths)
+                    return ret_path
+                else:
+                    return [start_node, end_node]
             # 进入垃圾滑槽
             else:
                 return [start_node, end_node]
-
-
-
 
 if __name__ == "__main__":
 
