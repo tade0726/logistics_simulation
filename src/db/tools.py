@@ -83,7 +83,7 @@ def load_from_redis(table_name: str):
 def write_mysql(table_name: str, data: pd.DataFrame, ):
     """写入MySQl数据库, 表格如果存在, 则新增数据"""
     try:
-        data.to_sql(name=f'o_{table_name}', con=RemoteMySQLConfig.engine, if_exists='append', index=0)
+        data.to_sql(name=f'o_{table_name}{MainConfig.O_DATA_SUFFIX}', con=RemoteMySQLConfig.engine, if_exists='append', index=0)
         LOG.logger_font.info(f"mysql write table {table_name} succeed!")
     except Exception as exc:
         LOG.logger_font.error(f"mysql write table {table_name} failed, error: {exc}.")
