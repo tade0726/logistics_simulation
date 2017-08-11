@@ -17,14 +17,14 @@ import logging
 
 
 class MainConfig:
-    IS_TEST = False
-    SAVE_LOCAL = False
+    IS_TEST = True
+    SAVE_LOCAL = True
     IS_PARCEL_ONLY = False  # 只有 parcel 件
     IS_LAND_ONLY = False  # True 只有 landside, False landside airside
     CACHE_TYPE = 'redis'  # {None, "redis", "pkl"}
     LOCAL_DB = False  # control which DB using
     ALL_OPEN = False  # no more equipment limit
-    O_DATA_SUFFIX = '_0'  # o table SUFFIX
+    O_DATA_SUFFIX = '_0' if not IS_TEST else ''  # o table SUFFIX
 
 
 class RedisConfig:
@@ -59,6 +59,7 @@ class SaveConfig:
     DATA_DIR = join(PROJECT_DIR , 'data')
     OUT_DIR = join(PROJECT_DIR, 'out')
     LOG_DIR = join(PROJECT_DIR, 'log')
+    HDF5_FILE = join(DATA_DIR, 'input_data.h5')
 
 
 class TimeConfig:
