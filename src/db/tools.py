@@ -24,7 +24,17 @@ __all__ = ['write_redis', 'load_from_redis', 'write_mysql', 'write_local', 'load
 
 
 def checking_pickle_file(table_name):
+    """checking pkl table exists"""
     return isfile(join(SaveConfig.DATA_DIR, f"{table_name}.pkl"))
+
+
+def checking_h5_store(table_name):
+    """checking table exists in hdf5"""
+    if isfile(SaveConfig.HDF5_FILE):
+        store = pd.HDFStore(SaveConfig.HDF5_FILE)
+        return True if store.get_node(table_name) else False
+    else:
+        return False
 
 
 def load_cache(cache_type: bool=None):
@@ -41,11 +51,17 @@ def load_cache(cache_type: bool=None):
                     table = func(table_name)
                     write_redis(table_name, data=table)
                     return table
-
+            elif cache_type == 'hdf5':
+                if not checking_h5_store(table_name):
+                    table = func(table_name)
+                    write_local(table_name, data=table, is_out=False, data_format='hdf5')
+                    return table
+                else:
+                    return pd.read_hdf(SaveConfig.HDF5_FILE, table_name)
             elif cache_type == 'pkl':
                 if not checking_pickle_file(table_name):
                     table = func(table_name)
-                    write_local(table_name, data=table, is_out=False, is_csv=False)
+                    write_local(table_name, data=table, is_out=False, data_format='pkl')
                     return table
                 else:
                     return load_from_local(table_name, is_csv=False)
@@ -90,19 +106,22 @@ def write_mysql(table_name: str, data: pd.DataFrame, ):
         raise Exception
 
 
-def write_local(table_name: str, data: pd.DataFrame, is_out:bool = True, is_csv:bool=True):
+def write_local(table_name: str, data: pd.DataFrame, is_out:bool = True, data_format:str='csv'):
     """写入本地"""
 
     out_dir = SaveConfig.OUT_DIR if is_out else SaveConfig.DATA_DIR
-    table_format = 'csv' if is_csv else 'pkl'
     try:
-        if is_csv:
+        if data_format == 'csv':
             data.to_csv(join(out_dir, f"{table_name}.csv"), index=0)
-        else:
+        elif data_format == 'pkl':
             data.to_pickle(join(out_dir, f"{table_name}.pkl"), )
-        LOG.logger_font.info(f"{table_format} write table {table_name} succeed!")
+        elif data_format == 'hdf5':
+            data.to_hdf(SaveConfig.HDF5_FILE, table_name)
+        else:
+            raise ValueError('data_format is not right!')
+        LOG.logger_font.info(f"{data_format} write table {table_name} succeed!")
     except Exception as exc:
-        LOG.logger_font.error(f"{table_format} write table {table_name} failed, error: {exc}.")
+        LOG.logger_font.error(f"{data_format} write table {table_name} failed, error: {exc}.")
         raise Exception
 
 
