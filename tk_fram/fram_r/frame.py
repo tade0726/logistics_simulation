@@ -4,7 +4,7 @@ from tkinter import Frame
 from tkinter.ttk import Combobox
 from tkinter import Checkbutton
 from tkinter import Entry, IntVar, StringVar
-from .frame_r_view import ConfigCheckBtn, DATABASES, BTN_ENTRY_DICT, \
+from .frame_r_view import ConfigFrame, DATABASES, BTN_ENTRY_DICT, \
     ENTRY_STATUS_DIC
 
 from pymysql import connect
@@ -25,6 +25,78 @@ class App(Frame):
             self.pack()
         if self.attr:
             self.config(self.attr)
+
+
+class ComboboxCreate(Combobox):
+
+    def __init__(
+            self,
+            master=None,
+            string_combobox=None,
+            list_var: list=None,
+            attr_dic: dict=None,
+            grid_dic: dict=None
+    ):
+        super().__init__(master=master)
+        self.string = string_combobox
+        self.list_var = list_var
+        self.attr_dic = attr_dic
+        self.grid_dic = grid_dic
+        self._update_config()
+        self._init_combobox_list()
+
+    def _update_config(self):
+        self.attr_dic.update(
+            {
+                'textvariable': self.string,
+                'values': self.list_var
+            }
+        )
+
+    def _init_combobox_list(self):
+        """"""
+        if self.attr_dic:
+            self.config(self.attr_dic)
+        #
+        if self.grid_dic:
+            self.grid(self.grid_dic)
+        else:
+            self.grid()
+
+
+class EntryCreate(Entry):
+    """"""
+
+    def __init__(
+            self,
+            master=None,
+            grid_dic: dict = None,
+            attr_dic: dict = None,
+            text_var=None,
+    ):
+        super().__init__(master=master)
+        self.attr_dic = attr_dic
+        self.grid_dic = grid_dic
+        self.text_var = text_var
+        self._update_config()
+        self._init_entry()
+
+    def _update_config(self):
+        self.attr_dic.update(
+            {
+                'textvariable': self.text_var
+            }
+        )
+
+    def _init_entry(self):
+        """"""
+        if self.attr_dic:
+            self.config(self.attr_dic)
+        #
+        if self.grid_dic:
+            self.grid(self.grid_dic)
+        else:
+            self.grid()
 
 
 class CheckBtnCreate(Checkbutton):
@@ -85,11 +157,29 @@ def init_check_btn(master, id, var, command):
     """"""
     return CheckBtnCreate(
         master=master,
-        grid_dic=ConfigCheckBtn.CHECK_BTN[id]['grid'],
-        attr_dic=ConfigCheckBtn.CHECK_BTN[id]['attr'],
+        grid_dic=ConfigFrame.CHECK_BTN[id]['grid'],
+        attr_dic=ConfigFrame.CHECK_BTN[id]['attr'],
         id=id,
         var=var,
         command=command
+    )
+
+
+def init_combobox_list(master, id, string_combobox, list_var):
+    """
+
+    :param master:
+    :param id:
+    :string_var:
+    :param values:
+    :return:
+    """
+    return ComboboxCreate(
+        master=master,
+        string_combobox=string_combobox,
+        list_var=list_var,
+        attr_dic=ConfigFrame.COMBOBOX_LIST[id]['attr'],
+        grid_dic=ConfigFrame.COMBOBOX_LIST[id]['grid']
     )
 
 
@@ -103,58 +193,33 @@ def init_entry(master, id, text_var):
     """
     return EntryCreate(
         master=master,
-        attr_dic=ConfigCheckBtn.ENTRY[id]['attr'],
-        grid_dic=ConfigCheckBtn.ENTRY[id]['grid'],
+        attr_dic=ConfigFrame.ENTRY[id]['attr'],
+        grid_dic=ConfigFrame.ENTRY[id]['grid'],
         text_var=text_var
     )
 
 
-class EntryCreate(Entry):
-    """"""
-    def __init__(
-            self,
-            master=None,
-            grid_dic: dict=None,
-            attr_dic: dict=None,
-            text_var=None,
-    ):
-        super().__init__(master=master)
-        self.attr_dic = attr_dic
-        self.grid_dic = grid_dic
-        self.text_var = text_var
-        self._update_config()
-        self._init_entry()
 
-    def _update_config(self):
-        self.attr_dic.update(
-            {
-                'textvariable': self.text_var
-            }
-        )
+class CheckBtnEntryList(object):
 
-    def _init_entry(self):
-        """"""
-        if self.attr_dic:
-            self.config(self.attr_dic)
-        #
-        if self.grid_dic:
-            self.grid(self.grid_dic)
-        else:
-            self.grid()
-
-
-class CheckBtnEntry(object):
-
-    def __init__(self, w_id, master):
+    def __init__(self, w_id, master, list_value):
         self.w_id = w_id
         self.master = master
+        self.list_value = list_value
         self.var = IntVar()
         self.string = StringVar()
+        self.string_combobox = StringVar()
+        self.init_list = self.init_list()
         self.entry = self.init_entry()
         self.check_btn = self.init_check_btn()
 
     def init_list(self):
-        pass
+        return init_combobox_list(
+            master=self.master,
+            id=self.w_id,
+            string_combobox=self.string_combobox,
+            list_var=self.list_value
+        )
 
     def init_entry(self):
         return init_entry(

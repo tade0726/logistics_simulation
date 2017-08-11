@@ -2,7 +2,7 @@
 
 from tkinter import Tk, Label, Entry, Button, Spinbox, Text, Canvas, Y, BOTH, \
     YES, Frame, Scrollbar
-from .frame import App, CheckBtnEntry
+from .frame import App, CheckBtnEntryList
 from .frame_r_view import *
 # import logging as lg
 from .db_api import init_btn_entry_val_from_sql
@@ -100,28 +100,28 @@ def init_r_frame(root: Tk):
     frame_left.pack(side="top", fill=BOTH)
     canvas_left.create_window(0, 0, window=frame_left, anchor="nw")
 
-    bas = [0, 0, 0 ,100]
+    bas = [0, 0, 0 ,50]
     # ======================left- top2============================
-    canvas_left = Canvas(left_set_pad_center_down)
-    scrollbar = Scrollbar(left_set_pad_center_down)
-    scrollbar.config(command=canvas_left.yview)
-    canvas_left.config(yscrollcommand=scrollbar.set)
-    scrollbar.pack(side="right", fill=Y)
-    canvas_left.config(
-        width=645,
-        height=250
-    )
-    canvas_left.pack(
-        side="left",
-        expand=YES,
-        fill=BOTH
-    )
-
-    frame_left = Frame(canvas_left, width=50, height=100)
-    frame_left.pack(side="top", fill=BOTH)
-    canvas_left.create_window(0, 0, window=frame_left, anchor="nw")
-
-    bas = [0, 0, 0, 100]
+    # canvas_left = Canvas(left_set_pad_center_down)
+    # scrollbar = Scrollbar(left_set_pad_center_down)
+    # scrollbar.config(command=canvas_left.yview)
+    # canvas_left.config(yscrollcommand=scrollbar.set)
+    # scrollbar.pack(side="right", fill=Y)
+    # canvas_left.config(
+    #     width=645,
+    #     height=250
+    # )
+    # canvas_left.pack(
+    #     side="left",
+    #     expand=YES,
+    #     fill=BOTH
+    # )
+    #
+    # frame_left = Frame(canvas_left, width=50, height=100)
+    # frame_left.pack(side="top", fill=BOTH)
+    # canvas_left.create_window(0, 0, window=frame_left, anchor="nw")
+    #
+    # bas = [0, 0, 0, 100]
     # ==================================================
 
 
@@ -203,14 +203,16 @@ def init_r_frame(root: Tk):
     # lbl_unload.grid(row=0, column=0)
 
     # ===================     卸货区数据      =====================
-    for w_id in ConfigCheckBtn.WIG_ID_R:
-        CHECK_BTN_ENTRY_DIC[w_id] = CheckBtnEntry(
-            w_id, frame_left
+    for w_id in ConfigFrame.WIG_ID_R:
+        CHECK_BTN_ENTRY_DIC[w_id] = CheckBtnEntryList(
+            w_id,
+            frame_left,
+            LIST_VALUE_COMBOBOX['R']
         )
         CHECK_BTN_ENTRY_DIC[w_id].init_on_off_status()
         canvas_left["scrollregion"] = "%d %d %d %d" % \
                                       (bas[0], bas[1], bas[2], bas[3])
-        bas[3] += 60
+        bas[3] += 50/3
     #
     # for w_id in ConfigCheckBtn.WIG_ID_RIGHT:
     #     CHECK_BTN_ENTRY_DIC[w_id] = CheckBtnEntry(

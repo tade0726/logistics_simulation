@@ -15,7 +15,7 @@ action.grid(column=2, row=1)    # 设置其在界面中出现的位置  column�
 # 创建一个下拉列表
 number = tk.StringVar()
 numberChosen = ttk.Combobox(win, width=12, textvariable=number)
-numberChosen['values'] = (1, 2, 4, 42, 100)     # 设置下拉列表的值
+numberChosen['values'] = (1, 2, 3, 4)     # 设置下拉列表的值
 numberChosen.grid(column=1, row=1)      # 设置其在界面中出现的位置  column代表列   row 代表行
 numberChosen.current(0)    # 设置下拉列表默认显示的值，0为 numberChosen['values'] 的下标值
 

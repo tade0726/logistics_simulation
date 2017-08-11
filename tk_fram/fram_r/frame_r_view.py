@@ -38,11 +38,17 @@ Flag = {
     'run_time': None
 }
 
-ENTRY_STATUS_DIC = {0: 'OFF', 1: 'ON'}
+#  人力资源配置：下拉列表的值
+LIST_VALUE_COMBOBOX= {
+    'R': [1, 2],
+    'M': [1, 2, 3, 4]
+}
 
-BTN_ENTRY_DICT = {}
+ENTRY_STATUS_DIC = {0: 'OFF', 1: 'ON'}  # btn状态对应entry的显示值对应字典
 
-CHECK_BTN_ENTRY_DIC = {}
+BTN_ENTRY_DICT = {}       # 初始化entry状态字典
+
+CHECK_BTN_ENTRY_DIC = {}   # 设置控件的id同实例的关联字典
 
 DATABASES = {
     'HOST': '10.0.149.62',
@@ -182,7 +188,7 @@ class ConfigApp(object):
     }
 
 
-class ConfigCheckBtn(object):
+class ConfigFrame(object):
     """选择控件"""
     WIG_ID_R = [
         'r1_1', 'r1_2', 'r1_3', 'r1_4',
@@ -198,79 +204,93 @@ class ConfigCheckBtn(object):
     ]
 
     WIG_DIC = {
-        'left': {
-            'rows': 8,
-            'columns': 1,
-            'wig_id': WIG_ID_LEFT
-        },
-        'right': {
-            'rows': 8,
+        'R': {
             'columns': 3,
-            'wig_id': WIG_ID_RIGHT
+            'wig_id': WIG_ID_R
+        },
+        'M': {
+            'columns': 3,
+            'wig_id': WIG_ID_M
         }
     }
 
     CHECK_BTN_ATTR = {
-        'font': ('Times', 15, 'bold'),
+        'font': ('Times', 10, 'bold'),
         'onvalue': 1,
         'offvalue': 0,
         'bd': 6,
         'height': 1,
         'pady': 10,
-        # 'padx': 1,
+        'padx': 15,
         # 'height': 2,
         }
     ENTRY_ATTR = {
-        'font': ('Times', 15, 'bold'),
-        'bd': 8,
+        'font': ('Times', 8, 'bold'),
+        'bd': 4,
         'width': 6,
-        # 'height': 2,
         'justify': 'left',
         'state': DISABLED
+    }
+    COMBOBOX_LIST_ATTR = {
+        'font': ('Times', 10, 'bold'),
+        # 'bd': 8,
+        'width': 6,
+        'height': 6,
+        # 'justify': 'left',
+        # 'state': DISABLED
     }
     #  初始化check_btn视图字典
     CHECK_BTN = {}
     #  初始化entry视图字典
     ENTRY = {}
+    #  初始化combobox list 视图字典
+    COMBOBOX_LIST = {}
 
 
-class CheckBtnEntryView(ConfigCheckBtn):
+class CheckBtnEntryView(ConfigFrame):
 
     def __init__(self):
         super().__init__()
 
-    def _init_one_view(self, wig_id, rows, columns):
-        grid_num = 0
-        if len(wig_id) == rows * columns:
-            for i in range(columns):
-                for j in range(rows):
-                    #  check_btn 视图设置
-                    self.CHECK_BTN[wig_id[i * rows + j]] = {
-                        'attr': self.CHECK_BTN_ATTR,
-                        'grid': {
-                            'row': j,
-                            'column': i + grid_num
-                        }
-                    }
-                    #  entry 视图设置
-                    self.ENTRY[wig_id[i * rows + j]] = {
-                        'attr': self.ENTRY_ATTR,
-                        'grid': {
-                            'row': j,
-                            'column': i + grid_num + 1
-                        }
-                    }
-                # 更新列值
-                grid_num += 1
-        else:
-            raise ValueError('wig_id numbers not equal to '
-                             'rows*columns numbers!')
+    def _init_one_view(self, wig_id, columns):
+        row_var = 0
+        columns_var = 0
+        for id_wig in wig_id:
+
+            if columns_var>=columns:
+                columns_var=0
+                row_var += 1
+
+            self.CHECK_BTN[id_wig] = {
+                'attr': self.CHECK_BTN_ATTR,
+                'grid': {
+                    'row': row_var,
+                    'column': columns_var*columns+0
+                }
+            }
+            #  entry 视图设置
+            self.ENTRY[id_wig] = {
+                'attr': self.ENTRY_ATTR,
+                'grid': {
+                    'row': row_var,
+                    'column': columns_var*columns+1
+                }
+            }
+            #  combobox list 视图设置
+            self.COMBOBOX_LIST[id_wig] = {
+                'attr': self.COMBOBOX_LIST_ATTR,
+                'grid': {
+                    'row': row_var,
+                    'column': columns_var*columns+2
+                }
+            }
+            columns_var += 1
+
 
     def init_view(self):
         #  记录绝对列数
         for _, v in self.WIG_DIC.items():
             self._init_one_view(
                 wig_id=v['wig_id'],
-                rows=v['rows'],
                 columns=v['columns']
             )
