@@ -92,6 +92,19 @@ class Package:
         return f"<Package attr:{dict(display_dct)}, path: {self.planned_path}>"
 
 
+class Parcel(Package):
+    """包裹"""
+
+    def __init__(self,
+                 attr: pd.Series,):
+        # add for Package class compatible
+        super(Parcel, self).__init__(attr)
+
+    def __str__(self):
+        display_dct = dict(self.attr)
+        return f"<Parcel attr:{dict(display_dct)}>"
+
+
 class SmallPackage(Package):
     """小件包裹"""
     def __init__(self,
