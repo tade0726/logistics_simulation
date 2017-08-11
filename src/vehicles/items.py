@@ -18,7 +18,7 @@ import random
 from src.utils import PackageRecord, PipelineRecord, TruckRecord, PathGenerator
 from src.config import LOG
 
-__all__ = ["Package", "Truck", "Uld", "SmallBag", "SmallPackage", "Pipeline", "PipelineRes", "BasePipeline"]
+__all__ = ["Parcel", "Package", "Truck", "Uld", "SmallBag", "SmallPackage", "Pipeline", "PipelineRes", "BasePipeline"]
 
 
 path_g = PathGenerator()
