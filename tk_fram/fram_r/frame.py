@@ -235,10 +235,13 @@ class CheckBtnEntryList(object):
         )
 
     def init_on_off_status(self):
-        if 'm' in self.w_id:
-            self.check_btn['state'] = DISABLED
         self.var.set(BTN_ENTRY_DICT[self.w_id])
         self.string.set(ENTRY_STATUS_DIC[self.var.get()])
+        if 'm' in self.w_id:
+            self.check_btn['state'] = DISABLED
+            if self.var.get() == 0:
+                self.string_combobox.set(0)
+                self.init_list['state'] = DISABLED
         if self.string.get() == 'ON':
             self.entry['disabledforeground'] = 'blue'
 
