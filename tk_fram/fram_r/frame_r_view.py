@@ -9,6 +9,8 @@ FRAME_HEIGHT = 650  # 界面的总计高度
 FRAME_WIDTH_LEFT = 700  # 左侧界面的总计宽度
 FRAME_WIDTH_RIGHT = 400  # 右侧界面的总计宽度
 
+FRAME_WIDTH_LEFT_CANVAS = 670
+
 FRAME_WIDTH_LEFT_ONE = 200  # 左侧界面的左宽度
 FRAME_WIDTH_LEFT_TOW = 500  # 左侧界面的右宽度
 
@@ -20,7 +22,8 @@ FRAME_HEIGHT_HEAD = 50  # 界面顶端主标题的高度
 FRAME_HEIGHT_LEFT_PACKAGE = 50  # 包裹设置界面高度
 FRAME_HEIGHT_LEFT_SET_PAD_TITLE = 50  # 左侧设置界面标题高度
 FRAME_HEIGHT_LEFT_CENTER = 500  # 左侧中间界面的总计高度
-
+FRAME_HEIGHT_LEFT_CENTER_UP = 250   # 左侧设置界面画布的上高度
+FRAME_HEIGHT_LEFT_CENTER_DOWN = 250  # 左侧设置界面画布的下高度
 #  ===================右侧输出界面高度设置============
 #                           50+50+500
 FRAME_HEIGHT_RIGHT_INFO_TITLE = 40  # 输出信息板标题高度
@@ -131,22 +134,22 @@ class ConfigApp(object):
             },
             'pack': {'side': 'top'}
         },
-        'LEFT_SET_PAD_CENTER_LEFT': {
+        'LEFT_SET_PAD_CENTER_UP': {
             'attr': {
-                'width': FRAME_WIDTH_LEFT_ONE,
-                'height': FRAME_HEIGHT_LEFT_CENTER,
+                'width': FRAME_WIDTH_LEFT_CANVAS,
+                'height': FRAME_HEIGHT_LEFT_CENTER_UP,
                 'bd': 8,
                 'relief': 'raise'
             },
-            'pack': {'side': 'left'}
+            'pack': {'side': 'top'}
         },
-        'LEFT_SET_PAD_CENTER_RIGHT': {
+        'LEFT_SET_PAD_CENTER_DOWN': {
             'attr': {
-                'width': FRAME_WIDTH_LEFT_TOW,
-                'height': FRAME_HEIGHT_LEFT_CENTER,
+                'width': FRAME_WIDTH_LEFT_CANVAS,
+                'height': FRAME_HEIGHT_LEFT_CENTER_DOWN,
                 'bd': 8,
                 'relief': 'raise'},
-            'pack': {'side': 'right'}
+            'pack': {'side': 'top'}
         },
         'RIGHT_TITLE': {
             'attr': {
@@ -181,16 +184,17 @@ class ConfigApp(object):
 
 class ConfigCheckBtn(object):
     """选择控件"""
-    WIG_ID_LEFT = [
+    WIG_ID_R = [
         'r1_1', 'r1_2', 'r1_3', 'r1_4',
         'r2_1', 'r2_2', 'r2_3', 'r2_4',
-    ]
-    WIG_ID_RIGHT = [
         'r3_1', 'r3_2', 'r3_3', 'r3_4', 'r3_5', 'r3_6', 'r3_7', 'r3_8', 'r3_9',
         'r3_10',
         'r4_1', 'r4_2', 'r4_3', 'r4_4', 'r4_5', 'r4_6', 'r4_7', 'r4_8', 'r4_9',
         'r4_10',
         'r5_1', 'r5_2', 'r5_3', 'r5_4'
+    ]
+    WIG_ID_M = [
+
     ]
 
     WIG_DIC = {

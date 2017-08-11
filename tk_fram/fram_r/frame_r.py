@@ -39,28 +39,28 @@ def init_r_frame(root: Tk):
         wig='LEFT_SET_PAD_TOP_PACKAGE'
     )
     #  ================左侧左标题 ==========
-    left_set_pad_title = init_app(
-        master=left,
-        wig='LEFT_SET_PAD_TITLE'
-    )
-
-    left_set_pad_left_title = init_app(
-        master=left_set_pad_title,
-        wig='LEFT_SET_PAD_LEFT_TITLE'
-    )
+    # left_set_pad_title = init_app(
+    #     master=left,
+    #     wig='LEFT_SET_PAD_TITLE'
+    # )
     #
-    left_set_pad_right_title = init_app(
-        master=left_set_pad_title,
-        wig='LEFT_SET_PAD_RIGHT_TITLE'
-    )
+    # left_set_pad_left_title = init_app(
+    #     master=left_set_pad_title,
+    #     wig='LEFT_SET_PAD_LEFT_TITLE'
+    # )
+    # #
+    # left_set_pad_right_title = init_app(
+    #     master=left_set_pad_title,
+    #     wig='LEFT_SET_PAD_RIGHT_TITLE'
+    # )
     #  ==============左侧，左部L2L设置面板样式==========
-    left_set_pad_center_left = init_app(
+    left_set_pad_center_up = init_app(
         master=left,  # left_set_pad_r,
-        wig='LEFT_SET_PAD_CENTER_LEFT'
+        wig='LEFT_SET_PAD_CENTER_UP'
     )
-    left_set_pad_center_right = init_app(
+    left_set_pad_center_down = init_app(
         master=left,  # left_set_pad_r,
-        wig='LEFT_SET_PAD_CENTER_RIGHT'
+        wig='LEFT_SET_PAD_CENTER_DOWN'
     )
     #  ===============右侧输出标题样式=================
     right_output_pad_title = init_app(
@@ -80,15 +80,15 @@ def init_r_frame(root: Tk):
 
     init_btn_entry_val_from_sql()
 
-    # ==================================================
-    canvas_left = Canvas(left_set_pad_center_left)
-    scrollbar = Scrollbar(left_set_pad_center_left)
+    # ======================left- top1============================
+    canvas_left = Canvas(left_set_pad_center_up)
+    scrollbar = Scrollbar(left_set_pad_center_up)
     scrollbar.config(command=canvas_left.yview)
     canvas_left.config(yscrollcommand=scrollbar.set)
     scrollbar.pack(side="right", fill=Y)
     canvas_left.config(
-        width=160,
-        height=480
+        width=645,
+        height=250
     )
     canvas_left.pack(
         side="left",
@@ -101,7 +101,27 @@ def init_r_frame(root: Tk):
     canvas_left.create_window(0, 0, window=frame_left, anchor="nw")
 
     bas = [0, 0, 0 ,100]
+    # ======================left- top2============================
+    canvas_left = Canvas(left_set_pad_center_down)
+    scrollbar = Scrollbar(left_set_pad_center_down)
+    scrollbar.config(command=canvas_left.yview)
+    canvas_left.config(yscrollcommand=scrollbar.set)
+    scrollbar.pack(side="right", fill=Y)
+    canvas_left.config(
+        width=645,
+        height=250
+    )
+    canvas_left.pack(
+        side="left",
+        expand=YES,
+        fill=BOTH
+    )
 
+    frame_left = Frame(canvas_left, width=50, height=100)
+    frame_left.pack(side="top", fill=BOTH)
+    canvas_left.create_window(0, 0, window=frame_left, anchor="nw")
+
+    bas = [0, 0, 0, 100]
     # ==================================================
 
 
@@ -119,9 +139,10 @@ def init_r_frame(root: Tk):
     lbl_package = Label(
         master=left_set_pad_package,
         font=('Times', 10, 'bold'),
-        text='仿真输入件量',
+        text='仿真输入件量：',
         bd=8,
         # height=3,
+        width=15,
         anchor='w'
     )
     lbl_package.grid(row=0, column=0)
@@ -129,7 +150,7 @@ def init_r_frame(root: Tk):
         master=left_set_pad_package,
         bd=8,
         # height=2,
-        # width=2
+        width=25
     )
     package_num.grid(row=0, column=1)
     # ============================资源配置=============================
@@ -137,7 +158,7 @@ def init_r_frame(root: Tk):
     lbl_resource = Label(
         master=left_set_pad_package,
         font=('Times', 10, 'bold'),
-        text='初分拣区卸货口人数：',
+        text='班次时间表：',
         bd=8,
         # height= 3,
         anchor='w'
@@ -153,36 +174,36 @@ def init_r_frame(root: Tk):
     person_res.grid(row=0, column=3)
     # ============================机器配置==========================
     # 路侧卸货标题-L2L
-    lbl_unload = Label(
-        master=left_set_pad_left_title,
-        font=(
-            'Times',
-            12,
-            'bold'
-        ),
-        # relief='raise',
-        text='\tL2L-卸货口   ',
-        # bd=8,
-        anchor='w'
-    )
-    lbl_unload.grid(row=0, column=0)
-    # 路侧卸货标题-L2L,L2A,L2S2A,L2S2L
-    lbl_unload = Label(
-        master=left_set_pad_right_title,
-        font=(
-            'Times',
-            12,
-            'bold'
-        ),
-        # relief='raise',
-        text='\t\tL2L,L2A,L2S-卸货口\t\t\t\t  ',
-        # bd=8,
-        anchor='w'
-    )
-    lbl_unload.grid(row=0, column=0)
+    # lbl_unload = Label(
+    #     master=left_set_pad_left_title,
+    #     font=(
+    #         'Times',
+    #         12,
+    #         'bold'
+    #     ),
+    #     # relief='raise',
+    #     text='\tL2L-卸货口   ',
+    #     # bd=8,
+    #     anchor='w'
+    # )
+    # lbl_unload.grid(row=0, column=0)
+    # # 路侧卸货标题-L2L,L2A,L2S2A,L2S2L
+    # lbl_unload = Label(
+    #     master=left_set_pad_right_title,
+    #     font=(
+    #         'Times',
+    #         12,
+    #         'bold'
+    #     ),
+    #     # relief='raise',
+    #     text='\t\tL2L,L2A,L2S-卸货口\t\t\t\t  ',
+    #     # bd=8,
+    #     anchor='w'
+    # )
+    # lbl_unload.grid(row=0, column=0)
 
     # ===================     卸货区数据      =====================
-    for w_id in ConfigCheckBtn.WIG_ID_LEFT:
+    for w_id in ConfigCheckBtn.WIG_ID_R:
         CHECK_BTN_ENTRY_DIC[w_id] = CheckBtnEntry(
             w_id, frame_left
         )
@@ -190,12 +211,12 @@ def init_r_frame(root: Tk):
         canvas_left["scrollregion"] = "%d %d %d %d" % \
                                       (bas[0], bas[1], bas[2], bas[3])
         bas[3] += 60
-
-    for w_id in ConfigCheckBtn.WIG_ID_RIGHT:
-        CHECK_BTN_ENTRY_DIC[w_id] = CheckBtnEntry(
-            w_id, left_set_pad_center_right
-        )
-        CHECK_BTN_ENTRY_DIC[w_id].init_on_off_status()
+    #
+    # for w_id in ConfigCheckBtn.WIG_ID_RIGHT:
+    #     CHECK_BTN_ENTRY_DIC[w_id] = CheckBtnEntry(
+    #         w_id, left_set_pad_center_right
+    #     )
+    #     CHECK_BTN_ENTRY_DIC[w_id].init_on_off_status()
     # ============================仿真结果输出面板======================
     lbl_info = Label(
         master=right_output_pad_title,
@@ -209,7 +230,7 @@ def init_r_frame(root: Tk):
     txtReceipt = Text(right_output_pad_info,
                       font=('Time', 13),
                       height=28,
-                      width=37,
+                      width=39,
                       bd=7,
                       bg="white",
                       state=DISABLED)

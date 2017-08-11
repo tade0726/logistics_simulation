@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from tkinter import Frame
+from tkinter.ttk import Combobox
 from tkinter import Checkbutton
 from tkinter import Entry, IntVar, StringVar
 from .frame_r_view import ConfigCheckBtn, DATABASES, BTN_ENTRY_DICT, \
@@ -97,7 +98,7 @@ def init_entry(master, id, text_var):
 
     :param master:
     :param id:
-    :param var:
+    :param text_var:
     :return:
     """
     return EntryCreate(
@@ -151,6 +152,9 @@ class CheckBtnEntry(object):
         self.string = StringVar()
         self.entry = self.init_entry()
         self.check_btn = self.init_check_btn()
+
+    def init_list(self):
+        pass
 
     def init_entry(self):
         return init_entry(
