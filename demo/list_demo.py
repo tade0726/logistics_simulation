@@ -1,14 +1,22 @@
-from tkinter import Tk, Listbox, END, mainloop, Menu
+import tkinter as tk
+from tkinter import ttk
 
-root = Tk()
+win = tk.Tk()
+win.title("Python GUI")    # 添加标题
 
-def hello():
-    print ("hello!")
+def clickMe():
+    print(number.get())
 
-# create a toplevel menu
-menubar = Menu(root)
-menubar.add_command(label="Hello!", command=hello)
-menubar.add_command(label="Quit!", command=root.quit)
+# 按钮
+action = ttk.Button(win, text="Click Me!", command=clickMe)     # 创建一个按钮, text：显示按钮上面显示的文字, command：当这个按钮被点击之后会调用command函数
+action.grid(column=2, row=1)    # 设置其在界面中出现的位置  column代表列   row 代表行
 
-# display the menu
-root.config(menu=menubar)
+
+# 创建一个下拉列表
+number = tk.StringVar()
+numberChosen = ttk.Combobox(win, width=12, textvariable=number)
+numberChosen['values'] = (1, 2, 4, 42, 100)     # 设置下拉列表的值
+numberChosen.grid(column=1, row=1)      # 设置其在界面中出现的位置  column代表列   row 代表行
+numberChosen.current(0)    # 设置下拉列表默认显示的值，0为 numberChosen['values'] 的下标值
+
+win.mainloop()      # 当调用mainloop()时,窗口才会显示出来
