@@ -330,7 +330,7 @@ class PathGenerator(object):
             # try
             ret_paths = self.all_paths.get((start_node, end_node))
             if ret_paths:
-                ret_path = random.choice()
+                ret_path = random.choice(ret_paths)
                 hospital_prob = random.random()  # 医院区概率
 
                 if hospital_prob <= 0.05:
