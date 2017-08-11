@@ -21,7 +21,7 @@
 """
 
 from src.vehicles.items import SmallBag, PackageRecord, SmallPackage
-from src.config import Small_code, LOG
+from src.config import SmallCode, LOG
 
 
 BAG_NUM = 15
@@ -66,7 +66,7 @@ class SmallReload(object):
         # init small_bag
         store = self._get_small_package()
         small_bag = SmallBag(store)
-        small_bag.item_id = "98" + next(Small_code.code_generator)  # "98" + "0000000000" ~ "98" + "9999999999"
+        small_bag.item_id = "98" + next(SmallCode.code_generator)  # "98" + "0000000000" ~ "98" + "9999999999"
 
         small_bag.insert_data(
             PackageRecord(

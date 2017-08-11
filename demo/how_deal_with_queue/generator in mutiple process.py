@@ -1,6 +1,6 @@
 import simpy
 import random
-from src.config import Small_code
+from src.config import SmallCode
 
 
 class Item:
@@ -24,7 +24,7 @@ def get_numbers(env):
     while True:
         item = yield store.get()
         yield env.timeout(4)
-        item.id = next(Small_code.code_generator)
+        item.id = next(SmallCode.code_generator)
         print(f"{env.now}: deal with {item}")
         done_store.put(item)
 
