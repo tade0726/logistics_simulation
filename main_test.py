@@ -59,11 +59,8 @@ def main():
                                        is_land_only=MainConfig.IS_LAND_ONLY)
     truck_controller.controller()
 
-    # equipment setting from unload
-    if not MainConfig.ALL_OPEN:
-        unload_setting_dict = {key: val for key, val in unload_setting_dict_src.items() if key not in equipment_off_list}
-    else:
-        unload_setting_dict = unload_setting_dict_src
+    # keep all the equipment open, since the switch is in pipelines now
+    unload_setting_dict = unload_setting_dict_src
 
     # c_port list
     reload_c_list = list()
