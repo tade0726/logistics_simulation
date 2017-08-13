@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from tkinter import DISABLED
-
+# from .frame_api import menu_file
 #  ====================宽度设置参数=================
 FRAME_WIDTH = 1100  # 界面的总计宽度
 FRAME_HEIGHT = 650  # 界面的总计高度
@@ -20,14 +20,14 @@ FRAME_HEIGHT_HEAD = 50  # 界面顶端主标题的高度
 #  ===================左侧设置界面高度设置============
 #                        50+50+500
 FRAME_HEIGHT_LEFT_PACKAGE = 50  # 包裹设置界面高度
-FRAME_HEIGHT_LEFT_SET_PAD_TITLE = 50  # 左侧设置界面标题高度
+FRAME_HEIGHT_LEFT_SET_PAD_TITLE = 20  # 左侧设置界面标题高度
 FRAME_HEIGHT_LEFT_CENTER = 500  # 左侧中间界面的总计高度
 FRAME_HEIGHT_LEFT_CENTER_UP = 250   # 左侧设置界面画布的上高度
 FRAME_HEIGHT_LEFT_CENTER_DOWN = 250  # 左侧设置界面画布的下高度
 #  ===================右侧输出界面高度设置============
 #                           50+50+500
 FRAME_HEIGHT_RIGHT_INFO_TITLE = 40  # 输出信息板标题高度
-FRAME_HEIGHT_RIGHT_INFO = 510  # 输出信息版高度
+FRAME_HEIGHT_RIGHT_INFO = 560  # 输出信息版高度
 FRAME_HEIGHT_RIGHT_BUTTON = 50  # 右侧底部界面button的总高度
 
 # 判断数据更新操作是否已执行
@@ -50,16 +50,22 @@ BTN_ENTRY_DICT = {}       # 初始化entry状态字典
 
 CHECK_BTN_ENTRY_DIC = {}   # 设置控件的id同实例的关联字典
 
-DATABASES = {
-    'HOST': '10.0.149.62',
-    'USER': 'root',
-    'PASSWORD': 'root123',
-    'NAME': 'hangzhouhubland',
-    'CHARSET': 'utf8'
-}
+DATABASES_DIC = {
+    'TEST': {
+        'HOST': '10.0.149.62',
+        'USER': 'root',
+        'PASSWORD': 'root123',
+        'NAME': 'hangzhouhubland',
+        'CHARSET': 'utf8'
+    },
+    'PRODUCTION': {
 
+    }
+}
+DATABASES = DATABASES_DIC['TEST']
 # 可选时间点
 TIME_LIST = ['21:00', '22:00', '23:00', '02:00', '10:30']
+
 
 class ConfigApp(object):
     """"""
@@ -114,24 +120,25 @@ class ConfigApp(object):
             'pack': {
                 'side': 'top'}
         },
-        'LEFT_SET_PAD_LEFT_TITLE': {
+        'LEFT_SET_PAD_UP_TITLE': {
             'attr': {
-                'width': FRAME_WIDTH_LEFT_ONE,
+                'width': FRAME_WIDTH_LEFT_CANVAS,
                 'height': FRAME_HEIGHT_LEFT_SET_PAD_TITLE,
-                'bd': 2,
-                # 'relief': 'raise'
+                'bd': 1,
+                'bg': 'gray',
+                'relief': 'raise'
             },
-            'pack': {'side': 'left'}
+            'pack': {'side': 'top'}
         },
-        'LEFT_SET_PAD_RIGHT_TITLE': {
+        'LEFT_SET_PAD_DOWN_TITLE': {
             'attr': {
-                'width': FRAME_WIDTH_LEFT_TOW,
+                'width': FRAME_WIDTH_LEFT_CANVAS,
                 'height': FRAME_HEIGHT_LEFT_SET_PAD_TITLE,
-                'bd': 2,
-                # 'relief': 'raise'
+                'bd': 1,
+                'relief': 'raise'
             },
             'pack': {
-                'side': 'left'}
+                'side': 'top'}
         },
         'LEFT_SET_PAD_TOP_PACKAGE': {
             'attr': {
@@ -191,7 +198,10 @@ class ConfigApp(object):
 
 
 class ConfigFrame(object):
-    """选择控件"""
+    """
+    Frame 框架的初始化类
+    """
+    # 路侧卸货区id
     WIG_ID_R = [
         'r1_1', 'r1_2', 'r1_3', 'r1_4',
         'r2_1', 'r2_2', 'r2_3', 'r2_4',
@@ -201,6 +211,7 @@ class ConfigFrame(object):
         'r4_10',
         'r5_1', 'r5_2', 'r5_3', 'r5_4'
     ]
+    # 初分拣矩阵id
     WIG_ID_M = [
         'm1_1', 'm1_3', 'm1_2', 'm1_4', 'm2_1', 'm2_3', 'm2_5', 'm2_7', 'm2_9',
         'm2_2', 'm2_4', 'm2_6', 'm2_8', 'm2_10', 'm3_1', 'm3_2', 'm4_2', 'm4_4'
@@ -209,8 +220,8 @@ class ConfigFrame(object):
 
     WIG_DIC = {
         'R': {
-            'columns': 3,
-            'wig_id': WIG_ID_R
+            'columns': 3,       # 视图的列数目
+            'wig_id': WIG_ID_R  # 视图的id列表
         },
         'M': {
             'columns': 3,
@@ -257,11 +268,18 @@ class CheckBtnEntryView(ConfigFrame):
         super().__init__()
 
     def _init_one_view(self, wig_id, columns):
-        row_var = 0
+        """ 单一视图初始化方法
+        :arg:
+            wig_id: 控件id号
+            columns: 列数，每个view中的最大列数
+        :return: None
+        """
+        # 起始行数
+        row_var = 1
+        # 起始列
         columns_var = 0
         for id_wig in wig_id:
-
-            if columns_var>=columns:
+            if columns_var >= columns:
                 columns_var=0
                 row_var += 1
 
@@ -290,9 +308,13 @@ class CheckBtnEntryView(ConfigFrame):
             }
             columns_var += 1
 
-
     def init_view(self):
-        #  记录绝对列数
+        """初始化frame视图函数
+        
+        :return: None
+        """
+        #  WIG_DIC： 视图各个控件的id号字典:
+        # {'id': {'columns': str, 'wig_id': [...], ...}
         for _, v in self.WIG_DIC.items():
             self._init_one_view(
                 wig_id=v['wig_id'],

@@ -2,8 +2,8 @@
 
 from tkinter import Frame
 from tkinter.ttk import Combobox
-from tkinter import Checkbutton
-from tkinter import Entry, IntVar, StringVar, DISABLED
+from tkinter import Checkbutton, Entry, Menu
+from tkinter import IntVar, StringVar, DISABLED
 from .frame_r_view import ConfigFrame, BTN_ENTRY_DICT, \
     ENTRY_STATUS_DIC
 
@@ -124,7 +124,6 @@ class CheckBtnCreate(Checkbutton):
             'variable': self.var,
             'command': self.command})
 
-
     def _init_check_btn(self):
         """"""
         if self.attr_dic:
@@ -168,8 +167,8 @@ def init_combobox_list(master, id, string_combobox, list_var):
 
     :param master:
     :param id:
-    :string_var:
-    :param values:
+    :param string_combobox:
+    :param list_var:
     :return:
     """
     return ComboboxCreate(
@@ -195,7 +194,6 @@ def init_entry(master, id, text_var):
         grid_dic=ConfigFrame.ENTRY[id]['grid'],
         text_var=text_var
     )
-
 
 
 class CheckBtnEntryList(object):
@@ -251,3 +249,4 @@ class CheckBtnEntryList(object):
             self.entry['disabledforeground'] = 'blue'
         else:
             self.entry['disabledforeground'] = 'SystemDisabledText'
+
