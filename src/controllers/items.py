@@ -11,9 +11,9 @@
 
 import simpy
 import pandas as pd
-from src.vehicles import Truck, Package, SmallPackage, SmallBag, Parcel
-from src.utils import TruckRecord, PathGenerator
-from src.db import get_vehicles
+from src.vehicles import Truck, SmallPackage, SmallBag, Parcel
+from src.utils import TruckRecord
+from src.db import get_vehicles, get_resource_timetable
 from src.config import LOG
 
 __all__ = ["TruckController", ]
@@ -112,7 +112,27 @@ class TruckController:
 
 
 class ResourceController:
-    pass
+    """control resource change during simulation"""
+    def __init__(self,
+                 env: simpy.Environment,
+                 resource_dict,):
+
+        self.env = env
+        self.resource_dict = resource_dict
+
+        self._init_time_table()
+
+    def _init_time_table(self):
+        self.timetable = get_resource_timetable()
+
+    def _on_off(self, resource_id: str, timestamp: float, resource_limit: int):
+        yield self.env.timeout(timestamp)
+        self.resource_dict[resource_id]["resource"]._capacity = resource_limit
+
+    def controller(self):
+        for _, row in self.timetable.iterrows():
+            resource_id, timestamp, resource_limit = row['resource_id'], row['timestamp'], row['resource_limit']
+            self.env.process(self._on_off(resource_id, timestamp, resource_limit))
 
 
 class MachineController:
