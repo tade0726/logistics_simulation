@@ -111,5 +111,15 @@ class TruckController:
             self.env.process(self._init_truck(keys, packages_record))
 
 
+class ResourceController:
+    pass
+
+
+class MachineController:
+    pass
+
+
+
+
 if __name__ == '__main__':
     pass
