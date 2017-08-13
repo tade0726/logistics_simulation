@@ -48,6 +48,10 @@ class Unload:
         self.truck_records = list()
         self.package_records = list()
 
+        # add machine switch
+        self.machine_switch = self.env.event()
+        self.machine_switch.succeed()
+
         self.resource_set = self._set_machine_resource()
 
     def _set_machine_resource(self):
@@ -65,6 +69,12 @@ class Unload:
             raise RuntimeError('unload machine',
                                self.machine_id,
                                'not initial equipment_resource_dict!')
+
+    def _machine_open(self):
+        self.machine_switch.succeed()
+
+    def _machine_close(self):
+        self.machine_switch = self.env.event()
 
     def process_package(self, process_idx, package: Package):
 
@@ -106,6 +116,8 @@ class Unload:
     def run(self):
 
         while True:
+            # only run when event succeed
+            yield self.machine_switch
             # filter out the match truck(LL/LA/AL/AA)
             truck = yield self.trucks_q.get(lambda x: x.truck_type in self.truck_types)
 
