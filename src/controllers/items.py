@@ -136,6 +136,10 @@ class ResourceController:
 
 
 class MachineController:
+    """control machine open/close change during simulation
+       only support unload, small_primary, security
+    """
+
     pass
 
 
