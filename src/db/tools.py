@@ -57,7 +57,7 @@ def load_cache(cache_type: bool=None):
                     write_local(table_name, data=table, is_out=False, data_format='hdf5')
                     return table
                 else:
-                    return pd.read_hdf(SaveConfig.HDF5_FILE, table_name)
+                    return load_from_hfd5(table_name)
             elif cache_type == 'pkl':
                 if not checking_pickle_file(table_name):
                     table = func(table_name)
@@ -88,6 +88,11 @@ def write_redis(table_name: str, data: pd.DataFrame,):
     except Exception as exc:
         LOG.logger_font.error(f"Redis write table {table_name} failed, error: {exc}.")
         raise Exception
+
+
+def load_from_hfd5(table_name: str):
+    LOG.logger_font.info(msg=f"Reading hdf5 {table_name}")
+    return pd.read_hdf(SaveConfig.HDF5_FILE, table_name)
 
 
 def load_from_redis(table_name: str):
