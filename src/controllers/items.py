@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 
 """
 作者：
@@ -13,7 +12,7 @@ import simpy
 import pandas as pd
 from src.vehicles import Truck, SmallPackage, SmallBag, Parcel
 from src.utils import TruckRecord
-from src.db import get_vehicles, get_resource_timetable
+from src.db import get_vehicles, get_resource_timetable, get_equipment_timetable
 from src.config import LOG
 
 __all__ = ["TruckController", ]
@@ -131,19 +130,51 @@ class ResourceController:
 
     def controller(self):
         for _, row in self.timetable.iterrows():
-            resource_id, timestamp, resource_limit = row['resource_id'], row['timestamp'], row['resource_limit']
+            resource_id, timestamp, resource_limit = \
+                row['resource_id'], row['timestamp'], row['resource_limit']
             self.env.process(self._set_resource(resource_id, timestamp, resource_limit))
 
 
+# todo: developing
 class MachineController:
     """control machine open/close change during simulation
        only support unload, small_primary, security
     """
 
-    pass
+    def __init__(self,
+                 env: simpy.Environment,
+                 machines_dict):
+
+        self.env = env
+        self.machines_dict = machines_dict
+        self.machines = list()
+        self._set_machines()
+
+    def _init_time_table(self):
+        self.timetable = get_equipment_timetable()
+
+    def _set_machines(self):
+        for machines in self.machines_dict.values:
+            self.machines.extend(machines)
+
+    def _set_on_off(self, equipment_id: str, timestamp:float, status: bool):
+
+        yield self.env.timeout(timestamp)
+        machines = filter(lambda x: x.equipment_id == equipment_id, self.machines)
+
+        if status:
+            for machine in machines:
+                machine.set_machine_open()
+        else:
+            for machine in machines:
+                machine.set_machine_close()
+
+    def controller(self):
+        for _, row in self.timetable.iterrows():
+            equipment_id, timestamp, status = \
+                row['equipment_id'], row['timestamp'], row['status']
+            self.env.process(self._set_on_off(equipment_id, timestamp, status))
 
 
 
 
-if __name__ == '__main__':
-    pass
