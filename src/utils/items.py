@@ -1,5 +1,5 @@
 from collections import namedtuple
-from sqlalchemy.types import String
+from sqlalchemy.types import String, Integer
 
 
 __all__ = ["TruckRecord", "PackageRecord", "PipelineRecord", "OutputTableColumnType"]
@@ -15,6 +15,7 @@ class OutputTableColumnType:
         equipment_id=String(length=32, ),
         truck_id=String(length=32, ),
         action=String(length=32, ),
+        store_size=Integer(),
     )
 
     package_columns = dict(
