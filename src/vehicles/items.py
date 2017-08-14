@@ -308,34 +308,34 @@ class PipelineReplace:
         """模拟传送时间"""
         item = yield self.share_store.get()
         # pipeline start server
-        # item.insert_data(
-        #     PipelineRecord(
-        #         pipeline_id=':'.join(self.pipeline_id),
-        #         queue_id=self.queue_id,
-        #         package_id=item.item_id,
-        #         time_stamp=self.env.now,
-        #         action="start", ))
+        item.insert_data(
+            PipelineRecord(
+                pipeline_id=':'.join(self.pipeline_id),
+                queue_id=self.queue_id,
+                package_id=item.item_id,
+                time_stamp=self.env.now,
+                action="start", ))
 
         yield self.env.timeout(self.delay)
         # cutting path
-        # item.pop_mark()
-        #
-        # # package wait for next process
-        # item.insert_data(
-        #     PackageRecord(
-        #         equipment_id=self.equipment_id,
-        #         package_id=item.item_id,
-        #         time_stamp=self.env.now,
-        #         action="wait", ))
-        #
+        item.pop_mark()
+
+        # package wait for next process
+        item.insert_data(
+            PackageRecord(
+                equipment_id=self.equipment_id,
+                package_id=item.item_id,
+                time_stamp=self.env.now,
+                action="wait", ))
+
         # # pipeline end server
-        # item.insert_data(
-        #     PipelineRecord(
-        #         pipeline_id=':'.join(self.pipeline_id),
-        #         queue_id=self.queue_id,
-        #         package_id=item.item_id,
-        #         time_stamp=self.env.now,
-        #         action="end", ))
+        item.insert_data(
+            PipelineRecord(
+                pipeline_id=':'.join(self.pipeline_id),
+                queue_id=self.queue_id,
+                package_id=item.item_id,
+                time_stamp=self.env.now,
+                action="end", ))
 
         self.queue.put(item)
 
