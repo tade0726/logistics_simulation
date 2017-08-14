@@ -21,7 +21,7 @@ from src.config import *
 __all__ = ['write_redis', 'load_from_redis', 'write_mysql', 'write_local', 'load_from_local',
            'load_from_mysql', 'get_vehicles', 'get_unload_setting', 'get_reload_setting', 'get_resource_limit',
            'get_resource_equipment_dict', 'get_pipelines', 'get_queue_io', 'get_equipment_process_time',
-           'get_parameters', 'get_equipment_on_off', 'get_resource_timetable']
+           'get_parameters', 'get_equipment_on_off', 'get_resource_timetable', 'get_equipment_timetable']
 
 
 def checking_pickle_file(table_name):
@@ -435,6 +435,10 @@ def get_equipment_on_off():
 
 # todo: wait for real data
 def get_resource_timetable():
+    pass
+
+
+def get_equipment_timetable():
     pass
 
 
