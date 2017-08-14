@@ -282,6 +282,74 @@ class Pipeline:
         return f"<Pipeline: {self.pipeline_id}, delay: {self.delay}>"
 
 
+class PipelineReplace:
+
+    """传送带"""
+
+    def __init__(self,
+                 env: simpy.Environment,
+                 delay_time: float,
+                 pipeline_id: tuple,
+                 queue_id: str,
+                 machine_type: str,
+                 share_store: simpy.Store,
+                 ):
+
+        self.env = env
+        self.delay = delay_time
+        self.queue = simpy.Store(env)
+        self.share_store = share_store
+        self.pipeline_id = pipeline_id
+        self.queue_id = queue_id
+        self.machine_type = machine_type
+        self.equipment_id = self.pipeline_id[1]  # in Pipeline the equipment_id is equipment after this pipeline
+
+    def latency(self):
+        """模拟传送时间"""
+        item = yield self.share_store.get()
+        # pipeline start server
+        # item.insert_data(
+        #     PipelineRecord(
+        #         pipeline_id=':'.join(self.pipeline_id),
+        #         queue_id=self.queue_id,
+        #         package_id=item.item_id,
+        #         time_stamp=self.env.now,
+        #         action="start", ))
+
+        yield self.env.timeout(self.delay)
+        # cutting path
+        # item.pop_mark()
+        #
+        # # package wait for next process
+        # item.insert_data(
+        #     PackageRecord(
+        #         equipment_id=self.equipment_id,
+        #         package_id=item.item_id,
+        #         time_stamp=self.env.now,
+        #         action="wait", ))
+        #
+        # # pipeline end server
+        # item.insert_data(
+        #     PipelineRecord(
+        #         pipeline_id=':'.join(self.pipeline_id),
+        #         queue_id=self.queue_id,
+        #         package_id=item.item_id,
+        #         time_stamp=self.env.now,
+        #         action="end", ))
+
+        self.queue.put(item)
+
+    def put(self, item: Package):
+        self.share_store.put(item)
+
+    def get(self):
+        self.env.process(self.latency())
+        return self.queue.get()
+
+    def __str__(self):
+        return f"<Pipeline: {self.pipeline_id}, delay: {self.delay}>"
+
+
 class PipelineRes(Pipeline):
 
     def __init__(self,
@@ -368,4 +436,20 @@ class PipelineRes(Pipeline):
 
 
 if __name__ == '__main__':
-    pass
+    env = simpy.Environment()
+    store = simpy.Store(env)
+    pipeline = PipelineReplace(env, 10, (1, 1), machine_type='test', queue_id='test', share_store=store)
+
+    def put_thing(env):
+        yield env.timeout(2)
+        pipeline.put('10')
+        print(f'{env.now}: put thing')
+
+    def get_thing(env):
+        yield env.timeout(10)
+        item = yield pipeline.get()
+        print(f"{env.now}: get thing")
+
+    env.process(put_thing(env))
+    env.process(get_thing(env))
+    env.run()
