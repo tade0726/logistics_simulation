@@ -14,6 +14,8 @@ data will be store into dictionary
 from os.path import join, isfile
 from functools import wraps
 import pandas as pd
+from sqlalchemy.types import String
+
 from src.config import *
 
 
@@ -21,6 +23,14 @@ __all__ = ['write_redis', 'load_from_redis', 'write_mysql', 'write_local', 'load
            'load_from_mysql', 'get_vehicles', 'get_unload_setting', 'get_reload_setting', 'get_resource_limit',
            'get_resource_equipment_dict', 'get_pipelines', 'get_queue_io', 'get_equipment_process_time',
            'get_parameters', 'get_equipment_on_off', 'get_resource_timetable']
+
+
+class TableColumnType:
+    columns = dict(
+        equipment_id = String(length=32, collation='utf8'),
+        package_id = String(length=32, collation='utf8'),
+        action = String(length=32, collation='utf8'),
+    )
 
 
 def checking_pickle_file(table_name):
@@ -104,7 +114,11 @@ def load_from_redis(table_name: str):
 def write_mysql(table_name: str, data: pd.DataFrame, ):
     """写入MySQl数据库, 表格如果存在, 则新增数据"""
     try:
-        data.to_sql(name=f'o_{table_name}{MainConfig.O_DATA_SUFFIX}', con=RemoteMySQLConfig.engine, if_exists='append', index=0)
+        data.to_sql(name=f'o_{table_name}{MainConfig.O_DATA_SUFFIX}',
+                    con=RemoteMySQLConfig.engine,
+                    if_exists='append',
+                    index=0,
+                    dtype=TableColumnType.columns)
         LOG.logger_font.info(f"mysql write table {table_name} succeed!")
     except Exception as exc:
         LOG.logger_font.error(f"mysql write table {table_name} failed, error: {exc}.")
