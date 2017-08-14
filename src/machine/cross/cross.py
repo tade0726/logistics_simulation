@@ -20,7 +20,7 @@
 =====================================================================================================
 """
 from src.utils import PackageRecord
-
+from src.config import LOG
 
 class Cross(object):
     """
