@@ -71,9 +71,11 @@ class Unload:
                                'not initial equipment_resource_dict!')
 
     def _machine_open(self):
+        """设置为开机"""
         self.machine_switch.succeed()
 
     def _machine_close(self):
+        """设置为关机"""
         self.machine_switch = self.env.event()
 
     def process_package(self, process_idx, package: Package):
@@ -116,7 +118,7 @@ class Unload:
     def run(self):
 
         while True:
-            # only run when event succeed
+            # 开关机的事件控制
             yield self.machine_switch
             # filter out the match truck(LL/LA/AL/AA)
             truck = yield self.trucks_q.get(lambda x: x.truck_type in self.truck_types)
