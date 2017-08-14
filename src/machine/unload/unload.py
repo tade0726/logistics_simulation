@@ -70,11 +70,11 @@ class Unload:
                                self.machine_id,
                                'not initial equipment_resource_dict!')
 
-    def _machine_open(self):
+    def set_machine_open(self):
         """设置为开机"""
         self.machine_switch.succeed()
 
-    def _machine_close(self):
+    def set_machine_close(self):
         """设置为关机"""
         self.machine_switch = self.env.event()
 
@@ -163,7 +163,3 @@ class Unload:
             self.done_trucks_q.put(truck)
             # vehicle turnaround time
             yield self.env.timeout(self.vehicle_turnaround_time)
-
-
-
-

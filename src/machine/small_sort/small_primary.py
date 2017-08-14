@@ -38,6 +38,11 @@ class SmallPrimary(object):
         self.resource_dict = resource_dict
         # 机器资源id与机器id映射字典
         self.equipment_resource_dict = equipment_resource_dict
+
+        # add machine switch
+        self.machine_switch = self.env.event()
+        self.machine_switch.succeed()
+
         # 初始化初分拣字典
         self.resource_set = self._set_machine_resource()
 
@@ -53,6 +58,14 @@ class SmallPrimary(object):
             raise RuntimeError('cross machine',
                                self.machine_id,
                                'not initial equipment_resource_dict!')
+
+    def set_machine_open(self):
+        """设置为开机"""
+        self.machine_switch.succeed()
+
+    def set_machine_close(self):
+        """设置为关机"""
+        self.machine_switch = self.env.event()
 
     def processing(self, small_bag: SmallBag):
         assert isinstance(small_bag, SmallBag), "Wrong Type of package"
@@ -112,6 +125,8 @@ class SmallPrimary(object):
 
     def run(self):
         while True:
+            # 检查开机状态
+            yield self.machine_switch
             small_bag = yield self.input_pip_line.get()
             # 有包裹就推送到资源模块
             self.env.process(self.processing(small_bag))
