@@ -16,8 +16,8 @@ def create_r_frame():
     # =======================配置主视图尺寸=================
     root.geometry(f"{FRAME_WIDTH}x{FRAME_HEIGHT}+0+0")
     root.title('杭州分拣中心仿真程序')
-    root.minsize(FRAME_WIDTH, FRAME_HEIGHT)
-    root.maxsize(FRAME_WIDTH, FRAME_HEIGHT)
+    # root.minsize(FRAME_WIDTH, FRAME_HEIGHT)
+    # root.maxsize(FRAME_WIDTH, FRAME_HEIGHT)
     #  =======================config主界面=================
     root.config(
         menu=menu_bar,
