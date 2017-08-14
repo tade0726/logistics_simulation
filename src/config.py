@@ -10,6 +10,7 @@ Des:
 
 
 from sqlalchemy import create_engine
+from sqlalchemy.types import String
 from os.path import realpath, join, split
 from datetime import datetime
 import redis
@@ -18,7 +19,7 @@ import logging
 
 class MainConfig:
     IS_TEST = True
-    SAVE_LOCAL = True
+    SAVE_LOCAL = False
     IS_PARCEL_ONLY = False  # 只有 parcel 件
     IS_LAND_ONLY = False  # True 只有 landside, False landside airside
     CACHE_TYPE = 'hdf5'  # {None, "redis", "pkl", "hdf5"}
@@ -96,6 +97,14 @@ def generator_digit(n):
 
 class SmallCode:
     code_generator = generator_digit(10)
+
+
+class OutputTableColumnType:
+    columns = dict(
+        equipment_id = String(length=32, collation='utf8'),
+        package_id = String(length=32, collation='utf8'),
+        action = String(length=32, collation='utf8'),
+    )
 
 
 if __name__ == "__main__":
