@@ -69,7 +69,7 @@ def add_cycle_paths(machine_graph, base_paths, cycle_nodes_group=None):
     在生成的基本路径中添加环路的函数，将生成的路线写入pickle文件
     :param machine_graph: 机器图，networkx的DiGraph格式
     :param base_paths: generate_base_paths生成的基本路径
-    :param cycle_nodes_group: 环路组嵌套列表，例如医院区的输入是[["h1_1", "h2_1]]
+    :param cycle_nodes_group: 环路组嵌套列表，例如医院区的输入是[["h1_1", "h2_1"]]
     :return: 生成的全部路径
     生成路径的格式：嵌套字典，最外层键是元组(卸货位,终分拣格口)，第二层键是"hospital"和"without hospital"
                   标志该路线是否包含医院区，值为对应路线的列表
