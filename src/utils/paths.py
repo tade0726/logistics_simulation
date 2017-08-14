@@ -286,6 +286,7 @@ class PathGenerator(object):
                 ret_paths = random.choice(self.all_paths[(start_node, end_node)]["all"])
             except Exception as exc:
                 start_node_equipment = start_node.split('_')[0]
+                # 选择垃圾滑槽
                 end_node = 'c8_1' if start_node_equipment in [f'u{i}' for i in range(1, 5)] else 'c9_1'
                 ret_paths = random.choice(self.all_paths[(start_node, end_node)]["all"])
 
