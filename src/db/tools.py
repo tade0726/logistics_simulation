@@ -265,6 +265,7 @@ def get_reload_setting():
     return table_dict
 
 
+# todo: change two tables i_resource_limit  i_equipment_io
 def get_resource_limit():
     """返回资源表，包含了单个资源处理时间"""
     table_name1 = "i_resource_limit"
