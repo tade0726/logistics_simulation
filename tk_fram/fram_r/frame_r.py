@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from tkinter import Tk, Label, Entry, Button, Text, Canvas, Y, BOTH, \
-    YES, Frame, Scrollbar, StringVar, Menu
+    YES, Frame, Scrollbar, StringVar, Menu, Checkbutton
 from tkinter.ttk import Combobox
 from .frame import App, CheckBtnEntryList
 from .frame_r_view import *
@@ -41,10 +41,6 @@ def init_r_frame(root: Tk):
 
     config_view = CheckBtnEntryView()
     config_view.init_view()
-    #  ===================顶部标题面板================
-    # top = init_app(
-    #     master=root, wig='TOP_FRAME'
-    # )
     #  =================左侧设置基底面板===============
     left = init_app(
         master=root, wig='LEFT_FRAME'
@@ -60,24 +56,14 @@ def init_r_frame(root: Tk):
         wig='LEFT_SET_PAD_TOP_PACKAGE'
     )
     #  ================左侧r 表头 ==========
-    left_set_pad_up_title = init_app(
+    left_set_pad_sheet = init_app(
         master=left,
-        wig='LEFT_SET_PAD_UP_TITLE'
+        wig='LEFT_SET_PAD_SHEET'
     )
-    #  ==============左侧，r设置面板==========
+    #  ==============左侧，设置面板==========
     left_set_pad_center_up = init_app(
         master=left,  # left_set_pad_r,
         wig='LEFT_SET_PAD_CENTER_UP'
-    )
-    # ================左侧m 表头===========
-    left_set_pad_down_title = init_app(
-        master=left,
-        wig='LEFT_SET_PAD_DOWN_TITLE'
-    )
-    # ===============左侧，m设置面板=============
-    left_set_pad_center_down = init_app(
-        master=left,  # left_set_pad_m,
-        wig='LEFT_SET_PAD_CENTER_DOWN'
     )
     #  ===============右侧输出标题样式=================
     right_output_pad_title = init_app(
@@ -105,8 +91,8 @@ def init_r_frame(root: Tk):
     canvas_up.config(yscrollcommand=scrollbar_up.set)
     scrollbar_up.pack(side="right", fill=Y)
     canvas_up.config(
-        width=645,
-        height=250
+        width=660,
+        height=500
     )
     canvas_up.pack(
         side="left",
@@ -119,37 +105,6 @@ def init_r_frame(root: Tk):
     canvas_up.create_window(0, 0, window=frame_up, anchor="nw")
 
     bas_up = [0, 0, 0, 50]
-    # ======================left- top2============================
-    canvas_down = Canvas(left_set_pad_center_down)
-    scrollbar_down = Scrollbar(left_set_pad_center_down)
-    scrollbar_down.config(command=canvas_down.yview)
-    canvas_down.config(yscrollcommand=scrollbar_down.set)
-    scrollbar_down.pack(side="right", fill=Y)
-    canvas_down.config(
-        width=645,
-        height=250
-    )
-    canvas_down.pack(
-        side="left",
-        expand=YES,
-        fill=BOTH
-    )
-
-    frame_down = Frame(canvas_down, width=50, height=100)
-    frame_down.pack(side="top", fill=BOTH)
-    canvas_down.create_window(0, 0, window=frame_down, anchor="nw")
-
-    bas_down = [0, 0, 0, 50]
-    # ==============================Heading===========================
-    # lbl_info = Label(
-    #     top,
-    #     font=('Times', 12, 'bold'),
-    #     text='\t\t\t\t\t\t\t杭州分拣中心仿真系统',
-    #     bd=6,
-    #     width=119,
-    #     anchor='w'
-    # )
-    # lbl_info.grid(row=0, column=0)
     # ============================包裹设置参数========================
     lbl_package = Label(
         master=left_set_pad_package,
@@ -190,144 +145,67 @@ def init_r_frame(root: Tk):
         values=TIME_LIST
     )
     schedul_plan.grid(row=0, column=3)
-    # ============================左侧，r表头==========================
-    # 路侧卸货标题-m
-    lbl_btn = Label(
-        master=left_set_pad_up_title,
-        font=('Times', 8), text='  ', justify='left'
+    # ===================  机器区域sheet      =====================
+    r_btn = Checkbutton(
+        master=left_set_pad_sheet,
+        text="R_路侧卸货区",
+        variable=StringVar(),
+        onvalue=1,
+        offvalue=0,
+        relief='raise',
+        bd=5
+        )
+    r_btn.grid({'row':0, 'column':0})
+    a_btn = Checkbutton(
+        master=left_set_pad_sheet,
+        text="A_空侧卸货区",
+        variable=StringVar(),
+        onvalue=1,
+        offvalue=0,
+        relief='raise',
+        bd=5
     )
-    lbl_btn.grid(row=0, column=0)
-    lbl_btn = Label(
-        master=left_set_pad_up_title,
-        font=('Times', 8), text='    卸货口    ', justify='left'
+    a_btn.grid({'row': 0, 'column': 1})
+    m_btn = Checkbutton(
+        master=left_set_pad_sheet,
+        text="M_初分拣矩阵",
+        variable=StringVar(),
+        onvalue=1,
+        offvalue=0,
+        relief='raise',
+        bd=5
     )
-    lbl_btn.grid(row=0, column=1)
-    lbl_entry = Label(
-        master=left_set_pad_up_title,
-        font=('Times', 8), text='    状态     ', justify='left'
+    m_btn.grid({'row': 0, 'column': 2})
+    j_btn = Checkbutton(
+        master=left_set_pad_sheet,
+        text="J_安检机",
+        variable=StringVar(),
+        onvalue=1,
+        offvalue=0,
+        relief='raise',
+        bd=5
     )
-    lbl_entry.grid(row=0, column=2)
-    # 路侧卸货标题-resource
-    lbl_list = Label(
-        master=left_set_pad_up_title,
-        font=('Times', 8), text='  人力数   ', justify='left'
+    j_btn.grid({'row': 0, 'column': 3})
+    u_btn = Checkbutton(
+        master=left_set_pad_sheet,
+        text="U_小件拆包台",
+        variable=StringVar(),
+        onvalue=1,
+        offvalue=0,
+        relief='raise',
+        bd=5
     )
-    lbl_list.grid(row=0, column=3)
-    # 路侧卸货标题-m
-    lbl_btn = Label(
-        master=left_set_pad_up_title,
-        font=('Times', 8), text='           ', justify='left'
+    u_btn.grid({'row': 0, 'column': 4})
+    h_btn = Checkbutton(
+        master=left_set_pad_sheet,
+        text="H_医院区",
+        variable=StringVar(),
+        onvalue=1,
+        offvalue=0,
+        relief='raise',
+        bd=5
     )
-    lbl_btn.grid(row=0, column=4)
-    lbl_btn = Label(
-        master=left_set_pad_up_title,
-        font=('Times', 8), text='   卸货口   ', justify='left'
-    )
-    lbl_btn.grid(row=0, column=5)
-    lbl_entry = Label(
-        master=left_set_pad_up_title,
-        font=('Times', 8), text='     状态     ', justify='left'
-    )
-    lbl_entry.grid(row=0, column=6)
-    # 路侧卸货标题-resource
-    lbl_list = Label(
-        master=left_set_pad_up_title,
-        font=('Times', 8), text='  人力数  ', justify='left'
-    )
-    lbl_list.grid(row=0, column=7)
-    lbl_btn = Label(
-        master=left_set_pad_up_title,
-        font=('Times', 8), text='\t', justify='left'
-    )
-    lbl_btn.grid(row=0, column=8)
-    lbl_btn = Label(
-        master=left_set_pad_up_title,
-        font=('Times', 8), text='  卸货口  ', justify='left'
-    )
-    lbl_btn.grid(row=0, column=9)
-    lbl_entry = Label(
-        master=left_set_pad_up_title,
-        font=('Times', 8), text='     状态     ', justify='left'
-    )
-    lbl_entry.grid(row=0, column=10)
-    # 路侧卸货标题-resource
-    lbl_list = Label(
-        master=left_set_pad_up_title,
-        font=('Times', 8), text='  人力数  ', justify='left'
-    )
-    lbl_list.grid(row=0, column=11)
-    lbl_btn = Label(
-        master=left_set_pad_up_title,
-        font=('Times', 8), text='\t   ', justify='left'
-    )
-    lbl_btn.grid(row=0, column=12)
-    # ============================左侧，m表头============================
-    lbl_btn = Label(
-        master=left_set_pad_down_title,
-        font=('Times', 8), text='  ', justify='left'
-    )
-    lbl_btn.grid(row=0, column=0)
-    lbl_btn = Label(
-        master=left_set_pad_down_title,
-        font=('Times', 8), text='    卸货口    ', justify='left'
-    )
-    lbl_btn.grid(row=0, column=1)
-    lbl_entry = Label(
-        master=left_set_pad_down_title,
-        font=('Times', 8), text='    状态     ', justify='left'
-    )
-    lbl_entry.grid(row=0, column=2)
-    lbl_list = Label(
-        master=left_set_pad_down_title,
-        font=('Times', 8), text='  人力数   ', justify='left'
-    )
-    lbl_list.grid(row=0, column=3)
-    lbl_btn = Label(
-        master=left_set_pad_down_title,
-        font=('Times', 8), text='           ', justify='left'
-    )
-    lbl_btn.grid(row=0, column=4)
-    lbl_btn = Label(
-        master=left_set_pad_down_title,
-        font=('Times', 8), text='   卸货口   ', justify='left'
-    )
-    lbl_btn.grid(row=0, column=5)
-    lbl_entry = Label(
-        master=left_set_pad_down_title,
-        font=('Times', 8), text='     状态     ', justify='left'
-    )
-    lbl_entry.grid(row=0, column=6)
-    lbl_list = Label(
-        master=left_set_pad_down_title,
-        font=('Times', 8), text='  人力数  ', justify='left'
-    )
-    lbl_list.grid(row=0, column=7)
-    lbl_btn = Label(
-        master=left_set_pad_down_title,
-        font=('Times', 8), text='\t', justify='left'
-    )
-    lbl_btn.grid(row=0, column=8)
-    lbl_btn = Label(
-        master=left_set_pad_down_title,
-        font=('Times', 8), text='  卸货口  ', justify='left'
-    )
-    lbl_btn.grid(row=0, column=9)
-    lbl_entry = Label(
-        master=left_set_pad_down_title,
-        font=('Times', 8), text='     状态     ', justify='left'
-    )
-    lbl_entry.grid(row=0, column=10)
-    # 路侧卸货标题-resource
-    lbl_list = Label(
-        master=left_set_pad_down_title,
-        font=('Times', 8), text='  人力数  ', justify='left'
-    )
-    lbl_list.grid(row=0, column=11)
-    lbl_btn = Label(
-        master=left_set_pad_down_title,
-        font=('Times', 8), text='\t   ', justify='left'
-    )
-    lbl_btn.grid(row=0, column=12)
+    h_btn.grid({'row': 0, 'column': 5})
     # ===================     卸货区数据      =====================
     for w_id in ConfigFrame.WIG_ID_R:
         CHECK_BTN_ENTRY_DIC[w_id] = CheckBtnEntryList(
@@ -343,18 +221,6 @@ def init_r_frame(root: Tk):
             bas_up[3]
         )
         bas_up[3] += 50/3
-    # =======================================================
-    for w_id in ConfigFrame.WIG_ID_M:
-        CHECK_BTN_ENTRY_DIC[w_id] = CheckBtnEntryList(
-            w_id,
-            frame_down,
-            LIST_VALUE_COMBOBOX['M']
-        )
-        CHECK_BTN_ENTRY_DIC[w_id].init_on_off_status()
-        canvas_down["scrollregion"] = "%d %d %d %d" % \
-                                      (bas_down[0], bas_down[1], bas_down[2],
-                                       bas_down[3])
-        bas_down[3] += 50/3
     # ============================仿真结果输出面板======================
     lbl_info = Label(
         master=right_output_pad_title,
@@ -368,8 +234,8 @@ def init_r_frame(root: Tk):
     txt_receipt = Text(
         right_output_pad_info,
         font=('Time', 13),
-        height=31,
-        width=39,
+        height=28,
+        width=37,
         bd=7,
         bg="white",
         state=DISABLED

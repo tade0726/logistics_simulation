@@ -4,12 +4,12 @@ from tkinter import DISABLED
 # from .frame_api import menu_file
 #  ====================宽度设置参数=================
 FRAME_WIDTH = 1100  # 界面的总计宽度
-FRAME_HEIGHT = 650  # 界面的总计高度
+FRAME_HEIGHT = 600  # 界面的总计高度
 
 FRAME_WIDTH_LEFT = 700  # 左侧界面的总计宽度
 FRAME_WIDTH_RIGHT = 400  # 右侧界面的总计宽度
 
-FRAME_WIDTH_LEFT_CANVAS = 670
+FRAME_WIDTH_LEFT_CANVAS = 700
 
 FRAME_WIDTH_LEFT_ONE = 200  # 左侧界面的左宽度
 FRAME_WIDTH_LEFT_TOW = 500  # 左侧界面的右宽度
@@ -20,14 +20,13 @@ FRAME_HEIGHT_HEAD = 50  # 界面顶端主标题的高度
 #  ===================左侧设置界面高度设置============
 #                        50+50+500
 FRAME_HEIGHT_LEFT_PACKAGE = 50  # 包裹设置界面高度
-FRAME_HEIGHT_LEFT_SET_PAD_TITLE = 20  # 左侧设置界面标题高度
+FRAME_HEIGHT_LEFT_SET_PAD_TITLE = 25  # 左侧设置界面标题高度
 FRAME_HEIGHT_LEFT_CENTER = 500  # 左侧中间界面的总计高度
-FRAME_HEIGHT_LEFT_CENTER_UP = 250   # 左侧设置界面画布的上高度
-FRAME_HEIGHT_LEFT_CENTER_DOWN = 250  # 左侧设置界面画布的下高度
+FRAME_HEIGHT_LEFT_CENTER_UP = 400   # 左侧设置界面画布的上高度
 #  ===================右侧输出界面高度设置============
 #                           50+50+500
-FRAME_HEIGHT_RIGHT_INFO_TITLE = 40  # 输出信息板标题高度
-FRAME_HEIGHT_RIGHT_INFO = 560  # 输出信息版高度
+FRAME_HEIGHT_RIGHT_INFO_TITLE = 50  # 输出信息板标题高度
+FRAME_HEIGHT_RIGHT_INFO = 500  # 输出信息版高度
 FRAME_HEIGHT_RIGHT_BUTTON = 50  # 右侧底部界面button的总高度
 
 # 判断数据更新操作是否已执行
@@ -130,12 +129,13 @@ class ConfigApp(object):
             'pack': {
                 'side': 'top'}
         },
-        'LEFT_SET_PAD_TITLE': {
+        'LEFT_SET_PAD_SHEET': {
             'attr': {
                 'width': FRAME_WIDTH_LEFT,
                 'height': FRAME_HEIGHT_LEFT_SET_PAD_TITLE,
-                # 'bd': 8,
-                # 'relief': 'raise'
+                # 'bd': 2,
+                # 'relief': 'raise',
+                # 'bg': 'gray',
             },
             'pack': {
                 'side': 'top'}
@@ -155,7 +155,7 @@ class ConfigApp(object):
                 'width': FRAME_WIDTH_LEFT_CANVAS,
                 'height': FRAME_HEIGHT_LEFT_SET_PAD_TITLE,
                 'bd': 1,
-                'relief': 'raise'
+                # 'relief': 'raise'
             },
             'pack': {
                 'side': 'top'}
@@ -176,14 +176,6 @@ class ConfigApp(object):
                 'bd': 8,
                 'relief': 'raise'
             },
-            'pack': {'side': 'top'}
-        },
-        'LEFT_SET_PAD_CENTER_DOWN': {
-            'attr': {
-                'width': FRAME_WIDTH_LEFT_CANVAS,
-                'height': FRAME_HEIGHT_LEFT_CENTER_DOWN,
-                'bd': 8,
-                'relief': 'raise'},
             'pack': {'side': 'top'}
         },
         'RIGHT_TITLE': {
