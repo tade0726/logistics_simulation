@@ -10,7 +10,6 @@ Des:
 
 
 from sqlalchemy import create_engine
-from sqlalchemy.types import String
 from os.path import realpath, join, split
 from datetime import datetime
 import redis
@@ -97,14 +96,6 @@ def generator_digit(n):
 
 class SmallCode:
     code_generator = generator_digit(10)
-
-
-class OutputTableColumnType:
-    columns = dict(
-        equipment_id = String(length=32, collation='utf8'),
-        package_id = String(length=32, collation='utf8'),
-        action = String(length=32, collation='utf8'),
-    )
 
 
 if __name__ == "__main__":
