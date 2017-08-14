@@ -3,9 +3,9 @@
 from tkinter import Frame
 from tkinter.ttk import Combobox
 from tkinter import Checkbutton, Entry, Menu
-from tkinter import IntVar, StringVar, DISABLED
+from tkinter import IntVar, StringVar, DISABLED, NORMAL
 from .frame_r_view import ConfigFrame, BTN_ENTRY_DICT, \
-    ENTRY_STATUS_DIC
+    ENTRY_STATUS_DIC, CHECK_BTN_ENTRY_DIC, M_R_DICT
 
 
 class App(Frame):
@@ -233,20 +233,61 @@ class CheckBtnEntryList(object):
         )
 
     def init_on_off_status(self):
-        self.var.set(BTN_ENTRY_DICT[self.w_id])
-        self.string.set(ENTRY_STATUS_DIC[self.var.get()])
-        if 'm' in self.w_id:
+        if 'r' in self.w_id:
+            self.var.set(BTN_ENTRY_DICT[self.w_id])
+            self.string.set(ENTRY_STATUS_DIC[self.var.get()])
+            self.change_combobox_status(self)
+        else:
+            self.var.set(self.check_var)
+            self.string.set(ENTRY_STATUS_DIC[self.var.get()])
+            self.change_combobox_status(self)
             self.check_btn['state'] = DISABLED
-            if self.var.get() == 0:
-                self.string_combobox.set(0)
-                self.init_list['state'] = DISABLED
         if self.string.get() == 'ON':
             self.entry['disabledforeground'] = 'blue'
 
     def chk_button_value(self):
-        self.string.set(ENTRY_STATUS_DIC[self.var.get()])
-        if self.string.get() == 'ON':
-            self.entry['disabledforeground'] = 'blue'
-        else:
-            self.entry['disabledforeground'] = 'SystemDisabledText'
+        '''
+        修改 r口 属性，并遍历 M_R_DICT 修改对应 m口 属性
+        :return:
+        '''
+        self.string.set(ENTRY_STATUS_DIC[self.check_var])
+        self.change_color(self.entry)
+        self.change_combobox_status(self)
+        for key, value in M_R_DICT.items():
+            if self.w_id in value:
+                m = CHECK_BTN_ENTRY_DIC[key]
+                m.check_btn['state'] = NORMAL
+                m.var.set(m.check_var)
+                m.string.set(ENTRY_STATUS_DIC[m.check_var])
+                self.change_combobox_status(m)
+                self.change_color(m.entry)
+                m.check_btn['state'] = DISABLED
+                return
 
+    # 返回勾选框的状态值 0 或 1
+    @property
+    def check_var(self):
+        if 'm' in self.w_id:
+            status = 0
+            for i in  M_R_DICT[self.w_id]:
+                status = CHECK_BTN_ENTRY_DIC[i].var.get() or \
+                         status
+            return status
+        else:
+            return self.var.get()
+
+    @staticmethod
+    def change_color(entry):
+        if entry.text_var.get() == 'ON':
+            entry['disabledforeground'] = 'blue'
+        else:
+            entry['disabledforeground'] = 'SystemDisabledText'
+
+    @staticmethod
+    def change_combobox_status(instance):
+        if instance.var.get() == 0:
+            instance.string_combobox.set(0)
+            instance.init_list['state'] = DISABLED
+        else:
+            instance.init_list['state'] = NORMAL
+            instance.string_combobox.set(1)
