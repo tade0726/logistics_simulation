@@ -125,14 +125,14 @@ class ResourceController:
     def _init_time_table(self):
         self.timetable = get_resource_timetable()
 
-    def _on_off(self, resource_id: str, timestamp: float, resource_limit: int):
+    def _set_resource(self, resource_id: str, timestamp: float, resource_limit: int):
         yield self.env.timeout(timestamp)
         self.resource_dict[resource_id]["resource"]._capacity = resource_limit
 
     def controller(self):
         for _, row in self.timetable.iterrows():
             resource_id, timestamp, resource_limit = row['resource_id'], row['timestamp'], row['resource_limit']
-            self.env.process(self._on_off(resource_id, timestamp, resource_limit))
+            self.env.process(self._set_resource(resource_id, timestamp, resource_limit))
 
 
 class MachineController:
