@@ -291,7 +291,6 @@ class PathGenerator(object):
 
             return ret_paths
 
-
         elif position == 0:  # 包裹路线 & 小件包 小件打包节点到终分拣节点   a/r - c (reload) & c(small ) - c(reload)
             end_node_list = self.reload_setting.get((dest_code, "reload", dest_type), [])
 
