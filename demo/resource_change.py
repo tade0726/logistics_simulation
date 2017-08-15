@@ -22,28 +22,27 @@ class Machine:
         while True:
             item = yield self.store.get()
             self.env.process(self.do_something(item))
-            yield env.timeout(1)
 
 
-def change_resource_limit(env, resource_dict, time):
+def change_resource_limit(env, resource_dict, time, change):
     yield env.timeout(time)
     for resource in resource_dict.values():
-        resource._capacity = 3
+        resource._capacity = change
 
 
 if __name__ == '__main__':
 
     env = simpy.Environment()
     store = simpy.Store(env)
-    store.items = [f'item_{i}' for i in range(10000)]
+    store.items = [f'item_{i}' for i in range(100)]
 
     resource_dict = {}
 
     for i in range(6):
-        resource_dict[i] = simpy.Resource(env, capacity=1)
+        resource_dict[i] = simpy.Resource(env, capacity=2)
 
-    machines = [ Machine(env, resource_dict, i, store) for i in range(6)]
-    env.process(change_resource_limit(env, resource_dict, 1000))
+    machines = [ Machine(env, resource_dict, i, store) for i in range(3)]
+    env.process(change_resource_limit(env, resource_dict, 4, 1))
     for machine in machines:
         env.process(machine.run())
 
