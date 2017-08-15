@@ -209,12 +209,20 @@ class CheckBtnEntryList(object):
         self.entry = self.init_entry()
         self.check_btn = self.init_check_btn()
 
+    @property
+    def _list_value(self):
+        if self.w_id == 'j41_1' or self.w_id == 'h3_1':
+            return self.list_value[1]
+        if 'j' in self.w_id or 'h' in self.w_id:
+            return self.list_value[0]
+        return self.list_value
+
     def init_list(self):
         return init_combobox_list(
             master=self.master,
             id=self.w_id,
             string_combobox=self.string_combobox,
-            list_var=self.list_value
+            list_var=self._list_value
         )
 
     def init_entry(self):
