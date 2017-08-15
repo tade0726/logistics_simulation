@@ -42,7 +42,7 @@ def main():
 
     # raw data prepare
     pipelines_table = get_pipelines()
-    unload_setting_dict_src = get_unload_setting()
+    unload_setting_dict = get_unload_setting()
     reload_setting_dict = get_reload_setting()
     resource_table = get_resource_limit()
     equipment_resource_dict = get_resource_equipment_dict()
@@ -58,9 +58,6 @@ def main():
                                        is_parcel_only=MainConfig.IS_PARCEL_ONLY,
                                        is_land_only=MainConfig.IS_LAND_ONLY)
     truck_controller.controller()
-
-    # keep all the equipment open, since the switch is in pipelines now
-    unload_setting_dict = unload_setting_dict_src
 
     # c_port list
     reload_c_list = list()
