@@ -15,7 +15,7 @@ from src.utils import TruckRecord
 from src.db import get_vehicles, get_resource_timetable, get_equipment_timetable
 from src.config import LOG
 
-__all__ = ["TruckController", ]
+__all__ = ["TruckController", "MachineController", "ResourceController"]
 
 
 class TruckController:
