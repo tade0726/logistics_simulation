@@ -21,7 +21,7 @@ from src.config import *
 __all__ = ['write_redis', 'load_from_redis', 'write_mysql', 'write_local', 'load_from_local',
            'load_from_mysql', 'get_vehicles', 'get_unload_setting', 'get_reload_setting', 'get_resource_limit',
            'get_resource_equipment_dict', 'get_pipelines', 'get_queue_io', 'get_equipment_process_time',
-           'get_parameters', 'get_equipment_on_off', 'get_resource_timetable', 'get_equipment_timetable']
+           'get_parameters', 'get_equipment_on_off', 'get_resource_timetable', 'get_equipment_timetable', 'get_equipment_store_dict']
 
 
 def checking_pickle_file(table_name):
@@ -314,6 +314,9 @@ def get_pipelines():
     tab_queue_io = load_from_mysql(tab_n_queue_io)
     line_count_ori = tab_queue_io.shape[0]
 
+    equipment_store_dict = get_equipment_store_dict()
+    equipment_shared_store = set(equipment_store_dict.keys())
+
     # fixme: need to add in database
     # add machine_type
     # m: presort
@@ -350,6 +353,9 @@ def get_pipelines():
         (tab_queue_io.equipment_port_next.str.startswith('c') | tab_queue_io.equipment_port_next.str.startswith('i')\
         | tab_queue_io.equipment_port_next.str.startswith('e'))
 
+    ind_pipeline_replace = \
+        tab_queue_io.equipment_port_next.isin(equipment_shared_store)
+
     tab_queue_io.loc[ind_presort, "machine_type"] = "presort"
     tab_queue_io.loc[ind_secondary_sort, "machine_type"] = "secondary_sort"
 
@@ -363,6 +369,7 @@ def get_pipelines():
 
     tab_queue_io.loc[ind_pipeline_res, "pipeline_type"] = "pipeline_res"
     tab_queue_io.loc[~ind_pipeline_res, "pipeline_type"] = "pipeline"
+    tab_queue_io.loc[ind_pipeline_replace, "pipeline_type"] = "pipeline_replace"
 
     line_count_last = tab_queue_io.shape[0]
     assert line_count_ori == line_count_last
@@ -433,6 +440,28 @@ def get_equipment_on_off():
     return equipment_on.equipment_port.tolist(), equipment_off.equipment_port.tolist(),
 
 
+def get_equipment_store_dict():
+    """返回共享队列的设备和 store 代码的对应关系"""
+    table = load_from_mysql('i_queue_io')
+
+    u_table = table[table.equipment_port_next.str.startswith('u')]
+    j_table = table[table.equipment_port_next.str.startswith('j')]
+
+    equipment_store_dict = dict()
+
+    for idx, x in enumerate(u_table.groupby('equipment_port_last')['equipment_port_next'].apply(list), start=1):
+        if len(x) > 1:
+            for p in x:
+                equipment_store_dict[p] = f'U_{idx}'
+
+    for idx, x in enumerate(j_table.groupby('equipment_port_last')['equipment_port_next'].apply(list), start=1):
+        if len(x) > 1:
+            for p in x:
+                equipment_store_dict[p] = f'J_{idx}'
+
+    return equipment_store_dict
+
+
 # todo: wait for real data
 def get_resource_timetable():
     pass
@@ -443,5 +472,5 @@ def get_equipment_timetable():
 
 
 if __name__ == "__main__":
-    test = get_queue_io()
-    print(test)
+    test = get_pipelines()
+    print(test[test.equipment_type == 'u'])
