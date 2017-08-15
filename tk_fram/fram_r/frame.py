@@ -5,7 +5,7 @@ from tkinter.ttk import Combobox
 from tkinter import Checkbutton, Entry, Menu
 from tkinter import IntVar, StringVar, DISABLED, NORMAL
 from .frame_r_view import ConfigFrame, BTN_ENTRY_DICT, \
-    ENTRY_STATUS_DIC, CHECK_BTN_ENTRY_DIC, M_R_DICT
+    ENTRY_STATUS_DIC, CHECK_BTN_ENTRY_DIC, M_R_DICT, CACHE_BTN_ENTRY_DICT
 
 
 class App(Frame):
@@ -233,15 +233,21 @@ class CheckBtnEntryList(object):
         )
 
     def init_on_off_status(self):
-        if 'r' in self.w_id:
-            self.var.set(BTN_ENTRY_DICT[self.w_id])
-            self.string.set(ENTRY_STATUS_DIC[self.var.get()])
-            self.change_combobox_status(self)
+        if self.w_id in CACHE_BTN_ENTRY_DICT:
+            self.set_status(CACHE_BTN_ENTRY_DICT)
         else:
+            self.set_status(BTN_ENTRY_DICT)
+
+    def set_status(self, status_dict):
+        if 'm' in self.w_id:
             self.var.set(self.check_var)
             self.string.set(ENTRY_STATUS_DIC[self.var.get()])
             self.change_combobox_status(self)
             self.check_btn['state'] = DISABLED
+        else:
+            self.var.set(status_dict[self.w_id])
+            self.string.set(ENTRY_STATUS_DIC[self.var.get()])
+            self.change_combobox_status(self)
         if self.string.get() == 'ON':
             self.entry['disabledforeground'] = 'blue'
 
@@ -255,7 +261,7 @@ class CheckBtnEntryList(object):
     def check_var(self):
         if 'm' in self.w_id:
             status = 0
-            for i in  M_R_DICT[self.w_id]:
+            for i in M_R_DICT[self.w_id]:
                 status = CHECK_BTN_ENTRY_DIC[i].var.get() or \
                          status
             return status

@@ -21,11 +21,11 @@ def init_btn_entry_val_from_sql():
     with conn as cur:
         cur.execute(
             "select equipment_port, equipment_status from i_equipment_io "
-            "where equipment_id like 'r%' or equipment_id like 'm%'"
         )
         result = cur.fetchall()
     for item in result:
         BTN_ENTRY_DICT[item[0]] = item[1]
+    print(BTN_ENTRY_DICT)
     return BTN_ENTRY_DICT
 
 
