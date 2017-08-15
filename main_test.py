@@ -16,7 +16,7 @@ import os
 from collections import defaultdict
 
 from src.db import *
-from src.controllers import TruckController
+from src.controllers import TruckController, MachineController, ResourceController
 from src.utils import PipelineRecord, TruckRecord, PackageRecord, OutputTableColumnType
 from src.vehicles import Pipeline, PipelineRes, BasePipeline, PipelineReplace, SmallBag, SmallPackage
 from src.machine import *
@@ -262,10 +262,23 @@ def main():
         for machine in machines:
             env.process(machine.run())
 
+    LOG.logger_font.info("init resource machine controllers..")
+    # init machine controller
+    machine_controller = MachineController(env,
+                                           machines_dict)
+    machine_controller.controller()
+
+    # init resource controller
+    resource_controller = ResourceController(env,
+                                             resource_dict)
+    resource_controller.controller()
+
     LOG.logger_font.info("sim start..")
     env.run()
+
     num_of_trucks = len(trucks_queue.items)
     assert num_of_trucks == 0, ValueError("Truck queue should be empty!!")
+
     LOG.logger_font.info(f"{num_of_trucks} trucks leave in queue")
     LOG.logger_font.info("sim end..")
     LOG.logger_font.info("collecting data")
