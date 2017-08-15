@@ -1,13 +1,13 @@
 # -*- coding: utf-8 -*-
 
-from tkinter import Tk, Label, Entry, Button, Text, Canvas, Y, BOTH, \
-    YES, Frame, Scrollbar, StringVar, Menu, Checkbutton
+from tkinter import Tk, Label, Entry, Button, Text, StringVar, Menu
 from tkinter.ttk import Combobox
-from .frame import App, CheckBtnEntryList
+from .frame import App
 from .frame_r_view import *
 # import logging as lg
 from .db_api import init_btn_entry_val_from_sql
-from .frame_api import run_sim, save_data, update_data, q_exit, menu_file
+from .frame_api import run_sim, save_data, update_data, q_exit, menu_file, \
+    create_canvas, init_sheet
 
 
 def init_app(master, wig):
@@ -83,28 +83,6 @@ def init_r_frame(root: Tk):
     #  =============查询机器开关状态：from mysql 配置数据=============
     init_btn_entry_val_from_sql()
 
-    # ======================left- top1============================
-    #
-    canvas_up = Canvas(left_set_pad_center_up)
-    scrollbar_up = Scrollbar(left_set_pad_center_up)
-    scrollbar_up.config(command=canvas_up.yview)
-    canvas_up.config(yscrollcommand=scrollbar_up.set)
-    scrollbar_up.pack(side="right", fill=Y)
-    canvas_up.config(
-        width=660,
-        height=500
-    )
-    canvas_up.pack(
-        side="left",
-        expand=YES,
-        fill=BOTH
-    )
-
-    frame_up = Frame(canvas_up, width=50, height=100)
-    frame_up.pack(side="top", fill=BOTH)
-    canvas_up.create_window(0, 0, window=frame_up, anchor="nw")
-
-    bas_up = [0, 0, 0, 50]
     # ============================包裹设置参数========================
     lbl_package = Label(
         master=left_set_pad_package,
@@ -146,81 +124,10 @@ def init_r_frame(root: Tk):
     )
     schedul_plan.grid(row=0, column=3)
     # ===================  机器区域sheet      =====================
-    r_btn = Checkbutton(
-        master=left_set_pad_sheet,
-        text="R_路侧卸货区",
-        variable=StringVar(),
-        onvalue=1,
-        offvalue=0,
-        relief='raise',
-        bd=5
-        )
-    r_btn.grid({'row':0, 'column':0})
-    a_btn = Checkbutton(
-        master=left_set_pad_sheet,
-        text="A_空侧卸货区",
-        variable=StringVar(),
-        onvalue=1,
-        offvalue=0,
-        relief='raise',
-        bd=5
-    )
-    a_btn.grid({'row': 0, 'column': 1})
-    m_btn = Checkbutton(
-        master=left_set_pad_sheet,
-        text="M_初分拣矩阵",
-        variable=StringVar(),
-        onvalue=1,
-        offvalue=0,
-        relief='raise',
-        bd=5
-    )
-    m_btn.grid({'row': 0, 'column': 2})
-    j_btn = Checkbutton(
-        master=left_set_pad_sheet,
-        text="J_安检机",
-        variable=StringVar(),
-        onvalue=1,
-        offvalue=0,
-        relief='raise',
-        bd=5
-    )
-    j_btn.grid({'row': 0, 'column': 3})
-    u_btn = Checkbutton(
-        master=left_set_pad_sheet,
-        text="U_小件拆包台",
-        variable=StringVar(),
-        onvalue=1,
-        offvalue=0,
-        relief='raise',
-        bd=5
-    )
-    u_btn.grid({'row': 0, 'column': 4})
-    h_btn = Checkbutton(
-        master=left_set_pad_sheet,
-        text="H_医院区",
-        variable=StringVar(),
-        onvalue=1,
-        offvalue=0,
-        relief='raise',
-        bd=5
-    )
-    h_btn.grid({'row': 0, 'column': 5})
+    for i in init_sheet(left_set_pad_sheet):
+        print(i)
     # ===================     卸货区数据      =====================
-    for w_id in ConfigFrame.WIG_ID_R:
-        CHECK_BTN_ENTRY_DIC[w_id] = CheckBtnEntryList(
-            w_id,
-            frame_up,
-            LIST_VALUE_COMBOBOX['R']
-        )
-        CHECK_BTN_ENTRY_DIC[w_id].init_on_off_status()
-        canvas_up["scrollregion"] = "%d %d %d %d" % (
-            bas_up[0],
-            bas_up[1],
-            bas_up[2],
-            bas_up[3]
-        )
-        bas_up[3] += 50/3
+    create_canvas(left_set_pad_center_up, 'R')
     # ============================仿真结果输出面板======================
     lbl_info = Label(
         master=right_output_pad_title,

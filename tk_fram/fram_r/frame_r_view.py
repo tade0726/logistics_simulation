@@ -214,7 +214,8 @@ class ConfigFrame(object):
     Frame 框架的初始化类
     """
     # 路侧卸货区id
-    WIG_ID_R = [
+    WIG_BTN_DICT = {
+        'R': [
         'r1_1', 'r1_2', 'r1_3', 'r1_4',
         'r2_1', 'r2_2', 'r2_3', 'r2_4',
         'r3_1', 'r3_2', 'r3_3', 'r3_4', 'r3_5', 'r3_6', 'r3_7', 'r3_8', 'r3_9',
@@ -222,23 +223,21 @@ class ConfigFrame(object):
         'r4_1', 'r4_2', 'r4_3', 'r4_4', 'r4_5', 'r4_6', 'r4_7', 'r4_8', 'r4_9',
         'r4_10',
         'r5_1', 'r5_2', 'r5_3', 'r5_4'
-    ]
-    # 初分拣矩阵id
-    WIG_ID_M = [
+        ],
+        'M': [
         'm1_1', 'm1_3', 'm1_2', 'm1_4', 'm2_1', 'm2_3', 'm2_5', 'm2_7', 'm2_9',
-        'm2_2', 'm2_4', 'm2_6', 'm2_8', 'm2_10', 'm3_1', 'm3_2',
-        # 'm4_2', 'm4_4'
-        # , 'm4_6', 'm4_8', 'm4_1', 'm4_3', 'm4_5', 'm4_7'
-    ]
-
+        'm2_2', 'm2_4', 'm2_6', 'm2_8', 'm2_10', 'm3_1', 'm3_2','m4_2', 'm4_4'
+        , 'm4_6', 'm4_8', 'm4_1', 'm4_3', 'm4_5', 'm4_7'
+        ]
+    }
     WIG_DIC = {
         'R': {
-            'columns': 3,       # 视图的列数目
-            'wig_id': WIG_ID_R  # 视图的id列表
+            'columns': 3,                # 视图的列数目
+            'wig_id': WIG_BTN_DICT['R']  # 视图的id列表
         },
         'M': {
             'columns': 3,
-            'wig_id': WIG_ID_M
+            'wig_id': WIG_BTN_DICT['M']
         }
     }
 
@@ -273,6 +272,63 @@ class ConfigFrame(object):
     ENTRY = {}
     #  初始化combobox list 视图字典
     COMBOBOX_LIST = {}
+    #
+    SHEET_LABEL_DICT = {}
+    #
+    SHEET_VAR_DICT = {}
+    #
+    SHEET_LIST = ['R', 'A', 'M', 'J', 'U', 'H']
+    #
+    SHEET_ATTR_DICT = {
+        'R': {
+            'text': "R_路侧卸货区",
+            'onvalue': 1,
+            'offvalue': 0,
+            'relief': 'raise',
+            'width': '12',
+            'bd': 5,
+        },
+        'A': {
+            'text': "A_空侧卸货区",
+            'onvalue': 1,
+            'offvalue': 0,
+            'relief': 'raise',
+            'width': '12',
+            'bd': 5,
+        },
+        'M': {
+            'text': "M_初分拣矩阵",
+            'onvalue': 1,
+            'offvalue': 0,
+            'relief': 'raise',
+            'width': '12',
+            'bd': 5,
+        },
+        'J': {
+            'text': "J_安检机",
+            'onvalue': 1,
+            'offvalue': 0,
+            'relief': 'raise',
+            'width': '11',
+            'bd': 5,
+        },
+        'U': {
+            'text': "U_小件拆包台",
+            'onvalue': 1,
+            'offvalue': 0,
+            'relief': 'raise',
+            'width': '12',
+            'bd': 5,
+        },
+        'H': {
+            'text': "H_医院区",
+            'onvalue': 1,
+            'offvalue': 0,
+            'relief': 'raise',
+            'width': '11',
+            'bd': 5,
+        },
+    }
 
 
 class CheckBtnEntryView(ConfigFrame):

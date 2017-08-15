@@ -1,8 +1,9 @@
 from datetime import datetime
 import time
 
-from tkinter import END, NORMAL, DISABLED
-from tkinter import messagebox, Tk, Button, X
+from tkinter import END, NORMAL, DISABLED, Canvas, Scrollbar, Y, BOTH, Frame, \
+    IntVar, Checkbutton
+from tkinter import messagebox
 from tkinter.messagebox  import *
 
 from tkinter.filedialog import askopenfilename
@@ -10,7 +11,9 @@ from tkinter.filedialog import askopenfilename
 from .db_api import Mysql, insert_package, update_on_off, save_to_past_run, \
     read_result, update_person
 # from simpy_lib import main
-from .frame_r_view import Flag
+from .frame_r_view import Flag, ConfigFrame, CHECK_BTN_ENTRY_DIC, \
+    LIST_VALUE_COMBOBOX
+from .frame import CheckBtnEntryList
 
 
 def save_data(package_num, schedul_plan, root, txt_receipt):
@@ -170,3 +173,72 @@ def q_exit(root):
 
 def menu_file(root):
     askopenfilename()
+
+def init_sheet(master):
+    column = 0
+    for sheet in ConfigFrame.SHEET_LIST:
+        yield create_sheet(master, sheet, column)
+        column += 1
+
+def create_sheet(master, sheet: str, column: int):
+    ConfigFrame.SHEET_VAR_DICT[sheet] = IntVar()
+    ConfigFrame.SHEET_LABEL_DICT[sheet] = Checkbutton(
+        master=master,
+        variable=ConfigFrame.SHEET_VAR_DICT[sheet],
+        command=lambda: switch_sheet(sheet)
+    )
+    ConfigFrame.SHEET_LABEL_DICT[sheet].config(
+        ConfigFrame.SHEET_ATTR_DICT[sheet])
+    ConfigFrame.SHEET_LABEL_DICT[sheet].grid({'row': 0, 'column': column})
+    if sheet == 'R':
+        ConfigFrame.SHEET_VAR_DICT[sheet].set(1)
+        ConfigFrame.SHEET_LABEL_DICT[sheet]['state'] = DISABLED
+    return f'{sheet}标签初始化完成'
+
+def switch_sheet(sheet: str):
+    sheet_btn = ConfigFrame.SHEET_LABEL_DICT[sheet]
+    sheet_btn['state'] = DISABLED
+    # 创建 SHEET_LIST 的副本，如不用 copy 方法，改动会作用到 SHEET_LIST
+    sheet_list = ConfigFrame.SHEET_LIST.copy()
+    sheet_list.remove(sheet)
+    for i in sheet_list:
+        ConfigFrame.SHEET_VAR_DICT[i].set(0)
+        ConfigFrame.SHEET_LABEL_DICT[i]['state'] = NORMAL
+    return
+
+def create_canvas(master, sheet: str):
+    canvas_up = Canvas(master)
+    scrollbar_up = Scrollbar(master)
+    scrollbar_up.config(command=canvas_up.yview)
+    canvas_up.config(yscrollcommand=scrollbar_up.set)
+    scrollbar_up.pack(side="right", fill=Y)
+    canvas_up.config(
+        width=660,
+        height=500
+    )
+    canvas_up.pack(
+        side="left",
+        expand=YES,
+        fill=BOTH
+    )
+
+    frame_up = Frame(canvas_up, width=50, height=100)
+    frame_up.pack(side="top", fill=BOTH)
+    canvas_up.create_window(0, 0, window=frame_up, anchor="nw")
+
+    bas_up = [0, 0, 0, 50]
+
+    for w_id in ConfigFrame.WIG_BTN_DICT[sheet]:
+        CHECK_BTN_ENTRY_DIC[w_id] = CheckBtnEntryList(
+            w_id,
+            frame_up,
+            LIST_VALUE_COMBOBOX[sheet]
+        )
+        CHECK_BTN_ENTRY_DIC[w_id].init_on_off_status()
+        canvas_up["scrollregion"] = "%d %d %d %d" % (
+            bas_up[0],
+            bas_up[1],
+            bas_up[2],
+            bas_up[3]
+        )
+        bas_up[3] += 50/3

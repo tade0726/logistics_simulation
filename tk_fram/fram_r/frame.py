@@ -246,23 +246,9 @@ class CheckBtnEntryList(object):
             self.entry['disabledforeground'] = 'blue'
 
     def chk_button_value(self):
-        '''
-        修改 r口 属性，并遍历 M_R_DICT 修改对应 m口 属性
-        :return:
-        '''
         self.string.set(ENTRY_STATUS_DIC[self.check_var])
         self.change_color(self.entry)
         self.change_combobox_status(self)
-        for key, value in M_R_DICT.items():
-            if self.w_id in value:
-                m = CHECK_BTN_ENTRY_DIC[key]
-                m.check_btn['state'] = NORMAL
-                m.var.set(m.check_var)
-                m.string.set(ENTRY_STATUS_DIC[m.check_var])
-                self.change_combobox_status(m)
-                self.change_color(m.entry)
-                m.check_btn['state'] = DISABLED
-                return
 
     # 返回勾选框的状态值 0 或 1
     @property
