@@ -150,8 +150,6 @@ def main():
                                                         machine_type="error",
                                                         is_record=True)  # data will be collected
 
-
-
     # prepare init machine dict
     machine_init_dict = defaultdict(list)
     for pipeline_id, pipeline in pipelines_dict.items():
@@ -263,14 +261,13 @@ def main():
             env.process(machine.run())
 
     LOG.logger_font.info("init resource machine controllers..")
+
     # init machine controller
-    machine_controller = MachineController(env,
-                                           machines_dict)
+    machine_controller = MachineController(env, machines_dict)
     machine_controller.controller()
 
     # init resource controller
-    resource_controller = ResourceController(env,
-                                             resource_dict)
+    resource_controller = ResourceController(env, resource_dict)
     resource_controller.controller()
 
     LOG.logger_font.info("sim start..")
@@ -363,16 +360,11 @@ def main():
         write_local('small_package_pipeline_table', small_package_pipeline_table)
         write_local('small_package_machine_table', small_package_machine_table)
     else:
-        write_mysql("machine_table", machine_table,
-                    OutputTableColumnType.package_columns)
-        write_mysql("pipeline_table", pipeline_table,
-                    OutputTableColumnType.pipeline_columns)
-        write_mysql("truck_table", truck_table,
-                    OutputTableColumnType.truck_columns)
-        write_mysql('small_package_pipeline_table',
-                    small_package_pipeline_table, OutputTableColumnType.package_columns)
-        write_mysql('small_package_machine_table',
-                    small_package_machine_table, OutputTableColumnType.package_columns)
+        write_mysql("machine_table", machine_table, OutputTableColumnType.package_columns)
+        write_mysql("pipeline_table", pipeline_table, OutputTableColumnType.pipeline_columns)
+        write_mysql("truck_table", truck_table, OutputTableColumnType.truck_columns)
+        write_mysql('small_package_pipeline_table', small_package_pipeline_table, OutputTableColumnType.package_columns)
+        write_mysql('small_package_machine_table', small_package_machine_table, OutputTableColumnType.package_columns)
 
     t_end = datetime.now()
     total_time = t_end - t_start
