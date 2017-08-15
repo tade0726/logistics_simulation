@@ -61,6 +61,13 @@ CACHE_BTN_ENTRY_DICT = {}  # 缓存entry状态字典
 CHECK_BTN_ENTRY_DIC = {}   # 设置控件的id同实例的关联字典
 
 DATABASES_DIC = {
+    'LOCAL': {
+        'HOST': 'localhost',
+        'USER': 'root',
+        'PASSWORD': 'gsvc123456',
+        'NAME': 'hangzhouhubland',
+        'CHARSET': 'utf8'
+    },
     'TEST': {
         'HOST': '10.0.149.62',
         'USER': 'root',
@@ -72,7 +79,7 @@ DATABASES_DIC = {
 
     }
 }
-DATABASES = DATABASES_DIC['TEST']
+DATABASES = DATABASES_DIC['LOCAL']
 # 可选时间点
 TIME_LIST = ['21:00', '22:00', '23:00', '02:00', '10:30']
 
