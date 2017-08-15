@@ -109,7 +109,7 @@ class TruckController:
         for keys, packages_record in self.trucks_dict.items():
             self.env.process(self._init_truck(keys, packages_record))
 
-# todo: developing
+
 class ResourceController:
     """control resource change during simulation"""
     def __init__(self,
@@ -124,18 +124,17 @@ class ResourceController:
     def _init_time_table(self):
         self.timetable = get_resource_timetable()
 
-    def _set_resource(self, resource_id: str, timestamp: float, resource_limit: int):
-        yield self.env.timeout(timestamp)
+    def _set_resource(self, resource_id: str, start_time: float, resource_limit: int):
+        yield self.env.timeout(start_time)
         self.resource_dict[resource_id]["resource"]._capacity = resource_limit
 
     def controller(self):
         for _, row in self.timetable.iterrows():
-            resource_id, timestamp, resource_limit = \
-                row['resource_id'], row['timestamp'], row['resource_limit']
-            self.env.process(self._set_resource(resource_id, timestamp, resource_limit))
+            resource_id, start_time, resource_limit = \
+                row['resource_id'], row['start_time'], row['resource_limit']
+            self.env.process(self._set_resource(resource_id, start_time, resource_limit))
 
 
-# todo: developing
 class MachineController:
     """control machine open/close change during simulation
        only support unload, small_primary, security
@@ -157,12 +156,12 @@ class MachineController:
         for machines in self.machines_dict.values:
             self.machines.extend(machines)
 
-    def _set_on_off(self, equipment_id: str, timestamp:float, status: bool):
+    def _set_on_off(self, equipment_port: str, start_time:float, equipment_status: bool):
 
-        yield self.env.timeout(timestamp)
-        machines = filter(lambda x: x.equipment_id == equipment_id, self.machines)
+        yield self.env.timeout(start_time)
+        machines = filter(lambda x: x.equipment_port == equipment_port, self.machines)
 
-        if status:
+        if equipment_status:
             for machine in machines:
                 machine.set_machine_open()
         else:
@@ -171,8 +170,10 @@ class MachineController:
 
     def controller(self):
         for _, row in self.timetable.iterrows():
-            equipment_id, timestamp, status = \
-                row['equipment_id'], row['timestamp'], row['status']
-            self.env.process(self._set_on_off(equipment_id, timestamp, status))
+            equipment_port, start_time, equipment_status = \
+                row['equipment_port'], row['start_time'], row['status']
+            # convert to bool
+            equipment_status = True if equipment_status else False
+            self.env.process(self._set_on_off(equipment_port, start_time, equipment_status))
 
 
