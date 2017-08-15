@@ -286,8 +286,14 @@ class PathGenerator(object):
                     random.randint(1, 7))
             return random.choice(self.all_paths[(start_node, end_node)]["all"])
         elif position == 2:  # 小件 从拆包节点到装包节点
-            end_node = random.choice(
-                self.reload_setting[(dest_code, sort_type, dest_type)])
+            c_ports = self.reload_setting.get((dest_code, sort_type, dest_type),
+                                              [])
+            if c_ports:
+                end_node = random.choice(
+                    self.reload_setting[(dest_code, sort_type, dest_type)])
+            else:
+                end_node = "c8_1" if start_node in [f"u{i}" for i in
+                                                    range(1, 5)] else "c9_1"
             path_list = self.all_paths.get((start_node, end_node), {"all": []})
             if path_list["all"]:
                 return random.choice(
