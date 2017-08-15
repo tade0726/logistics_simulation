@@ -285,7 +285,7 @@ class Pipeline:
 
 class PipelineReplace:
 
-    """传送带"""
+    """共享队列的传送带"""
 
     def __init__(self,
                  env: simpy.Environment,
@@ -293,16 +293,24 @@ class PipelineReplace:
                  pipeline_id: tuple,
                  queue_id: str,
                  machine_type: str,
-                 share_store: simpy.Store,
+                 share_store_dict: dict,
+                 equipment_store_dict: dict,
                  ):
 
         self.env = env
         self.delay = delay_time
-        self.share_store = share_store
+        self.share_store_dict = share_store_dict
+        self.equipment_store_dict = equipment_store_dict
         self.pipeline_id = pipeline_id
         self.queue_id = queue_id
         self.machine_type = machine_type
         self.equipment_id = self.pipeline_id[1]  # in Pipeline the equipment_id is equipment after this pipeline
+        # setting share store
+        self._set_store()
+
+    def _set_store(self):
+        self.share_store_id = self.equipment_store_dict[self.equipment_id]
+        self.share_store = self.equipment_store_dict[self.share_store_id]
 
     def latency(self):
         """模拟传送时间"""
@@ -348,7 +356,7 @@ class PipelineReplace:
         return self.env.process(self.latency())
 
     def __str__(self):
-        return f"<Pipeline: {self.pipeline_id}, delay: {self.delay}>"
+        return f"<PipelineReplace: {self.pipeline_id}, delay: {self.delay}>"
 
 
 class PipelineRes(Pipeline):
@@ -435,22 +443,9 @@ class PipelineRes(Pipeline):
             item.pop_mark()
             self.queue.put(item)
 
+    def __str__(self):
+        return f"<PipelineRes: {self.pipeline_id}, delay: {self.delay}>"
+
 
 if __name__ == '__main__':
-    env = simpy.Environment()
-    store = simpy.Store(env)
-    pipeline = PipelineReplace(env, 10, (1, 1), machine_type='test', queue_id='test', share_store=store)
-
-    def put_thing(env):
-        yield env.timeout(2)
-        pipeline.put('10')
-        print(f'{env.now}: put thing')
-
-    def get_thing(env):
-        yield env.timeout(10)
-        item = yield pipeline.get()
-        print(f"{env.now}: get thing")
-
-    env.process(put_thing(env))
-    env.process(get_thing(env))
-    env.run()
+    pass
