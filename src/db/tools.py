@@ -266,7 +266,6 @@ def get_reload_setting():
     return table_dict
 
 
-# todo: change two tables i_resource_limit  i_equipment_io
 def get_resource_limit():
     """返回资源表，包含了单个资源处理时间"""
 
@@ -319,7 +318,6 @@ def get_pipelines():
     equipment_store_dict = get_equipment_store_dict()
     equipment_shared_store = set(equipment_store_dict.keys())
 
-    # fixme: need to add in database
     # add machine_type
     # m: presort
     # i1 - i8: secondary_sort
