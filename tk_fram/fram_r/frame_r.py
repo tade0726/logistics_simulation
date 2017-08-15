@@ -128,7 +128,7 @@ def init_r_frame(root: Tk):
         print(i)
     # ===================     卸货区数据      =====================
     CURRENT_CANVAS_DICT['canvas'], CURRENT_CANVAS_DICT['scrollbar'] = \
-        create_canvas(left_set_pad_center_up, 'R', A=True)
+        create_canvas(left_set_pad_center_up, 'R')
     # ============================仿真结果输出面板======================
     lbl_info = Label(
         master=right_output_pad_title,

@@ -215,7 +215,7 @@ def switch_sheet(sheet: str, canvas_master):
     return
 
 
-def create_canvas(master, sheet: str, A=False):
+def create_canvas(master, sheet: str):
     canvas_up = Canvas(master)
     scrollbar_up = Scrollbar(master)
     scrollbar_up.config(command=canvas_up.yview)
@@ -236,13 +236,6 @@ def create_canvas(master, sheet: str, A=False):
     canvas_up.create_window(0, 0, window=frame_up, anchor="nw")
 
     bas_up = [0, 0, 0, 50]
-    if A == True:
-        for w_id in ConfigFrame.WIG_BTN_DICT['A']:
-            CHECK_BTN_ENTRY_DIC[w_id] = CheckBtnEntryList(
-                w_id,
-                frame_up,
-                LIST_VALUE_COMBOBOX['A']
-            )
     for w_id in ConfigFrame.WIG_BTN_DICT[sheet]:
         CHECK_BTN_ENTRY_DIC[w_id] = CheckBtnEntryList(
             w_id,

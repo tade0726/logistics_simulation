@@ -262,8 +262,7 @@ class CheckBtnEntryList(object):
         if 'm' in self.w_id:
             status = 0
             for i in M_R_DICT[self.w_id]:
-                status = CHECK_BTN_ENTRY_DIC[i].var.get() or \
-                         status
+                status = CACHE_BTN_ENTRY_DICT[i] or status
             return status
         else:
             return self.var.get()
