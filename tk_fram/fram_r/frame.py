@@ -5,7 +5,7 @@ from tkinter.ttk import Combobox
 from tkinter import Checkbutton, Entry, Menu
 from tkinter import IntVar, StringVar, DISABLED, NORMAL
 from .frame_r_view import ConfigFrame, BTN_ENTRY_DICT, \
-    ENTRY_STATUS_DIC, CHECK_BTN_ENTRY_DIC, M_R_DICT, CACHE_BTN_ENTRY_DICT
+    ENTRY_STATUS_DIC, M_R_DICT, CACHE_BTN_ENTRY_DICT, M_J_DICT
 
 
 class App(Frame):
@@ -247,7 +247,12 @@ class CheckBtnEntryList(object):
             self.set_status(BTN_ENTRY_DICT)
 
     def set_status(self, status_dict):
-        if 'm' in self.w_id:
+        if self.w_id == 'j41_1' or 'h' in self.w_id:
+            self.var.set(1)
+            self.string.set(ENTRY_STATUS_DIC[1])
+            self.string_combobox.set(1)
+            self.check_btn['state'] = DISABLED
+        elif 'm' in self.w_id or 'j' in self.w_id:
             self.var.set(self.check_var)
             self.string.set(ENTRY_STATUS_DIC[self.var.get()])
             self.change_combobox_status(self)
@@ -272,8 +277,13 @@ class CheckBtnEntryList(object):
             for i in M_R_DICT[self.w_id]:
                 status = CACHE_BTN_ENTRY_DICT[i] or status
             return status
-        else:
-            return self.var.get()
+        if 'j' in self.w_id and self.w_id != 'j41_1':
+            j_status = 0
+            for key, j_list in M_J_DICT.items():
+                if self.w_id in j_list:
+                    j_status = CACHE_BTN_ENTRY_DICT[key] or j_status
+            return j_status
+        return self.var.get()
 
     @staticmethod
     def change_color(entry):

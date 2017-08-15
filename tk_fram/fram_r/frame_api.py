@@ -200,9 +200,10 @@ def create_sheet(master, sheet: str, column: int, canvas_master):
 
 
 def switch_sheet(sheet: str, canvas_master):
+    # 每次切换界面都会更新上一个界面的数据到 CACHE_BTN_ENTRY_DICT
     for i in ConfigFrame.WIG_BTN_DICT[CURRENT_SHEET[0]]:
         CACHE_BTN_ENTRY_DICT[i] = CHECK_BTN_ENTRY_DIC[i].var.get()
-    # print(CACHE_BTN_ENTRY_DICT)
+
     sheet_btn = ConfigFrame.SHEET_LABEL_DICT[sheet]
     sheet_btn['state'] = DISABLED
     ConfigFrame.SHEET_VAR_DICT[CURRENT_SHEET[0]].set(0)
