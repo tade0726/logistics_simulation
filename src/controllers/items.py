@@ -10,7 +10,7 @@
 
 import simpy
 import pandas as pd
-from src.vehicles import Truck, SmallPackage, SmallBag, Parcel, PipelineReplace
+from src.vehicles import Truck, SmallPackage, SmallBag, Parcel
 from src.utils import TruckRecord
 from src.db import get_vehicles, get_resource_timetable, get_equipment_timetable
 from src.config import LOG
