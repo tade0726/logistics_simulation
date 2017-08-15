@@ -74,9 +74,8 @@ def main():
         process_time = row['process_time']
         resource_limit = row['resource_limit']
         # add info
-        if resource_limit:
-            resource_dict[resource_id]["resource"] = simpy.Resource(env=env, capacity=resource_limit)
-            resource_dict[resource_id]["process_time"] = process_time
+        resource_dict[resource_id]["resource"] = simpy.Resource(env=env, capacity=resource_limit)
+        resource_dict[resource_id]["process_time"] = process_time
 
     # init pipelines
     pipelines_dict = dict()
