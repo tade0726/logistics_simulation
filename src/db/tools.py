@@ -262,9 +262,9 @@ def get_reload_setting():
 
 def get_resource_limit():
     """返回资源表，包含了单个资源处理时间"""
-    table_name1 = "i_resource_limit"
+    table_name1 = "i_resource_limit_bak"
     table_name2 = "i_equipment_resource"
-    table_name3 = "i_equipment_io"
+    table_name3 = "i_equipment_io_bak"
 
     table1 = load_from_mysql(table_name1)
     table2 = load_from_mysql(table_name2)
@@ -380,7 +380,7 @@ def get_equipment_process_time():
          'a1_2': 0.0,
          'a1_3': 0.0,}
     """
-    table_n = "i_equipment_io"
+    table_n = "i_equipment_io_bak"
     table = load_from_mysql(table_n)
     table_dict = table.groupby(["equipment_port"])["process_time"].apply(lambda x: list(x)[0]).to_dict()
 
@@ -420,7 +420,7 @@ def get_equipment_on_off():
         on: ['r1_1', 'r1_2', ..]
         off: ['r2_1', 'r3_3', ..]
     """
-    tab_n = "i_equipment_io"
+    tab_n = "i_equipment_io_bak"
     table = load_from_mysql(tab_n)
     equipment_on = table[table.equipment_status == 1]
     equipment_off = table[table.equipment_status == 0]
