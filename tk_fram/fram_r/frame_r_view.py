@@ -38,7 +38,7 @@ Flag = {
 }
 
 #  人力资源配置：下拉列表的值
-LIST_VALUE_COMBOBOX= {
+LIST_VALUE_COMBOBOX = {
     'R': [1, 2],
     'A': [1, 2],
     'M': [1, 2, 3, 4],
@@ -49,14 +49,14 @@ LIST_VALUE_COMBOBOX= {
     'U': [1],
     'H': [
         [1, 2, 3, 4, 5, 6, 7, 8],
-        [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11 ,12, 13, 14, 15, 16]
+        [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16]
     ]
 }
 
 ENTRY_STATUS_DIC = {0: 'OFF', 1: 'ON'}  # btn状态对应entry的显示值对应字典
 
-BTN_ENTRY_DICT = {}       # 初始化entry状态字典
-CACHE_BTN_ENTRY_DICT = {} # 缓存entry状态字典
+BTN_ENTRY_DICT = {}        # 初始化entry状态字典
+CACHE_BTN_ENTRY_DICT = {}  # 缓存entry状态字典
 
 CHECK_BTN_ENTRY_DIC = {}   # 设置控件的id同实例的关联字典
 
@@ -76,7 +76,7 @@ DATABASES = DATABASES_DIC['TEST']
 # 可选时间点
 TIME_LIST = ['21:00', '22:00', '23:00', '02:00', '10:30']
 
-#M口与R口关联字典
+# M口与R口关联字典
 M_R_DICT = {
     'm1_1': ('r1_1', 'r1_2'),
     'm1_3': ('r1_3', 'r1_4'),
@@ -111,8 +111,10 @@ J_M_DICT = {
 # 当前 Canvas, Scrollbar 字典
 CURRENT_CANVAS_DICT = {}
 
+
 # 当前界面 ID
 CURRENT_SHEET = ['R']
+
 
 class ConfigApp(object):
     """"""
@@ -264,10 +266,14 @@ class ConfigFrame(object):
             'm4_2', 'm4_4', 'm4_6', 'm4_8', 'm4_1', 'm4_3', 'm4_5', 'm4_7'
         ],
         'J': [
-            'j1_1', 'j2_1', 'j3_1', 'j4_1', 'j5_1', 'j6_1', 'j7_1', 'j8_1', 'j9_1', 'j10_1', 'j11_1',
-            'j12_1', 'j13_1', 'j14_1', 'j15_1', 'j16_1', 'j17_1', 'j18_1', 'j19_1', 'j20_1',
-            'j21_1', 'j22_1', 'j23_1', 'j24_1', 'j25_1', 'j26_1', 'j27_1', 'j28_1', 'j29_1',
-            'j30_1', 'j31_1', 'j32_1', 'j33_1', 'j34_1', 'j35_1', 'j36_1', 'j37_1', 'j38_1',
+            'j1_1', 'j2_1', 'j3_1', 'j4_1', 'j5_1', 'j6_1', 'j7_1', 'j8_1',
+            'j9_1', 'j10_1', 'j11_1',
+            'j12_1', 'j13_1', 'j14_1', 'j15_1', 'j16_1', 'j17_1', 'j18_1',
+            'j19_1', 'j20_1',
+            'j21_1', 'j22_1', 'j23_1', 'j24_1', 'j25_1', 'j26_1', 'j27_1',
+            'j28_1', 'j29_1',
+            'j30_1', 'j31_1', 'j32_1', 'j33_1', 'j34_1', 'j35_1', 'j36_1',
+            'j37_1', 'j38_1',
             'j39_1', 'j40_1', 'j41_1'
         ],
         'U': [
@@ -418,7 +424,7 @@ class CheckBtnEntryView(ConfigFrame):
         columns_var = 0
         for id_wig in wig_id:
             if columns_var >= columns:
-                columns_var=0
+                columns_var = 0
                 row_var += 1
 
             self.CHECK_BTN[id_wig] = {

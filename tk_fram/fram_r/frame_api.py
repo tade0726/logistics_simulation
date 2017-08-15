@@ -4,7 +4,7 @@ import time
 from tkinter import END, NORMAL, DISABLED, Canvas, Scrollbar, Y, BOTH, Frame, \
     IntVar, Checkbutton
 from tkinter import messagebox
-from tkinter.messagebox  import *
+from tkinter.messagebox import *
 
 from tkinter.filedialog import askopenfilename
 
@@ -12,7 +12,8 @@ from .db_api import Mysql, insert_package, update_on_off, save_to_past_run, \
     read_result, update_person
 # from simpy_lib import main
 from .frame_r_view import Flag, ConfigFrame, CHECK_BTN_ENTRY_DIC, \
-    LIST_VALUE_COMBOBOX, CURRENT_CANVAS_DICT, CURRENT_SHEET, CACHE_BTN_ENTRY_DICT
+    LIST_VALUE_COMBOBOX, CURRENT_CANVAS_DICT, CURRENT_SHEET, \
+    CACHE_BTN_ENTRY_DICT
 from .frame import CheckBtnEntryList
 
 
@@ -174,11 +175,13 @@ def q_exit(root):
 def menu_file(root):
     askopenfilename()
 
+
 def init_sheet(master, canvas_master):
     column = 0
     for sheet in ConfigFrame.SHEET_LIST:
         yield create_sheet(master, sheet, column, canvas_master)
         column += 1
+
 
 def create_sheet(master, sheet: str, column: int, canvas_master):
     ConfigFrame.SHEET_VAR_DICT[sheet] = IntVar()
@@ -195,6 +198,7 @@ def create_sheet(master, sheet: str, column: int, canvas_master):
         ConfigFrame.SHEET_LABEL_DICT[sheet]['state'] = DISABLED
     return f'{sheet}标签初始化完成'
 
+
 def switch_sheet(sheet: str, canvas_master):
     for i in ConfigFrame.WIG_BTN_DICT[CURRENT_SHEET[0]]:
         CACHE_BTN_ENTRY_DICT[i] = CHECK_BTN_ENTRY_DIC[i].var.get()
@@ -209,6 +213,7 @@ def switch_sheet(sheet: str, canvas_master):
         create_canvas(canvas_master, sheet)
     CURRENT_SHEET[0] = sheet
     return
+
 
 def create_canvas(master, sheet: str, A=False):
     canvas_up = Canvas(master)
@@ -225,13 +230,19 @@ def create_canvas(master, sheet: str, A=False):
         expand=YES,
         fill=BOTH
     )
-
+    # 
     frame_up = Frame(canvas_up, width=50, height=100)
     frame_up.pack(side="top", fill=BOTH)
     canvas_up.create_window(0, 0, window=frame_up, anchor="nw")
 
     bas_up = [0, 0, 0, 50]
-
+    if A == True:
+        for w_id in ConfigFrame.WIG_BTN_DICT['A']:
+            CHECK_BTN_ENTRY_DIC[w_id] = CheckBtnEntryList(
+                w_id,
+                frame_up,
+                LIST_VALUE_COMBOBOX['A']
+            )
     for w_id in ConfigFrame.WIG_BTN_DICT[sheet]:
         CHECK_BTN_ENTRY_DIC[w_id] = CheckBtnEntryList(
             w_id,
@@ -246,11 +257,4 @@ def create_canvas(master, sheet: str, A=False):
             bas_up[3]
         )
         bas_up[3] += 50/3
-    if A == True:
-        for w_id in ConfigFrame.WIG_BTN_DICT['A']:
-            CHECK_BTN_ENTRY_DIC[w_id] = CheckBtnEntryList(
-                w_id,
-                frame_up,
-                LIST_VALUE_COMBOBOX['A']
-            )
     return (canvas_up, scrollbar_up)
