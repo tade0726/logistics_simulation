@@ -268,13 +268,14 @@ def get_reload_setting():
 # todo: change two tables i_resource_limit  i_equipment_io
 def get_resource_limit():
     """返回资源表，包含了单个资源处理时间"""
-    table_name1 = "i_resource_limit"
-    table_name2 = "i_equipment_resource"
-    table_name3 = "i_equipment_io"
 
-    table1 = load_from_mysql(table_name1)
+    # table_name1 = "i_resource_limit"
+    table_name2 = "i_equipment_resource"
+    # table_name3 = "i_equipment_io"
+
+    table1 = get_base_resource_limit()
     table2 = load_from_mysql(table_name2)
-    table3 = load_from_mysql(table_name3)
+    table3 = get_base_equipment_io()
 
     table2 = table2[["resource_id", "equipment_id"]].drop_duplicates()
     table3 = table3[["equipment_id", "process_time"]].drop_duplicates()
@@ -393,8 +394,7 @@ def get_equipment_process_time():
          'a1_2': 0.0,
          'a1_3': 0.0,}
     """
-    table_n = "i_equipment_io"
-    table = load_from_mysql(table_n)
+    table = get_base_equipment_io()
     table_dict = table.groupby(["equipment_port"])["process_time"].apply(lambda x: list(x)[0]).to_dict()
 
     return table_dict
@@ -425,21 +425,6 @@ def get_parameters():
     return table_dict
 
 
-def get_equipment_on_off():
-    """
-    返回设备的开关信息, 返回开的设备名
-
-    samples:
-        on: ['r1_1', 'r1_2', ..]
-        off: ['r2_1', 'r3_3', ..]
-    """
-    tab_n = "i_equipment_io"
-    table = load_from_mysql(tab_n)
-    equipment_on = table[table.equipment_status == 1]
-    equipment_off = table[table.equipment_status == 0]
-    return equipment_on.equipment_port.tolist(), equipment_off.equipment_port.tolist(),
-
-
 def get_equipment_store_dict():
     """返回共享队列的设备和 store 代码的对应关系"""
     table = load_from_mysql('i_queue_io')
@@ -462,6 +447,19 @@ def get_equipment_store_dict():
     return equipment_store_dict
 
 
+def get_base_equipment_io():
+    """得到 i_equipment_io 基础表格"""
+    table = load_from_mysql("i_equipment_io")
+    base_table = table[table.start_time == table.start_time.min()]
+    return base_table
+
+
+def get_base_resource_limit():
+    """得到 i_resource_limit 基础表格"""
+    table = load_from_mysql("i_resource_limit")
+    base_table = table[table.start_time == table.start_time.min()]
+    return base_table
+
 # todo: wait for real data
 def get_resource_timetable():
     pass
@@ -472,5 +470,12 @@ def get_equipment_timetable():
 
 
 if __name__ == "__main__":
-    test = get_pipelines()
-    print(test[test.equipment_type == 'u'])
+    test = get_base_equipment_io()
+    test2 = get_base_resource_limit()
+    test3 = get_equipment_process_time()
+    test4 = get_resource_limit()
+
+    print(test)
+    print(test2)
+    print(test3)
+    print(test4)
