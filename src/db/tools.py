@@ -21,7 +21,8 @@ from src.config import *
 __all__ = ['write_redis', 'load_from_redis', 'write_mysql', 'write_local', 'load_from_local',
            'load_from_mysql', 'get_vehicles', 'get_unload_setting', 'get_reload_setting', 'get_resource_limit',
            'get_resource_equipment_dict', 'get_pipelines', 'get_queue_io', 'get_equipment_process_time',
-           'get_parameters', 'get_equipment_on_off', 'get_resource_timetable', 'get_equipment_timetable', 'get_equipment_store_dict']
+           'get_parameters', 'get_resource_timetable', 'get_equipment_timetable',
+           'get_equipment_store_dict']
 
 
 def checking_pickle_file(table_name):
@@ -460,22 +461,37 @@ def get_base_resource_limit():
     base_table = table[table.start_time == table.start_time.min()]
     return base_table
 
-# todo: wait for real data
+
 def get_resource_timetable():
-    pass
+    """返回资源改变的时间表"""
+    table = load_from_mysql('i_resource_limit')
+    g_resource = table.sort_values('start_time').groupby('resource_id')
+    table_resource_change = g_resource.apply(lambda x: x[x.resource_limit.diff() != 0]).reset_index(drop=True)
+
+    # convert to seconds
+    table_resource_change["start_time"] = \
+        (pd.to_datetime(table_resource_change["start_time"]) - TimeConfig.ZERO_TIMESTAMP) \
+            .apply(lambda x: x.total_seconds() if x.total_seconds() > 0 else 0)
+
+    return table_resource_change
 
 
 def get_equipment_timetable():
-    pass
+    """返回机器开关改变的时间表"""
+    table = load_from_mysql('i_equipment_io')
+    g_equipment = table.sort_values('start_time').groupby('equipment_port')
+    table_equipment_change = g_equipment.apply(lambda x: x[x.equipment_status.diff() != 0]).reset_index(drop=True)
 
+    # convert to seconds
+    table_equipment_change["start_time"] = \
+        (pd.to_datetime(table_equipment_change["start_time"]) - TimeConfig.ZERO_TIMESTAMP) \
+            .apply(lambda x: x.total_seconds() if x.total_seconds() > 0 else 0)
+
+    return table_equipment_change
 
 if __name__ == "__main__":
-    test = get_base_equipment_io()
-    test2 = get_base_resource_limit()
-    test3 = get_equipment_process_time()
-    test4 = get_resource_limit()
+    test = get_resource_timetable()
+    test2 = get_equipment_timetable()
 
     print(test)
     print(test2)
-    print(test3)
-    print(test4)
