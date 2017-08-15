@@ -297,7 +297,6 @@ class PipelineReplace:
 
         self.env = env
         self.delay = delay_time
-        self.queue = simpy.Store(env)
         self.share_store = share_store
         self.pipeline_id = pipeline_id
         self.queue_id = queue_id
@@ -307,6 +306,7 @@ class PipelineReplace:
     def latency(self):
         """模拟传送时间"""
         item = yield self.share_store.get()
+
         # pipeline start server
         item.insert_data(
             PipelineRecord(
@@ -317,6 +317,7 @@ class PipelineReplace:
                 action="start", ))
 
         yield self.env.timeout(self.delay)
+
         # cutting path
         item.pop_mark()
 
@@ -328,7 +329,7 @@ class PipelineReplace:
                 time_stamp=self.env.now,
                 action="wait", ))
 
-        # # pipeline end server
+        # pipeline end server
         item.insert_data(
             PipelineRecord(
                 pipeline_id=':'.join(self.pipeline_id),
@@ -337,14 +338,13 @@ class PipelineReplace:
                 time_stamp=self.env.now,
                 action="end", ))
 
-        self.queue.put(item)
+        return item
 
     def put(self, item: Package):
         self.share_store.put(item)
 
     def get(self):
-        self.env.process(self.latency())
-        return self.queue.get()
+        return self.env.process(self.latency())
 
     def __str__(self):
         return f"<Pipeline: {self.pipeline_id}, delay: {self.delay}>"
