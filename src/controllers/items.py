@@ -130,8 +130,7 @@ class ResourceController:
 
     def controller(self):
         for _, row in self.timetable.iterrows():
-            resource_id, start_time, resource_limit = \
-                row['resource_id'], row['start_time'], row['resource_limit']
+            resource_id, start_time, resource_limit = row['resource_id'], row['start_time'], row['resource_limit']
             self.env.process(self._set_resource(resource_id, start_time, resource_limit))
 
 
@@ -170,8 +169,7 @@ class MachineController:
 
     def controller(self):
         for _, row in self.timetable.iterrows():
-            equipment_port, start_time, equipment_status = \
-                row['equipment_port'], row['start_time'], row['status']
+            equipment_port, start_time, equipment_status = row['equipment_port'], row['start_time'], row['status']
             # convert to bool
             equipment_status = True if equipment_status else False
             self.env.process(self._set_on_off(equipment_port, start_time, equipment_status))
