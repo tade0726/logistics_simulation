@@ -104,7 +104,7 @@ def load_from_redis(table_name: str):
 def write_mysql(table_name: str, data: pd.DataFrame, dtype: str=None):
     """写入MySQl数据库, 表格如果存在, 则新增数据"""
     try:
-        data.to_sql(name=f'o_{table_name}{MainConfig.O_DATA_SUFFIX}',
+        data.to_sql(name=f'o_{table_name}',
                     con=RemoteMySQLConfig.engine,
                     if_exists='append',
                     index=0,

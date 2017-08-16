@@ -24,7 +24,6 @@ class MainConfig:
     CACHE_TYPE = None  # {None, "redis", "pkl", "hdf5"}
     LOCAL_DB = False  # control which DB using
     ALL_OPEN = True  # no more equipment limit
-    O_DATA_SUFFIX = '_0' if not IS_TEST else ''  # o table SUFFIX
 
 
 class RedisConfig:
