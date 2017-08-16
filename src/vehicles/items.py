@@ -15,7 +15,7 @@ import pandas as pd
 from collections import namedtuple, defaultdict
 import random
 
-from src.utils import PackageRecord, PipelineRecord, TruckRecord, PathGenerator
+from src.utils import PackageRecord, PipelineRecord, TruckRecord, SmallPackageRecord, PathGenerator
 from src.config import LOG
 
 __all__ = ["Parcel", "Package", "Truck", "Uld", "SmallBag", "SmallPackage", "Pipeline", "PipelineRes", "BasePipeline"]
@@ -63,13 +63,18 @@ class Package:
             self.machine_data.append(record)
 
             LOG.logger_font.debug(msg=f"Package: {record.package_id} , action: {record.action}"
-                             f", equipment: {record.equipment_id}, timestamp: {record.time_stamp}")
+                                      f", equipment: {record.equipment_id}, timestamp: {record.time_stamp}")
+
+        elif isinstance(record, SmallPackageRecord):
+            self.machine_data.append(record)
+            LOG.logger_font.debug(msg=f"Small: {record.small_id}, Package: {record.package_id} , action: {record.action}"
+                                      f", equipment: {record.equipment_id}, timestamp: {record.time_stamp}")
 
         elif isinstance(record, PipelineRecord):
             self.pipeline_data.append(record)
 
             LOG.logger_font.debug(msg=f"Package: {record.package_id} , action: {record.action}"
-                              f", pipeline: {record.pipeline_id}, timestamp: {record.time_stamp}")
+                                      f", pipeline: {record.pipeline_id}, timestamp: {record.time_stamp}")
 
         else:
             raise ValueError("Wrong type of record")
@@ -114,7 +119,7 @@ class SmallPackage(Package):
         self.item_id = self.attr["small_id"]
 
     def insert_data(self, record: namedtuple):
-        new_record = record._replace(package_id=self.item_id)
+        new_record = SmallPackageRecord(**record._asdict(), small_id=self.item_id)
         return super(SmallPackage, self).insert_data(new_record)
 
     def __str__(self):
