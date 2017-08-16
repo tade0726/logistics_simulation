@@ -60,7 +60,7 @@ class Package:
         self.next_pipeline = self.planned_path[:2]
 
     def insert_data(self, data: dict):
-        # print out data
+
         if isinstance(data, PackageRecordDict):
             record = PackageRecord(
                 parcel_id=self.parcel_id,
