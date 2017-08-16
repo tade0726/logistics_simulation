@@ -19,7 +19,6 @@
                                                       3、每个入口\出口无服务受限；
 =====================================================================================================
 """
-from src.utils import PackageRecord
 
 
 class Cross(object):
@@ -78,16 +77,16 @@ class Cross(object):
             package = yield self.input_pip_line.get()
             # 记录机器开始处理货物信息
             package.insert_data(
-                PackageRecord(
+                dict(
+                    record_type="machine",
                     equipment_id=self.equipment_id,
-                    package_id=package.item_id,
                     time_stamp=self.env.now,
                     action="start", ))
             # 记录机器结束处理货物信息
             package.insert_data(
-                PackageRecord(
+                dict(
+                    record_type="machine",
                     equipment_id=self.equipment_id,
-                    package_id=package.item_id,
                     time_stamp=self.env.now,
                     action="end", ))
             # 放入下一步的传送带
