@@ -1,4 +1,5 @@
 from collections import namedtuple
+from sqlalchemy.types import String, Integer
 
 __all__ = ["TruckRecord", "PackageRecord", "PipelineRecord",
            "TruckRecordDict", "PackageRecordDict", "PipelineRecordDict"]
@@ -21,3 +22,32 @@ class PackageRecordDict(dict):
 
 class PipelineRecordDict(dict):
     pass
+
+
+# data format for mysql
+class OutputTableColumnType:
+
+    truck_columns = dict(
+        equipment_id=String(length=32, ),
+        truck_id=String(length=32, ),
+        truck_type=String(length=32, ),
+        action=String(length=32, ),
+        store_size=Integer(),
+    )
+
+    package_columns = dict(
+        equipment_id=String(length=32, ),
+        parcel_id=String(length=32, ),
+        small_id=String(length=32, ),
+        parcel_type=String(length=32, ),
+        action=String(length=32, ),
+    )
+
+    pipeline_columns = dict(
+        pipeline_id=String(length=32, ),
+        queue_id=String(length=32, ),
+        parcel_id=String(length=32, ),
+        small_id=String(length=32, ),
+        parcel_type=String(length=32, ),
+        action=String(length=32, ),
+    )
