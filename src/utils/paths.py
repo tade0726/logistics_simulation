@@ -331,6 +331,14 @@ class PathGenerator(object):
                     now = path[:i+1]
                     now.append("c3_14")
                     return now
+            if not self.all_paths[(start_node, end_node)]["without hospital"]:
+                if start_node[0:3] == "c11" or start_node[0:3] == "c12":
+                    end_node = "c2_1"
+                else:
+                    if dest_type == "L":
+                        end_node = random.choice(["c2_1", "c4_1"])
+                    else:
+                        end_node = "c18_1"
             hospital_prob = random.random()  # 医院区概率
             if hospital_prob <= 0.05:
                 return random.choice(
@@ -348,7 +356,7 @@ if __name__ == "__main__":
     machine_pre_dict = machine_pre()
     hospital = set(machine_pre_dict["hospital"])
     security = set(machine_pre_dict["security"])
-    re_cal = True
+    re_cal = False
 
     if re_cal:
 
@@ -392,7 +400,7 @@ if __name__ == "__main__":
     print(
         ",".join(Paths.path_generator("u3_7", "752", "small_sort", "A")))  # 小件
     print(
-        ",".join(Paths.path_generator("c5_1", "752", "small_sort", "A")))  # 小件
+        ",".join(Paths.path_generator("c11_1", "571BEE", "small_sort", "L")))  # 小件
 
     # 生成100000条路线，测试进入医院区的概率是否为5%
     land_start_node = ["r5_1", "r5_2", "r5_3", "r5_4"]
