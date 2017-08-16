@@ -27,7 +27,7 @@ __all__ = ["main"]
 
 # todo: add parameters
 
-def main():
+def main(start_time):
 
     # start time
     t_start = datetime.now()
@@ -317,7 +317,7 @@ def main():
     # process data
     LOG.logger_font.info(msg="processing data")
     # time stamp for db
-    db_insert_time = t_start
+    db_insert_time = start_time
 
     def add_time(table: pd.DataFrame):
         """添加仿真的时间戳， 以及运行的日期"""

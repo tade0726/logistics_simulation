@@ -60,6 +60,7 @@ def insert_package(cursor, num: str, run_arg):
         num = '100000000'
     # ============================ 插入陆侧数据 ===============================
     cursor.execute("truncate i_od_parcel_landside")
+    cursor.execute("truncate i_od_small_landside")
     cursor.execute(
         "insert into i_od_parcel_landside "
         "(parcel_id, src_dist_code, src_type, dest_dist_code, dest_zone_code,"
@@ -108,6 +109,7 @@ def insert_package(cursor, num: str, run_arg):
     )
     # ============================ 插入空侧数据 ===============================
     cursor.execute("truncate i_od_parcel_airside")
+    cursor.execute("truncate i_od_small_airside")
     cursor.execute(
         "insert into i_od_parcel_airside "
         "(parcel_id, src_dist_code, src_type, dest_dist_code, dest_zone_code,"

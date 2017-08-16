@@ -67,7 +67,9 @@ def run_sim(package_num, date_plan, time_plan, root, txt_receipt):
     conn = Mysql().connect
     run_arg = Flag['run_time']
     # ======================== 插入测试数据=============
+    txt_receipt['state'] = NORMAL
     txt_receipt.insert(END, '插入%s件包裹仿真数据......\n' % package_num.get())
+    root.update_idletasks()
     with conn as cur:
         insert_package(cur, package_num.get(), run_arg)
     txt_receipt.insert(END, '插入包裹仿真数据成功！\n')
@@ -81,7 +83,6 @@ def run_sim(package_num, date_plan, time_plan, root, txt_receipt):
             "truncate o_truck_table"
         )
 
-    txt_receipt['state'] = NORMAL
     txt_receipt.insert(END, '*******************************\n')
     txt_receipt.insert(END, '开始调用仿真函数......\n')
     root.update_idletasks()
