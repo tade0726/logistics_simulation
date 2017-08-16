@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 
 from tkinter import DISABLED
+
+from collections import defaultdict
 # from .frame_api import menu_file
 #  ====================宽度设置参数=================
 FRAME_WIDTH = 1100  # 界面的总计宽度
@@ -57,6 +59,7 @@ ENTRY_STATUS_DIC = {0: 'OFF', 1: 'ON'}  # btn状态对应entry的显示值对应
 
 BTN_ENTRY_DICT = {}        # 初始化entry状态字典
 CACHE_BTN_ENTRY_DICT = {}  # 缓存entry状态字典
+CACHE_COMBOBOX_DICT = {}   # 缓存下拉表人数字典
 
 CACHE_J_STATUS = {}        # J 状态的缓存字典，value 固定为 0
 
@@ -74,7 +77,7 @@ DATABASES_DIC = {
         'HOST': '10.0.149.62',
         'USER': 'root',
         'PASSWORD': 'root123',
-        'NAME': 'hangzhouhubland',
+        'NAME': 'hangzhouhubqa',
         'CHARSET': 'utf8'
     },
     'PRODUCTION': {
@@ -84,8 +87,7 @@ DATABASES_DIC = {
 DATABASES = DATABASES_DIC['TEST']
 # 可选时间点
 PACKAGE_NUM_LIST = ['50000', '100000', '200000', 'all']
-DAY_LIST = []
-TIME_LIST = []
+DAY_TIME_DICT = defaultdict(list)
 
 # M口与R口关联字典
 M_R_DICT = {

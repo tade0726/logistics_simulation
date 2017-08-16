@@ -5,9 +5,9 @@ from tkinter.ttk import Combobox
 from .frame import App
 from .frame_r_view import *
 # import logging as lg
-from .db_api import init_btn_entry_val_from_sql
+from .db_api import init_btn_entry_val_from_sql, init_day_time
 from .frame_api import run_sim, save_data, update_data, q_exit, menu_file, \
-    create_canvas, init_sheet
+    create_canvas, init_sheet, set_during_time
 
 
 def init_app(master, wig):
@@ -82,7 +82,8 @@ def init_r_frame(root: Tk):
     )
     #  =============查询机器开关状态：from mysql 配置数据=============
     init_btn_entry_val_from_sql()
-
+    # ========================= 初始化时间参数 =======================
+    init_day_time()
     # ============================包裹设置参数========================
     lbl_package = Label(
         master=left_set_pad_package,
@@ -116,13 +117,15 @@ def init_r_frame(root: Tk):
     )
     lbl_date_plan.grid(row=0, column=2)
     #
+    date_list = list(DAY_TIME_DICT.keys())
+    date_list.sort()
     date_plan = Combobox(
         master=left_set_pad_package,
         width=15,
         # bd=8,
         # height=2,
         textvariable=StringVar(),
-        values=DAY_LIST
+        values=date_list,
     )
     date_plan.grid(row=0, column=3)
     # -----------------------时间表标题
@@ -142,7 +145,8 @@ def init_r_frame(root: Tk):
         # bd=8,
         # height=2,
         textvariable=StringVar(),
-        values=TIME_LIST
+        values=[],
+        postcommand=lambda: set_during_time(date_plan, time_plan)
     )
     time_plan.grid(row=0, column=5)
     # ===================  机器区域sheet      =====================
@@ -183,7 +187,7 @@ def init_r_frame(root: Tk):
         width=width_btn,
         text="数据更新",
         command=lambda: update_data(
-            package_num, schedul_plan, root, txt_receipt
+            package_num, date_plan, time_plan, root, txt_receipt
         )
     ).grid(row=0, column=0)
     # 启动仿真按钮
@@ -193,7 +197,7 @@ def init_r_frame(root: Tk):
         font=('Times', font_btn, 'bold'),
         width=width_btn,
         text="启动仿真",
-        command=lambda: run_sim(package_num, schedul_plan, root, txt_receipt)
+        command=lambda: run_sim(package_num, date_plan, time_plan, root, txt_receipt)
     ).grid(row=0, column=1)
     # btn-存储数据按钮
     Button(
@@ -202,7 +206,7 @@ def init_r_frame(root: Tk):
         font=('Times', font_btn, 'bold'),
         width=width_btn,
         text="存储数据",
-        command=lambda: save_data(package_num, schedul_plan, root, txt_receipt)
+        command=lambda: save_data(package_num, date_plan, time_plan, root, txt_receipt)
     ).grid(row=0, column=2)
     # btn-退出按钮
     Button(

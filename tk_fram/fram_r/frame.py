@@ -287,7 +287,6 @@ class CheckBtnEntryList(object):
         self.string.set(ENTRY_STATUS_DIC[self.var.get()])
         self.change_color(self.entry)
         self.change_combobox_status(self)
-        print(CACHE_J_STATUS)
 
     # 返回勾选框的状态值 0 或 1
     @property

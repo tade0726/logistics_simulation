@@ -1,5 +1,5 @@
 from .frame_r_view import CHECK_BTN_ENTRY_DIC, DATABASES, BTN_ENTRY_DICT, \
-    CACHE_BTN_ENTRY_DICT
+    CACHE_BTN_ENTRY_DICT, CACHE_COMBOBOX_DICT, DAY_TIME_DICT
 from pymysql import connect
 
 
@@ -29,18 +29,35 @@ def init_btn_entry_val_from_sql():
         CACHE_BTN_ENTRY_DICT[item[0]] = item[1]
     return BTN_ENTRY_DICT
 
+def init_day_time():
+    conn = Mysql().connect
+    with conn as cur:
+        cur.execute(
+            "SELECT p.`start_time`, p.`end_time` "
+            "FROM `i_equipment_io` AS p GROUP BY p.`start_time`,p.`end_time`"
+        )
+        result = cur.fetchall()
+    for i in result:
+        start_time, end_time = i
+        day, start = str(start_time).split(' ')
+        end = str(end_time).split(' ')[1]
+        during_time = start + '-' + end
+        DAY_TIME_DICT[day].append(during_time)
 
-def update_on_off(cursor, run_arg):
+def update_on_off(cursor, start_time, run_arg):
     # equipment_port 需要确定
     for key, value in CHECK_BTN_ENTRY_DIC.items():
         cursor.execute(
             "update i_equipment_io set equipment_status=%s where "
-            "equipment_port='%s'" % (value.var.get(), key)
+            "equipment_port='%s' and start_time='%s'" %
+            (value.var.get(), key, start_time)
         )
     cursor.execute("update i_equipment_io set inserted_on='%s'" % run_arg)
 
 
 def insert_package(cursor, num: str, run_arg):
+    if num == 'all':
+        num = '100000000'
     # ============================ 插入陆侧数据 ===============================
     cursor.execute("truncate i_od_parcel_landside")
     cursor.execute(
@@ -141,10 +158,11 @@ def insert_package(cursor, num: str, run_arg):
     cursor.execute("update i_od_small_airside set inserted_on='%s'" % run_arg)
 
 
-def update_person(cursor, num: str, run_arg):
+def update_person(cursor, run_arg):
     # 需要指定 resource_id 范围
-    cursor.execute("update i_resource_limit set resource_limit={} where "
-                   "resource_id like 'man_m%' ".format(num))
+    for key, num in CACHE_COMBOBOX_DICT.items():
+        cursor.execute("update i_resource_limit set resource_limit={} where "
+                       "resource_id='{}%' ".format(num, key))
     cursor.execute("update i_resource_limit set inserted_on='%s'" % run_arg)
 
 

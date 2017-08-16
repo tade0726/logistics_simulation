@@ -13,17 +13,17 @@ from .db_api import Mysql, insert_package, update_on_off, save_to_past_run, \
 # from simpy_lib import main
 from .frame_r_view import Flag, ConfigFrame, CHECK_BTN_ENTRY_DIC, \
     LIST_VALUE_COMBOBOX, CURRENT_CANVAS_DICT, CURRENT_SHEET, \
-    CACHE_BTN_ENTRY_DICT, M_J_DICT, M_R_DICT, CACHE_J_STATUS
+    CACHE_BTN_ENTRY_DICT, CACHE_COMBOBOX_DICT, DAY_TIME_DICT
 from .frame import CheckBtnEntryList
 
 
-def save_data(package_num, schedul_plan, root, txt_receipt):
+def save_data(package_num, date_plan, time_plan, root, txt_receipt):
     if not package_num.get():
         messagebox.showerror(
             "Tkinter-数据更新错误", "运行错误，请输入仿真件量！"
         )
         return
-    if not schedul_plan.get():
+    if not date_plan.get():
         messagebox.showerror("Tkinter-数据更新错误",
                              "运行错误，请设置班次时间！")
         return
@@ -49,14 +49,14 @@ def save_data(package_num, schedul_plan, root, txt_receipt):
     Flag['save_data'] += 1
 
 
-def run_sim(package_num, schedul_plan, root, txt_receipt):
+def run_sim(package_num, date_plan, time_plan, root, txt_receipt):
     """"""
     if not package_num.get():
         messagebox.showerror(
             "Tkinter-数据更新错误", "运行错误， 请输入仿真件量！"
         )
         return
-    if not schedul_plan.get():
+    if not date_plan.get():
         messagebox.showerror("Tkinter-数据更新错误",
                              "运行错误，请设置班次时间！")
         return
@@ -114,15 +114,17 @@ def run_sim(package_num, schedul_plan, root, txt_receipt):
     Flag['save_data'] = 0
 
 
-def update_data(package_num, schedul_plan, root, txt_receipt):
+def update_data(package_num, date_plan, time_plan, root, txt_receipt):
     """"""
+    for i in ConfigFrame.WIG_BTN_DICT[CURRENT_SHEET[0]]:
+        CACHE_COMBOBOX_DICT[i] = CHECK_BTN_ENTRY_DIC[i].string_combobox.get()
     Flag['run_time'] = datetime.now()
     run_arg = Flag['run_time']
     if not package_num.get():
         messagebox.showerror(
             "Tkinter-数据更新错误", "运行错误，请输入仿真件量！")
         return
-    if not schedul_plan.get():
+    if not date_plan.get():
         messagebox.showerror("Tkinter-数据更新错误",
                              "运行错误，请设置班次时间！")
         return
@@ -133,24 +135,27 @@ def update_data(package_num, schedul_plan, root, txt_receipt):
     root.update_idletasks()
     # ========================更改开关状态==============
     txt_receipt.insert(END, '机器开关状态更新......\n')
+    day = date_plan.get()
+    start, end = time_plan.get().split('-')
+    start_time = day + ' ' + start
     conn = Mysql().connect
     with conn as cur:
-        update_on_off(cur, run_arg)
+        update_on_off(cur, start_time, run_arg)
 
     txt_receipt.insert(END, '机器开关状态更新成功！\n')
     root.update_idletasks()
     time.sleep(0.5)
     # ======================== 插入测试数据=============
-    txt_receipt.insert(END, '插入%s件包裹仿真数据......\n' % package_num.get())
-    with conn as cur:
-        insert_package(cur, package_num.get(), run_arg)
-    txt_receipt.insert(END, '插入包裹仿真数据成功！\n')
-    root.update_idletasks()
-    time.sleep(0.5)
+    # txt_receipt.insert(END, '插入%s件包裹仿真数据......\n' % package_num.get())
+    # with conn as cur:
+    #     insert_package(cur, package_num.get(), run_arg)
+    # txt_receipt.insert(END, '插入包裹仿真数据成功！\n')
+    # root.update_idletasks()
+    # time.sleep(0.5)
     # ========================更改人员数量==============
-    txt_receipt.insert(END, '设置人力资源数量为%s......\n' % schedul_plan.get())
+    txt_receipt.insert(END, '开始设置人力资源数量......\n')
     with conn as cur:
-        update_person(cur, schedul_plan.get(), run_arg)
+        update_person(cur, run_arg)
     txt_receipt.insert(END, '人力资源设置完毕！\n')
     txt_receipt['state'] = DISABLED
 
@@ -200,9 +205,11 @@ def create_sheet(master, sheet: str, column: int, canvas_master):
 
 
 def switch_sheet(sheet: str, canvas_master):
-    # 每次切换界面都会更新上一个界面的数据到 CACHE_BTN_ENTRY_DICT
+    # 每次切换界面都会更新上一个界面的开关状态数据到 CACHE_BTN_ENTRY_DICT
+    # 更新上一个界面的人数到 CACHE_COMBOBOX_DICT
     for i in ConfigFrame.WIG_BTN_DICT[CURRENT_SHEET[0]]:
         CACHE_BTN_ENTRY_DICT[i] = CHECK_BTN_ENTRY_DIC[i].var.get()
+        CACHE_COMBOBOX_DICT[i] = CHECK_BTN_ENTRY_DIC[i].string_combobox.get()
     # ==============================================================
     sheet_btn = ConfigFrame.SHEET_LABEL_DICT[sheet]
     sheet_btn['state'] = DISABLED
@@ -253,3 +260,6 @@ def create_canvas(master, sheet: str):
         )
         bas_up[3] += 50/3
     return (canvas_up, scrollbar_up)
+
+def set_during_time(date_plan, time_plan):
+    time_plan['values'] = DAY_TIME_DICT[date_plan.get()]
