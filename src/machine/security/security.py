@@ -15,6 +15,7 @@
 """
 from src.vehicles.items import Package
 from src.config import LOG
+from src.utils import PackageRecordDict
 
 
 class Security:
@@ -62,8 +63,7 @@ class Security:
             yield req
             # 记录机器开始处理货物信息
             package.insert_data(
-                dict(
-                    record_type="machine",
+                PackageRecordDict(
                     equipment_id=self.equipment_id,
                     time_stamp=self.env.now,
                     action="start", ))
@@ -72,8 +72,7 @@ class Security:
 
             # 记录机器结束处理货物信息
             package.insert_data(
-                dict(
-                    record_type="machine",
+                PackageRecordDict(
                     equipment_id=self.equipment_id,
                     time_stamp=self.env.now,
                     action="end", ))

@@ -18,7 +18,7 @@ from collections import defaultdict
 from src.db import *
 from src.controllers import TruckController
 from src.utils import PipelineRecord, TruckRecord, PackageRecord
-from src.vehicles import Pipeline, PipelineRes, BasePipeline, SmallBag, SmallPackage
+from src.vehicles import Pipeline, PipelineRes, BasePipeline, SmallBag, SmallPackage, Parcel
 from src.machine import *
 from src.config import MainConfig, TimeConfig, LOG, SaveConfig
 
@@ -282,26 +282,28 @@ def main():
     # machine and pipeline records
     for pipeline in pipelines_dict.values():
         for package in pipeline.queue.items:
-            if not isinstance(package, SmallPackage):
-                pipeline_data.extend(package.pipeline_data)
+            # parcel_type: {"parcel", "nc"}
+            if isinstance(package, Parcel):
                 machine_data.extend(package.machine_data)
-            else:
+                pipeline_data.extend(package.pipeline_data)
+            # small package
+            elif isinstance(package, SmallPackage):
                 small_package_list.append(package)
-
-            if isinstance(package, SmallBag):
+            # small bag
+            elif isinstance(package, SmallBag):
                 small_bag_list.append(package)
 
     small_package_counts = 0
     # small package records
     for small_package in small_package_list:
-        small_package_machine_data.extend(small_package.machine_data)
-        small_package_pipeline_data.extend(small_package.pipeline_data)
+        machine_data.extend(small_package.machine_data)
+        pipeline_data.extend(small_package.pipeline_data)
         small_package_counts += 1
 
     for small_bag in small_bag_list:
         for small_package in small_bag.store:
-            small_package_machine_data.extend(small_package.machine_data)
-            small_package_pipeline_data.extend(small_package.pipeline_data)
+            machine_data.extend(small_package.machine_data)
+            pipeline_data.extend(small_package.pipeline_data)
             small_package_counts += 1
 
     LOG.logger_font.info(f"small_package counts: {small_package_counts}")
@@ -309,9 +311,6 @@ def main():
     truck_table = pd.DataFrame.from_records(truck_data, columns=TruckRecord._fields,)
     pipeline_table = pd.DataFrame.from_records(pipeline_data, columns=PipelineRecord._fields,)
     machine_table = pd.DataFrame.from_records(machine_data, columns=PackageRecord._fields,)
-
-    small_package_pipeline_table = pd.DataFrame.from_records(small_package_pipeline_data, columns=PipelineRecord._fields, )
-    small_package_machine_table = pd.DataFrame.from_records(small_package_machine_data, columns=PackageRecord._fields, )
 
     if not os.path.isdir(SaveConfig.OUT_DIR):
         os.makedirs(SaveConfig.OUT_DIR)
@@ -331,9 +330,6 @@ def main():
     pipeline_table = add_time(pipeline_table)
     machine_table = add_time(machine_table)
 
-    small_package_pipeline_table = add_time(small_package_pipeline_table)
-    small_package_machine_table = add_time(small_package_machine_table)
-
     # output data
     LOG.logger_font.info("output data")
 
@@ -341,14 +337,10 @@ def main():
         write_local('machine_table', machine_table)
         write_local('pipeline_table', pipeline_table)
         write_local('truck_table', truck_table)
-        write_local('small_package_pipeline_table', small_package_pipeline_table)
-        write_local('small_package_machine_table', small_package_machine_table)
     else:
         write_mysql("machine_table", machine_table)
         write_mysql("pipeline_table", pipeline_table)
         write_mysql("truck_table", truck_table)
-        write_mysql('small_package_pipeline_table', small_package_pipeline_table)
-        write_mysql('small_package_machine_table', small_package_machine_table)
 
     t_end = datetime.now()
     total_time = t_end - t_start

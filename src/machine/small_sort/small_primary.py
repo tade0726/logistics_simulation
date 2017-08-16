@@ -15,6 +15,7 @@
 """
 from src.vehicles.items import SmallBag
 from src.config import LOG
+from src.utils import PackageRecordDict
 
 
 class SmallPrimary(object):
@@ -63,8 +64,7 @@ class SmallPrimary(object):
 
             # record for small bag
             small_bag.insert_data(
-                dict(
-                    record_type="machine",
+                PackageRecordDict(
                     equipment_id=self.equipment_id,
                     time_stamp=self.env.now,
                     action="start", ), to_small=False)
@@ -72,8 +72,7 @@ class SmallPrimary(object):
             for small_package in small_packages:
                 # 记录机器开始处理货物信息
                 small_package.insert_data(
-                    dict(
-                        record_type="machine",
+                    PackageRecordDict(
                         equipment_id=self.equipment_id,
                         time_stamp=self.env.now,
                         action="start", ))
@@ -81,8 +80,7 @@ class SmallPrimary(object):
                 yield self.env.timeout(self.process_time)
                 # 记录机器结束处理货物信息
                 small_package.insert_data(
-                    dict(
-                        record_type="machine",
+                    PackageRecordDict(
                         equipment_id=self.equipment_id,
                         time_stamp=self.env.now,
                         action="end", ))
@@ -100,8 +98,7 @@ class SmallPrimary(object):
 
             # record for small bag
             small_bag.insert_data(
-                dict(
-                    record_type="machine",
+                PackageRecordDict(
                     equipment_id=self.equipment_id,
                     time_stamp=self.env.now,
                     action="end", ), to_small=False)

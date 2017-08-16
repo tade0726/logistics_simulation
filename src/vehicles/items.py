@@ -12,7 +12,7 @@ Uld class
 """
 import simpy
 import pandas as pd
-from collections import namedtuple, defaultdict
+from collections import defaultdict
 import random
 
 from src.utils import \
@@ -216,8 +216,7 @@ class BasePipeline:
         # control writing record
         if self.is_record:
             item.insert_data(
-                dict(
-                    record_type="pipeline",
+                PipelineRecordDict(
                     pipeline_id=self.pipeline_id,  # pipeline name : unload_error / small_bin
                     queue_id=self.queue_id,
                     time_stamp=self.env.now,
@@ -251,8 +250,7 @@ class Pipeline:
 
         # pipeline start server
         item.insert_data(
-            dict(
-                record_type="pipeline",
+            PipelineRecordDict(
                 pipeline_id=':'.join(self.pipeline_id),
                 queue_id=self.queue_id,
                 time_stamp=self.env.now,
@@ -264,16 +262,14 @@ class Pipeline:
 
         # package wait for next process
         item.insert_data(
-            dict(
-                record_type="machine",
+            PackageRecordDict(
                 equipment_id=self.equipment_id,
                 time_stamp=self.env.now,
                 action="wait", ))
 
         # pipeline end server
         item.insert_data(
-            dict(
-                record_type="pipeline",
+            PipelineRecordDict(
                 pipeline_id=':'.join(self.pipeline_id),
                 queue_id=self.queue_id,
                 time_stamp=self.env.now,
@@ -327,8 +323,7 @@ class PipelineRes(Pipeline):
 
             # package start for process
             item.insert_data(
-                dict(
-                    record_type="machine",
+                PackageRecordDict(
                     equipment_id=self.equipment_last,
                     time_stamp=self.env.now,
                     action="start", ))
@@ -337,16 +332,14 @@ class PipelineRes(Pipeline):
 
             # package end for process
             item.insert_data(
-                dict(
-                    record_type="machine",
+                PackageRecordDict(
                     equipment_id=self.equipment_last,
                     time_stamp=self.env.now,
                     action="end", ))
 
             # pipeline start server
             item.insert_data(
-                dict(
-                    record_type="pipeline",
+                PipelineRecordDict(
                     pipeline_id=':'.join(self.pipeline_id),
                     queue_id=self.queue_id,
                     time_stamp=self.env.now,
@@ -356,16 +349,14 @@ class PipelineRes(Pipeline):
 
             # package start for process
             item.insert_data(
-                dict(
-                    record_type="machine",
+                PackageRecordDict(
                     equipment_id=self.equipment_next,
                     time_stamp=self.env.now,
                     action="wait", ))
 
             # pipeline end server
             item.insert_data(
-                dict(
-                    record_type="pipeline",
+                PipelineRecordDict(
                     pipeline_id=':'.join(self.pipeline_id),
                     queue_id=self.queue_id,
                     time_stamp=self.env.now,

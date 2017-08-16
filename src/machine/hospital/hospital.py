@@ -25,6 +25,7 @@
 
 import simpy
 from src.vehicles.items import Package
+from src.utils import PackageRecordDict
 from src.config import LOG
 
 
@@ -72,16 +73,14 @@ class Hospital(object):
             yield req
             # 获取出口队列id
             package.insert_data(
-                dict(
-                    record_type="machine",
+                PackageRecordDict(
                     equipment_id=self.equipment_id,
                     time_stamp=self.env.now,
                     action="start", ))
             # 增加处理时间
             yield self.env.timeout(self.process_time)
             package.insert_data(
-                dict(
-                    record_type="machine",
+                PackageRecordDict(
                     equipment_id=self.equipment_id,
                     time_stamp=self.env.now,
                     action="end", ))

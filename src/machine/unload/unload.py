@@ -14,6 +14,7 @@ import simpy
 from collections import defaultdict
 from src.vehicles import Package
 from src.config import LOG
+from src.utils import PackageRecordDict, TruckRecordDict
 
 
 class Unload:
@@ -71,8 +72,7 @@ class Unload:
             yield req
 
             package.insert_data(
-                dict(
-                    record_type="machine",
+                PackageRecordDict(
                     equipment_id=self.equipment_id,
                     time_stamp=self.env.now,
                     action="start", ))
@@ -80,8 +80,7 @@ class Unload:
             yield self.env.timeout(self.process_time)
 
             package.insert_data(
-                dict(
-                    record_type="machine",
+                PackageRecordDict(
                     equipment_id=self.equipment_id,
                     time_stamp=self.env.now,
                     action="end", ))
@@ -109,8 +108,7 @@ class Unload:
             truck = yield self.trucks_q.get(lambda x: x.truck_type in self.truck_types)
 
             truck.insert_data(
-                dict(
-                    record_type="truck",
+                TruckRecordDict(
                     equipment_id=self.equipment_id,
                     time_stamp=self.env.now,
                     action="start", ))
@@ -120,8 +118,7 @@ class Unload:
 
                 # add package wait data
                 package.insert_data(
-                    dict(
-                        record_type="machine",
+                    PackageRecordDict(
                         equipment_id=self.equipment_id,
                         time_stamp=truck.come_time,
                         action="wait", ))
@@ -137,8 +134,7 @@ class Unload:
 
             # insert data
             truck.insert_data(
-                dict(
-                    record_type="truck",
+                TruckRecordDict(
                     equipment_id=self.equipment_id,
                     time_stamp=self.env.now,
                     action="end", ))

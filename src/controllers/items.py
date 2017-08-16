@@ -12,7 +12,7 @@
 import simpy
 import pandas as pd
 from src.vehicles import Truck, Package, SmallPackage, SmallBag, Parcel
-from src.utils import TruckRecord, PathGenerator
+from src.utils import TruckRecordDict
 from src.db import get_vehicles
 from src.config import LOG
 
@@ -65,11 +65,10 @@ class TruckController:
         """模拟货车到达时间"""
         yield self.env.timeout(come_time)
 
-        item.insert_data(dict(
-                            record_type="truck",
-                            equipment_id="truck",
-                            time_stamp=self.env.now,
-                            action="wait",))
+        item.insert_data(TruckRecordDict(
+                             equipment_id="truck",
+                             time_stamp=self.env.now,
+                             action="wait",))
 
         # truck start enter
         self.trucks.put(item)

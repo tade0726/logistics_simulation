@@ -20,6 +20,9 @@
 =====================================================================================================
 """
 
+from src.utils import PackageRecordDict
+from src.config import LOG
+
 
 class Cross(object):
     """
@@ -77,15 +80,13 @@ class Cross(object):
             package = yield self.input_pip_line.get()
             # 记录机器开始处理货物信息
             package.insert_data(
-                dict(
-                    record_type="machine",
+                PackageRecordDict(
                     equipment_id=self.equipment_id,
                     time_stamp=self.env.now,
                     action="start", ))
             # 记录机器结束处理货物信息
             package.insert_data(
-                dict(
-                    record_type="machine",
+                PackageRecordDict(
                     equipment_id=self.equipment_id,
                     time_stamp=self.env.now,
                     action="end", ))

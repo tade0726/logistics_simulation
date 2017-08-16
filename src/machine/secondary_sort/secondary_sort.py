@@ -25,6 +25,7 @@
 import simpy
 from src.config import LOG
 
+
 class SecondarySort(object):
 
     def __init__(self,

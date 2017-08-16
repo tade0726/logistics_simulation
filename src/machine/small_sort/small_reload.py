@@ -22,6 +22,7 @@
 
 from src.vehicles.items import SmallBag, SmallPackage
 from src.config import SmallCode, LOG
+from src.utils import PackageRecordDict
 
 
 BAG_NUM = 15
@@ -69,15 +70,13 @@ class SmallReload(object):
         small_bag.item_id = "98" + next(SmallCode.code_generator)  # "98" + "0000000000" ~ "98" + "9999999999"
 
         small_bag.insert_data(
-            dict(
-                record_type="machine",
+            PackageRecordDict(
                 equipment_id=self.equipment_id,
                 time_stamp=wait_time_stamp,
                 action="wait", ), to_small=False)
 
         small_bag.insert_data(
-            dict(
-                record_type="machine",
+            PackageRecordDict(
                 equipment_id=self.equipment_id,
                 time_stamp=self.env.now,
                 action="start", ), to_small=False)
@@ -85,8 +84,7 @@ class SmallReload(object):
         yield self.env.timeout(self.process_time)
 
         small_bag.insert_data(
-            dict(
-                record_type="machine",
+            PackageRecordDict(
                 equipment_id=self.equipment_id,
                 time_stamp=self.env.now,
                 action="end", ))
@@ -111,8 +109,7 @@ class SmallReload(object):
     def put_package(self, small: SmallPackage):
 
         small.insert_data(
-            dict(
-                record_type="machine",
+            PackageRecordDict(
                 equipment_id=self.equipment_id,
                 time_stamp=self.env.now,
                 action="start", ))
