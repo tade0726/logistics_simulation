@@ -160,14 +160,14 @@ class Truck:
     def get_all_package(self):
         return [self.store.pop(0) for _ in range(self.store_size)]
 
-    def insert_data(self, equipment_id: str, time_stamp: float, action: str):
-
+    def insert_data(self, data:dict):
+        assert data['record_type'] == "truck", "Wrong insert data"
+        del data['record_type']
         record = TruckRecord(
-                    equipment_id="truck",
                     truck_id=self.item_id,
-                    time_stamp=time_stamp,
-                    action=action,
-                    store_size=self.store_size,)
+                    truck_type=self.truck_type,
+                    store_size=self.store_size,
+                    **data,)
 
         self.truck_data.append(record)
 
