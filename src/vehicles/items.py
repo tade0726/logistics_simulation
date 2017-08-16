@@ -58,14 +58,28 @@ class Package:
         self.path = list(self.planned_path)
         self.next_pipeline = self.planned_path[:2]
 
-    def insert_data(self, record: namedtuple):
+    def insert_data(self, data: dict):
         # print out data
-        if isinstance(record, PackageRecord):
+        if data['record_type'] == 'machine':
+            del data['record_type']
+            record = PackageRecord(
+                parcel_id=self.parcel_id,
+                small_id=self.small_id,
+                parcel_type=self.parcel_type,
+                **data,
+            )
             self.machine_data.append(record)
             LOG.logger_font.debug(msg=f"Package: {record.package_id} , action: {record.action}"
                                       f", equipment: {record.equipment_id}, timestamp: {record.time_stamp}")
 
-        elif isinstance(record, PipelineRecord):
+        elif data['record_type'] == 'pipeline':
+            del data['record_type']
+            record = PipelineRecord(
+                parcel_id=self.parcel_id,
+                small_id=self.small_id,
+                parcel_type=self.parcel_type,
+                **data,
+            )
             self.pipeline_data.append(record)
             LOG.logger_font.debug(msg=f"Package: {record.package_id} , action: {record.action}"
                                       f", pipeline: {record.pipeline_id}, timestamp: {record.time_stamp}")
@@ -204,10 +218,10 @@ class BasePipeline:
         # control writing record
         if self.is_record:
             item.insert_data(
-                PipelineRecord(
+                dict(
+                    record_type="pipeline",
                     pipeline_id=self.pipeline_id,  # pipeline name : unload_error / small_bin
                     queue_id=self.queue_id,
-                    package_id=item.item_id,
                     time_stamp=self.env.now,
                     action="start", ))
 
@@ -239,10 +253,10 @@ class Pipeline:
 
         # pipeline start server
         item.insert_data(
-            PipelineRecord(
+            dict(
+                record_type="pipeline",
                 pipeline_id=':'.join(self.pipeline_id),
                 queue_id=self.queue_id,
-                package_id=item.item_id,
                 time_stamp=self.env.now,
                 action="start", ))
 
@@ -252,18 +266,18 @@ class Pipeline:
 
         # package wait for next process
         item.insert_data(
-            PackageRecord(
+            dict(
+                record_type="machine",
                 equipment_id=self.equipment_id,
-                package_id=item.item_id,
                 time_stamp=self.env.now,
                 action="wait", ))
 
         # pipeline end server
         item.insert_data(
-            PipelineRecord(
+            dict(
+                record_type="pipeline",
                 pipeline_id=':'.join(self.pipeline_id),
                 queue_id=self.queue_id,
-                package_id=item.item_id,
                 time_stamp=self.env.now,
                 action="end", ))
 
@@ -315,9 +329,9 @@ class PipelineRes(Pipeline):
 
             # package start for process
             item.insert_data(
-                PackageRecord(
+                dict(
+                    record_type="machine",
                     equipment_id=self.equipment_last,
-                    package_id=item.item_id,
                     time_stamp=self.env.now,
                     action="start", ))
 
@@ -325,18 +339,18 @@ class PipelineRes(Pipeline):
 
             # package end for process
             item.insert_data(
-                PackageRecord(
+                dict(
+                    record_type="machine",
                     equipment_id=self.equipment_last,
-                    package_id=item.item_id,
                     time_stamp=self.env.now,
                     action="end", ))
 
             # pipeline start server
             item.insert_data(
-                PipelineRecord(
+                dict(
+                    record_type="pipeline",
                     pipeline_id=':'.join(self.pipeline_id),
                     queue_id=self.queue_id,
-                    package_id=item.item_id,
                     time_stamp=self.env.now,
                     action="start", ))
 
@@ -344,18 +358,18 @@ class PipelineRes(Pipeline):
 
             # package start for process
             item.insert_data(
-                PackageRecord(
+                dict(
+                    record_type="machine",
                     equipment_id=self.equipment_next,
-                    package_id=item.item_id,
                     time_stamp=self.env.now,
                     action="wait", ))
 
             # pipeline end server
             item.insert_data(
-                PipelineRecord(
+                dict(
+                    record_type="pipeline",
                     pipeline_id=':'.join(self.pipeline_id),
                     queue_id=self.queue_id,
-                    package_id=item.item_id,
                     time_stamp=self.env.now,
                     action="end", ))
 
