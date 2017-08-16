@@ -15,7 +15,8 @@ import pandas as pd
 from collections import namedtuple, defaultdict
 import random
 
-from src.utils import PackageRecord, PipelineRecord, TruckRecord, PathGenerator
+from src.utils import \
+    (PackageRecord, PipelineRecord, TruckRecord, PathGenerator, TruckRecordDict, PackageRecordDict, PipelineRecordDict)
 from src.config import LOG
 
 __all__ = ["Parcel", "Package", "Truck", "Uld", "SmallBag", "SmallPackage", "Pipeline", "PipelineRes", "BasePipeline"]
@@ -60,8 +61,7 @@ class Package:
 
     def insert_data(self, data: dict):
         # print out data
-        if data['record_type'] == 'machine':
-            del data['record_type']
+        if isinstance(data, PackageRecordDict):
             record = PackageRecord(
                 parcel_id=self.parcel_id,
                 small_id=self.small_id,
@@ -69,11 +69,10 @@ class Package:
                 **data,
             )
             self.machine_data.append(record)
-            LOG.logger_font.debug(msg=f"Package: {record.package_id} , action: {record.action}"
+            LOG.logger_font.debug(msg=f"Package: {record.small_id} , action: {record.action}"
                                       f", equipment: {record.equipment_id}, timestamp: {record.time_stamp}")
 
-        elif data['record_type'] == 'pipeline':
-            del data['record_type']
+        elif isinstance(data, PipelineRecordDict):
             record = PipelineRecord(
                 parcel_id=self.parcel_id,
                 small_id=self.small_id,
@@ -81,7 +80,7 @@ class Package:
                 **data,
             )
             self.pipeline_data.append(record)
-            LOG.logger_font.debug(msg=f"Package: {record.package_id} , action: {record.action}"
+            LOG.logger_font.debug(msg=f"Package: {record.small_id} , action: {record.action}"
                                       f", pipeline: {record.pipeline_id}, timestamp: {record.time_stamp}")
 
         else:
@@ -145,11 +144,11 @@ class SmallBag(Package):
     def get_all_package(self):
         return [self.store.pop(0) for _ in range(self.store_size)]
 
-    def insert_data(self, record: namedtuple, to_small: bool=True):
+    def insert_data(self, data: dict, to_small: bool=True):
         """给小件包裹添加记录"""
         if to_small:
-            list(map(lambda x: x.insert_data(record), self.store))
-        return super(SmallBag, self).insert_data(record)
+            list(map(lambda x: x.insert_data(data), self.store))
+        return super(SmallBag, self).insert_data(data)
 
     def __str__(self):
         display_dct = dict(self.attr)
@@ -175,8 +174,7 @@ class Truck:
         return [self.store.pop(0) for _ in range(self.store_size)]
 
     def insert_data(self, data:dict):
-        assert data['record_type'] == "truck", "Wrong insert data"
-        del data['record_type']
+        assert isinstance(data, TruckRecordDict), "Wrong data type"
         record = TruckRecord(
                     truck_id=self.item_id,
                     truck_type=self.truck_type,
