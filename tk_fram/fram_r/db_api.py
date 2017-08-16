@@ -118,7 +118,7 @@ def insert_package(cursor, num: str, run_arg):
         "limit %s" % (int(num) / 2 * 0.07)
     )
     cursor.execute(
-        "INSERT into i_od_small_landside "
+        "INSERT into i_od_small_airside "
         "(small_id, parcel_id, src_dist_code, src_type, dest_dist_code, "
         "dest_zone_code, put_package_to_cage_tm, ident_des_zno, dest_type, "
         "plate_num, parcel_type, limit_type_code, arrive_time, send_time, "
@@ -128,12 +128,12 @@ def insert_package(cursor, num: str, run_arg):
         "dest_zone_code, put_package_to_cage_tm, ident_des_zno, dest_type, "
         "plate_num, parcel_type, limit_type_code, arrive_time, send_time, "
         "inserted_on, modified_on"
-        "FROM `i_od_small_landside_day` AS s "
+        "FROM `i_od_small_airside_day` AS s "
         "WHERE s.`parcel_id` IN "
         "( SELECT DISTINCT t.parcel_id "
         "FROM"
         "( SELECT f.parcel_id "
-        "FROM i_od_parcel_landside_day AS f "
+        "FROM i_od_parcel_airside_day AS f "
         "WHERE f.`parcel_type`='small' "
         "LIMIT %s) AS t)" % (int(num) / 2 * 0.05)
     )
