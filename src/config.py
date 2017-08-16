@@ -21,7 +21,7 @@ class MainConfig:
     SAVE_LOCAL = False  # 是否输出结果到本地csv， 还是 mysql
     IS_PARCEL_ONLY = False  # 只有 parcel 件
     IS_LAND_ONLY = False  # True 只有 landside, False landside airside
-    CACHE_TYPE = "redis"  # {None, "redis", "pkl", "hdf5"}
+    CACHE_TYPE = None  # {None, "redis", "pkl", "hdf5"}
     LOCAL_DB = False  # control which DB using
     ALL_OPEN = True  # no more equipment limit
     O_DATA_SUFFIX = '_0' if not IS_TEST else ''  # o table SUFFIX
