@@ -61,6 +61,15 @@ class SmallPrimary(object):
             yield req
             # 获取小件包中的所有小件
             small_packages = small_bag.get_all_package()
+
+            # record for small bag
+            small_bag.insert_data(
+                PackageRecord(
+                    equipment_id=self.equipment_id,
+                    package_id=small_bag.item_id,
+                    time_stamp=self.env.now,
+                    action="start", ), to_small=False)
+
             for small_package in small_packages:
                 # 记录机器开始处理货物信息
                 small_package.insert_data(
@@ -89,6 +98,14 @@ class SmallPrimary(object):
                     LOG.logger_font.error(msg)
                     LOG.logger_font.exception(exc)
                     # 收集错错误的小件包裹
+
+            # record for small bag
+            small_bag.insert_data(
+                PackageRecord(
+                    equipment_id=self.equipment_id,
+                    package_id=small_bag.item_id,
+                    time_stamp=self.env.now,
+                    action="end", ), to_small=False)
 
             # collect small bag of the first state
             self.pipelines_dict['small_bag_done'].put(small_bag)
