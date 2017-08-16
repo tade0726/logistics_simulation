@@ -65,10 +65,11 @@ class TruckController:
         """模拟货车到达时间"""
         yield self.env.timeout(come_time)
 
-        item.insert_data(
-                    equipment_id="truck",
-                    time_stamp=self.env.now,
-                    action="wait",)
+        item.insert_data(dict(
+                            record_type="truck",
+                            equipment_id="truck",
+                            time_stamp=self.env.now,
+                            action="wait",))
 
         # truck start enter
         self.trucks.put(item)
