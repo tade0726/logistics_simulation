@@ -25,7 +25,6 @@
 
 import simpy
 from src.vehicles.items import Package
-from src.utils import PackageRecord
 from src.config import LOG
 
 
@@ -73,17 +72,17 @@ class Hospital(object):
             yield req
             # 获取出口队列id
             package.insert_data(
-                PackageRecord(
+                dict(
+                    record_type="machine",
                     equipment_id=self.equipment_id,
-                    package_id=package.item_id,
                     time_stamp=self.env.now,
                     action="start", ))
             # 增加处理时间
             yield self.env.timeout(self.process_time)
             package.insert_data(
-                PackageRecord(
+                dict(
+                    record_type="machine",
                     equipment_id=self.equipment_id,
-                    package_id=package.item_id,
                     time_stamp=self.env.now,
                     action="end", ))
             # 放入下一步的传送带
@@ -94,6 +93,7 @@ class Hospital(object):
                 msg = f"error: {exc}, package: {package}, equipment_id: {self.equipment_id}"
                 LOG.logger_font.error(msg)
                 LOG.logger_font.exception(exc)
+
     def run(self):
         while True:
             package = yield self.input_pip_line.get()
