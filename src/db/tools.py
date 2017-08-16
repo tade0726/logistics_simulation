@@ -31,8 +31,8 @@ def checking_pickle_file(table_name):
 def checking_h5_store(table_name):
     """checking table exists in hdf5"""
     if isfile(SaveConfig.HDF5_FILE):
-        store = pd.HDFStore(SaveConfig.HDF5_FILE)
-        return True if store.get_node(table_name) else False
+        with pd.HDFStore(SaveConfig.HDF5_FILE) as store:
+            return True if store.get_node(table_name) else False
     else:
         return False
 
@@ -101,10 +101,15 @@ def load_from_redis(table_name: str):
     return pd.read_msgpack(data_seq)
 
 
-def write_mysql(table_name: str, data: pd.DataFrame, ):
+def write_mysql(table_name: str, data: pd.DataFrame, dtype: str=None):
     """写入MySQl数据库, 表格如果存在, 则新增数据"""
     try:
-        data.to_sql(name=f'o_{table_name}{MainConfig.O_DATA_SUFFIX}', con=RemoteMySQLConfig.engine, if_exists='append', index=0)
+        data.to_sql(name=f'o_{table_name}{MainConfig.O_DATA_SUFFIX}',
+                    con=RemoteMySQLConfig.engine,
+                    if_exists='append',
+                    index=0,
+                    dtype=dtype)
+
         LOG.logger_font.info(f"mysql write table {table_name} succeed!")
     except Exception as exc:
         LOG.logger_font.error(f"mysql write table {table_name} failed, error: {exc}.")

@@ -14,8 +14,8 @@
 ==================================================================================================================================================
 """
 from src.vehicles.items import SmallBag
-from src.utils import PackageRecord
 from src.config import LOG
+from src.utils import PackageRecordDict
 
 
 class SmallPrimary(object):
@@ -61,21 +61,27 @@ class SmallPrimary(object):
             yield req
             # 获取小件包中的所有小件
             small_packages = small_bag.get_all_package()
+
+            # record for small bag
+            small_bag.insert_data(
+                PackageRecordDict(
+                    equipment_id=self.equipment_id,
+                    time_stamp=self.env.now,
+                    action="start", ), to_small=False)
+
             for small_package in small_packages:
                 # 记录机器开始处理货物信息
                 small_package.insert_data(
-                    PackageRecord(
+                    PackageRecordDict(
                         equipment_id=self.equipment_id,
-                        package_id=small_package.item_id,
                         time_stamp=self.env.now,
                         action="start", ))
                 # 增加处理时间
                 yield self.env.timeout(self.process_time)
                 # 记录机器结束处理货物信息
                 small_package.insert_data(
-                    PackageRecord(
+                    PackageRecordDict(
                         equipment_id=self.equipment_id,
-                        package_id=small_package.item_id,
                         time_stamp=self.env.now,
                         action="end", ))
                 # 生成小件的路径
@@ -89,6 +95,13 @@ class SmallPrimary(object):
                     LOG.logger_font.error(msg)
                     LOG.logger_font.exception(exc)
                     # 收集错错误的小件包裹
+
+            # record for small bag
+            small_bag.insert_data(
+                PackageRecordDict(
+                    equipment_id=self.equipment_id,
+                    time_stamp=self.env.now,
+                    action="end", ), to_small=False)
 
             # collect small bag of the first state
             self.pipelines_dict['small_bag_done'].put(small_bag)

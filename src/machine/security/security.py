@@ -14,8 +14,8 @@
 ==================================================================================================================================================
 """
 from src.vehicles.items import Package
-from src.utils import PackageRecord
 from src.config import LOG
+from src.utils import PackageRecordDict
 
 
 class Security:
@@ -63,9 +63,8 @@ class Security:
             yield req
             # 记录机器开始处理货物信息
             package.insert_data(
-                PackageRecord(
+                PackageRecordDict(
                     equipment_id=self.equipment_id,
-                    package_id=package.item_id,
                     time_stamp=self.env.now,
                     action="start", ))
             # 增加处理时间
@@ -73,9 +72,8 @@ class Security:
 
             # 记录机器结束处理货物信息
             package.insert_data(
-                PackageRecord(
+                PackageRecordDict(
                     equipment_id=self.equipment_id,
-                    package_id=package.item_id,
                     time_stamp=self.env.now,
                     action="end", ))
             # 放入下一步的传送带
@@ -86,6 +84,7 @@ class Security:
                 msg = f"error: {exc}, package: {package}, equipment_id: {self.equipment_id}"
                 LOG.logger_font.error(msg)
                 LOG.logger_font.exception(exc)
+
     def run(self):
         while True:
             package = yield self.input_pip_line.get()
