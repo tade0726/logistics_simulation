@@ -56,9 +56,9 @@ def run_sim(package_num, date_plan, time_plan, root, txt_receipt):
             "Tkinter-数据更新错误", "运行错误， 请输入仿真件量！"
         )
         return
-    if not date_plan.get():
-        messagebox.showerror("Tkinter-数据更新错误",
-                             "运行错误，请设置班次时间！")
+    if not package_num.get():
+        messagebox.showerror(
+            "Tkinter-数据更新错误", "运行错误，请输入仿真件量！")
         return
     if Flag['update_data'] == 0:
         messagebox.showerror("Tkinter-仿真启动错误",
@@ -68,8 +68,16 @@ def run_sim(package_num, date_plan, time_plan, root, txt_receipt):
         messagebox.showerror("Tkinter-仿真启动错误",
                              "仿真已经运行完成，请勿重复操作！")
         return
-    run_arg = Flag['run_time']
     conn = Mysql().connect
+    run_arg = Flag['run_time']
+    # ======================== 插入测试数据=============
+    txt_receipt.insert(END, '插入%s件包裹仿真数据......\n' % package_num.get())
+    with conn as cur:
+        insert_package(cur, package_num.get(), run_arg)
+    txt_receipt.insert(END, '插入包裹仿真数据成功！\n')
+    root.update_idletasks()
+    time.sleep(0.5)
+
     with conn as cur:
         cur.execute(
             "truncate o_machine_table;"
@@ -120,10 +128,6 @@ def update_data(package_num, date_plan, time_plan, root, txt_receipt):
         CACHE_COMBOBOX_DICT[i] = CHECK_BTN_ENTRY_DIC[i].string_combobox.get()
     Flag['run_time'] = datetime.now()
     run_arg = Flag['run_time']
-    if not package_num.get():
-        messagebox.showerror(
-            "Tkinter-数据更新错误", "运行错误，请输入仿真件量！")
-        return
     if not date_plan.get():
         messagebox.showerror("Tkinter-数据更新错误",
                              "运行错误，请设置班次时间！")
@@ -143,13 +147,6 @@ def update_data(package_num, date_plan, time_plan, root, txt_receipt):
         update_on_off(cur, start_time, run_arg)
 
     txt_receipt.insert(END, '机器开关状态更新成功！\n')
-    root.update_idletasks()
-    time.sleep(0.5)
-    # ======================== 插入测试数据=============
-    txt_receipt.insert(END, '插入%s件包裹仿真数据......\n' % package_num.get())
-    with conn as cur:
-        insert_package(cur, package_num.get(), run_arg)
-    txt_receipt.insert(END, '插入包裹仿真数据成功！\n')
     root.update_idletasks()
     time.sleep(0.5)
     # ========================更改人员数量==============
