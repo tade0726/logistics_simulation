@@ -31,8 +31,8 @@ def checking_pickle_file(table_name):
 def checking_h5_store(table_name):
     """checking table exists in hdf5"""
     if isfile(SaveConfig.HDF5_FILE):
-        store = pd.HDFStore(SaveConfig.HDF5_FILE)
-        return True if store.get_node(table_name) else False
+        with pd.HDFStore(SaveConfig.HDF5_FILE) as store:
+            return True if store.get_node(table_name) else False
     else:
         return False
 
