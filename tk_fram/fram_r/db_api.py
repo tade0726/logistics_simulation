@@ -41,6 +41,7 @@ def update_on_off(cursor, run_arg):
 
 
 def insert_package(cursor, num: str, run_arg):
+    # ============================ 插入陆侧数据 ===============================
     cursor.execute("truncate i_od_parcel_landside")
     cursor.execute(
         "insert into i_od_parcel_landside "
@@ -52,9 +53,92 @@ def insert_package(cursor, num: str, run_arg):
         "dest_type, plate_num, parcel_type, limit_type_code, arrive_time, "
         "send_time, inserted_on, modified_on "
         "from i_od_parcel_landside_day "
-        "limit %s" % num
+        "where parcel_type=parcel "
+        "limit %s" % (int(num) / 2 * 0.88)
+    )
+    cursor.execute(
+        "insert into i_od_parcel_landside "
+        "(parcel_id, src_dist_code, src_type, dest_dist_code, dest_zone_code,"
+        " dest_type, plate_num, parcel_type, limit_type_code, arrive_time, "
+        "send_time, inserted_on, modified_on) "
+        "select "
+        "parcel_id, src_dist_code, src_type, dest_dist_code, dest_zone_code, "
+        "dest_type, plate_num, parcel_type, limit_type_code, arrive_time, "
+        "send_time, inserted_on, modified_on "
+        "from i_od_parcel_landside_day "
+        "where parcel_type=nc "
+        "limit %s" % (int(num) / 2 * 0.07)
+    )
+    cursor.execute(
+        "INSERT into i_od_small_airside "
+        "(small_id, parcel_id, src_dist_code, src_type, dest_dist_code, "
+        "dest_zone_code, put_package_to_cage_tm, ident_des_zno, dest_type, "
+        "uld_num, plate_num, parcel_type, limit_type_code, arrive_time, "
+        "send_time, inserted_on, modified_on) "
+        "SELECT "
+        "small_id, parcel_id, src_dist_code, src_type, dest_dist_code, "
+        "dest_zone_code, put_package_to_cage_tm, ident_des_zno, dest_type, "
+        "uld_num, plate_num, parcel_type, limit_type_code, arrive_time, "
+        "send_time, inserted_on, modified_on "
+        "FROM `i_od_small_airside_day` AS s "
+        "WHERE s.`parcel_id` IN "
+        "( SELECT DISTINCT t.parcel_id "
+        "FROM"
+        "( SELECT f.parcel_id "
+        "FROM i_od_parcel_airside_day AS f "
+        "WHERE f.`parcel_type`='small' "
+        "LIMIT %s) AS t)" % (int(num) / 2 * 0.05)
+    )
+    # ============================ 插入空侧数据 ===============================
+    cursor.execute("truncate i_od_parcel_airside")
+    cursor.execute(
+        "insert into i_od_parcel_airside "
+        "(parcel_id, src_dist_code, src_type, dest_dist_code, dest_zone_code,"
+        " dest_type, plate_num, parcel_type, limit_type_code, arrive_time, "
+        "send_time, inserted_on, modified_on) "
+        "select "
+        "parcel_id, src_dist_code, src_type, dest_dist_code, dest_zone_code, "
+        "dest_type, plate_num, parcel_type, limit_type_code, arrive_time, "
+        "send_time, inserted_on, modified_on "
+        "from i_od_parcel_airside_day "
+        "where parcel_type=parcel "
+        "limit %s" % (int(num) / 2 * 0.88)
+    )
+    cursor.execute(
+        "insert into i_od_parcel_airside "
+        "(parcel_id, src_dist_code, src_type, dest_dist_code, dest_zone_code,"
+        " dest_type, plate_num, parcel_type, limit_type_code, arrive_time, "
+        "send_time, inserted_on, modified_on) "
+        "select "
+        "parcel_id, src_dist_code, src_type, dest_dist_code, dest_zone_code, "
+        "dest_type, plate_num, parcel_type, limit_type_code, arrive_time, "
+        "send_time, inserted_on, modified_on "
+        "from i_od_parcel_airside_day "
+        "where parcel_type=nc "
+        "limit %s" % (int(num) / 2 * 0.07)
+    )
+    cursor.execute(
+        "INSERT into i_od_small_airside "
+        "(small_id, parcel_id, src_dist_code, src_type, dest_dist_code, "
+        "dest_zone_code, put_package_to_cage_tm, ident_des_zno, dest_type, "
+        "plate_num, parcel_type, limit_type_code, arrive_time, send_time, "
+        "inserted_on, modified_on) "
+        "SELECT "
+        "small_id, parcel_id, src_dist_code, src_type, dest_dist_code, "
+        "dest_zone_code, put_package_to_cage_tm, ident_des_zno, dest_type, "
+        "plate_num, parcel_type, limit_type_code, arrive_time, send_time, "
+        "inserted_on, modified_on"
+        "FROM `i_od_small_airside_day` AS s "
+        "WHERE s.`parcel_id` IN "
+        "( SELECT DISTINCT t.parcel_id "
+        "FROM"
+        "( SELECT f.parcel_id "
+        "FROM i_od_parcel_airside_day AS f "
+        "WHERE f.`parcel_type`='small' "
+        "LIMIT %s) AS t)" % (int(num) / 2 * 0.05)
     )
     cursor.execute("update i_od_parcel_landside set inserted_on='%s'" % run_arg)
+    cursor.execute("update i_od_small_airside set inserted_on='%s'" % run_arg)
 
 
 def update_person(cursor, num: str, run_arg):
