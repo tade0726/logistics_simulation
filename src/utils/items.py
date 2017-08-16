@@ -2,7 +2,7 @@ from collections import namedtuple
 from sqlalchemy.types import String, Integer
 
 __all__ = ["TruckRecord", "PackageRecord", "PipelineRecord",
-           "TruckRecordDict", "PackageRecordDict", "PipelineRecordDict"
+           "TruckRecordDict", "PackageRecordDict", "PipelineRecordDict",
            "OutputTableColumnType"]
 
 TruckRecord = namedtuple("truck_record",
