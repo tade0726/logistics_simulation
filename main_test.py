@@ -17,7 +17,7 @@ from collections import defaultdict
 
 from src.db import *
 from src.controllers import TruckController
-from src.utils import PipelineRecord, TruckRecord, PackageRecord
+from src.utils import PipelineRecord, TruckRecord, PackageRecord, OutputTableColumnType
 from src.vehicles import Pipeline, PipelineRes, BasePipeline, SmallBag, SmallPackage, Parcel
 from src.machine import *
 from src.config import MainConfig, TimeConfig, LOG, SaveConfig
@@ -338,9 +338,9 @@ def main():
         write_local('pipeline_table', pipeline_table)
         write_local('truck_table', truck_table)
     else:
-        write_mysql("machine_table", machine_table)
-        write_mysql("pipeline_table", pipeline_table)
-        write_mysql("truck_table", truck_table)
+        write_mysql("machine_table", machine_table, OutputTableColumnType.package_columns)
+        write_mysql("pipeline_table", pipeline_table, OutputTableColumnType.pipeline_columns)
+        write_mysql("truck_table", truck_table, OutputTableColumnType.truck_columns)
 
     t_end = datetime.now()
     total_time = t_end - t_start
