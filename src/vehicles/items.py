@@ -32,7 +32,8 @@ class Package:
         # 包裹的所有信息都在 attr
         self.attr = attr
         # id
-        self.item_id = self.attr["parcel_id"]
+        self.parcel_id = self.attr["parcel_id"]
+        self.small_id = self.attr.get("small_id", self.parcel_id)
         # data store
         self.machine_data = list()
         self.pipeline_data = list()
@@ -46,8 +47,8 @@ class Package:
 
         self.ident_des_zno = self.attr["ident_des_zno"]
         self.dest_type = self.attr["dest_type"]
-        self.parcel_type = self.attr["parcel_type"]
         # parcel_type: {'nc', 'small', 'parcel'}
+        self.parcel_type = self.attr["parcel_type"]
         self.sorter_type = "small_sort" if self.parcel_type == "small" else "reload"
 
     # use in unload machine
@@ -61,18 +62,11 @@ class Package:
         # print out data
         if isinstance(record, PackageRecord):
             self.machine_data.append(record)
-
             LOG.logger_font.debug(msg=f"Package: {record.package_id} , action: {record.action}"
-                                      f", equipment: {record.equipment_id}, timestamp: {record.time_stamp}")
-
-        elif isinstance(record, SmallPackageRecord):
-            self.machine_data.append(record)
-            LOG.logger_font.debug(msg=f"Small: {record.small_id}, Package: {record.package_id} , action: {record.action}"
                                       f", equipment: {record.equipment_id}, timestamp: {record.time_stamp}")
 
         elif isinstance(record, PipelineRecord):
             self.pipeline_data.append(record)
-
             LOG.logger_font.debug(msg=f"Package: {record.package_id} , action: {record.action}"
                                       f", pipeline: {record.pipeline_id}, timestamp: {record.time_stamp}")
 
@@ -116,11 +110,6 @@ class SmallPackage(Package):
                  attr: pd.Series,):
         # add for Package class compatible
         super(SmallPackage, self).__init__(attr)
-        self.item_id = self.attr["small_id"]
-
-    def insert_data(self, record: namedtuple):
-        new_record = SmallPackageRecord(**record._asdict(), small_id=self.item_id)
-        return super(SmallPackage, self).insert_data(new_record)
 
     def __str__(self):
         display_dct = dict(self.attr)
@@ -142,7 +131,6 @@ class SmallBag(Package):
     def get_all_package(self):
         return [self.store.pop(0) for _ in range(self.store_size)]
 
-    # change to decorator
     def insert_data(self, record: namedtuple, to_small: bool=True):
         """给小件包裹添加记录"""
         if to_small:
