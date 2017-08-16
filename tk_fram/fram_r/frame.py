@@ -271,7 +271,7 @@ class CheckBtnEntryList(object):
             self.entry['disabledforeground'] = 'blue'
 
     def chk_button_value(self):
-        self.string.set(ENTRY_STATUS_DIC[self.check_var])
+        self.string.set(ENTRY_STATUS_DIC[self.var.get()])
         self.change_color(self.entry)
         self.change_combobox_status(self)
 
