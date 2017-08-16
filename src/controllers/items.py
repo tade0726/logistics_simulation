@@ -66,12 +66,9 @@ class TruckController:
         yield self.env.timeout(come_time)
 
         item.insert_data(
-            TruckRecord(
-                equipment_id="truck",
-                truck_id=item.item_id,
-                time_stamp=self.env.now,
-                action="wait",
-                store_size=item.store_size,))
+                    equipment_id="truck",
+                    time_stamp=self.env.now,
+                    action="wait",)
 
         # truck start enter
         self.trucks.put(item)
