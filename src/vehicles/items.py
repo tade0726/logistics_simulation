@@ -15,7 +15,7 @@ import pandas as pd
 from collections import namedtuple, defaultdict
 import random
 
-from src.utils import PackageRecord, PipelineRecord, TruckRecord, SmallPackageRecord, PathGenerator
+from src.utils import PackageRecord, PipelineRecord, TruckRecord, PathGenerator
 from src.config import LOG
 
 __all__ = ["Parcel", "Package", "Truck", "Uld", "SmallBag", "SmallPackage", "Pipeline", "PipelineRes", "BasePipeline"]
@@ -160,12 +160,16 @@ class Truck:
     def get_all_package(self):
         return [self.store.pop(0) for _ in range(self.store_size)]
 
-    def insert_data(self, record: namedtuple):
+    def insert_data(self, equipment_id: str, time_stamp: float, action: str):
 
-        if isinstance(record, TruckRecord):
-            self.truck_data.append(record)
-        else:
-            raise ValueError("Wrong type of record")
+        record = TruckRecord(
+                    equipment_id="truck",
+                    truck_id=self.item_id,
+                    time_stamp=time_stamp,
+                    action=action,
+                    store_size=self.store_size,)
+
+        self.truck_data.append(record)
 
     def __str__(self):
         return f"<Truck truck_id: {self.item_id}, come_time: {self.come_time}, store_size:{self.store_size}>"
