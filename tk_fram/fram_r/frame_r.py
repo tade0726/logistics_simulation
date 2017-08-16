@@ -87,42 +87,64 @@ def init_r_frame(root: Tk):
     lbl_package = Label(
         master=left_set_pad_package,
         font=('Times', 10, 'bold'),
-        text='仿真输入件量：',
+        text='仿真件量：',
         bd=8,
         # height=3,
-        width=15,
+        # width=15,
         anchor='w'
     )
     lbl_package.grid(row=0, column=0)
-    package_num = Entry(
+    package_num = Combobox(
         master=left_set_pad_package,
-        bd=8,
+        # bd=8,
         # height=2,
-        width=30
+        textvariable=StringVar(),
+        values=PACKAGE_NUM_LIST
+
+
     )
     package_num.grid(row=0, column=1)
     # ============================班次时间配置=============================
-    # 班次标题
-    lbl_schedul = Label(
+    # -----------------------日期表标题
+    lbl_date_plan = Label(
         master=left_set_pad_package,
         font=('Times', 10, 'bold'),
-        text='班次时间表：',
+        text='天表：',
         bd=8,
         # height= 3,
         anchor='w'
     )
-    lbl_schedul.grid(row=0, column=2)
+    lbl_date_plan.grid(row=0, column=2)
     #
-    date = StringVar()
-    schedul_plan = Combobox(
+    date_plan = Combobox(
         master=left_set_pad_package,
-        width=25,
+        width=15,
         # bd=8,
         # height=2,
-        textvariable=date,
+        textvariable=StringVar(),
+        values=DAY_LIST
+    )
+    date_plan.grid(row=0, column=3)
+    # -----------------------时间表标题
+    lbl_time = Label(
+        master=left_set_pad_package,
+        font=('Times', 10, 'bold'),
+        text='小时表：',
+        bd=8,
+        # height= 3,
+        anchor='w'
+    )
+    lbl_time.grid(row=0, column=4)
+    #
+    time_plan = Combobox(
+        master=left_set_pad_package,
+        width=15,
+        # bd=8,
+        # height=2,
+        textvariable=StringVar(),
         values=TIME_LIST
     )
-    schedul_plan.grid(row=0, column=3)
+    time_plan.grid(row=0, column=5)
     # ===================  机器区域sheet      =====================
     for i in init_sheet(left_set_pad_sheet, left_set_pad_center_up):
         pass

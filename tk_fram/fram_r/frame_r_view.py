@@ -83,7 +83,9 @@ DATABASES_DIC = {
 }
 DATABASES = DATABASES_DIC['TEST']
 # 可选时间点
-TIME_LIST = ['21:00', '22:00', '23:00', '02:00', '10:30']
+PACKAGE_NUM_LIST = ['50000', '100000', '200000', 'all']
+DAY_LIST = []
+TIME_LIST = []
 
 # M口与R口关联字典
 M_R_DICT = {
