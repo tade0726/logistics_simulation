@@ -78,6 +78,8 @@ class Security:
                     action="end", ))
             # 放入下一步的传送带
             try:
+                # 重新规划安检路径
+                package.set_path(package_start=self.equipment_id)
                 self.pipelines_dict[package.next_pipeline].put(package)
             except Exception as exc:
                 self.pipelines_dict['error'].put(package)
