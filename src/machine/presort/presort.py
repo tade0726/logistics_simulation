@@ -24,7 +24,6 @@
 
 import simpy
 from src.vehicles.items import Package
-from src.utils import PackageRecord
 from src.config import LOG
 
 
@@ -72,18 +71,18 @@ class Presort(object):
             yield req
             # 记录机器开始处理货物信息
             package.insert_data(
-                PackageRecord(
+                dict(
+                    record_type="machine",
                     equipment_id=self.equipment_id,
-                    package_id=package.item_id,
                     time_stamp=self.env.now,
                     action="start", ))
             # 增加处理时间
             yield self.env.timeout(self.process_time)
             # 记录机器结束处理货物信息
             package.insert_data(
-                PackageRecord(
+                dict(
+                    record_type="machine",
                     equipment_id=self.equipment_id,
-                    package_id=package.item_id,
                     time_stamp=self.env.now,
                     action="end", ))
             # 放入下一步的传送带
