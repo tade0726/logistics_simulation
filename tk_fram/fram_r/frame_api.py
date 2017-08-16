@@ -146,12 +146,12 @@ def update_data(package_num, date_plan, time_plan, root, txt_receipt):
     root.update_idletasks()
     time.sleep(0.5)
     # ======================== 插入测试数据=============
-    # txt_receipt.insert(END, '插入%s件包裹仿真数据......\n' % package_num.get())
-    # with conn as cur:
-    #     insert_package(cur, package_num.get(), run_arg)
-    # txt_receipt.insert(END, '插入包裹仿真数据成功！\n')
-    # root.update_idletasks()
-    # time.sleep(0.5)
+    txt_receipt.insert(END, '插入%s件包裹仿真数据......\n' % package_num.get())
+    with conn as cur:
+        insert_package(cur, package_num.get(), run_arg)
+    txt_receipt.insert(END, '插入包裹仿真数据成功！\n')
+    root.update_idletasks()
+    time.sleep(0.5)
     # ========================更改人员数量==============
     txt_receipt.insert(END, '开始设置人力资源数量......\n')
     with conn as cur:
