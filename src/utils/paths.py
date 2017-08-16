@@ -331,6 +331,14 @@ class PathGenerator(object):
                     now = path[:i+1]
                     now.append("c3_14")
                     return now
+            if not self.all_paths[(start_node, end_node)]["without hospital"]:
+                if start_node[0:3] == "c11" or start_node[0:3] == "c12":
+                    end_node = "c2_1"
+                else:
+                    if dest_type == "L":
+                        end_node = random.choice(["c2_1", "c4_1"])
+                    else:
+                        end_node = "c18_1"
             hospital_prob = random.random()  # 医院区概率
             if hospital_prob <= 0.05:
                 return random.choice(
@@ -348,7 +356,7 @@ if __name__ == "__main__":
     machine_pre_dict = machine_pre()
     hospital = set(machine_pre_dict["hospital"])
     security = set(machine_pre_dict["security"])
-    re_cal = True
+    re_cal = False
 
     if re_cal:
 
