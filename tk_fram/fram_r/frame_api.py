@@ -51,18 +51,14 @@ def save_data(package_num, date_plan, time_plan, root, txt_receipt):
 
 def run_sim(package_num, date_plan, time_plan, root, txt_receipt):
     """"""
+    if Flag['update_data'] == 0:
+        messagebox.showerror("Tkinter-仿真启动错误",
+                             "运行错误，请先执行数据更新！")
+        return
     if not package_num.get():
         messagebox.showerror(
             "Tkinter-数据更新错误", "运行错误， 请输入仿真件量！"
         )
-        return
-    if not package_num.get():
-        messagebox.showerror(
-            "Tkinter-数据更新错误", "运行错误，请输入仿真件量！")
-        return
-    if Flag['update_data'] == 0:
-        messagebox.showerror("Tkinter-仿真启动错误",
-                             "运行错误，请先执行数据更新！")
         return
     if Flag['run_sim'] > 0:
         messagebox.showerror("Tkinter-仿真启动错误",
