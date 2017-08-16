@@ -9,33 +9,25 @@ des:
 """
 
 
-# log settings
-import logging
-logging.basicConfig(level=logging.INFO)
-
 import simpy
 from datetime import datetime, timedelta
+import pandas as pd
 import os
 from collections import defaultdict
 
-from simpy_lib.hangzhou_simpy.src.db import *
-from simpy_lib.hangzhou_simpy.src.controllers import TruckController
-from simpy_lib.hangzhou_simpy.src.utils \
-    import PipelineRecord, TruckRecord, PackageRecord
-from simpy_lib.hangzhou_simpy.src.vehicles \
-    import Pipeline, PipelineRes, BasePipeline
-from simpy_lib.hangzhou_simpy.src.machine \
-    import Unload, Presort, Cross, Hospital, SecondarySort
-from simpy_lib.hangzhou_simpy.src.config import MainConfig
-from simpy_lib.hangzhou_simpy.src.config import TimeConfig
+from .src.db import *
+from .src.controllers import TruckController
+from .src.utils import PipelineRecord, TruckRecord, PackageRecord, OutputTableColumnType
+from .src.vehicles import Pipeline, PipelineRes, BasePipeline, SmallBag, SmallPackage, Parcel
+from .src.machine import *
+from .src.config import MainConfig, TimeConfig, LOG, SaveConfig
 
-from tkinter import NORMAL, DISABLED, END
 
 __all__ = ["main"]
 
 # todo: add parameters
 
-def main(run_arg):
+def main():
 
     # start time
     t_start = datetime.now()
@@ -44,14 +36,9 @@ def main(run_arg):
     env = simpy.Environment()
     # init trucks queues
     trucks_queue = simpy.FilterStore(env)
-    # =============================== 测试日志输出 ==============================
-    # text_txt_receipt['state'] = NORMAL
-    # text_txt_receipt.delete('1.0', END)
-    # print('loading config data=====', text_txt_receipt)
-    # text_txt_receipt.insert(END, "loading config data\n")
-    # text_txt_receipt['state'] = DISABLED
-    # ==========================================================================
-    logging.info("loading config data")
+    done_trucks_queue = simpy.Store(env)
+
+    LOG.logger_font.info("loading config data")
 
     # raw data prepare
     pipelines_table = get_pipelines()
@@ -64,7 +51,7 @@ def main(run_arg):
     equipment_on_list, equipment_off_list = get_equipment_on_off()
 
     # init trucks controllers
-    logging.info("loading package data")
+    LOG.logger_font.info("loading package data")
     truck_controller = TruckController(env,
                                        trucks=trucks_queue,
                                        is_test=MainConfig.IS_TEST,
@@ -73,7 +60,10 @@ def main(run_arg):
     truck_controller.controller()
 
     # equipment setting from unload
-    unload_setting_dict = {key: val for key, val in unload_setting_dict_src.items() if key in equipment_on_list}
+    if not MainConfig.ALL_OPEN:
+        unload_setting_dict = {key: val for key, val in unload_setting_dict_src.items() if key not in equipment_off_list}
+    else:
+        unload_setting_dict = unload_setting_dict_src
 
     # c_port list
     reload_c_list = list()
@@ -87,9 +77,8 @@ def main(run_arg):
         process_time = row['process_time']
         resource_limit = row['resource_limit']
         # add info
-        if resource_limit:
-            resource_dict[resource_id]["resource"] = simpy.Resource(env=env, capacity=resource_limit)
-            resource_dict[resource_id]["process_time"] = process_time
+        resource_dict[resource_id]["resource"] = simpy.Resource(env=env, capacity=resource_limit)
+        resource_dict[resource_id]["process_time"] = process_time
 
     # init pipelines
     pipelines_dict = dict()
@@ -114,22 +103,52 @@ def main(run_arg):
         else:
             raise ValueError("Pipeline init error!!")
 
+    # for reload collection
     for pipeline_id in reload_c_list:
         pipelines_dict[pipeline_id] = BasePipeline(env,
                                                    pipeline_id=pipeline_id,
                                                    equipment_id=pipeline_id,
                                                    machine_type="reload")
 
-    pipelines_dict["unload_error_packages"] = BasePipeline(env,
-                                                           pipeline_id="unload_error",
-                                                           equipment_id="unload_error",
-                                                           machine_type="error")
+    # for unload error
+    pipelines_dict["unload_error"] = BasePipeline(env,
+                                                  pipeline_id="unload_error",
+                                                  equipment_id="unload_error",
+                                                  machine_type="error")
+
+    # for unload error
+    pipelines_dict["error"] = BasePipeline(env,
+                                           pipeline_id="error",
+                                           equipment_id="error",
+                                           machine_type="error")
+
+    # for small sort bin
+    pipelines_dict["small_bag_done"] = BasePipeline(env,
+                                                    pipeline_id="small_bag_done",
+                                                    equipment_id="small_bag_done",
+                                                    machine_type="small_bag_done",
+                                                    is_record=False)
+
+    # for small_primary_error
+    pipelines_dict["small_primary_error"] = BasePipeline(env,
+                                                         pipeline_id="small_primary_error",
+                                                         equipment_id="small_primary_error",
+                                                         machine_type="error",
+                                                         is_record=True)  # data will be collected
+
+    # for small_reload_error
+    pipelines_dict["small_reload_error"] = BasePipeline(env,
+                                                        pipeline_id="small_reload_error",
+                                                        equipment_id="small_reload_error",
+                                                        machine_type="error",
+                                                        is_record=True)  # data will be collected
+
+
 
     # prepare init machine dict
     machine_init_dict = defaultdict(list)
     for pipeline_id, pipeline in pipelines_dict.items():
         machine_init_dict[pipeline.machine_type].append(pipeline_id)
-
 
     # init unload machines
     machines_dict = defaultdict(list)
@@ -141,6 +160,7 @@ def main(run_arg):
                    unload_setting_dict=unload_setting_dict,
                    reload_setting_dict=reload_setting_dict,
                    trucks_q=trucks_queue,
+                   done_trucks_q=done_trucks_queue,
                    pipelines_dict=pipelines_dict,
                    resource_dict=resource_dict,
                    equipment_resource_dict=equipment_resource_dict,
@@ -188,30 +208,104 @@ def main(run_arg):
                 equipment_resource_dict=equipment_resource_dict,)
         )
 
+    # init security machines
+    for machine_id in machine_init_dict["security"]:
+        machines_dict["security"].append(
+            Security(
+                env,
+                machine_id=machine_id,
+                pipelines_dict=pipelines_dict,
+                resource_dict=resource_dict,
+                equipment_resource_dict=equipment_resource_dict,)
+        )
+
+    # init small_primary machines
+    for machine_id in machine_init_dict["small_primary"]:
+        machines_dict["small_primary"].append(
+            SmallPrimary(
+                env,
+                machine_id=machine_id,
+                pipelines_dict=pipelines_dict,
+                resource_dict=resource_dict,
+                equipment_resource_dict=equipment_resource_dict,)
+        )
+
+    # init small_secondary machines
+    for machine_id in machine_init_dict["small_secondary"]:
+        machines_dict["small_secondary"].append(
+            SecondarySort(
+                env,
+                machine_id=machine_id,
+                pipelines_dict=pipelines_dict,)
+        )
+
+    # init small_reload machines
+    for machine_id in machine_init_dict["small_reload"]:
+        machines_dict["small_reload"].append(
+            SmallReload(
+                env,
+                machine_id=machine_id,
+                pipelines_dict=pipelines_dict,
+                equipment_process_time_dict=equipment_process_time_dict, )
+        )
+
     # adding machines into processes
     for machine_type, machines in machines_dict.items():
-        logging.info(f"init {machine_type} machines")
+        LOG.logger_font.info(f"init {machine_type} machines")
         for machine in machines:
             env.process(machine.run())
 
-    logging.info("sim start..")
+    LOG.logger_font.info("sim start..")
     env.run()
-    logging.info("sim end..")
-    logging.info("collecting data")
+    num_of_trucks = len(trucks_queue.items)
+    assert num_of_trucks == 0, ValueError("Truck queue should be empty!!")
+    LOG.logger_font.info(f"{num_of_trucks} trucks leave in queue")
+    LOG.logger_font.info("sim end..")
+    LOG.logger_font.info("collecting data")
 
-    # checking data
-    truck_data = []
-    pipeline_data = []
-    machine_data = []
+    # collecting data
+    truck_data = list()
+    pipeline_data = list()
+    machine_data = list()
 
-    for machine in machines_dict["unload"]:
-        for truck in machine.done_trucks.items:
-            truck_data.extend(truck.truck_data)
+    small_package_machine_data = list()
+    small_package_pipeline_data = list()
 
+    small_bag_list = list()
+    small_package_list = list()
+
+    # truck record
+    for truck in done_trucks_queue.items:
+        truck_data.extend(truck.truck_data)
+
+    # machine and pipeline records
     for pipeline in pipelines_dict.values():
         for package in pipeline.queue.items:
-            pipeline_data.extend(package.pipeline_data)
-            machine_data.extend(package.machine_data)
+            # parcel_type: {"parcel", "nc"}
+            if isinstance(package, Parcel):
+                machine_data.extend(package.machine_data)
+                pipeline_data.extend(package.pipeline_data)
+            # small package
+            elif isinstance(package, SmallPackage):
+                small_package_list.append(package)
+            # small bag
+            elif isinstance(package, SmallBag):
+                small_bag_list.append(package)
+
+    small_package_counts = 0
+    # small package records
+    for small_package in small_package_list:
+        machine_data.extend(small_package.machine_data)
+        pipeline_data.extend(small_package.pipeline_data)
+        small_package_counts += 1
+
+    for small_bag in small_bag_list:
+        for small_package in small_bag.store:
+            machine_data.extend(small_package.machine_data)
+            pipeline_data.extend(small_package.pipeline_data)
+            small_package_counts += 1
+
+    LOG.logger_font.info(f"small_package counts: {small_package_counts}")
 
     truck_table = pd.DataFrame.from_records(truck_data, columns=TruckRecord._fields,)
     pipeline_table = pd.DataFrame.from_records(pipeline_data, columns=PipelineRecord._fields,)
@@ -221,9 +315,9 @@ def main(run_arg):
         os.makedirs(SaveConfig.OUT_DIR)
 
     # process data
-    logging.info(msg="processing data")
+    LOG.logger_font.info(msg="processing data")
     # time stamp for db
-    db_insert_time = run_arg
+    db_insert_time = t_start
 
     def add_time(table: pd.DataFrame):
         """添加仿真的时间戳， 以及运行的日期"""
@@ -236,23 +330,22 @@ def main(run_arg):
     machine_table = add_time(machine_table)
 
     # output data
-    logging.info("output data")
+    LOG.logger_font.info("output data")
 
     if MainConfig.SAVE_LOCAL:
         write_local('machine_table', machine_table)
         write_local('pipeline_table', pipeline_table)
         write_local('truck_table', truck_table)
     else:
-        write_mysql("pipeline_table", pipeline_table)
-        write_mysql("truck_table", truck_table)
-        write_mysql("machine_table", machine_table)
+        write_mysql("machine_table", machine_table, OutputTableColumnType.package_columns)
+        write_mysql("pipeline_table", pipeline_table, OutputTableColumnType.pipeline_columns)
+        write_mysql("truck_table", truck_table, OutputTableColumnType.truck_columns)
 
     t_end = datetime.now()
     total_time = t_end - t_start
 
-    logging.info(f"total time: {total_time.total_seconds()} s")
+    LOG.logger_font.info(f"total time: {total_time.total_seconds()} s")
 
 
 if __name__ == '__main__':
-    pass
-    # main()
+    main()

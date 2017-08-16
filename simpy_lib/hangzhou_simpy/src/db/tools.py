@@ -14,57 +14,130 @@ data will be store into dictionary
 from os.path import join, isfile
 from functools import wraps
 import pandas as pd
-import logging
-
 from simpy_lib.hangzhou_simpy.src.config import *
 
 
+__all__ = ['write_redis', 'load_from_redis', 'write_mysql', 'write_local', 'load_from_local',
+           'load_from_mysql', 'get_vehicles', 'get_unload_setting', 'get_reload_setting', 'get_resource_limit',
+           'get_resource_equipment_dict', 'get_pipelines', 'get_queue_io', 'get_equipment_process_time',
+           'get_parameters', 'get_equipment_on_off']
+
+
 def checking_pickle_file(table_name):
+    """checking pkl table exists"""
     return isfile(join(SaveConfig.DATA_DIR, f"{table_name}.pkl"))
 
 
-def load_cache(func):
-    """decorator: cache to local csv"""
-    @wraps(func)
-    def wrapper(table_name):
-        if not checking_pickle_file(table_name):
-            table = func(table_name)
-            write_local(table_name, data=table, is_out=False, is_csv=False)
-            return table
-        else:
-            return load_from_local(table_name, is_csv=False)
-    return wrapper
+def checking_h5_store(table_name):
+    """checking table exists in hdf5"""
+    if isfile(SaveConfig.HDF5_FILE):
+        with pd.HDFStore(SaveConfig.HDF5_FILE) as store:
+            return True if store.get_node(table_name) else False
+    else:
+        return False
 
 
-def write_mysql(table_name: str, data: pd.DataFrame, ):
-    """写入MySQl数据库, 表格如果存在, 则新增数据"""
+def load_cache(cache_type: bool=None):
+    """decorator: cache"""
+
+    def decorator(func):
+        @wraps(func)
+        def wrapper(table_name):
+
+            if cache_type == 'redis':
+                if RedisConfig.CONN.exists(table_name):
+                    return load_from_redis(table_name)
+                else:
+                    table = func(table_name)
+                    write_redis(table_name, data=table)
+                    return table
+            elif cache_type == 'hdf5':
+                if not checking_h5_store(table_name):
+                    table = func(table_name)
+                    write_local(table_name, data=table, is_out=False, data_format='hdf5')
+                    return table
+                else:
+                    return load_from_hfd5(table_name)
+            elif cache_type == 'pkl':
+                if not checking_pickle_file(table_name):
+                    table = func(table_name)
+                    write_local(table_name, data=table, is_out=False, data_format='pkl')
+                    return table
+                else:
+                    return load_from_local(table_name, is_csv=False)
+            elif not cache_type:
+                return func(table_name)
+            else:
+                ValueError("cache_type value do not expected!")
+        return wrapper
+    return decorator
+
+
+def write_redis(table_name: str, data: pd.DataFrame,):
+    """写入Redis， 设置过期时间为 24小时"""
+    data_seq = data.to_msgpack()
+
     try:
-        data.to_sql(name=f'o_{table_name}', con=RemoteMySQLConfig.engine, if_exists='append', index=0)
-        logging.info(f"mysql write table {table_name} succeed!")
+        result = RedisConfig.CONN.setex(table_name, time=24 * 60 * 60, value=data_seq)
+
+        if result:
+            LOG.logger_font.info(f"Redis write table {table_name} succeed!")
+        else:
+            LOG.logger_font.info(f"Redis: table {table_name} already exist!")
+
     except Exception as exc:
-        logging.error(f"mysql write table {table_name} failed, error: {exc}.")
+        LOG.logger_font.error(f"Redis write table {table_name} failed, error: {exc}.")
         raise Exception
 
 
-def write_local(table_name: str, data: pd.DataFrame, is_out:bool = True, is_csv:bool=True):
+def load_from_hfd5(table_name: str):
+    LOG.logger_font.info(msg=f"Reading hdf5 {table_name}")
+    return pd.read_hdf(SaveConfig.HDF5_FILE, table_name)
+
+
+def load_from_redis(table_name: str):
+    LOG.logger_font.info(msg=f"Reading Redis {table_name}")
+    data_seq = RedisConfig.CONN.get(table_name)
+    return pd.read_msgpack(data_seq)
+
+
+def write_mysql(table_name: str, data: pd.DataFrame, dtype: str=None):
+    """写入MySQl数据库, 表格如果存在, 则新增数据"""
+    try:
+        data.to_sql(name=f'o_{table_name}',
+                    con=RemoteMySQLConfig.engine,
+                    if_exists='append',
+                    index=0,
+                    dtype=dtype)
+
+        LOG.logger_font.info(f"mysql write table {table_name} succeed!")
+    except Exception as exc:
+        LOG.logger_font.error(f"mysql write table {table_name} failed, error: {exc}.")
+        raise Exception
+
+
+def write_local(table_name: str, data: pd.DataFrame, is_out:bool = True, data_format:str='csv'):
     """写入本地"""
 
     out_dir = SaveConfig.OUT_DIR if is_out else SaveConfig.DATA_DIR
-    table_format = 'csv' if is_csv else 'pkl'
     try:
-        if is_csv:
+        if data_format == 'csv':
             data.to_csv(join(out_dir, f"{table_name}.csv"), index=0)
-        else:
+        elif data_format == 'pkl':
             data.to_pickle(join(out_dir, f"{table_name}.pkl"), )
-        logging.info(f"{table_format} write table {table_name} succeed!")
+        elif data_format == 'hdf5':
+            data.to_hdf(SaveConfig.HDF5_FILE, table_name)
+        else:
+            raise ValueError('data_format is not right!')
+        LOG.logger_font.info(f"{data_format} write table {table_name} succeed!")
     except Exception as exc:
-        logging.error(f"{table_format} write table {table_name} failed, error: {exc}.")
+        LOG.logger_font.error(f"{data_format} write table {table_name} failed, error: {exc}.")
         raise Exception
 
 
 def load_from_local(table_name: str, is_csv:bool=True):
     """本地读取数据，数据格式为csv"""
-    logging.debug(msg=f"Reading local table {table_name}")
+    LOG.logger_font.info(msg=f"Reading local table {table_name}")
     if is_csv:
         table = pd.read_csv(join(SaveConfig.DATA_DIR, f"{table_name}.csv"),)
     else:
@@ -72,9 +145,10 @@ def load_from_local(table_name: str, is_csv:bool=True):
     return table
 
 
+@load_cache(cache_type=MainConfig.CACHE_TYPE)
 def load_from_mysql(table_name: str):
     """读取远程mysql数据表"""
-    logging.debug(msg=f"Reading mysql table {table_name}")
+    LOG.logger_font.info(msg=f"Reading mysql table {table_name}")
     table = pd.read_sql_table(con=RemoteMySQLConfig.engine, table_name=f"{table_name}")
     return table
 
@@ -99,7 +173,7 @@ def get_trucks(is_test: bool=False):
 
 
 def get_vehicles(is_land: bool,
-                 is_test: bool = False,
+                 is_test: bool,
                  is_parcel_only: bool = False,):
     """
     返回 uld 或者 truck 数据，字典形式：
@@ -124,15 +198,17 @@ def get_vehicles(is_land: bool,
 
     # filter only parcel
     if is_parcel_only:
-        table_parcel = table_parcel[table_parcel.parcel_type == 'parcel']
+        table_parcel = table_parcel[table_parcel.parcel_type != 'small']
 
     # take samples for test
     #  fixme: 关于小件的抽样需要查表
     if is_test:
         # keep both LL/AA
-        table_parcel = table_parcel.sample(500)
+        table_parcel1 = table_parcel[table_parcel.parcel_type == 'small'].sample(250)
+        table_parcel2 = table_parcel[table_parcel.parcel_type == 'nc'].sample(125)
+        table_parcel3 = table_parcel[table_parcel.parcel_type == 'parcel'].sample(125)
+        table_parcel = table_parcel1.append(table_parcel2).append(table_parcel3)
         # filter small
-        table_small = table_small[table_small["parcel_id"].isin(table_parcel.parcel_id)]
 
     if not is_land:
         # fixme: using parcel_id as plate_num, cos lack of plate_num for uld
@@ -145,6 +221,12 @@ def get_vehicles(is_land: bool,
 
     table_small["arrive_time"] = (pd.to_datetime(table_small["arrive_time"]) - TimeConfig.ZERO_TIMESTAMP) \
         .apply(lambda x: x.total_seconds() if x.total_seconds() > 0 else 0)
+
+    table_small = table_small[table_small["parcel_id"].isin(table_parcel.parcel_id)]
+    parcel_counts = len(table_parcel['parcel_id'].unique())
+    small_counts = len(table_small['small_id'].unique())
+
+    LOG.logger_font.info(f"IS_LAND: {is_land}, input data, parcel counts: {parcel_counts}, small packages: {small_counts}")
 
     # 'plate_num' 是货车／飞机／的编号
     parcel_dict = dict(list(table_parcel.groupby(['plate_num', 'arrive_time', 'src_type', ])))
@@ -179,15 +261,15 @@ def get_reload_setting():
     table_name = "i_reload_setting"
     table = load_from_mysql(table_name)
     table_dict= \
-        table.groupby(['dest_zone_code', 'sorter_type', 'dest_type'])['equipment_port'].apply(set).apply(list).to_dict()
+        table.groupby(['ident_des_zno', 'sorter_type', 'dest_type'])['equipment_port'].apply(set).apply(list).to_dict()
     return table_dict
 
 
 def get_resource_limit():
     """返回资源表，包含了单个资源处理时间"""
-    table_name1 = "i_resource_limit"
+    table_name1 = "i_resource_limit_bak"
     table_name2 = "i_equipment_resource"
-    table_name3 = "i_equipment_io"
+    table_name3 = "i_equipment_io_bak"
 
     table1 = load_from_mysql(table_name1)
     table2 = load_from_mysql(table_name2)
@@ -236,10 +318,19 @@ def get_pipelines():
     # m: presort
     # i1 - i8: secondary_sort
     # i17 - i24: secondary_sort
-    # i9 - i16: small_sort
+    # u1 - u8: small_primary
+    # i9 - i16: small_secondary
+    # c5 - c12: small_reload
     # j: security
     # h: hospital
     # e, x: cross
+
+    # match with the small sort..
+    ind_small_primary = tab_queue_io.equipment_port_next.str.startswith('u')
+    ind_small_secondary = \
+        tab_queue_io.equipment_port_next.apply(lambda x: x.split('_')[0]).isin([f'i{n}' for n in range(9, 17)])
+    ind_small_reload = \
+        tab_queue_io.equipment_port_next.apply(lambda x: x.split('_')[0]).isin([f'c{n}' for n in range(5, 13)])
 
     secon_sort_mark1 = [f'i{n}' for n in range(1, 9)]
     secon_sort_mark2 = [f'i{n}' for n in range(17, 25)]
@@ -247,7 +338,6 @@ def get_pipelines():
 
     ind_presort = tab_queue_io.equipment_port_next.str.startswith('m')
     ind_secondary_sort = tab_queue_io.equipment_port_next.apply(lambda x: x.split('_')[0]).isin(secon_sort_mark)
-    ind_small_sort = tab_queue_io.equipment_port_next.str.startswith('u')
     ind_security = tab_queue_io.equipment_port_next.str.startswith('j')
     ind_hospital = tab_queue_io.equipment_port_next.str.startswith('h')
     ind_cross = \
@@ -261,7 +351,11 @@ def get_pipelines():
 
     tab_queue_io.loc[ind_presort, "machine_type"] = "presort"
     tab_queue_io.loc[ind_secondary_sort, "machine_type"] = "secondary_sort"
-    tab_queue_io.loc[ind_small_sort, "machine_type"] = "small_sort"
+
+    tab_queue_io.loc[ind_small_primary, "machine_type"] = "small_primary"
+    tab_queue_io.loc[ind_small_secondary, "machine_type"] = "small_secondary"
+    tab_queue_io.loc[ind_small_reload, "machine_type"] = "small_reload"
+
     tab_queue_io.loc[ind_security, "machine_type"] = "security"
     tab_queue_io.loc[ind_cross, "machine_type"] = "cross"
     tab_queue_io.loc[ind_hospital, "machine_type"] = "hospital"
@@ -275,12 +369,9 @@ def get_pipelines():
 
 
 def get_queue_io():
-    """返回 io 对: [(r1_1,  m1_1), (r1_3, m2_3), ]"""
-    table = get_pipelines()
-    io_list = []
-    for _, row in table.iterrows():
-        io_list.append((row['equipment_port_last'], row['equipment_port_next']))
-    return io_list
+    """返回 data frame: queue_io , 只包含 normal_path == 1"""
+    table = load_from_mysql('i_queue_io')
+    return table[table.normal_path == 1]
 
 
 def get_equipment_process_time():
@@ -294,7 +385,7 @@ def get_equipment_process_time():
          'a1_2': 0.0,
          'a1_3': 0.0,}
     """
-    table_n = "i_equipment_io"
+    table_n = "i_equipment_io_bak"
     table = load_from_mysql(table_n)
     table_dict = table.groupby(["equipment_port"])["process_time"].apply(lambda x: list(x)[0]).to_dict()
 
@@ -334,7 +425,7 @@ def get_equipment_on_off():
         on: ['r1_1', 'r1_2', ..]
         off: ['r2_1', 'r3_3', ..]
     """
-    tab_n = "i_equipment_io"
+    tab_n = "i_equipment_io_bak"
     table = load_from_mysql(tab_n)
     equipment_on = table[table.equipment_status == 1]
     equipment_off = table[table.equipment_status == 0]
@@ -342,5 +433,5 @@ def get_equipment_on_off():
 
 
 if __name__ == "__main__":
-    test = get_unload_setting()
+    test = get_queue_io()
     print(test)

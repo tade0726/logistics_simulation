@@ -12,66 +12,76 @@ Uld class
 """
 import simpy
 import pandas as pd
+from collections import defaultdict
+import random
 
-from collections import namedtuple, defaultdict
-from simpy_lib.hangzhou_simpy.src.utils import PackageRecord, PipelineRecord, TruckRecord
-from simpy_lib.hangzhou_simpy.src.controllers import PathGenerator
-import logging
+from simpy_lib.hangzhou_simpy.src.utils import \
+    (PackageRecord, PipelineRecord, TruckRecord, PathGenerator, TruckRecordDict, PackageRecordDict, PipelineRecordDict)
+from simpy_lib.hangzhou_simpy.src.config import LOG
 
-__all__ = ["Package", "Truck", "Uld", "SmallBag", "SmallPackage", "Pipeline", "PipelineRes", "BasePipeline"]
+__all__ = ["Parcel", "Package", "Truck", "Uld", "SmallBag", "SmallPackage", "Pipeline", "PipelineRes", "BasePipeline"]
 
-# init path generator
-path_generator = PathGenerator()
+
+path_g = PathGenerator()
 
 
 class Package:
     """包裹"""
     def __init__(self,
-                 env: simpy.Environment,
                  attr: pd.Series,):
 
         # 包裹的所有信息都在 attr
         self.attr = attr
         # id
-        self.item_id = self.attr["parcel_id"]
-        # env
-        self.env = env
+        self.parcel_id = self.attr["parcel_id"]
+        self.small_id = self.attr.get("small_id", self.parcel_id)
         # data store
-        self.machine_data = []
-        self.pipeline_data = []
+        self.machine_data = list()
+        self.pipeline_data = list()
         # path_generator
-        self.path_generator = path_generator.path_generator
+        self.path_g = path_g
         # paths
         self.planned_path = None
         self.path = None
         # next pipeline_id
         self.next_pipeline = None
 
-        self.dest_zone_code = self.attr["dest_zone_code"]
+        self.ident_des_zno = self.attr["ident_des_zno"]
         self.dest_type = self.attr["dest_type"]
+        # parcel_type: {'nc', 'small', 'parcel'}
         self.parcel_type = self.attr["parcel_type"]
-        self.sorter_type = "reload" if self.parcel_type == "parcel" else "small_sort"
+        self.sorter_type = "small_sort" if self.parcel_type == "small" else "reload"
 
     # use in unload machine
     def set_path(self, package_start):
-        path = path_generator.path_generator(package_start, self.dest_zone_code, self.sorter_type, self.dest_type)
+        path = self.path_g.path_generator(package_start, self.ident_des_zno, self.sorter_type, self.dest_type)
         self.planned_path = tuple(path)
         self.path = list(self.planned_path)
         self.next_pipeline = self.planned_path[:2]
 
-    def insert_data(self, record: namedtuple):
-        # print out data
-        if isinstance(record, PackageRecord):
+    def insert_data(self, data: dict):
+
+        if isinstance(data, PackageRecordDict):
+            record = PackageRecord(
+                parcel_id=self.parcel_id,
+                small_id=self.small_id,
+                parcel_type=self.parcel_type,
+                **data,
+            )
             self.machine_data.append(record)
+            LOG.logger_font.debug(msg=f"Package: {record.small_id} , action: {record.action}"
+                                      f", equipment: {record.equipment_id}, timestamp: {record.time_stamp}")
 
-            logging.debug(msg=f"Package: {record.package_id} , action: {record.action}"
-                             f", equipment: {record.equipment_id}, timestamp: {record.time_stamp}")
-
-        elif isinstance(record, PipelineRecord):
+        elif isinstance(data, PipelineRecordDict):
+            record = PipelineRecord(
+                parcel_id=self.parcel_id,
+                small_id=self.small_id,
+                parcel_type=self.parcel_type,
+                **data,
+            )
             self.pipeline_data.append(record)
-
-            logging.debug(msg=f"Package: {record.package_id} , action: {record.action}"
-                              f", pipeline: {record.pipeline_id}, timestamp: {record.time_stamp}")
+            LOG.logger_font.debug(msg=f"Package: {record.small_id} , action: {record.action}"
+                                      f", pipeline: {record.pipeline_id}, timestamp: {record.time_stamp}")
 
         else:
             raise ValueError("Wrong type of record")
@@ -91,43 +101,54 @@ class Package:
 
     def __str__(self):
         display_dct = dict(self.attr)
-        return f"<package attr:{dict(display_dct)}, path: {self.planned_path}>"
+        return f"<Package attr:{dict(display_dct)}, path: {self.planned_path}>"
 
 
-class SmallPackage:
-    """小件包裹"""
+class Parcel(Package):
+    """包裹"""
+
     def __init__(self,
-                 env: simpy.Environment,
                  attr: pd.Series,):
-
-        # 包裹的所有信息都在 attr
-        self.attr = attr
-        # id
-        self.item_id = self.attr["small_id"]
-        # env
-        self.env = env
+        # add for Package class compatible
+        super(Parcel, self).__init__(attr)
 
     def __str__(self):
         display_dct = dict(self.attr)
-        return f"<SmallBag attr:{dict(display_dct)}>"
+        return f"<Parcel attr:{dict(display_dct)}>"
+
+
+class SmallPackage(Package):
+    """小件包裹"""
+    def __init__(self,
+                 attr: pd.Series,):
+        # add for Package class compatible
+        super(SmallPackage, self).__init__(attr)
+
+    def __str__(self):
+        display_dct = dict(self.attr)
+        return f"<SmallPackage attr:{dict(display_dct)}>"
 
 
 class SmallBag(Package):
     """小件包"""
-    def __init__(self, env: simpy.Environment,
-                 attr: pd.Series,
-                 small_packages: list):
-
-        super(SmallBag, self).__init__(env, attr,)
+    def __init__(self,
+                 small_packages,):
+        # random choice a small_packages as attr
+        attr = random.choice(small_packages).attr
+        super(SmallBag, self).__init__(attr)
 
         # 存储小件包裹
         self.store = small_packages
-        assert self._all_are_small_packages(), "SmallBag store SmallPackage only !!"
         self.store_size = len(self.store)
 
-    def _all_are_small_packages(self):
-        packages_bool = [isinstance(small_package, SmallPackage) for small_package in self.store]
-        return all(packages_bool)
+    def get_all_package(self):
+        return [self.store.pop(0) for _ in range(self.store_size)]
+
+    def insert_data(self, data: dict, to_small: bool=True):
+        """给小件包裹添加记录"""
+        if to_small:
+            list(map(lambda x: x.insert_data(data), self.store))
+        return super(SmallBag, self).insert_data(data)
 
     def __str__(self):
         display_dct = dict(self.attr)
@@ -136,7 +157,7 @@ class SmallBag(Package):
 
 class Truck:
     """货车"""
-    def __init__(self, env: simpy.Environment, item_id: str, come_time: int, truck_type: str, packages: list):
+    def __init__(self, item_id: str, come_time: int, truck_type: str, packages: list):
         """
         :param truck_id: self explain
         :param come_time: self explain
@@ -145,25 +166,25 @@ class Truck:
         self.item_id = item_id
         self.come_time = come_time
         self.store = packages
-        assert self._all_are_packages(), "Truck store Package only !!"
-        self.store_size = len(self.store)
         self.truck_type = truck_type
-        self.env = env
-        self.truck_data = []
+        self.truck_data = list()
+        self.store_size = len(self.store)
 
-    def _all_are_packages(self):
-        packages_bool = [isinstance(package, Package) for package in self.store]
-        return all(packages_bool)
+    def get_all_package(self):
+        return [self.store.pop(0) for _ in range(self.store_size)]
 
-    def insert_data(self, record: namedtuple):
+    def insert_data(self, data:dict):
+        assert isinstance(data, TruckRecordDict), "Wrong data type"
+        record = TruckRecord(
+                    truck_id=self.item_id,
+                    truck_type=self.truck_type,
+                    store_size=self.store_size,
+                    **data,)
 
-        if isinstance(record, TruckRecord):
-            self.truck_data.append(record)
-        else:
-            raise ValueError("Wrong type of record")
+        self.truck_data.append(record)
 
     def __str__(self):
-        return f"<truck_id: {self.item_id}, come_time: {self.come_time}, store_size:{self.store_size}>"
+        return f"<Truck truck_id: {self.item_id}, come_time: {self.come_time}, store_size:{self.store_size}>"
 
 
 class Uld(Truck):
@@ -172,28 +193,34 @@ class Uld(Truck):
 
 
 class BasePipeline:
-
-    def __init__(self, env: simpy.Environment, pipeline_id: str, equipment_id: str, machine_type: str, ):
+    """基础管道，收集垃圾，或者错误"""
+    def __init__(self,
+                 env: simpy.Environment,
+                 pipeline_id: str,
+                 equipment_id: str,
+                 machine_type: str,
+                 is_record:bool = True):
 
         self.env = env
         self.pipeline_id = pipeline_id
         self.equipment_id = equipment_id
         self.queue_id = pipeline_id
         self.machine_type = machine_type
+        self.is_record = is_record
         self.queue = simpy.Store(env)
 
     def get(self):
         return self.queue.get()
 
     def put(self, item):
-
-        item.insert_data(
-            PipelineRecord(
-                pipeline_id=':'.join(self.pipeline_id),
-                queue_id=self.queue_id,
-                package_id=item.item_id,
-                time_stamp=self.env.now,
-                action="start", ))
+        # control writing record
+        if self.is_record:
+            item.insert_data(
+                PipelineRecordDict(
+                    pipeline_id=self.pipeline_id,  # pipeline name : unload_error / small_bin
+                    queue_id=self.queue_id,
+                    time_stamp=self.env.now,
+                    action="start", ))
 
         self.queue.put(item)
 
@@ -223,10 +250,9 @@ class Pipeline:
 
         # pipeline start server
         item.insert_data(
-            PipelineRecord(
+            PipelineRecordDict(
                 pipeline_id=':'.join(self.pipeline_id),
                 queue_id=self.queue_id,
-                package_id=item.item_id,
                 time_stamp=self.env.now,
                 action="start", ))
 
@@ -236,18 +262,16 @@ class Pipeline:
 
         # package wait for next process
         item.insert_data(
-            PackageRecord(
+            PackageRecordDict(
                 equipment_id=self.equipment_id,
-                package_id=item.item_id,
                 time_stamp=self.env.now,
                 action="wait", ))
 
         # pipeline end server
         item.insert_data(
-            PipelineRecord(
+            PipelineRecordDict(
                 pipeline_id=':'.join(self.pipeline_id),
                 queue_id=self.queue_id,
-                package_id=item.item_id,
                 time_stamp=self.env.now,
                 action="end", ))
 
@@ -299,9 +323,8 @@ class PipelineRes(Pipeline):
 
             # package start for process
             item.insert_data(
-                PackageRecord(
+                PackageRecordDict(
                     equipment_id=self.equipment_last,
-                    package_id=item.item_id,
                     time_stamp=self.env.now,
                     action="start", ))
 
@@ -309,18 +332,16 @@ class PipelineRes(Pipeline):
 
             # package end for process
             item.insert_data(
-                PackageRecord(
+                PackageRecordDict(
                     equipment_id=self.equipment_last,
-                    package_id=item.item_id,
                     time_stamp=self.env.now,
                     action="end", ))
 
             # pipeline start server
             item.insert_data(
-                PipelineRecord(
+                PipelineRecordDict(
                     pipeline_id=':'.join(self.pipeline_id),
                     queue_id=self.queue_id,
-                    package_id=item.item_id,
                     time_stamp=self.env.now,
                     action="start", ))
 
@@ -328,18 +349,16 @@ class PipelineRes(Pipeline):
 
             # package start for process
             item.insert_data(
-                PackageRecord(
+                PackageRecordDict(
                     equipment_id=self.equipment_next,
-                    package_id=item.item_id,
                     time_stamp=self.env.now,
                     action="wait", ))
 
             # pipeline end server
             item.insert_data(
-                PipelineRecord(
+                PipelineRecordDict(
                     pipeline_id=':'.join(self.pipeline_id),
                     queue_id=self.queue_id,
-                    package_id=item.item_id,
                     time_stamp=self.env.now,
                     action="end", ))
 

@@ -25,7 +25,8 @@
 
 import simpy
 from simpy_lib.hangzhou_simpy.src.vehicles.items import Package
-from simpy_lib.hangzhou_simpy.src.utils import PackageRecord
+from simpy_lib.hangzhou_simpy.src.utils import PackageRecordDict
+from simpy_lib.hangzhou_simpy.src.config import LOG
 
 
 class Hospital(object):
@@ -71,23 +72,26 @@ class Hospital(object):
         with self.resource.request() as req:
             yield req
             # 获取出口队列id
-            id_output_pip_line = package.next_pipeline
             package.insert_data(
-                PackageRecord(
+                PackageRecordDict(
                     equipment_id=self.equipment_id,
-                    package_id=package.item_id,
                     time_stamp=self.env.now,
                     action="start", ))
             # 增加处理时间
             yield self.env.timeout(self.process_time)
             package.insert_data(
-                PackageRecord(
+                PackageRecordDict(
                     equipment_id=self.equipment_id,
-                    package_id=package.item_id,
                     time_stamp=self.env.now,
                     action="end", ))
             # 放入下一步的传送带
-            self.pipelines_dict[id_output_pip_line].put(package)
+            try:
+                self.pipelines_dict[package.next_pipeline].put(package)
+            except Exception as exc:
+                self.pipelines_dict['error'].put(package)
+                msg = f"error: {exc}, package: {package}, equipment_id: {self.equipment_id}"
+                LOG.logger_font.error(msg)
+                LOG.logger_font.exception(exc)
 
     def run(self):
         while True:
