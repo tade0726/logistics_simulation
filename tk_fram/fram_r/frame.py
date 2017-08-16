@@ -256,7 +256,13 @@ class CheckBtnEntryList(object):
             self.var.set(self.check_var)
             self.string.set(ENTRY_STATUS_DIC[self.var.get()])
             self.change_combobox_status(self)
-            self.check_btn['state'] = DISABLED
+            if 'm' in self.w_id:
+                self.check_btn['state'] = DISABLED
+            if 'j' in self.w_id:
+                if self.var.get() == 0:
+                    self.check_btn['state'] = DISABLED
+                else:
+                    self.check_btn['state'] = NORMAL
         else:
             self.var.set(status_dict[self.w_id])
             self.string.set(ENTRY_STATUS_DIC[self.var.get()])
@@ -265,7 +271,7 @@ class CheckBtnEntryList(object):
             self.entry['disabledforeground'] = 'blue'
 
     def chk_button_value(self):
-        self.string.set(ENTRY_STATUS_DIC[self.check_var])
+        self.string.set(ENTRY_STATUS_DIC[self.var.get()])
         self.change_color(self.entry)
         self.change_combobox_status(self)
 

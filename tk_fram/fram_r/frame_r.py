@@ -125,7 +125,7 @@ def init_r_frame(root: Tk):
     schedul_plan.grid(row=0, column=3)
     # ===================  机器区域sheet      =====================
     for i in init_sheet(left_set_pad_sheet, left_set_pad_center_up):
-        print(i)
+        pass
     # ===================     卸货区数据      =====================
     CURRENT_CANVAS_DICT['canvas'], CURRENT_CANVAS_DICT['scrollbar'] = \
         create_canvas(left_set_pad_center_up, 'R')
