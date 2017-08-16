@@ -13,7 +13,7 @@ from .db_api import Mysql, insert_package, update_on_off, save_to_past_run, \
 # from simpy_lib import main
 from .frame_r_view import Flag, ConfigFrame, CHECK_BTN_ENTRY_DIC, \
     LIST_VALUE_COMBOBOX, CURRENT_CANVAS_DICT, CURRENT_SHEET, \
-    CACHE_BTN_ENTRY_DICT
+    CACHE_BTN_ENTRY_DICT, M_J_DICT, M_R_DICT, CACHE_J_STATUS
 from .frame import CheckBtnEntryList
 
 

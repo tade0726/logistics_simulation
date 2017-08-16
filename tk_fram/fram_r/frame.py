@@ -5,7 +5,7 @@ from tkinter.ttk import Combobox
 from tkinter import Checkbutton, Entry, Menu
 from tkinter import IntVar, StringVar, DISABLED, NORMAL
 from .frame_r_view import ConfigFrame, BTN_ENTRY_DICT, \
-    ENTRY_STATUS_DIC, M_R_DICT, CACHE_BTN_ENTRY_DICT, M_J_DICT
+    ENTRY_STATUS_DIC, M_R_DICT, CACHE_BTN_ENTRY_DICT, M_J_DICT, CACHE_J_STATUS
 
 
 class App(Frame):
@@ -253,13 +253,19 @@ class CheckBtnEntryList(object):
             self.string_combobox.set(1)
             self.check_btn['state'] = DISABLED
         elif 'm' in self.w_id or 'j' in self.w_id:
-            self.var.set(self.check_var)
+            # 判定 J 是否有缓存值且缓存值是否有效，否则取初始值(M 默认不匹配)
+            if self.w_id in CACHE_J_STATUS and \
+                            CACHE_J_STATUS[self.w_id] != self.check_var:
+                self.var.set(CACHE_J_STATUS[self.w_id])
+            else:
+                self.var.set(self.check_var)
             self.string.set(ENTRY_STATUS_DIC[self.var.get()])
             self.change_combobox_status(self)
             if 'm' in self.w_id:
                 self.check_btn['state'] = DISABLED
             if 'j' in self.w_id:
-                if self.var.get() == 0:
+                # 根据初始化的值判断是否为 DISABLED
+                if self.check_var == 0 :
                     self.check_btn['state'] = DISABLED
                 else:
                     self.check_btn['state'] = NORMAL
@@ -271,9 +277,17 @@ class CheckBtnEntryList(object):
             self.entry['disabledforeground'] = 'blue'
 
     def chk_button_value(self):
+        # j 由 ON 改为 OFF 时将会添加到 J的缓存字典里
+        if 'j' in self.w_id:
+            if self.var.get() == 0:
+                CACHE_J_STATUS[self.w_id] = self.var.get()
+            else:
+                CACHE_J_STATUS.pop(self.w_id)
+
         self.string.set(ENTRY_STATUS_DIC[self.var.get()])
         self.change_color(self.entry)
         self.change_combobox_status(self)
+        print(CACHE_J_STATUS)
 
     # 返回勾选框的状态值 0 或 1
     @property
