@@ -14,7 +14,6 @@
 ==================================================================================================================================================
 """
 from src.vehicles.items import SmallBag
-from src.utils import PackageRecord
 from src.config import LOG
 
 
@@ -64,27 +63,27 @@ class SmallPrimary(object):
 
             # record for small bag
             small_bag.insert_data(
-                PackageRecord(
+                dict(
+                    record_type="machine",
                     equipment_id=self.equipment_id,
-                    package_id=small_bag.item_id,
                     time_stamp=self.env.now,
                     action="start", ), to_small=False)
 
             for small_package in small_packages:
                 # 记录机器开始处理货物信息
                 small_package.insert_data(
-                    PackageRecord(
+                    dict(
+                        record_type="machine",
                         equipment_id=self.equipment_id,
-                        package_id=small_package.item_id,
                         time_stamp=self.env.now,
                         action="start", ))
                 # 增加处理时间
                 yield self.env.timeout(self.process_time)
                 # 记录机器结束处理货物信息
                 small_package.insert_data(
-                    PackageRecord(
+                    dict(
+                        record_type="machine",
                         equipment_id=self.equipment_id,
-                        package_id=small_package.item_id,
                         time_stamp=self.env.now,
                         action="end", ))
                 # 生成小件的路径
@@ -101,9 +100,9 @@ class SmallPrimary(object):
 
             # record for small bag
             small_bag.insert_data(
-                PackageRecord(
+                dict(
+                    record_type="machine",
                     equipment_id=self.equipment_id,
-                    package_id=small_bag.item_id,
                     time_stamp=self.env.now,
                     action="end", ), to_small=False)
 
