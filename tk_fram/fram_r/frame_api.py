@@ -263,3 +263,6 @@ def create_canvas(master, sheet: str):
 
 def set_during_time(date_plan, time_plan):
     time_plan['values'] = DAY_TIME_DICT[date_plan.get()]
+
+def clear_time(time_plan):
+    time_plan.set('')

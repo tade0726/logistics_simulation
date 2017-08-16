@@ -7,7 +7,7 @@ from .frame_r_view import *
 # import logging as lg
 from .db_api import init_btn_entry_val_from_sql, init_day_time
 from .frame_api import run_sim, save_data, update_data, q_exit, menu_file, \
-    create_canvas, init_sheet, set_during_time
+    create_canvas, init_sheet, set_during_time, clear_time
 
 
 def init_app(master, wig):
@@ -126,6 +126,7 @@ def init_r_frame(root: Tk):
         # height=2,
         textvariable=StringVar(),
         values=date_list,
+        postcommand=lambda: clear_time(time_plan)
     )
     date_plan.grid(row=0, column=3)
     # -----------------------时间表标题
@@ -148,6 +149,7 @@ def init_r_frame(root: Tk):
         values=[],
         postcommand=lambda: set_during_time(date_plan, time_plan)
     )
+
     time_plan.grid(row=0, column=5)
     # ===================  机器区域sheet      =====================
     for i in init_sheet(left_set_pad_sheet, left_set_pad_center_up):
