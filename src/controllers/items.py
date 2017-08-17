@@ -11,7 +11,7 @@
 
 import simpy
 import pandas as pd
-from src.vehicles import Truck, Package, SmallPackage, SmallBag, Parcel
+from src.vehicles import Truck, SmallPackage, SmallBag, Parcel
 from src.utils import TruckRecordDict
 from src.db import get_vehicles
 from src.config import LOG
