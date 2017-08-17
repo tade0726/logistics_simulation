@@ -269,7 +269,7 @@ class PathGenerator(object):
                                c11="c8_1",
                                c12="c8_1")
 
-        if sort_type == "reload" or start_node.startswith("c"):
+        if sort_type == "reload" or start_node[0] in ["c", "j"]:
             position = 0
         else:
             if start_node.startswith("a") or start_node.startswith("r"):
@@ -322,23 +322,28 @@ class PathGenerator(object):
             if start_node == "c8_1" or start_node == "c9_1":  # 小件垃圾滑槽直接送到终分拣
                 return [start_node, end_node]
 
-            if start_node[0:3] in self.machine_pre_dict["land_unload"] \
-                    and end_node[0:3] in self.machine_pre_dict["air_secondary"]:
-                path = random.choice(
-                    self.all_paths[(start_node, end_node)]["without hospital"])
-                security_node = list(
-                    set(path) & set(self.machine_pre_dict["security"]))
-                if len(security_node) == 0:
-                    raise Exception(
-                        "Error: There is no security check node in path!")
-                i = path.index(security_node[0])
-                return path[:i + 1]
+            if start_node[0:3] in self.machine_pre_dict["land_unload"] + self.machine_pre_dict[
+                    "air_small_secondary"] and end_node[0:3] in self.machine_pre_dict["air_secondary"]:
+                security_prob = random.random()
+                if security_prob <= 0.009:
+                    path = random.choice(self.all_paths[(start_node, end_node)][
+                                             "without hospital"])
+                    security_node = list(
+                        set(path) & set(self.machine_pre_dict["security"]))
+                    if len(security_node) == 0:
+                        raise Exception(
+                            "Error: There is no security check node in path!")
+                    i = path.index(security_node[0])
+                    now = path[:i + 1]
+                    now.append(path[-1])
+                    return now
 
             # security to secondary
             if start_node in self.machine_pre_dict["security"]:
                 security_prob = random.random()  # 安检概率
                 if security_prob <= 0.009:
                     return [start_node, "c3_14"]
+
             if not self.all_paths[(start_node, end_node)]["without hospital"]:
                 if start_node[0:3] == "c11" or start_node[0:3] == "c12":
                     end_node = "c2_1"
@@ -404,12 +409,15 @@ if __name__ == "__main__":
     # 给定起终点单条路线
     print(",".join(Paths.path_generator("r3_2", "027", "reload", "A")))
     print(
-        ",".join(Paths.path_generator("a1_1", "752", "small_sort", "A")))  # 小件
+        ",".join(Paths.path_generator("r1_1", "752", "small_sort", "A")))  # 小件
     print(
-        ",".join(Paths.path_generator("u3_7", "752", "small_sort", "A")))  # 小件
+        ",".join(Paths.path_generator("u3_3", "752", "small_sort", "A")))  # 小件
     print(
         ",".join(
-            Paths.path_generator("c11_84", "5712", "small_sort", "L")))  # 小件
+            Paths.path_generator("c6_1", "752", "small_sort", "A")))  # 小件
+    print(
+        ",".join(
+            Paths.path_generator("j41_1", "752", "small_sort", "A")))  # 小件
 
     # 生成100000条路线，测试进入医院区的概率是否为5%
     land_start_node = ["r5_1", "r5_2", "r5_3", "r5_4"]
@@ -422,16 +430,15 @@ if __name__ == "__main__":
     while num < 100000:
         start = random.choice(land_start_node)
         end = random.choice(air_end_node)
-        path_1 = Paths.path_generator(start, end, "reload", "A")
-        path_2 = Paths.path_generator(path_1[-1], end, "reload", "A")
-        if set(path_2) & hospital:
-            paths["hospital"].append(path_2)
+        path = Paths.path_generator(start, end, "reload", "A")
+        if set(path) & hospital:
+            paths["hospital"].append(path)
         else:
-            paths["without hospital"].append(path_2)
-        if len(path_2) == 2:
-            paths["us"].append(path_2)
-        elif set(machine_pre_dict["security"]) & set(path_2):
-            paths["security"].append(path_2)
+            paths["without hospital"].append(path)
+        if path[-2] in machine_pre_dict["security"]:
+            paths["us"].append(path)
+        elif set(machine_pre_dict["security"]) & set(path):
+            paths["security"].append(path)
         num += 1
 
     hospital_num = len(paths["hospital"])
