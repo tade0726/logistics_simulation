@@ -44,9 +44,6 @@ class Unload:
         self.equipment_parameters = equipment_parameters
 
         self.packages_processed = dict()
-        # data store
-        self.truck_records = list()
-        self.package_records = list()
 
         # add machine switch
         self.machine_switch = self.env.event()
