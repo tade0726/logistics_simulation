@@ -12,7 +12,6 @@
 import simpy
 import pandas as pd
 from src.vehicles import Truck, SmallPackage, SmallBag, Parcel
-from src.utils import TruckRecord
 from src.db import get_vehicles, get_resource_timetable, get_equipment_timetable
 from src.config import LOG
 
@@ -107,6 +106,7 @@ class TruckController:
         for keys, packages_record in self.trucks_dict.items():
             self.env.process(self._init_truck(keys, packages_record))
 
+
 # todo: 决定资源的类型，修改调用资源的相关process
 class ResourceController:
     """control resource change during simulation"""
@@ -150,7 +150,7 @@ class MachineController:
         self.timetable = get_equipment_timetable()
 
     def _set_machines(self):
-        for machines in self.machines_dict.values:
+        for machines in self.machines_dict.values():
             self.machines.extend(machines)
 
     def _set_on_off(self, equipment_port: str, start_time:float, equipment_status: bool):

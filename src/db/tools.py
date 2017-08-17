@@ -21,7 +21,7 @@ __all__ = ['write_redis', 'load_from_redis', 'write_mysql', 'write_local', 'load
            'load_from_mysql', 'get_vehicles', 'get_unload_setting', 'get_reload_setting', 'get_resource_limit',
            'get_resource_equipment_dict', 'get_pipelines', 'get_queue_io', 'get_equipment_process_time',
            'get_parameters', 'get_resource_timetable', 'get_equipment_timetable',
-           'get_equipment_store_dict']
+           'get_equipment_store_dict', 'get_equipment_on_off']
 
 
 def checking_pickle_file(table_name):
@@ -490,6 +490,23 @@ def get_equipment_timetable():
             .apply(lambda x: x.total_seconds() if x.total_seconds() > 0 else 0)
 
     return table_equipment_change
+
+
+def get_equipment_on_off():
+    """
+    返回初始设备的开关信息, 返回开的设备名
+
+    samples:
+        on: ['r1_1', 'r1_2', ..]
+        off: ['r2_1', 'r3_3', ..]
+    """
+    table = get_base_equipment_io()
+    equipment_on = table[table.equipment_status == 1]
+    equipment_off = table[table.equipment_status == 0]
+    return equipment_on.equipment_port.tolist(), equipment_off.equipment_port.tolist(),
+
+
+
 
 if __name__ == "__main__":
     test = get_queue_io()

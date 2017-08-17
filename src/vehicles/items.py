@@ -315,7 +315,7 @@ class PipelineReplace:
 
     def _set_store(self):
         self.share_store_id = self.equipment_store_dict[self.equipment_id]
-        self.share_store = self.equipment_store_dict[self.share_store_id]
+        self.share_store = self.share_store_dict[self.share_store_id]
 
     def latency(self):
         """模拟传送时间"""
