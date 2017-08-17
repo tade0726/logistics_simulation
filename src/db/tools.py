@@ -202,7 +202,6 @@ def get_vehicles(is_land: bool,
         table_parcel = table_parcel[table_parcel.parcel_type != 'small']
 
     # take samples for test
-    #  fixme: 关于小件的抽样需要查表
     if is_test:
         # keep both LL/AA
         table_parcel1 = table_parcel[table_parcel.parcel_type == 'small'].sample(250)
@@ -211,8 +210,8 @@ def get_vehicles(is_land: bool,
         table_parcel = table_parcel1.append(table_parcel2).append(table_parcel3)
         # filter small
 
+    # fixme: using parcel_id as plate_num, cos lack of plate_num for uld
     if not is_land:
-        # fixme: using parcel_id as plate_num, cos lack of plate_num for uld
         table_parcel["plate_num"] = table_parcel["parcel_id"]
         table_small["plate_num"] = table_small["parcel_id"]
 
@@ -269,9 +268,7 @@ def get_reload_setting():
 def get_resource_limit():
     """返回资源表，包含了单个资源处理时间"""
 
-    # table_name1 = "i_resource_limit"
     table_name2 = "i_equipment_resource"
-    # table_name3 = "i_equipment_io"
 
     table1 = get_base_resource_limit()
     table2 = load_from_mysql(table_name2)
@@ -461,17 +458,24 @@ def get_base_resource_limit():
 
 
 def get_resource_timetable():
-    """返回资源改变的时间表"""
+    """返回资源被占用改变的时间表， 资源被占用发生改变将生成 process 占用资源，模拟资源变化的情况
+
+    资源被占用 = 最大资源 - 目标资源数
+
+    """
     table = load_from_mysql('i_resource_limit')
+
+    table['resource_occupy'] = table['resource_number'] - table['resource_limit']
+
     g_resource = table.sort_values('start_time').groupby('resource_id')
-    table_resource_change = g_resource.apply(lambda x: x[x.resource_limit.diff() != 0]).reset_index(drop=True)
+    table_resource_occupy_change = g_resource.apply(lambda x: x[x.resource_occupy.diff() != 0]).reset_index(drop=True)
 
     # convert to seconds
-    table_resource_change["start_time"] = \
-        (pd.to_datetime(table_resource_change["start_time"]) - TimeConfig.ZERO_TIMESTAMP) \
+    table_resource_occupy_change["start_time"] = \
+        (pd.to_datetime(table_resource_occupy_change["start_time"]) - TimeConfig.ZERO_TIMESTAMP) \
             .apply(lambda x: x.total_seconds() if x.total_seconds() > 0 else 0)
 
-    return table_resource_change
+    return table_resource_occupy_change
 
 
 def get_equipment_timetable():
