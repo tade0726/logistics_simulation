@@ -105,6 +105,7 @@ class Presort(object):
                 msg = f"error: {exc}, package: {package}, equipment_id: {self.equipment_id}"
                 LOG.logger_font.error(msg)
                 LOG.logger_font.exception(exc)
+
     def run(self):
         while True:
             # 开关机的事件控制
