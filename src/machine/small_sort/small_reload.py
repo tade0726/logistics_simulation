@@ -45,6 +45,11 @@ class SmallReload(object):
         self.small_bag_count = 0
         # event for control
         self.store_is_full = self.env.event()
+
+        # add machine switch
+        self.machine_switch = self.env.event()
+        self.machine_switch.succeed()
+
         self._set_machine_resource()
 
     def _set_machine_resource(self):
@@ -62,6 +67,14 @@ class SmallReload(object):
             pop_number = self.store_max
         store = [self.store.pop(0) for _ in range(pop_number)]
         return store
+
+    def set_machine_open(self):
+        """设置为开机"""
+        self.machine_switch.succeed()
+
+    def set_machine_close(self):
+        """设置为关机"""
+        self.machine_switch = self.env.event()
 
     def pack_send(self, wait_time_stamp: float):
         # init small_bag
@@ -125,5 +138,9 @@ class SmallReload(object):
 
     def run(self):
         while True:
+
+            # 开关机的事件控制
+            yield self.machine_switch
+
             small = yield self.last_pipeline.get()
             self.put_package(small)
