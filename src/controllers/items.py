@@ -125,6 +125,7 @@ class ResourceController:
         self.timetable = get_resource_timetable()
 
     def _set_resource(self, resource: simpy.PriorityResource, delay: float, duration: float):
+        """占用资源，模拟资源减少的情况"""
         yield self.env.timeout(delay)
         with resource.request(priority=-1) as req:
             yield req
