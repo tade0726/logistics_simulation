@@ -335,7 +335,7 @@ class PathGenerator(object):
                             "Error: There is no security check node in path!")
                     i = path.index(security_node[0])
                     now = path[:i + 1]
-                    now.append(path[-1])
+                    now.append("c3_14")
                     return now
 
             # security to secondary
@@ -409,15 +409,16 @@ if __name__ == "__main__":
     # 给定起终点单条路线
     print(",".join(Paths.path_generator("r3_2", "027", "reload", "A")))
     print(
-        ",".join(Paths.path_generator("r1_1", "752", "small_sort", "A")))  # 小件
+        ",".join(Paths.path_generator("r1_1", "991", "small_sort", "A")))  # 小件
     print(
-        ",".join(Paths.path_generator("u3_3", "752", "small_sort", "A")))  # 小件
+        ",".join(Paths.path_generator("u3_3", "991", "small_sort", "A")))  # 小件
     print(
         ",".join(
-            Paths.path_generator("c6_1", "752", "small_sort", "A")))  # 小件
+            Paths.path_generator("c5_11", "991", "small_sort", "A")))  # 小件
     print(
         ",".join(
             Paths.path_generator("j41_1", "752", "small_sort", "A")))  # 小件
+
 
     # 生成100000条路线，测试进入医院区的概率是否为5%
     land_start_node = ["r5_1", "r5_2", "r5_3", "r5_4"]
