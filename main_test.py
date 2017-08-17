@@ -42,7 +42,7 @@ def main():
 
     # raw data prepare
     pipelines_table = get_pipelines()
-    unload_setting_dict_src = get_unload_setting()
+    unload_setting_dict = get_unload_setting()
     reload_setting_dict = get_reload_setting()
     resource_table = get_resource_limit()
     equipment_resource_dict = get_resource_equipment_dict()
@@ -58,12 +58,6 @@ def main():
                                        is_parcel_only=MainConfig.IS_PARCEL_ONLY,
                                        is_land_only=MainConfig.IS_LAND_ONLY)
     truck_controller.controller()
-
-    # equipment setting from unload
-    if not MainConfig.ALL_OPEN:
-        unload_setting_dict = {key: val for key, val in unload_setting_dict_src.items() if key not in equipment_off_list}
-    else:
-        unload_setting_dict = unload_setting_dict_src
 
     # c_port list
     reload_c_list = list()
