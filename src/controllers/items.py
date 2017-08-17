@@ -158,5 +158,10 @@ class MachineController:
         yield self.env.timeout(start_time)
         machines = filter(lambda x: x.equipment_port == equipment_port, self.machines)
 
+    def controller(self):
+        for _, row in self.timetable.iterrows():
+            equipment_port, start_time, equipment_status = row['equipment_port'], row['start_time'], row['equipment_status']
+            self.env.process(self._set_on_off(equipment_port, start_time, equipment_status))
+
 if __name__ == '__main__':
     pass
