@@ -16,7 +16,7 @@ import os
 from collections import defaultdict
 
 from src.db import *
-from src.controllers import TruckController
+from src.controllers import TruckController, MachineController, ResourceController
 from src.utils import PipelineRecord, TruckRecord, PackageRecord, OutputTableColumnType
 from src.vehicles import Pipeline, PipelineRes, BasePipeline, SmallBag, SmallPackage, Parcel, PipelineReplace
 from src.machine import *
@@ -48,6 +48,7 @@ def main():
     equipment_resource_dict = get_resource_equipment_dict()
     equipment_process_time_dict = get_equipment_process_time()
     equipment_parameters = get_parameters()
+    equipment_store_dict = get_equipment_store_dict()
 
     # init trucks controllers
     LOG.logger_font.info("loading package data")
@@ -148,8 +149,6 @@ def main():
                                                         equipment_id="small_reload_error",
                                                         machine_type="error",
                                                         is_record=True)  # data will be collected
-
-
 
     # prepare init machine dict
     machine_init_dict = defaultdict(list)
@@ -261,10 +260,22 @@ def main():
         for machine in machines:
             env.process(machine.run())
 
+    LOG.logger_font.info("init resource machine controllers..")
+
+    # init machine controller
+    machine_controller = MachineController(env, machines_dict)
+    machine_controller.controller()
+
+    # init resource controller
+    # resource_controller = ResourceController(env, resource_dict)
+    # resource_controller.controller()
+
     LOG.logger_font.info("sim start..")
     env.run()
+
     num_of_trucks = len(trucks_queue.items)
     assert num_of_trucks == 0, ValueError("Truck queue should be empty!!")
+
     LOG.logger_font.info(f"{num_of_trucks} trucks leave in queue")
     LOG.logger_font.info("sim end..")
     LOG.logger_font.info("collecting data")
