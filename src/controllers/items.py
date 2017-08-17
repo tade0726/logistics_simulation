@@ -12,11 +12,11 @@
 import simpy
 import pandas as pd
 from src.vehicles import Truck, SmallPackage, SmallBag, Parcel
-from src.utils import TruckRecordDict
-from src.db import get_vehicles
+from src.utils import TruckRecord
+from src.db import get_vehicles, get_resource_timetable, get_equipment_timetable
 from src.config import LOG
 
-__all__ = ["TruckController", ]
+__all__ = ["TruckController", "MachineController", "ResourceController"]
 
 
 class TruckController:
@@ -107,6 +107,56 @@ class TruckController:
         for keys, packages_record in self.trucks_dict.items():
             self.env.process(self._init_truck(keys, packages_record))
 
+# todo: 决定资源的类型，修改调用资源的相关process
+class ResourceController:
+    """control resource change during simulation"""
+    def __init__(self,
+                 env: simpy.Environment,
+                 resource_dict,):
+
+        self.env = env
+        self.resource_dict = resource_dict
+
+        self._init_time_table()
+
+    def _init_time_table(self):
+        self.timetable = get_resource_timetable()
+
+    def _set_resource(self, resource_id: str, start_time: float, resource_limit: int):
+        yield self.env.timeout(start_time)
+        self.resource_dict[resource_id]["resource"]._capacity = resource_limit
+
+    def controller(self):
+        for _, row in self.timetable.iterrows():
+            resource_id, start_time, resource_limit = row['resource_id'], row['start_time'], row['resource_limit']
+            self.env.process(self._set_resource(resource_id, start_time, resource_limit))
+
+
+class MachineController:
+    """control machine open/close change during simulation
+       only support unload, small_primary, security
+    """
+
+    def __init__(self,
+                 env: simpy.Environment,
+                 machines_dict):
+
+        self.env = env
+        self.machines_dict = machines_dict
+        self.machines = list()
+        self._set_machines()
+
+    def _init_time_table(self):
+        self.timetable = get_equipment_timetable()
+
+    def _set_machines(self):
+        for machines in self.machines_dict.values:
+            self.machines.extend(machines)
+
+    def _set_on_off(self, equipment_port: str, start_time:float, equipment_status: bool):
+
+        yield self.env.timeout(start_time)
+        machines = filter(lambda x: x.equipment_port == equipment_port, self.machines)
 
 if __name__ == '__main__':
     pass
