@@ -98,8 +98,8 @@ class TruckController:
         package_dest_type = 'A' if 'A' in list(set(package.dest_type for package in packages)) else 'L'
         # LL/LA/AA/AA
         truck_type = src_type + package_dest_type
-        truck = Truck(item_id=truck_id, come_time=come_time,
-                      packages=packages, truck_type=truck_type,)
+        truck = Truck(truck_id=truck_id, come_time=come_time,
+                      packages=packages, truck_type=truck_type, )
         LOG.logger_font.debug(f"init truck: {truck_id}")
         self.env.process(self.latency(come_time, truck))
 
@@ -182,7 +182,7 @@ class MachineController:
                 try:
                     machine.set_machine_open()
                 except RuntimeError as exc:
-                    LOG.logger_font.error(f"error: {exc}, {machine.equipment_id} already open.")
+                    LOG.logger_font.debug(f"error: {exc}, {machine.equipment_id} already open.")
                 except Exception as exc:
                     LOG.logger_font.error(f"error: {exc}, {machine.equipment_id}")
                     LOG.logger_font.exception(exc)

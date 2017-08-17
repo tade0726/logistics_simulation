@@ -34,8 +34,8 @@ class Package:
         # 包裹的所有信息都在 attr
         self.attr = attr
         # id
-        self.parcel_id = self.attr["parcel_id"]
-        self.small_id = self.attr.get("small_id", self.parcel_id)
+        self._parcel_id = self.attr["parcel_id"]
+        self.small_id = self.attr.get("small_id", self._parcel_id)
         # data store
         self.machine_data = list()
         self.pipeline_data = list()
@@ -52,6 +52,14 @@ class Package:
         # parcel_type: {'nc', 'small', 'parcel'}
         self.parcel_type = self.attr["parcel_type"]
         self.sorter_type = "small_sort" if self.parcel_type == "small" else "reload"
+
+    @property
+    def parcel_id(self):
+        return self._parcel_id
+
+    @parcel_id.setter
+    def parcel_id(self, value: str):
+        self._parcel_id = value
 
     # use in unload machine
     def set_path(self, package_start):
@@ -142,6 +150,17 @@ class SmallBag(Package):
         self.store = small_packages
         self.store_size = len(self.store)
 
+    @property
+    def parcel_id(self):
+        return self._parcel_id
+
+    @parcel_id.setter
+    def parcel_id(self, value: str):
+        self._parcel_id = value
+        # parcel id 更新到小件包里的小件包裹
+        for x in self.store:
+            x.parcel_id = value
+
     def get_all_package(self):
         return [self.store.pop(0) for _ in range(self.store_size)]
 
@@ -158,13 +177,13 @@ class SmallBag(Package):
 
 class Truck:
     """货车"""
-    def __init__(self, item_id: str, come_time: int, truck_type: str, packages: list):
+    def __init__(self, truck_id: str, come_time: int, truck_type: str, packages: list):
         """
         :param truck_id: self explain
         :param come_time: self explain
         :param packages: a data frame contain all packages
         """
-        self.item_id = item_id
+        self.truck_id = truck_id
         self.come_time = come_time
         self.store = packages
         self.truck_type = truck_type
@@ -177,7 +196,7 @@ class Truck:
     def insert_data(self, data:dict):
         assert isinstance(data, TruckRecordDict), "Wrong data type"
         record = TruckRecord(
-                    truck_id=self.item_id,
+                    truck_id=self.truck_id,
                     truck_type=self.truck_type,
                     store_size=self.store_size,
                     **data,)
@@ -185,7 +204,7 @@ class Truck:
         self.truck_data.append(record)
 
     def __str__(self):
-        return f"<Truck truck_id: {self.item_id}, come_time: {self.come_time}, store_size:{self.store_size}>"
+        return f"<Truck truck_id: {self.truck_id}, come_time: {self.come_time}, store_size:{self.store_size}>"
 
 
 class Uld(Truck):
