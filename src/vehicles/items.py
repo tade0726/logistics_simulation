@@ -347,14 +347,12 @@ class PipelineRes(Pipeline):
 
             yield self.env.timeout(self.delay)
 
-            # 小件包裹的等待时刻由打包的小件包决定
-            if not isinstance(item, SmallPackage):
-                # package start for process
-                item.insert_data(
-                    PackageRecordDict(
-                        equipment_id=self.equipment_next,
-                        time_stamp=self.env.now,
-                        action="wait", ))
+            # package start for process
+            item.insert_data(
+                PackageRecordDict(
+                    equipment_id=self.equipment_next,
+                    time_stamp=self.env.now,
+                    action="wait", ))
 
             # pipeline end server
             item.insert_data(

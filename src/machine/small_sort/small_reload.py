@@ -73,7 +73,7 @@ class SmallReload(object):
             PackageRecordDict(
                 equipment_id=self.equipment_id,
                 time_stamp=wait_time_stamp,
-                action="wait", ))
+                action="wait", ), to_small=False)
 
         small_bag.insert_data(
             PackageRecordDict(
