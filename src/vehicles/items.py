@@ -105,8 +105,6 @@ class Package:
             self.next_pipeline = self.path[-1]
         else:
             raise ValueError('The path have been empty!')
-        # remove the now_loc
-        # 改变下一个 pipeline id
 
     def __str__(self):
         display_dct = dict(self.attr)
@@ -458,6 +456,9 @@ class PipelineRes(Pipeline):
             # cutting path, change item next_pipeline
             item.pop_mark()
             self.queue.put(item)
+
+    def __str__(self):
+        return f"<PipelineRes: {self.pipeline_id}, delay: {self.delay}>"
 
 
 if __name__ == '__main__':
