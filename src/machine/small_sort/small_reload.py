@@ -92,7 +92,7 @@ class SmallReload(object):
             PackageRecordDict(
                 equipment_id=self.equipment_id,
                 time_stamp=self.env.now,
-                action="start", ), to_small=False)
+                action="start", ))
 
         yield self.env.timeout(self.process_time)
 
@@ -120,12 +120,6 @@ class SmallReload(object):
         self.env.process(self.pack_send(wait_time_stamp))
 
     def put_package(self, small: SmallPackage):
-
-        small.insert_data(
-            PackageRecordDict(
-                equipment_id=self.equipment_id,
-                time_stamp=self.env.now,
-                action="start", ))
 
         self.store.append(small)
 
