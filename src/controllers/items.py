@@ -160,16 +160,28 @@ class MachineController:
         for machines in self.machines_dict.values():
             self.machines.extend(machines)
 
-    def _set_on_off(self, equipment_port: str, start_time:float, equipment_status: bool):
+    def _set_on_off(self, equipment_id: str, start_time:float, equipment_status: int):
         """控制开关"""
         yield self.env.timeout(start_time)
-        machines = filter(lambda x: x.equipment_port == equipment_port, self.machines)
+        machines = filter(lambda x: x.equipment_id == equipment_id, self.machines)
+        for machine in machines:
+            if equipment_status:
+                try:
+                    machine.set_machine_open()
+                except RuntimeError as exc:
+                    LOG.logger_font.error(f"error: {exc}, {machine.equipment_id} already open.")
+                except Exception as exc:
+                    LOG.logger_font.error(f"error: {exc}, {machine.equipment_id}")
+                    LOG.logger_font.exception(exc)
+
+            else:
+                machine.set_machine_close()
 
     def controller(self):
         for _, row in self.timetable.iterrows():
-            equipment_port, start_time, equipment_status = \
+            equipment_id, start_time, equipment_status = \
                 row['equipment_port'], row['start_time'], row['equipment_status']
-            self.env.process(self._set_on_off(equipment_port, start_time, equipment_status))
+            self.env.process(self._set_on_off(equipment_id, start_time, equipment_status))
 
 if __name__ == '__main__':
     pass

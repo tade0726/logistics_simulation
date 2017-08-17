@@ -63,6 +63,11 @@ class Cross(object):
         self.pipelines_dict = pipelines_dict
         self.equipment_resource_dict = equipment_resource_dict
         self.resource_dict = resource_dict
+
+        # add machine switch
+        self.machine_switch = self.env.event()
+        self.machine_switch.succeed()
+
         self.resource_set = self._set_machine_resource()
 
     def _set_machine_resource(self):
@@ -75,9 +80,20 @@ class Cross(object):
                                self.machine_id,
                                'not initial equipment_resource_dict!')
 
+    def set_machine_open(self):
+        """设置为开机"""
+        self.machine_switch.succeed()
+
+    def set_machine_close(self):
+        """设置为关机"""
+        self.machine_switch = self.env.event()
+
     def run(self):
 
         while True:
+            # 开关机的事件控制
+            yield self.machine_switch
+
             package = yield self.input_pip_line.get()
             # 记录机器开始处理货物信息
             package.insert_data(
