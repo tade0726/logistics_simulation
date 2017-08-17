@@ -67,7 +67,7 @@ class SmallReload(object):
         # init small_bag
         store = self._get_small_package()
         small_bag = SmallBag(store)
-        small_bag.item_id = "98" + next(SmallCode.code_generator)  # "98" + "0000000000" ~ "98" + "9999999999"
+        small_bag.parcel_id = "98" + next(SmallCode.code_generator)  # "98" + "0000000000" ~ "98" + "9999999999"
 
         small_bag.insert_data(
             PackageRecordDict(
