@@ -475,6 +475,10 @@ def get_resource_timetable():
         (pd.to_datetime(table_resource_occupy_change["start_time"]) - TimeConfig.ZERO_TIMESTAMP) \
             .apply(lambda x: x.total_seconds() if x.total_seconds() > 0 else 0)
 
+    table_resource_occupy_change["end_time"] = \
+        (pd.to_datetime(table_resource_occupy_change["end_time"]) - TimeConfig.ZERO_TIMESTAMP) \
+            .apply(lambda x: x.total_seconds() if x.total_seconds() > 0 else 0)
+
     return table_resource_occupy_change
 
 
@@ -487,6 +491,10 @@ def get_equipment_timetable():
     # convert to seconds
     table_equipment_change["start_time"] = \
         (pd.to_datetime(table_equipment_change["start_time"]) - TimeConfig.ZERO_TIMESTAMP) \
+            .apply(lambda x: x.total_seconds() if x.total_seconds() > 0 else 0)
+
+    table_equipment_change["end_time"] = \
+        (pd.to_datetime(table_equipment_change["end_time"]) - TimeConfig.ZERO_TIMESTAMP) \
             .apply(lambda x: x.total_seconds() if x.total_seconds() > 0 else 0)
 
     return table_equipment_change
