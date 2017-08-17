@@ -124,7 +124,8 @@ class ResourceController:
     def _init_time_table(self):
         self.timetable = get_resource_timetable()
 
-    def _set_resource(self, resource: simpy.PriorityResource, duration: float):
+    def _set_resource(self, resource: simpy.PriorityResource, delay: float, duration: float):
+        yield self.env.timeout(delay)
         with resource.request(priority=-1) as req:
             yield req
             yield self.env.timeout(duration)
@@ -143,7 +144,7 @@ class ResourceController:
             resource = self.resource_dict[resource_id]["resource"]
             # 占用进程
             for _ in range(resource_occupy):
-                start_delayed(self.env, self._set_resource(resource, duration), delay=start_time)
+                self.env.process(self._set_resource(resource, delay=start_time, duration=duration))
 
 
 class MachineController:
@@ -172,8 +173,9 @@ class MachineController:
         for machines in self.machines_dict.values():
             self.machines.extend(machines)
 
-    def _set_on_off(self, equipment_id: str, equipment_status: int):
+    def _set_on_off(self, equipment_id: str, equipment_status: int, delay: float):
         """控制开关"""
+        yield self.env.timeout(delay)
         machines = filter(lambda x: x.equipment_id == equipment_id, self.machines)
         for machine in machines:
             if equipment_status:
@@ -195,7 +197,7 @@ class MachineController:
             start_time =  row['start_time']
             equipment_status = row['equipment_status']
             # delay start
-            start_delayed(self.env, self._set_on_off(equipment_id, equipment_status), delay=start_time)
+            self.env.process(self._set_on_off(equipment_id, equipment_status, delay=start_time))
 
 if __name__ == '__main__':
     pass
