@@ -10,6 +10,7 @@
 """
 
 import simpy
+from simpy.util import start_delayed
 import pandas as pd
 
 from src.vehicles import Truck, SmallPackage, SmallBag, Parcel
@@ -109,7 +110,6 @@ class TruckController:
             self.env.process(self._init_truck(keys, packages_record))
 
 
-# todo: 决定资源的类型，修改调用资源的相关process
 class ResourceController:
     """control resource change during simulation"""
     def __init__(self,
@@ -124,14 +124,28 @@ class ResourceController:
     def _init_time_table(self):
         self.timetable = get_resource_timetable()
 
-    def _set_resource(self, resource_id: str, start_time: float, resource_limit: int):
-        yield self.env.timeout(start_time)
-        self.resource_dict[resource_id]["resource"]._capacity = resource_limit
+    def _set_resource(self, resource, duration: float):
+        with resource as req:
+            yield req
+            yield self.env.timeout(duration)
 
     def controller(self):
         for _, row in self.timetable.iterrows():
-            resource_id, start_time, resource_limit = row['resource_id'], row['start_time'], row['resource_limit']
-            self.env.process(self._set_resource(resource_id, start_time, resource_limit))
+
+            # load data
+            resource_id = row['resource_id']
+            start_time = row['start_time']
+            end_time = row['end_time']
+            resource_occupy = row['resource_occupy']
+            # process 占用资源时间
+            duration = end_time - start_time
+            # 资源
+            resource = self.resource_dict[resource_id]["resource"]
+            # 占用进程
+            for _ in range(resource_occupy):
+                start_delayed(self.env, self._set_resource(resource, duration), delay=start_time)
+
+
 
 
 class MachineController:
@@ -160,9 +174,8 @@ class MachineController:
         for machines in self.machines_dict.values():
             self.machines.extend(machines)
 
-    def _set_on_off(self, equipment_id: str, start_time:float, equipment_status: int):
+    def _set_on_off(self, equipment_id: str, equipment_status: int):
         """控制开关"""
-        yield self.env.timeout(start_time)
         machines = filter(lambda x: x.equipment_id == equipment_id, self.machines)
         for machine in machines:
             if equipment_status:
@@ -179,9 +192,12 @@ class MachineController:
 
     def controller(self):
         for _, row in self.timetable.iterrows():
-            equipment_id, start_time, equipment_status = \
-                row['equipment_port'], row['start_time'], row['equipment_status']
-            self.env.process(self._set_on_off(equipment_id, start_time, equipment_status))
+            # load data
+            equipment_id = row['equipment_port']
+            start_time =  row['start_time']
+            equipment_status = row['equipment_status']
+            # delay start
+            start_delayed(self.env, self._set_on_off(equipment_id, equipment_status), delay=start_time)
 
 if __name__ == '__main__':
     pass
