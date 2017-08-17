@@ -75,9 +75,9 @@ def main():
     for _, row in resource_table.iterrows():
         resource_id = row['resource_id']
         process_time = row['process_time']
-        resource_limit = row['resource_limit']
-        # add info
-        resource_dict[resource_id]["resource"] = simpy.Resource(env=env, capacity=resource_limit)
+        # 设置资源为理论最大值，以便进行动态修改
+        resource_max = row['resource_number']
+        resource_dict[resource_id]["resource"] = simpy.Resource(env=env, capacity=resource_max)
         resource_dict[resource_id]["process_time"] = process_time
 
     # init pipelines
