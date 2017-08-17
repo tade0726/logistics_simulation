@@ -18,7 +18,7 @@ from collections import defaultdict
 from src.db import *
 from src.controllers import TruckController
 from src.utils import PipelineRecord, TruckRecord, PackageRecord, OutputTableColumnType
-from src.vehicles import Pipeline, PipelineRes, BasePipeline, SmallBag, SmallPackage, Parcel
+from src.vehicles import Pipeline, PipelineRes, BasePipeline, SmallBag, SmallPackage, Parcel, PipelineReplace
 from src.machine import *
 from src.config import MainConfig, TimeConfig, LOG, SaveConfig
 
@@ -48,7 +48,6 @@ def main():
     equipment_resource_dict = get_resource_equipment_dict()
     equipment_process_time_dict = get_equipment_process_time()
     equipment_parameters = get_parameters()
-    equipment_on_list, equipment_off_list = get_equipment_on_off()
 
     # init trucks controllers
     LOG.logger_font.info("loading package data")
@@ -74,6 +73,11 @@ def main():
         resource_dict[resource_id]["resource"] = simpy.Resource(env=env, capacity=resource_max)
         resource_dict[resource_id]["process_time"] = process_time
 
+    # init share_store
+    share_store_dict = dict()
+    for x in set(equipment_store_dict.values()):
+        share_store_dict[x] = simpy.Store(env)
+
     # init pipelines
     pipelines_dict = dict()
     for _, row in pipelines_table.iterrows():
@@ -94,6 +98,14 @@ def main():
                                                       queue_id,
                                                       machine_type,
                                                       equipment_process_time_dict)
+        elif pipeline_type == 'pipeline_replace':
+            pipelines_dict[pipeline_id] = PipelineReplace(env,
+                                                          delay_time,
+                                                          pipeline_id,
+                                                          queue_id,
+                                                          machine_type,
+                                                          share_store_dict,
+                                                          equipment_store_dict)
         else:
             raise ValueError("Pipeline init error!!")
 

@@ -287,6 +287,79 @@ class Pipeline:
         return f"<Pipeline: {self.pipeline_id}, delay: {self.delay}>"
 
 
+class PipelineReplace:
+
+    """共享队列的传送带"""
+
+    def __init__(self,
+                 env: simpy.Environment,
+                 delay_time: float,
+                 pipeline_id: tuple,
+                 queue_id: str,
+                 machine_type: str,
+                 share_store_dict: dict,
+                 equipment_store_dict: dict,
+                 ):
+
+        self.env = env
+        self.delay = delay_time
+        self.share_store_dict = share_store_dict
+        self.equipment_store_dict = equipment_store_dict
+        self.pipeline_id = pipeline_id
+        self.queue_id = queue_id
+        self.machine_type = machine_type
+        self.equipment_id = self.pipeline_id[1]  # in Pipeline the equipment_id is equipment after this pipeline
+        # setting share store
+        self._set_store()
+
+    def _set_store(self):
+        self.share_store_id = self.equipment_store_dict[self.equipment_id]
+        self.share_store = self.equipment_store_dict[self.share_store_id]
+
+    def latency(self):
+        """模拟传送时间"""
+        item = yield self.share_store.get()
+
+        # pipeline start server
+        item.insert_data(
+            PipelineRecordDict(
+                pipeline_id=':'.join(self.pipeline_id),
+                queue_id=self.queue_id,
+                time_stamp=self.env.now,
+                action="start", ))
+
+        yield self.env.timeout(self.delay)
+
+        # cutting path
+        item.pop_mark()
+
+        # package wait for next process
+        item.insert_data(
+            PackageRecordDict(
+                equipment_id=self.equipment_id,
+                time_stamp=self.env.now,
+                action="wait", ))
+
+        # pipeline end server
+        item.insert_data(
+            PipelineRecordDict(
+                pipeline_id=':'.join(self.pipeline_id),
+                queue_id=self.queue_id,
+                time_stamp=self.env.now,
+                action="end", ))
+
+        return item
+
+    def put(self, item: Package):
+        self.share_store.put(item)
+
+    def get(self):
+        return self.env.process(self.latency())
+
+    def __str__(self):
+        return f"<PipelineReplace: {self.pipeline_id}, delay: {self.delay}>"
+
+
 class PipelineRes(Pipeline):
 
     def __init__(self,
