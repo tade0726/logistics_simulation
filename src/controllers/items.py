@@ -10,7 +10,6 @@
 """
 
 import simpy
-from simpy.util import start_delayed
 import pandas as pd
 
 from src.vehicles import Truck, SmallPackage, SmallBag, Parcel
