@@ -185,7 +185,6 @@ class MachineController:
                 except Exception as exc:
                     LOG.logger_font.error(f"error: {exc}, {machine.equipment_id}")
                     LOG.logger_font.exception(exc)
-
             else:
                 machine.set_machine_close()
 
