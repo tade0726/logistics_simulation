@@ -124,8 +124,8 @@ class ResourceController:
     def _init_time_table(self):
         self.timetable = get_resource_timetable()
 
-    def _set_resource(self, resource, duration: float):
-        with resource as req:
+    def _set_resource(self, resource: simpy.PriorityResource, duration: float):
+        with resource.request(priority=-1) as req:
             yield req
             yield self.env.timeout(duration)
 
@@ -144,8 +144,6 @@ class ResourceController:
             # 占用进程
             for _ in range(resource_occupy):
                 start_delayed(self.env, self._set_resource(resource, duration), delay=start_time)
-
-
 
 
 class MachineController:
