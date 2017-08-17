@@ -315,11 +315,11 @@ class PipelineReplace:
 
     def _set_store(self):
         self.share_store_id = self.equipment_store_dict[self.equipment_id]
-        self.share_store = self.share_store_dict[self.share_store_id]
+        self.queue = self.share_store_dict[self.share_store_id]
 
     def latency(self):
         """模拟传送时间"""
-        item = yield self.share_store.get()
+        item = yield self.queue.get()
 
         # pipeline start server
         item.insert_data(
@@ -352,7 +352,7 @@ class PipelineReplace:
         return item
 
     def put(self, item: Package):
-        self.share_store.put(item)
+        self.queue.put(item)
 
     def get(self):
         return self.env.process(self.latency())

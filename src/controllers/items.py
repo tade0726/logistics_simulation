@@ -11,7 +11,9 @@
 
 import simpy
 import pandas as pd
+
 from src.vehicles import Truck, SmallPackage, SmallBag, Parcel
+from src.utils import TruckRecordDict
 from src.db import get_vehicles, get_resource_timetable, get_equipment_timetable
 from src.config import LOG
 
@@ -144,23 +146,29 @@ class MachineController:
         self.env = env
         self.machines_dict = machines_dict
         self.machines = list()
+
+        # loading data
         self._set_machines()
+        self._init_time_table()
 
     def _init_time_table(self):
+        """读取开关时间表"""
         self.timetable = get_equipment_timetable()
 
     def _set_machines(self):
+        """添加机器"""
         for machines in self.machines_dict.values():
             self.machines.extend(machines)
 
     def _set_on_off(self, equipment_port: str, start_time:float, equipment_status: bool):
-
+        """控制开关"""
         yield self.env.timeout(start_time)
         machines = filter(lambda x: x.equipment_port == equipment_port, self.machines)
 
     def controller(self):
         for _, row in self.timetable.iterrows():
-            equipment_port, start_time, equipment_status = row['equipment_port'], row['start_time'], row['equipment_status']
+            equipment_port, start_time, equipment_status = \
+                row['equipment_port'], row['start_time'], row['equipment_status']
             self.env.process(self._set_on_off(equipment_port, start_time, equipment_status))
 
 if __name__ == '__main__':
