@@ -21,7 +21,7 @@ __all__ = ['write_redis', 'load_from_redis', 'write_mysql', 'write_local', 'load
            'load_from_mysql', 'get_vehicles', 'get_unload_setting', 'get_reload_setting', 'get_resource_limit',
            'get_resource_equipment_dict', 'get_pipelines', 'get_queue_io', 'get_equipment_process_time',
            'get_parameters', 'get_resource_timetable', 'get_equipment_timetable',
-           'get_equipment_store_dict', 'get_equipment_on_off']
+           'get_equipment_store_dict', 'get_equipment_on_off', 'get_small_reload_pack_time']
 
 
 def checking_pickle_file(table_name):
@@ -514,6 +514,14 @@ def get_equipment_on_off():
     return equipment_on.equipment_port.tolist(), equipment_off.equipment_port.tolist(),
 
 
+# todo:
+def get_small_reload_pack_time():
+    """返回 小件包打包时间
+
+    sample:
+    [ 1000, 20000, 20003, ..  ]
+    """
+    pass
 
 
 if __name__ == "__main__":

@@ -26,7 +26,6 @@ from src.utils import PackageRecordDict
 
 
 BAG_NUM = 15
-WAIT_TIME = 7200
 
 
 class SmallReload(object):
@@ -34,12 +33,15 @@ class SmallReload(object):
     def __init__(self,
                  env,
                  machine_id,
-                 pipelines_dict:dict,
-                 equipment_process_time_dict:dict):
+                 pipelines_dict: dict,
+                 equipment_process_time_dict: dict,
+                 pack_time_list: list,
+                 ):
         self.env = env
         self.machine_id = machine_id
         self.pipelines_dict = pipelines_dict
         self.equipment_process_time_dict = equipment_process_time_dict
+        self.pack_time_list = pack_time_list
 
         self.store = list()
         self.small_bag_count = 0
@@ -50,14 +52,29 @@ class SmallReload(object):
         self.machine_switch = self.env.event()
         self.machine_switch.succeed()
 
+        # pack small package events
+        self.pack_time_is_up = self.env.event()
         self._set_machine_resource()
+
+        # plan pack time
+        self._plan_pack_time()
+
+    def _set_pack_event(self, delay: float):
+        """setting pack event"""
+        yield self.env.timeout(delay)
+        self.pack_time_is_up.succeed()
+        self.pack_time_is_up = self.env.event()
+
+    def _plan_pack_time(self):
+        """init plan for pack small package"""
+        for delay in self.pack_time_list:
+            self.env.process(self._set_pack_event(delay))
 
     def _set_machine_resource(self):
         self.equipment_id = self.machine_id[1]
         self.process_time = self.equipment_process_time_dict[self.equipment_id]
         self.last_pipeline = self.pipelines_dict[self.machine_id]
-        self.store_max = BAG_NUM
-        self.wait_time = WAIT_TIME
+        self.store_max = BAG_NUM # todo: need to get from database
 
     def _get_small_package(self):
         """pop out package"""
@@ -116,7 +133,7 @@ class SmallReload(object):
 
     def _timer(self):
         wait_time_stamp = self.env.now
-        yield self.store_is_full | self.env.timeout(self.wait_time)
+        yield self.store_is_full | self.pack_time_is_up
         self.env.process(self.pack_send(wait_time_stamp))
 
     def put_package(self, small: SmallPackage):

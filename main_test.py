@@ -49,6 +49,7 @@ def main():
     equipment_process_time_dict = get_equipment_process_time()
     equipment_parameters = get_parameters()
     equipment_store_dict = get_equipment_store_dict()
+    pack_time_list = get_small_reload_pack_time()
 
     # init trucks controllers
     LOG.logger_font.info("loading package data")
@@ -251,7 +252,8 @@ def main():
                 env,
                 machine_id=machine_id,
                 pipelines_dict=pipelines_dict,
-                equipment_process_time_dict=equipment_process_time_dict, )
+                equipment_process_time_dict=equipment_process_time_dict,
+                pack_time_list=pack_time_list,)
         )
 
     # adding machines into processes
