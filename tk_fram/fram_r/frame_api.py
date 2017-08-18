@@ -13,9 +13,10 @@ from .db_api import Mysql, insert_package, update_on_off, save_to_past_run, \
 # from simpy_lib import main
 from .frame_r_view import Flag, ConfigFrame, CHECK_BTN_ENTRY_DIC, \
     LIST_VALUE_COMBOBOX, CURRENT_CANVAS_DICT, CURRENT_SHEET, \
-    CACHE_INSTANCE_DICT, DAY_TIME_DICT, CACHE_J_STATUS
-from .frame import CheckBtnEntryList, init_m_J
+    CACHE_INSTANCE_DICT, DAY_TIME_DICT, CACHE_J_STATUS, ENTRY_STATUS_DIC
+from .frame import CheckBtnEntryList, update_m_j
 
+import xlrd
 
 def save_data(package_num, date_plan, time_plan, root, txt_receipt):
     if not package_num.get():
@@ -25,7 +26,11 @@ def save_data(package_num, date_plan, time_plan, root, txt_receipt):
         return
     if not date_plan.get():
         messagebox.showerror("Tkinter-数据更新错误",
-                             "运行错误，请设置班次时间！")
+                             "运行错误，请设置仿真日期！")
+        return
+    if not time_plan.get():
+        messagebox.showerror("Tkinter-数据更新错误",
+                             "运行错误，请设置仿真时段！")
         return
     if Flag['save_data'] > 0:
         messagebox.showerror("Tkinter-数据保存错误",
@@ -126,14 +131,7 @@ def update_data(date_plan, time_plan, root, txt_receipt):
         CACHE_INSTANCE_DICT[i]['status'] = CHECK_BTN_ENTRY_DIC[i].var.get()
         CACHE_INSTANCE_DICT[i]['num'] = CHECK_BTN_ENTRY_DIC[i].string_combobox.get()
 
-    # 根据 R 的状态值，初始化 J 跟 M 的状态值，如果 J 有缓存，则取缓存值
-    for j in ConfigFrame.WIG_BTN_DICT['J'][:-1]:
-        if j in CACHE_J_STATUS:
-            CACHE_INSTANCE_DICT[j]['status'] = CACHE_J_STATUS[j]
-        else:
-            CACHE_INSTANCE_DICT[j]['status'] = init_m_J(j)
-    for m in ConfigFrame.WIG_BTN_DICT['M']:
-        CACHE_INSTANCE_DICT[m]['status'] = init_m_J(m)
+    update_m_j()
 
     Flag['run_time'] = datetime.now()
     run_arg = Flag['run_time']
@@ -184,9 +182,24 @@ def q_exit(root):
 
 
 def menu_file(root):
-    a = askopenfilename()
-    with open(a) as file:
-        print(file.readlines()[0])
+    filename = askopenfilename()
+    try:
+        data = xlrd.open_workbook(filename)
+        for sheet in ConfigFrame.SHEET_LIST:
+            table = data.sheet_by_name(sheet)
+            for row in range(table.nrows)[1:]:
+                column = 1
+                for key in table.row_values(0)[1:]:
+                    w_id = table.row_values(row)[0]
+                    value = table.row_values(row)[column]
+                    CACHE_INSTANCE_DICT[w_id][key] = int(value)
+                    column += 1
+        for w_id in ConfigFrame.WIG_BTN_DICT[CURRENT_SHEET[0]]:
+            CHECK_BTN_ENTRY_DIC[w_id].init_on_off_status()
+
+        update_m_j()
+    except FileNotFoundError:
+        pass
 
 def init_sheet(master, canvas_master):
     column = 0

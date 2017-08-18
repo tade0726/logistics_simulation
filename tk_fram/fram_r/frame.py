@@ -247,8 +247,9 @@ class CheckBtnEntryList(object):
         if self.w_id == 'j41_1' or 'h' in self.w_id:
             self.var.set(1)
             self.string.set(ENTRY_STATUS_DIC[1])
-            self.string_combobox.set(1)
+            self.string_combobox.set(CACHE_INSTANCE_DICT[self.w_id]['num'])
             self.check_btn['state'] = DISABLED
+            self.change_color(self.entry)
         elif 'm' in self.w_id or 'j' in self.w_id:
             # 判定 J 是否有缓存值且缓存值是否有效，否则取初始值(M 默认不匹配)
             if self.w_id in CACHE_J_STATUS and \
@@ -258,6 +259,7 @@ class CheckBtnEntryList(object):
                 self.var.set(self.check_var)
             self.string.set(ENTRY_STATUS_DIC[self.var.get()])
             self.change_combobox_status(self)
+            self.change_color(self.entry)
             if 'm' in self.w_id:
                 self.check_btn['state'] = DISABLED
             if 'j' in self.w_id:
@@ -270,8 +272,7 @@ class CheckBtnEntryList(object):
             self.var.set(status_dict[self.w_id]['status'])
             self.string.set(ENTRY_STATUS_DIC[self.var.get()])
             self.change_combobox_status(self)
-        if self.string.get() == 'ON':
-            self.entry['disabledforeground'] = 'blue'
+            self.change_color(self.entry)
 
     def chk_button_value(self):
         # j 由 ON 改为 OFF 时将会添加到 J的缓存字典里
@@ -288,7 +289,7 @@ class CheckBtnEntryList(object):
     # 返回勾选框的状态值 0 或 1
     @property
     def check_var(self):
-        return init_m_J(self.w_id)
+        return _init_m_J(self.w_id)
 
     @staticmethod
     def change_color(entry):
@@ -305,7 +306,7 @@ class CheckBtnEntryList(object):
         else:
             instance.init_list['state'] = NORMAL
 
-def init_m_J(w_id):
+def _init_m_J(w_id):
     if 'm' in w_id:
         status = 0
         for i in M_R_DICT[w_id]:
@@ -318,3 +319,13 @@ def init_m_J(w_id):
                 for r_id in M_R_DICT[key]:
                     j_status = CACHE_INSTANCE_DICT[r_id]['status'] or j_status
         return j_status
+
+def update_m_j():
+    # 根据 R 的状态值，初始化 J 跟 M 的状态值，如果 J 有缓存，则取缓存值
+    for j in ConfigFrame.WIG_BTN_DICT['J'][:-1]:
+        if j in CACHE_J_STATUS:
+            CACHE_INSTANCE_DICT[j]['status'] = CACHE_J_STATUS[j]
+        else:
+            CACHE_INSTANCE_DICT[j]['status'] = _init_m_J(j)
+    for m in ConfigFrame.WIG_BTN_DICT['M']:
+        CACHE_INSTANCE_DICT[m]['status'] = _init_m_J(m)

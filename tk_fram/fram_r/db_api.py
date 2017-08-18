@@ -1,4 +1,4 @@
-from .frame_r_view import CHECK_BTN_ENTRY_DIC, DATABASES, BTN_ENTRY_DICT, \
+from .frame_r_view import CHECK_BTN_ENTRY_DIC, DATABASES, \
     CACHE_INSTANCE_DICT, DAY_TIME_DICT
 from pymysql import connect
 

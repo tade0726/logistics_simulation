@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from tkinter import Tk, Label, Entry, Button, Text, StringVar, Menu
+from tkinter import Tk, Label, Button, Text, StringVar, Menu
 from tkinter.ttk import Combobox
 from .frame import App
 from .frame_r_view import *
