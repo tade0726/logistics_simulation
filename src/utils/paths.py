@@ -33,6 +33,8 @@ from src.db.tools import load_from_mysql, get_reload_setting, SaveConfig, get_eq
 
 # 开关控制是否过滤不可用节点
 SWITCH = False
+# 路径文件名字
+PATH_DICT_PATH = os.path.join(SaveConfig.DATA_DIR, "path.pkl")
 
 
 def machine_pre():
@@ -191,10 +193,10 @@ def generate_all_paths():
         all_paths[key]["all"] = value
     print("Small sort paths added!")
 
-    path_file = os.path.join(SaveConfig.DATA_DIR, "path")
+    path_file = PATH_DICT_PATH
     try:
-        with open(path_file, "wb") as pickle_path:
-            pickle.dump(all_paths, pickle_path)
+        with open(path_file, "wb") as pickle_file:
+            pickle.dump(all_paths, pickle_file)
         print("Path file wrote!")
     except Exception as exc:
         print(exc)
@@ -211,11 +213,11 @@ class PathGenerator(object):
     def __init__(self):
         self.reload_setting = get_reload_setting()
         self.machine_pre_dict = machine_pre()
-        path_file = os.path.join(SaveConfig.DATA_DIR, "path")
+        path_file = PATH_DICT_PATH
         if os.path.isfile(path_file):
             try:
-                with open(path_file, "rb") as pickle_path:
-                    all_paths = pickle.load(pickle_path)
+                with open(path_file, "rb") as pickle_file:
+                    all_paths = pickle.load(pickle_file)
             except Exception as exc:
                 print(exc)
                 all_paths = generate_all_paths()
