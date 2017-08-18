@@ -17,7 +17,8 @@ from collections import defaultdict
 
 from src.db import *
 from src.controllers import TruckController, MachineController, ResourceController
-from src.utils import PipelineRecord, TruckRecord, PackageRecord, OutputTableColumnType
+from src.utils import \
+    (PipelineRecord, TruckRecord, PackageRecord, OutputTableColumnType, PathRecord)
 from src.vehicles import Pipeline, PipelineRes, BasePipeline, SmallBag, SmallPackage, Parcel, PipelineReplace
 from src.machine import *
 from src.config import MainConfig, TimeConfig, LOG, SaveConfig
@@ -284,9 +285,7 @@ def main():
     truck_data = list()
     pipeline_data = list()
     machine_data = list()
-
-    small_package_machine_data = list()
-    small_package_pipeline_data = list()
+    path_data = list()
 
     small_bag_list = list()
     small_package_list = list()
@@ -308,6 +307,8 @@ def main():
             # small bag
             elif isinstance(package, SmallBag):
                 small_bag_list.append(package)
+            # collect path data
+            path_data.extend(package.path_request_data)
 
     small_package_counts = 0
     # small package records
@@ -327,6 +328,8 @@ def main():
     truck_table = pd.DataFrame.from_records(truck_data, columns=TruckRecord._fields,)
     pipeline_table = pd.DataFrame.from_records(pipeline_data, columns=PipelineRecord._fields,)
     machine_table = pd.DataFrame.from_records(machine_data, columns=PackageRecord._fields,)
+    path_table = pd.DataFrame.from_records(path_data, columns=PathRecord._fields,)
+
 
     if not os.path.isdir(SaveConfig.OUT_DIR):
         os.makedirs(SaveConfig.OUT_DIR)
@@ -345,6 +348,7 @@ def main():
     truck_table = add_time(truck_table)
     pipeline_table = add_time(pipeline_table)
     machine_table = add_time(machine_table)
+    path_table["run_time"] = db_insert_time
 
     # output data
     LOG.logger_font.info("output data")
@@ -353,10 +357,13 @@ def main():
         write_local('machine_table', machine_table)
         write_local('pipeline_table', pipeline_table)
         write_local('truck_table', truck_table)
+        write_local('path_table', path_table)
     else:
         write_mysql("machine_table", machine_table, OutputTableColumnType.package_columns)
         write_mysql("pipeline_table", pipeline_table, OutputTableColumnType.pipeline_columns)
         write_mysql("truck_table", truck_table, OutputTableColumnType.truck_columns)
+        write_mysql('path_table', path_table, OutputTableColumnType.path_columns)
+
 
     t_end = datetime.now()
     total_time = t_end - t_start

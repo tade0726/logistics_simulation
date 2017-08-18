@@ -17,6 +17,10 @@ import random
 
 from src.utils import \
     (PackageRecord, PipelineRecord, TruckRecord, PathGenerator, TruckRecordDict, PackageRecordDict, PipelineRecordDict)
+
+from src.utils import \
+    (PathRecordDict, PathRecord)
+
 from src.config import LOG
 
 __all__ = ["Parcel", "Package", "Truck", "Uld", "SmallBag", "SmallPackage", "Pipeline", "PipelineRes", "BasePipeline",
@@ -39,6 +43,7 @@ class Package:
         # data store
         self.machine_data = list()
         self.pipeline_data = list()
+        self.path_request_data = list()
         # path_generator
         self.path_g = path_g
         # paths
@@ -63,10 +68,18 @@ class Package:
 
     # use in unload machine
     def set_path(self, package_start):
-        path = self.path_g.path_generator(package_start, self.ident_des_zno, self.sorter_type, self.dest_type)
-        self.planned_path = tuple(path)
+        ret_path = self.path_g.path_generator(package_start, self.ident_des_zno, self.sorter_type, self.dest_type)
+        self.planned_path = tuple(ret_path)
         self.path = list(self.planned_path)
         self.next_pipeline = self.planned_path[:2]
+
+        # collection path data
+        data = PathRecordDict(
+            start_node=package_start,
+            ret_path=':'.join(ret_path),
+        )
+        # add data
+        self.insert_data(data)
 
     def insert_data(self, data: dict):
 
@@ -91,6 +104,23 @@ class Package:
             self.pipeline_data.append(record)
             LOG.logger_font.debug(msg=f"Package: {record.small_id} , action: {record.action}"
                                       f", pipeline: {record.pipeline_id}, timestamp: {record.time_stamp}")
+
+        elif isinstance(data, PathRecordDict):
+            record = PathRecord(
+                parcel_id=self.parcel_id,
+                small_id=self.small_id,
+                parcel_type=self.parcel_type,
+                ident_des_zno=self.ident_des_zno,
+                sorter_type=self.sorter_type,
+                dest_type=self.dest_type,
+                **data,
+            )
+
+            self.path_request_data.append(record)
+            LOG.logger_font.debug(msg=f"Package get path - parcel_id: {record.parcel_id}, small_id: {record.small_id}, "
+                                      f", path: {record.ret_path}"
+                                      f", parcel_type: {record.parcel_type}, ident_des_zno: {record.ident_des_zno}"
+                                      f", sorter_type: {record.sorter_type}, dest_type: {record.dest_type}")
 
         else:
             raise ValueError("Wrong type of record")
