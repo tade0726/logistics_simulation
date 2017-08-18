@@ -28,10 +28,10 @@ def init_menu(root: Tk):
         label='单时段批量设置',
         command=lambda: menu_file(root)
     )
-    sim_set_menu.add_command(
-        label='全时段批量设置',
-        command=lambda: menu_file(root)
-    )
+    # sim_set_menu.add_command(
+    #     label='全时段批量设置',
+    #     command=lambda: menu_file(root)
+    # )
     base_menu.add_cascade(label='仿真配置', menu=sim_set_menu)
     return base_menu
 
@@ -110,7 +110,7 @@ def init_r_frame(root: Tk):
     lbl_date_plan = Label(
         master=left_set_pad_package,
         font=('Times', 10, 'bold'),
-        text='天表：',
+        text='日期：',
         bd=8,
         # height= 3,
         anchor='w'
@@ -133,7 +133,7 @@ def init_r_frame(root: Tk):
     lbl_time = Label(
         master=left_set_pad_package,
         font=('Times', 10, 'bold'),
-        text='小时表：',
+        text='时段：',
         bd=8,
         # height= 3,
         anchor='w'
