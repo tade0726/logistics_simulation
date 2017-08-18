@@ -10,7 +10,7 @@ from tkinter.filedialog import askopenfilename
 
 from .db_api import Mysql, insert_package, update_on_off, save_to_past_run, \
     read_result, update_person
-from simpy_lib import main
+# from simpy_lib import main
 from .frame_r_view import Flag, ConfigFrame, CHECK_BTN_ENTRY_DIC, \
     LIST_VALUE_COMBOBOX, CURRENT_CANVAS_DICT, CURRENT_SHEET, \
     CACHE_BTN_ENTRY_DICT, CACHE_COMBOBOX_DICT, DAY_TIME_DICT
@@ -172,8 +172,9 @@ def q_exit(root):
 
 
 def menu_file(root):
-    askopenfilename()
-
+    a = askopenfilename()
+    with open(a) as file:
+        print(file.readlines()[0])
 
 def init_sheet(master, canvas_master):
     column = 0
