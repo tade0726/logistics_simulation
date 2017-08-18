@@ -18,7 +18,7 @@ import logging
 
 class MainConfig:
     IS_TEST = False   # 使用全集数据，还是测试数据
-    SAVE_LOCAL = True  # 是否输出结果到本地csv， 还是 mysql
+    SAVE_LOCAL = False  # 是否输出结果到本地csv， 还是 mysql
     IS_PARCEL_ONLY = False  # 只有 parcel 件
     IS_LAND_ONLY = False  # True 只有 landside, False landside airside
     CACHE_TYPE = None  # {None, "redis", "pkl", "hdf5"}
@@ -44,7 +44,7 @@ class RemoteMySQLConfig:
         HOST = "10.0.149.36"
         USER = "developer"
         PASS = "developer"
-        DB = "hangzhouhubqa"
+        DB = "hangzhouhubqa_2"
         CHARSET = 'utf8'
 
     engine = create_engine(
