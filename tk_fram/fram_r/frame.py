@@ -4,7 +4,7 @@ from tkinter import Frame
 from tkinter.ttk import Combobox
 from tkinter import Checkbutton, Entry, Menu
 from tkinter import IntVar, StringVar, DISABLED, NORMAL
-from .frame_r_view import ConfigFrame, BTN_ENTRY_DICT, \
+from .frame_r_view import ConfigFrame, \
     ENTRY_STATUS_DIC, M_R_DICT, CACHE_INSTANCE_DICT, M_J_DICT, CACHE_J_STATUS
 
 
@@ -241,12 +241,7 @@ class CheckBtnEntryList(object):
         )
 
     def init_on_off_status(self):
-        # todo:
-        self.set_status(CACHE_BTN_ENTRY_DICT)
-        # if self.w_id in CACHE_BTN_ENTRY_DICT:
-        #     self.set_status(CACHE_BTN_ENTRY_DICT)
-        # else:
-        #     self.set_status(BTN_ENTRY_DICT)
+        self.set_status(CACHE_INSTANCE_DICT)
 
     def set_status(self, status_dict):
         if self.w_id == 'j41_1' or 'h' in self.w_id:
@@ -272,7 +267,7 @@ class CheckBtnEntryList(object):
                 else:
                     self.check_btn['state'] = NORMAL
         else:
-            self.var.set(status_dict[self.w_id])
+            self.var.set(status_dict[self.w_id]['status'])
             self.string.set(ENTRY_STATUS_DIC[self.var.get()])
             self.change_combobox_status(self)
         if self.string.get() == 'ON':
@@ -293,20 +288,7 @@ class CheckBtnEntryList(object):
     # 返回勾选框的状态值 0 或 1
     @property
     def check_var(self):
-        if 'm' in self.w_id:
-            status = 0
-            for i in M_R_DICT[self.w_id]:
-                status = CACHE_BTN_ENTRY_DICT[i] or status
-            return status
-        if 'j' in self.w_id and self.w_id != 'j41_1':
-            j_status = 0
-            for key, j_list in M_J_DICT.items():
-                if self.w_id in j_list:
-                    for r_id in M_R_DICT[key]:
-                        j_status = CACHE_BTN_ENTRY_DICT[r_id] or j_status
-                    # j_status = CACHE_BTN_ENTRY_DICT[key] or j_status
-            return j_status
-        return self.var.get()
+        return init_m_J(self.w_id)
 
     @staticmethod
     def change_color(entry):
@@ -322,3 +304,17 @@ class CheckBtnEntryList(object):
             instance.init_list['state'] = DISABLED
         else:
             instance.init_list['state'] = NORMAL
+
+def init_m_J(w_id):
+    if 'm' in w_id:
+        status = 0
+        for i in M_R_DICT[w_id]:
+            status = CACHE_INSTANCE_DICT[i]['status'] or status
+        return status
+    if 'j' in w_id and w_id != 'j41_1':
+        j_status = 0
+        for key, j_list in M_J_DICT.items():
+            if w_id in j_list:
+                for r_id in M_R_DICT[key]:
+                    j_status = CACHE_INSTANCE_DICT[r_id]['status'] or j_status
+        return j_status

@@ -13,8 +13,8 @@ from .db_api import Mysql, insert_package, update_on_off, save_to_past_run, \
 # from simpy_lib import main
 from .frame_r_view import Flag, ConfigFrame, CHECK_BTN_ENTRY_DIC, \
     LIST_VALUE_COMBOBOX, CURRENT_CANVAS_DICT, CURRENT_SHEET, \
-    CACHE_BTN_ENTRY_DICT, CACHE_COMBOBOX_DICT, DAY_TIME_DICT
-from .frame import CheckBtnEntryList
+    CACHE_INSTANCE_DICT, DAY_TIME_DICT, CACHE_J_STATUS
+from .frame import CheckBtnEntryList, init_m_J
 
 
 def save_data(package_num, date_plan, time_plan, root, txt_receipt):
@@ -119,10 +119,22 @@ def run_sim(package_num, date_plan, time_plan, root, txt_receipt):
     Flag['save_data'] = 0
 
 
-def update_data(package_num, date_plan, time_plan, root, txt_receipt):
+def update_data(date_plan, time_plan, root, txt_receipt):
     """"""
+    # 将当前界面所有控件的状态与人数保存到 CACHE_INSTANCE_DICT，防止更新时被忽略
     for i in ConfigFrame.WIG_BTN_DICT[CURRENT_SHEET[0]]:
-        CACHE_COMBOBOX_DICT[i] = CHECK_BTN_ENTRY_DIC[i].string_combobox.get()
+        CACHE_INSTANCE_DICT[i]['status'] = CHECK_BTN_ENTRY_DIC[i].var.get()
+        CACHE_INSTANCE_DICT[i]['num'] = CHECK_BTN_ENTRY_DIC[i].string_combobox.get()
+
+    # 根据 R 的状态值，初始化 J 跟 M 的状态值，如果 J 有缓存，则取缓存值
+    for j in ConfigFrame.WIG_BTN_DICT['J'][:-1]:
+        if j in CACHE_J_STATUS:
+            CACHE_INSTANCE_DICT[j]['status'] = CACHE_J_STATUS[j]
+        else:
+            CACHE_INSTANCE_DICT[j]['status'] = init_m_J(j)
+    for m in ConfigFrame.WIG_BTN_DICT['M']:
+        CACHE_INSTANCE_DICT[m]['status'] = init_m_J(m)
+
     Flag['run_time'] = datetime.now()
     run_arg = Flag['run_time']
     if not date_plan.get():
@@ -203,8 +215,8 @@ def switch_sheet(sheet: str, canvas_master):
     # 每次切换界面都会更新上一个界面的开关状态数据到 CACHE_BTN_ENTRY_DICT
     # 更新上一个界面的人数到 CACHE_COMBOBOX_DICT
     for i in ConfigFrame.WIG_BTN_DICT[CURRENT_SHEET[0]]:
-        CACHE_BTN_ENTRY_DICT[i] = CHECK_BTN_ENTRY_DIC[i].var.get()
-        CACHE_COMBOBOX_DICT['man_' + i] = CHECK_BTN_ENTRY_DIC[i].string_combobox.get()
+        CACHE_INSTANCE_DICT[i]['status'] = CHECK_BTN_ENTRY_DIC[i].var.get()
+        CACHE_INSTANCE_DICT[i]['num'] = CHECK_BTN_ENTRY_DIC[i].string_combobox.get()
     # ==============================================================
     sheet_btn = ConfigFrame.SHEET_LABEL_DICT[sheet]
     sheet_btn['state'] = DISABLED

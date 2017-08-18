@@ -32,7 +32,7 @@ def init_btn_entry_val_from_sql():
         )
         result = cur.fetchall()
     for item in result:
-        CACHE_INSTANCE_DICT[item[0]]['num'] = item[1]
+        CACHE_INSTANCE_DICT[item[0].replace('man_', '')]['num'] = int(item[1])
     return
 
 def init_day_time():
@@ -165,9 +165,9 @@ def insert_package(cursor, num: str, run_arg):
 
 def update_person(cursor, run_arg):
     # 需要指定 resource_id 范围
-    for key, num in CACHE_COMBOBOX_DICT.items():
+    for key, value in CACHE_INSTANCE_DICT.items():
         cursor.execute("update i_resource_limit set resource_limit={} where "
-                       "resource_id='{}%' ".format(num, key))
+                       "resource_id='{}%' ".format(value['num'], key))
     cursor.execute("update i_resource_limit set inserted_on='%s'" % run_arg)
 
 

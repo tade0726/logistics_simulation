@@ -189,7 +189,7 @@ def init_r_frame(root: Tk):
         width=width_btn,
         text="数据更新",
         command=lambda: update_data(
-            package_num, date_plan, time_plan, root, txt_receipt
+            date_plan, time_plan, root, txt_receipt
         )
     ).grid(row=0, column=0)
     # 启动仿真按钮
