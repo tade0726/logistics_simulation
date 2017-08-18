@@ -26,7 +26,6 @@ from src.config import MainConfig, TimeConfig, LOG, SaveConfig
 
 __all__ = ["main"]
 
-# todo: add parameters
 
 def main():
 
