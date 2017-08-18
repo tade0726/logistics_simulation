@@ -1,5 +1,5 @@
-from .frame_r_view import CHECK_BTN_ENTRY_DIC, DATABASES, \
-    CACHE_BTN_ENTRY_DICT, CACHE_COMBOBOX_DICT, DAY_TIME_DICT
+from .frame_r_view import CHECK_BTN_ENTRY_DIC, DATABASES, BTN_ENTRY_DICT, \
+    CACHE_INSTANCE_DICT, DAY_TIME_DICT
 from pymysql import connect
 
 
@@ -25,16 +25,15 @@ def init_btn_entry_val_from_sql():
         )
         result = cur.fetchall()
     for item in result:
-        # BTN_ENTRY_DICT[item[0]] = item[1]
-        CACHE_BTN_ENTRY_DICT[item[0]] = item[1]
+        CACHE_INSTANCE_DICT[item[0]]['status'] = item[1]
     with conn as cur:
         cur.execute(
             "select resource_id, resource_limit from i_resource_limit "
         )
-        result_resource = cur.fetchall()
-    for i in result_resource:
-        CACHE_COMBOBOX_DICT[i[0]] = int(i[1])
-    # return BTN_ENTRY_DICT
+        result = cur.fetchall()
+    for item in result:
+        CACHE_INSTANCE_DICT[item[0]]['num'] = item[1]
+    return
 
 def init_day_time():
     conn = Mysql().connect

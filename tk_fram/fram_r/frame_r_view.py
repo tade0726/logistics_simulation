@@ -57,12 +57,17 @@ LIST_VALUE_COMBOBOX = {
 
 ENTRY_STATUS_DIC = {0: 'OFF', 1: 'ON'}  # btn状态对应entry的显示值对应字典
 
-# BTN_ENTRY_DICT = {}        # 初始化entry状态字典
-# todo 状态与资源合并为二维字典
-CACHE_BTN_ENTRY_DICT = {}  # 缓存entry状态字典
-CACHE_COMBOBOX_DICT = {}   # 缓存下拉表人数字典
-# ================================================
-# {'id': 0/1 }
+BTN_ENTRY_DICT = {}        # 初始化entry状态字典
+
+# 所有控件的信息缓存字典
+# {
+#   id: {
+#       status: value,
+#       num: value
+#   }
+# }
+CACHE_INSTANCE_DICT = defaultdict(dict)
+
 CACHE_J_STATUS = {}        # J 状态的缓存字典，value 固定为 0
 
 CHECK_BTN_ENTRY_DIC = {}   # 设置控件的id同实例的关联字典
