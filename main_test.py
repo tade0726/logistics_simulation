@@ -49,7 +49,9 @@ def main():
     equipment_process_time_dict = get_equipment_process_time()
     equipment_parameters = get_parameters()
     equipment_store_dict = get_equipment_store_dict()
-    pack_time_list = get_small_reload_pack_time()
+
+    # pack_time_list = get_small_reload_pack_time()
+    pack_time_list = [14_400, 18_000, 25_200, 28_800, 42_600, 45_000,] # todo: 等待数据库
 
     # init trucks controllers
     LOG.logger_font.info("loading package data")

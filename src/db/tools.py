@@ -514,7 +514,7 @@ def get_equipment_on_off():
     return equipment_on.equipment_port.tolist(), equipment_off.equipment_port.tolist(),
 
 
-# todo:
+# todo: 等待数据
 def get_small_reload_pack_time():
     """返回 小件包打包时间
 
