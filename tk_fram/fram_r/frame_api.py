@@ -204,7 +204,7 @@ def switch_sheet(sheet: str, canvas_master):
     # 更新上一个界面的人数到 CACHE_COMBOBOX_DICT
     for i in ConfigFrame.WIG_BTN_DICT[CURRENT_SHEET[0]]:
         CACHE_BTN_ENTRY_DICT[i] = CHECK_BTN_ENTRY_DIC[i].var.get()
-        CACHE_COMBOBOX_DICT[i] = CHECK_BTN_ENTRY_DIC[i].string_combobox.get()
+        CACHE_COMBOBOX_DICT['man_' + i] = CHECK_BTN_ENTRY_DIC[i].string_combobox.get()
     # ==============================================================
     sheet_btn = ConfigFrame.SHEET_LABEL_DICT[sheet]
     sheet_btn['state'] = DISABLED

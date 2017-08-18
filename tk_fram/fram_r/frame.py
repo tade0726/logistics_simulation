@@ -4,7 +4,7 @@ from tkinter import Frame
 from tkinter.ttk import Combobox
 from tkinter import Checkbutton, Entry, Menu
 from tkinter import IntVar, StringVar, DISABLED, NORMAL
-from .frame_r_view import ConfigFrame, BTN_ENTRY_DICT, \
+from .frame_r_view import ConfigFrame, CACHE_COMBOBOX_DICT, \
     ENTRY_STATUS_DIC, M_R_DICT, CACHE_BTN_ENTRY_DICT, M_J_DICT, CACHE_J_STATUS
 
 
@@ -241,10 +241,12 @@ class CheckBtnEntryList(object):
         )
 
     def init_on_off_status(self):
-        if self.w_id in CACHE_BTN_ENTRY_DICT:
-            self.set_status(CACHE_BTN_ENTRY_DICT)
-        else:
-            self.set_status(BTN_ENTRY_DICT)
+        # todo:
+        self.set_status(CACHE_BTN_ENTRY_DICT)
+        # if self.w_id in CACHE_BTN_ENTRY_DICT:
+        #     self.set_status(CACHE_BTN_ENTRY_DICT)
+        # else:
+        #     self.set_status(BTN_ENTRY_DICT)
 
     def set_status(self, status_dict):
         if self.w_id == 'j41_1' or 'h' in self.w_id:
@@ -315,9 +317,8 @@ class CheckBtnEntryList(object):
 
     @staticmethod
     def change_combobox_status(instance):
+        instance.string_combobox.set(CACHE_COMBOBOX_DICT['man_' + instance.w_id])
         if instance.var.get() == 0:
-            instance.string_combobox.set(0)
             instance.init_list['state'] = DISABLED
         else:
             instance.init_list['state'] = NORMAL
-            instance.string_combobox.set(1)
