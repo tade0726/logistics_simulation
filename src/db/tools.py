@@ -313,7 +313,7 @@ def get_pipelines():
     line_count_ori = tab_queue_io.shape[0]
 
     equipment_store_dict = get_equipment_store_dict()
-    equipment_shared_store = set(equipment_store_dict.keys())
+    equipment_shared_store = equipment_store_dict.keys()
 
     # add machine_type
     # m: presort
