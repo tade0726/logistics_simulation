@@ -175,7 +175,7 @@ class MachineController:
     def _set_on_off(self, equipment_id: str, equipment_status: int, delay: float):
         """控制开关"""
         yield self.env.timeout(delay)
-        machines = filter(lambda x: x.equipment_id == equipment_id, self.machines)
+        machines = list(filter(lambda x: x.equipment_id == equipment_id, self.machines))
         for machine in machines:
             if equipment_status:
                 try:
