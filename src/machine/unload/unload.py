@@ -12,7 +12,7 @@ unload modules
 import simpy
 
 from collections import defaultdict
-from src.vehicles import Package
+from src.vehicles import Package, Truck
 from src.config import LOG
 from src.utils import PackageRecordDict, TruckRecordDict
 
@@ -75,8 +75,8 @@ class Unload:
         """设置为关机"""
         self.machine_switch = self.env.event()
 
-    def process_package(self, process_idx, package: Package):
-
+    def process_package(self, package: Package):
+        """处理单个包裹"""
         with self.resource.request() as req:
             yield req
 
@@ -107,8 +107,24 @@ class Unload:
                     LOG.logger_font.error(msg)
                     LOG.logger_font.exception(exc)
                     self.pipelines_dict["unload_error"].put(package)
-            # keep this line in right indent
-            self.packages_processed[process_idx].succeed()
+
+    def process_truck(self, truck: Truck):
+        """process one truck"""
+        packages = truck.get_all_package()
+
+        events_processes = list()
+        for package in packages:
+            # add package wait data
+            package.insert_data(
+                PackageRecordDict(
+                    equipment_id=self.equipment_id,
+                    time_stamp=truck.come_time,
+                    action="wait", ))
+
+            events_processes.append(self.env.process(self.process_package(package)))
+        # all packages are processed
+        yield self.env.all_of(events_processes)
+        return truck
 
     def run(self):
 
@@ -123,33 +139,15 @@ class Unload:
 
             # filter out the match truck(LL/LA/AL/AA)
             truck = yield self.trucks_q.get(lambda x: x.truck_type in self.truck_types)
-
+            # truck start
             truck.insert_data(
                 TruckRecordDict(
                     equipment_id=self.equipment_id,
                     time_stamp=self.env.now,
                     action="start", ))
-
-            packages = truck.get_all_package()
-            for process_idx, package in enumerate(packages):
-
-                # add package wait data
-                package.insert_data(
-                    PackageRecordDict(
-                        equipment_id=self.equipment_id,
-                        time_stamp=truck.come_time,
-                        action="wait", ))
-
-                # need request resource for processing
-                self.packages_processed[process_idx] = self.env.event()
-                self.env.process(self.process_package(process_idx, package))
-
-            # all the package are processed
-            yield self.env.all_of(self.packages_processed.values())
-            # init packages_processed empty
-            self.packages_processed = dict()
-
-            # insert data
+            # get one truck
+            truck = yield self.env.process(self.process_truck(truck))
+            # truck end
             truck.insert_data(
                 TruckRecordDict(
                     equipment_id=self.equipment_id,
