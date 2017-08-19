@@ -143,7 +143,7 @@ class ResourceController:
             # 资源
             resource = self.resource_dict[resource_id]["resource"]
             # 占用进程
-            for _ in range(resource_occupy):
+            for _ in range(int(resource_occupy)):
                 self.env.process(self._set_resource(resource, delay=start_time, duration=duration))
 
 

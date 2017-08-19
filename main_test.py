@@ -53,15 +53,6 @@ def main():
     # pack_time_list = get_small_reload_pack_time()
     pack_time_list = [14_400, 18_000, 25_200, 28_800, 42_600, 45_000,] # todo: 等待数据库
 
-    # init trucks controllers
-    LOG.logger_font.info("loading package data")
-    truck_controller = TruckController(env,
-                                       trucks=trucks_queue,
-                                       is_test=MainConfig.IS_TEST,
-                                       is_parcel_only=MainConfig.IS_PARCEL_ONLY,
-                                       is_land_only=MainConfig.IS_LAND_ONLY)
-    truck_controller.controller()
-
     # c_port list
     reload_c_list = list()
     for _, c_list in reload_setting_dict.items():
@@ -258,6 +249,23 @@ def main():
                 pack_time_list=pack_time_list,)
         )
 
+    # init trucks controllers
+    LOG.logger_font.info("init controllers")
+    truck_controller = TruckController(env,
+                                       trucks=trucks_queue,
+                                       is_test=MainConfig.IS_TEST,
+                                       is_parcel_only=MainConfig.IS_PARCEL_ONLY,
+                                       is_land_only=MainConfig.IS_LAND_ONLY)
+    truck_controller.controller()
+
+    # init machine controller
+    machine_controller = MachineController(env, machines_dict)
+    machine_controller.controller()
+
+    # init resource controller
+    resource_controller = ResourceController(env, resource_dict)
+    resource_controller.controller()
+
     # adding machines into processes
     for machine_type, machines in machines_dict.items():
         LOG.logger_font.info(f"init {machine_type} machines")
@@ -265,16 +273,8 @@ def main():
             env.process(machine.run())
 
     LOG.logger_font.info("init resource machine controllers..")
-
-    # init machine controller
-    machine_controller = MachineController(env, machines_dict)
-    machine_controller.controller()
-
-    # init resource controller
-    # resource_controller = ResourceController(env, resource_dict)
-    # resource_controller.controller()
-
     LOG.logger_font.info("sim start..")
+
     env.run()
 
     num_of_trucks = len(trucks_queue.items)
