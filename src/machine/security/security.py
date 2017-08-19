@@ -106,6 +106,7 @@ class Security:
             yield self.machine_switch
             LOG.logger_font.debug(f"sim time: {self.env.now} - machine: {self.equipment_id} - do something")
 
-            package = yield self.input_pip_line.get()
-            # 有包裹就推送到资源模块
-            self.env.process(self.processing(package))
+            with self.resource.request() as req:
+                yield req
+                package = yield self.input_pip_line.get()
+                self.env.process(self.processing(package))
