@@ -180,6 +180,7 @@ class MachineController:
             if equipment_status:
                 try:
                     machine.set_machine_open()
+                    LOG.logger_font.info(f"sim time: {self.env.now} - machine: {equipment_id} - open")
                 except RuntimeError as exc:
                     LOG.logger_font.debug(f"error: {exc}, {machine.equipment_id} already open.")
                 except Exception as exc:
@@ -187,6 +188,7 @@ class MachineController:
                     LOG.logger_font.exception(exc)
             else:
                 machine.set_machine_close()
+                LOG.logger_font.info(f"sim time: {self.env.now} - machine: {equipment_id} - close")
 
     def controller(self):
         for _, row in self.timetable.iterrows():

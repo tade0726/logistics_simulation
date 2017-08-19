@@ -43,8 +43,6 @@ class Unload:
         self.equipment_resource_dict = equipment_resource_dict
         self.equipment_parameters = equipment_parameters
 
-        self.packages_processed = dict()
-
         # add machine switch
         self.machine_switch = self.env.event()
         self.machine_switch.succeed()
@@ -130,12 +128,8 @@ class Unload:
 
         while True:
             # 开关机的事件控制
-            t1 = self.env.now
             yield self.machine_switch
-            t2 = self.env.now
-
-            if t2 != t1:
-                LOG.logger_font.debug(f"machine - equipment_id: {self.equipment_id} - close: {t1}, open: {t2} ")
+            LOG.logger_font.info(f"sim time: {self.env.now} - machine: {self.equipment_id} - do something")
 
             # filter out the match truck(LL/LA/AL/AA)
             truck = yield self.trucks_q.get(lambda x: x.truck_type in self.truck_types)
