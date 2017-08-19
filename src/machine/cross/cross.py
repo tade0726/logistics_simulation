@@ -93,7 +93,7 @@ class Cross(object):
         while True:
             # 开关机的事件控制
             yield self.machine_switch
-            LOG.logger_font.info(f"sim time: {self.env.now} - machine: {self.equipment_id} - do something")
+            LOG.logger_font.debug(f"sim time: {self.env.now} - machine: {self.equipment_id} - do something")
 
             package = yield self.input_pip_line.get()
             # 记录机器开始处理货物信息
