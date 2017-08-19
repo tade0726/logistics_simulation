@@ -15,6 +15,9 @@ import pandas as pd
 import os
 from collections import defaultdict
 
+import sys
+sys.path.extend(['.'])
+
 from src.db import *
 from src.controllers import TruckController, MachineController, ResourceController
 from src.utils import \
