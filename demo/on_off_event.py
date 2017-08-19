@@ -45,7 +45,6 @@ class Controller:
             machine.set_off()
             print(f"{self.env.now} - close machine")
 
-
     def control(self, machine):
 
         for time in range(0, 100, 10):
