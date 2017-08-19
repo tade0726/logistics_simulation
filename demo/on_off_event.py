@@ -36,7 +36,8 @@ class Controller:
 
     def change(self, machine, on_off, time):
 
-        yield self.env.timeout(time)
+        if time:
+            yield self.env.timeout(time)
 
         if on_off:
             machine.set_on()
@@ -44,6 +45,8 @@ class Controller:
         else:
             machine.set_off()
             print(f"{self.env.now} - close machine")
+
+        yield self.env.timeout(0)
 
     def control(self, machine):
 
