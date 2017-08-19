@@ -174,13 +174,14 @@ class MachineController:
 
     def _set_on_off(self, equipment_id: str, equipment_status: int, delay: float):
         """控制开关"""
-        yield self.env.timeout(delay)
+        if delay:
+            yield self.env.timeout(delay)
         machines = list(filter(lambda x: x.equipment_id == equipment_id, self.machines))
         for machine in machines:
             if equipment_status:
                 try:
                     machine.set_machine_open()
-                    LOG.logger_font.info(f"sim time: {self.env.now} - machine: {equipment_id} - open")
+                    LOG.logger_font.debug(f"sim time: {self.env.now} - machine: {equipment_id} - open")
                 except RuntimeError as exc:
                     LOG.logger_font.debug(f"error: {exc}, {machine.equipment_id} already open.")
                 except Exception as exc:
@@ -188,7 +189,10 @@ class MachineController:
                     LOG.logger_font.exception(exc)
             else:
                 machine.set_machine_close()
-                LOG.logger_font.info(f"sim time: {self.env.now} - machine: {equipment_id} - close")
+                LOG.logger_font.debug(f"sim time: {self.env.now} - machine: {equipment_id} - close")
+
+        # 强行变成 generator
+        yield self.env.timeout(0)
 
     def controller(self):
         for _, row in self.timetable.iterrows():
