@@ -125,6 +125,8 @@ class SmallPrimary(object):
             yield self.machine_switch
             LOG.logger_font.debug(f"sim time: {self.env.now} - machine: {self.equipment_id} - do something")
 
-            small_bag = yield self.input_pip_line.get()
-            # 有包裹就推送到资源模块
-            self.env.process(self.processing(small_bag))
+            with self.resource.request() as req:
+                yield req
+                small_bag = yield self.input_pip_line.get()
+                # 有包裹就推送到资源模块
+                self.env.process(self.processing(small_bag))
