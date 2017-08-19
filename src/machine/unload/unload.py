@@ -139,7 +139,7 @@ class Unload:
                     equipment_id=self.equipment_id,
                     time_stamp=self.env.now,
                     action="start", ))
-            # get one truck
+            # 等待货车处理完
             truck = yield self.env.process(self.process_truck(truck))
             # truck end
             truck.insert_data(
