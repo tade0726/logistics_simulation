@@ -363,6 +363,7 @@ class Pipeline:
     def run(self):
         while True:
             yield self.machine_switch
+            LOG.logger_font.debug(f"equipment: {self.equipment_id} working..")
             item = yield self.store.get()
             self.env.process(self.latency(item))
 
