@@ -168,17 +168,16 @@ class MachineController:
         self.pipeline_list = list()
 
         # loading data
-        self._set_machines()
+        self._set_pipelines()
         self._init_time_table()
 
     def _init_time_table(self):
         """读取开关时间表"""
         self.timetable = get_equipment_timetable()
 
-    def _set_machines(self):
+    def _set_pipelines(self):
         """添加机器"""
-        for pipeline in self.pipelines_dict.values():
-            self.pipeline_list.extend(pipeline)
+        self.pipeline_list = self.pipelines_dict.values()
 
     def _set_on_off(self, equipment_id: str, equipment_status: int, delay: float):
         """控制开关"""
