@@ -51,10 +51,6 @@ class Hospital(object):
         # 机器资源id与机器id映射字典
         self.equipment_resource_dict = equipment_resource_dict
 
-        # add machine switch
-        self.machine_switch = self.env.event()
-        self.machine_switch.succeed()
-
         # 初始化初分拣字典
         self.resource_set = self._set_machine_resource()
 
@@ -71,14 +67,6 @@ class Hospital(object):
             raise RuntimeError('cross machine',
                                self.machine_id,
                                'not initial equipment_resource_dict!')
-
-    def set_machine_open(self):
-        """设置为开机"""
-        self.machine_switch.succeed()
-
-    def set_machine_close(self):
-        """设置为关机"""
-        self.machine_switch = self.env.event()
 
     def processing(self, package: Package):
         # 请求资源（工人)
@@ -108,10 +96,6 @@ class Hospital(object):
 
     def run(self):
         while True:
-            # 开关机的事件控制
-            yield self.machine_switch
-            LOG.logger_font.debug(f"sim time: {self.env.now} - machine: {self.equipment_id} - do something")
-
             package = yield self.input_pip_line.get()
             # 有包裹就推送到资源模块
             self.env.process(self.processing(package))
