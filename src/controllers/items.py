@@ -162,13 +162,13 @@ class MachineController:
     def __init__(self,
                  env: simpy.Environment,
                  pipelines_dict,
-                 machine_dict):
+                 machines_dict):
 
         self.env = env
         self.pipelines_dict = pipelines_dict
         self.pipeline_list = list()
 
-        self.machine_dict = machine_dict
+        self.machines_dict = machines_dict
         self.machine_list = list()
 
         # loading data
