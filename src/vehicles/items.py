@@ -311,6 +311,9 @@ class Pipeline:
         self.machine_switch = self.env.event()
         self.machine_switch.succeed()
 
+        # init run
+        self.env.process(self.run())
+
     def set_open(self):
         """control machine"""
         self.machine_switch.succeed()
