@@ -47,17 +47,18 @@ class SmallReload(object):
         self.small_bag_count = 0
         # event for control
         self.store_is_full = self.env.event()
-
-        # add machine switch
-        self.machine_switch = self.env.event()
-        self.machine_switch.succeed()
-
         # pack small package events
         self.pack_time_is_up = self.env.event()
+        # init data
         self._set_machine_resource()
-
         # plan pack time
         self._plan_pack_time()
+
+    def _set_machine_resource(self):
+        self.equipment_id = self.machine_id[1]
+        self.process_time = self.equipment_process_time_dict[self.equipment_id]
+        self.last_pipeline = self.pipelines_dict[self.machine_id]
+        self.store_max = BAG_NUM # todo: need to get from database
 
     def _set_pack_event(self, delay: float):
         """setting pack event"""
@@ -70,12 +71,6 @@ class SmallReload(object):
         for delay in self.pack_time_list:
             self.env.process(self._set_pack_event(delay))
 
-    def _set_machine_resource(self):
-        self.equipment_id = self.machine_id[1]
-        self.process_time = self.equipment_process_time_dict[self.equipment_id]
-        self.last_pipeline = self.pipelines_dict[self.machine_id]
-        self.store_max = BAG_NUM # todo: need to get from database
-
     def _get_small_package(self):
         """pop out package"""
         if len(self.store) <= self.store_max:
@@ -84,14 +79,6 @@ class SmallReload(object):
             pop_number = self.store_max
         store = [self.store.pop(0) for _ in range(pop_number)]
         return store
-
-    def set_machine_open(self):
-        """设置为开机"""
-        self.machine_switch.succeed()
-
-    def set_machine_close(self):
-        """设置为关机"""
-        self.machine_switch = self.env.event()
 
     def pack_send(self, wait_time_stamp: float):
         # init small_bag
@@ -132,12 +119,13 @@ class SmallReload(object):
         self.small_bag_count += 1
 
     def _timer(self):
+        """decide when to pack a small bag"""
         wait_time_stamp = self.env.now
         yield self.store_is_full | self.pack_time_is_up
         self.env.process(self.pack_send(wait_time_stamp))
 
     def put_package(self, small: SmallPackage):
-
+        """put package into store"""
         self.store.append(small)
 
         if len(self.store) == 1:
@@ -149,10 +137,5 @@ class SmallReload(object):
 
     def run(self):
         while True:
-
-            # 开关机的事件控制
-            yield self.machine_switch
-            LOG.logger_font.debug(f"sim time: {self.env.now} - machine: {self.equipment_id} - do something")
-
             small = yield self.last_pipeline.get()
             self.put_package(small)
