@@ -161,11 +161,11 @@ class MachineController:
 
     def __init__(self,
                  env: simpy.Environment,
-                 machines_dict):
+                 pipelines_dict):
 
         self.env = env
-        self.machines_dict = machines_dict
-        self.machines = list()
+        self.pipelines_dict = pipelines_dict
+        self.pipeline_list = list()
 
         # loading data
         self._set_machines()
@@ -177,26 +177,26 @@ class MachineController:
 
     def _set_machines(self):
         """添加机器"""
-        for machines in self.machines_dict.values():
-            self.machines.extend(machines)
+        for pipeline in self.pipelines_dict.values():
+            self.pipeline_list.extend(pipeline)
 
     def _set_on_off(self, equipment_id: str, equipment_status: int, delay: float):
         """控制开关"""
         if delay:
             yield self.env.timeout(delay)
-        machines = list(filter(lambda x: x.equipment_id == equipment_id, self.machines))
-        for machine in machines:
+        pipelines = list(filter(lambda x: x.equipment_id == equipment_id, self.pipeline_list))
+        for pipeline in pipelines:
             if equipment_status:
                 try:
-                    machine.set_machine_open()
+                    pipeline.set_open()
                     LOG.logger_font.debug(f"sim time: {self.env.now} - machine: {equipment_id} - open")
                 except RuntimeError as exc:
-                    LOG.logger_font.debug(f"error: {exc}, {machine.equipment_id} already open.")
+                    LOG.logger_font.debug(f"error: {exc}, {pipeline.equipment_id} already open.")
                 except Exception as exc:
-                    LOG.logger_font.error(f"error: {exc}, {machine.equipment_id}")
+                    LOG.logger_font.error(f"error: {exc}, {pipeline.equipment_id}")
                     LOG.logger_font.exception(exc)
             else:
-                machine.set_machine_close()
+                pipeline.set_close()
                 LOG.logger_font.debug(f"sim time: {self.env.now} - machine: {equipment_id} - close")
 
         # 强行变成 generator

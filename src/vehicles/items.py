@@ -140,6 +140,8 @@ class Package:
         display_dct = dict(self.attr)
         return f"<Package attr:{dict(display_dct)}, path: {self.planned_path}>"
 
+    __repr__ = __str__
+
 
 class Parcel(Package):
     """包裹"""
@@ -234,6 +236,8 @@ class Truck:
     def __str__(self):
         return f"<Truck truck_id: {self.truck_id}, come_time: {self.come_time}, store_size:{self.store_size}>"
 
+    __repr__ = __str__
+
 
 class Uld(Truck):
     """航空箱"""
@@ -272,6 +276,11 @@ class BasePipeline:
 
         self.queue.put(item)
 
+    def __str__(self):
+        return f"<Pipeline: {self.pipeline_id}>"
+
+    __repr__ = __str__
+
 
 class Pipeline:
 
@@ -287,11 +296,28 @@ class Pipeline:
 
         self.env = env
         self.delay = delay_time
+
+        # store for put in the front
+        # queue for get in the end
+        self.store = simpy.Store(env)
         self.queue = simpy.Store(env)
+
         self.pipeline_id = pipeline_id
         self.queue_id = queue_id
         self.machine_type = machine_type
         self.equipment_id = self.pipeline_id[1]  # in Pipeline the equipment_id is equipment after this pipeline
+
+        # switch
+        self.machine_switch = self.env.event()
+        self.machine_switch.succeed()
+
+    def set_open(self):
+        """control machine"""
+        self.machine_switch.succeed()
+
+    def set_close(self):
+        """control machine"""
+        self.machine_switch = self.env.event()
 
     def latency(self, item: Package):
         """模拟传送时间"""
@@ -326,16 +352,24 @@ class Pipeline:
         self.queue.put(item)
 
     def put(self, item: Package):
-        self.env.process(self.latency(item))
+        self.store.put(item)
 
     def get(self):
         return self.queue.get()
 
+    def run(self):
+        while True:
+            yield self.machine_switch
+            item = yield self.store.get()
+            self.env.process(self.latency(item))
+
     def __str__(self):
         return f"<Pipeline: {self.pipeline_id}, delay: {self.delay}>"
 
+    __repr__ = __str__
 
-class PipelineReplace:
+
+class PipelineReplace(Pipeline):
 
     """共享队列的传送带"""
 
@@ -349,60 +383,21 @@ class PipelineReplace:
                  equipment_store_dict: dict,
                  ):
 
-        self.env = env
-        self.delay = delay_time
+        super(PipelineReplace, self).__init__(env,
+                                              delay_time,
+                                              pipeline_id,
+                                              queue_id,
+                                              machine_type,)
+
         self.share_store_dict = share_store_dict
         self.equipment_store_dict = equipment_store_dict
-        self.pipeline_id = pipeline_id
-        self.queue_id = queue_id
-        self.machine_type = machine_type
-        self.equipment_id = self.pipeline_id[1]  # in Pipeline the equipment_id is equipment after this pipeline
-        # setting share store
+
+        # replace self.store
         self._set_store()
 
     def _set_store(self):
         self.share_store_id = self.equipment_store_dict[self.equipment_id]
-        self.queue = self.share_store_dict[self.share_store_id]
-
-    def latency(self):
-        """模拟传送时间"""
-        item = yield self.queue.get()
-
-        # pipeline start server
-        item.insert_data(
-            PipelineRecordDict(
-                pipeline_id=':'.join(self.pipeline_id),
-                queue_id=self.queue_id,
-                time_stamp=self.env.now,
-                action="start", ))
-
-        yield self.env.timeout(self.delay)
-
-        # cutting path
-        item.pop_mark()
-
-        # package wait for next process
-        item.insert_data(
-            PackageRecordDict(
-                equipment_id=self.equipment_id,
-                time_stamp=self.env.now,
-                action="wait", ))
-
-        # pipeline end server
-        item.insert_data(
-            PipelineRecordDict(
-                pipeline_id=':'.join(self.pipeline_id),
-                queue_id=self.queue_id,
-                time_stamp=self.env.now,
-                action="end", ))
-
-        return item
-
-    def put(self, item: Package):
-        self.queue.put(item)
-
-    def get(self):
-        return self.env.process(self.latency())
+        self.store = self.share_store_dict[self.share_store_id]
 
     def __str__(self):
         return f"<PipelineReplace: {self.pipeline_id}, delay: {self.delay}>"
