@@ -166,25 +166,24 @@ class MachineController:
 
         self.env = env
         self.pipelines_dict = pipelines_dict
-        self.pipeline_list = list()
-
         self.machines_dict = machines_dict
-        self.machine_list = list()
 
         # loading data
-        self._set_pipelines()
         self._init_time_table()
+        self._load_pipelines()
+        self._load_machines()
 
     def _init_time_table(self):
         """读取开关时间表"""
         self.timetable = get_equipment_timetable()
 
-    def _set_machines(self):
+    def _load_machines(self):
         """添加机器"""
-        for pipeline in self.pipelines_dict.values():
-            self.pipeline_list.extend(pipeline)
+        self.machine_list = list()
+        for machines in self.machines_dict.values():
+            self.machine_list.extend(machines)
 
-    def _set_pipelines(self):
+    def _load_pipelines(self):
         """添加机器"""
         pipeline_list = self.pipelines_dict.values()
         # only the pipeline between machines
