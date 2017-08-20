@@ -361,6 +361,8 @@ class Pipeline:
         return self.queue.get()
 
     def run(self):
+        # 保证 控制器先初始化
+        yield self.env.timeout(0)
         while True:
             yield self.machine_switch
             LOG.logger_font.debug(f"equipment: {self.equipment_id} working..")
