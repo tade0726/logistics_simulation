@@ -13,7 +13,7 @@ import simpy
 import pandas as pd
 import numpy as np
 
-from src.vehicles import Truck, SmallPackage, SmallBag, Parcel
+from src.vehicles import Truck, SmallPackage, SmallBag, Parcel, Pipeline
 from src.utils import TruckRecordDict
 from src.db import get_vehicles, get_resource_timetable, get_equipment_timetable
 from src.config import LOG
@@ -177,7 +177,10 @@ class MachineController:
 
     def _set_pipelines(self):
         """添加机器"""
-        self.pipeline_list = self.pipelines_dict.values()
+        pipeline_list = self.pipelines_dict.values()
+        # only the pipeline between machines
+        self.pipeline_list = list(filter(lambda x: isinstance(x, Pipeline), pipeline_list))
+
 
     def _set_on_off(self, equipment_id: str, equipment_status: int, delay: float):
         """控制开关"""
