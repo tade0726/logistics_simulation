@@ -137,7 +137,8 @@ class ResourceController:
                 duration = end_time - start_time
                 yield self.env.timeout(duration)
             else:
-                yield self.all_machine_process
+                # all machine finished
+                yield self.env.all_of(self.all_machine_process)
 
     def controller(self):
         for _, row in self.timetable.iterrows():
