@@ -11,6 +11,7 @@
 
 import simpy
 import pandas as pd
+import numpy as np
 
 from src.vehicles import Truck, SmallPackage, SmallBag, Parcel
 from src.utils import TruckRecordDict
@@ -138,6 +139,9 @@ class ResourceController:
             start_time = row['start_time']
             end_time = row['end_time']
             resource_occupy = row['resource_occupy']
+
+            end_time = 100_000_000 if end_time == np.inf else end_time
+
             # process 占用资源时间
             duration = end_time - start_time
             # 资源

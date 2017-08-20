@@ -14,6 +14,8 @@ data will be store into dictionary
 from os.path import join, isfile
 from functools import wraps
 import pandas as pd
+import numpy as np
+
 from src.config import *
 
 
@@ -457,6 +459,14 @@ def get_base_resource_limit():
     return base_table
 
 
+# helper for time table
+def clean_end_time(x):
+    if x.shape[0] > 1:
+        x['end_time'] = list(x['start_time'])[1:] + [np.inf]
+    else:
+        x['end_time'] = np.inf
+    return x
+
 def get_resource_timetable():
     """返回资源被占用改变的时间表， 资源被占用发生改变将生成 process 占用资源，模拟资源变化的情况
 
@@ -464,7 +474,6 @@ def get_resource_timetable():
 
     """
     table = load_from_mysql('i_resource_limit')
-
     table['resource_occupy'] = table['resource_number'] - table['resource_limit']
 
     g_resource = table.sort_values('start_time').groupby('resource_id')
@@ -478,7 +487,8 @@ def get_resource_timetable():
     table_resource_occupy_change["end_time"] = \
         (pd.to_datetime(table_resource_occupy_change["end_time"]) - TimeConfig.ZERO_TIMESTAMP) \
             .apply(lambda x: x.total_seconds() if x.total_seconds() > 0 else 0)
-
+    # clean end time
+    table_resource_occupy_change = table_resource_occupy_change.groupby('resource_id').apply(clean_end_time)
     return table_resource_occupy_change
 
 
@@ -496,7 +506,8 @@ def get_equipment_timetable():
     table_equipment_change["end_time"] = \
         (pd.to_datetime(table_equipment_change["end_time"]) - TimeConfig.ZERO_TIMESTAMP) \
             .apply(lambda x: x.total_seconds() if x.total_seconds() > 0 else 0)
-
+    # clean end time
+    table_equipment_change = table_equipment_change.groupby('equipment_port').apply(clean_end_time)
     return table_equipment_change
 
 
