@@ -114,22 +114,30 @@ class ResourceController:
     """control resource change during simulation"""
     def __init__(self,
                  env: simpy.Environment,
-                 resource_dict,):
+                 resource_dict,
+                 all_machine_process):
 
         self.env = env
         self.resource_dict = resource_dict
+        self.all_machine_process = all_machine_process
 
         self._init_time_table()
 
     def _init_time_table(self):
         self.timetable = get_resource_timetable()
 
-    def _set_resource(self, resource: simpy.PriorityResource, delay: float, duration: float):
+    def _set_resource(self, resource: simpy.PriorityResource, start_time: float, end_time: float):
         """占用资源，模拟资源减少的情况"""
-        yield self.env.timeout(delay)
+        yield self.env.timeout(start_time)
+
         with resource.request(priority=-1) as req:
             yield req
-            yield self.env.timeout(duration)
+
+            if end_time != np.inf:
+                duration = end_time - start_time
+                yield self.env.timeout(duration)
+            else:
+                yield self.all_machine_process
 
     def controller(self):
         for _, row in self.timetable.iterrows():
@@ -139,16 +147,11 @@ class ResourceController:
             start_time = row['start_time']
             end_time = row['end_time']
             resource_occupy = row['resource_occupy']
-
-            end_time = 100_000_000 if end_time == np.inf else end_time
-
-            # process 占用资源时间
-            duration = end_time - start_time
             # 资源
             resource = self.resource_dict[resource_id]["resource"]
             # 占用进程
             for _ in range(int(resource_occupy)):
-                self.env.process(self._set_resource(resource, delay=start_time, duration=duration))
+                self.env.process(self._set_resource(resource, start_time=start_time, end_time=end_time))
 
 
 class MachineController:

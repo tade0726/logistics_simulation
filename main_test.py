@@ -252,6 +252,14 @@ def main():
                 pack_time_list=pack_time_list,)
         )
 
+    # adding machines into processes
+    all_machine_process = list()
+
+    for machine_type, machines in machines_dict.items():
+        LOG.logger_font.info(f"init {machine_type} machines")
+        for machine in machines:
+            all_machine_process.append(env.process(machine.run()))
+
     # init trucks controllers
     LOG.logger_font.info("init controllers")
     truck_controller = TruckController(env,
@@ -263,17 +271,11 @@ def main():
 
     # init machine controller
     machine_controller = MachineController(env, machines_dict)
-    machine_controller.controller()
+    # machine_controller.controller()
 
     # init resource controller
-    resource_controller = ResourceController(env, resource_dict)
+    resource_controller = ResourceController(env, resource_dict, all_machine_process)
     resource_controller.controller()
-
-    # adding machines into processes
-    for machine_type, machines in machines_dict.items():
-        LOG.logger_font.info(f"init {machine_type} machines")
-        for machine in machines:
-            env.process(machine.run())
 
     LOG.logger_font.info("init resource machine controllers..")
     LOG.logger_font.info("sim start..")
