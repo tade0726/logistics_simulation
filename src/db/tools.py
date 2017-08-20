@@ -474,6 +474,8 @@ def get_resource_timetable():
 
     """
     table = load_from_mysql('i_resource_limit')
+    # clean resource_limit, no zero
+    table.resource_limit = table.resource_limit.mask(table.resource_limit == 0, table.resource_number)
     table['resource_occupy'] = table['resource_number'] - table['resource_limit']
 
     g_resource = table.sort_values('start_time').groupby('resource_id')
