@@ -115,11 +115,10 @@ class ResourceController:
     def __init__(self,
                  env: simpy.Environment,
                  resource_dict,
-                 all_machine_process):
+                 ):
 
         self.env = env
         self.resource_dict = resource_dict
-        self.all_machine_process = all_machine_process
 
         self._init_time_table()
 
@@ -138,7 +137,7 @@ class ResourceController:
                 yield self.env.timeout(duration)
             else:
                 # all machine finished
-                yield self.env.all_of(self.all_machine_process)
+                yield self.env.timeout(1_000_000_000)
 
     def controller(self):
         for _, row in self.timetable.iterrows():
@@ -162,11 +161,10 @@ class MachineController:
     def __init__(self,
                  env: simpy.Environment,
                  machines_dict,
-                 all_machine_process):
+                 ):
 
         self.env = env
         self.machines_dict = machines_dict
-        self.all_machine_process = all_machine_process
 
 
         # loading data
@@ -192,13 +190,15 @@ class MachineController:
     def _set_off(self, machine, start, end):
         """real set off process"""
         yield self.env.timeout(start)
+        LOG.logger_font.debug(f"sim time: {self.env.now} - equipment: {machine.equipment_id} "
+                              f"- set off at: {start} - until: {end}")
         with machine.switch_res.request(priority=-1) as req:
             yield req
 
             if end != np.inf:
                 yield self.env.timeout(end - start)
             else:
-                yield self.env.all_of(self.all_machine_process)
+                yield self.env.timeout(1_000_000_000)
 
     def controller(self):
         for _, row in self.timetable.iterrows():
@@ -207,7 +207,6 @@ class MachineController:
             start_time =  row['start_time']
             end_time = row['end_time']
             equipment_status = row['equipment_status']
-            # delay start
             if equipment_status == 0:
                 self._set_on_off_machine(equipment_id, start=start_time, end=end_time)
 
