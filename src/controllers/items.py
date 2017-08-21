@@ -86,7 +86,7 @@ class TruckController:
             parcel_type = package_record['parcel_type']
 
             if parcel_type in ['parcel', 'nc']:
-                package = self._init_package(cls=Parcel, package_record=package_record)
+                package = self._init_package(cls=Parcel, package_record=package_record,)
             elif parcel_type == 'small':
                 package = self._init_small_bag(small_bag_record=package_record)
             else:
