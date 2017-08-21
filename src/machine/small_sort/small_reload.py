@@ -57,7 +57,7 @@ class SmallReload(object):
         self.equipment_id = self.machine_id[1]
         self.process_time = self.equipment_process_time_dict[self.equipment_id]
         self.last_pipeline = self.pipelines_dict[self.machine_id]
-        self.equipment_name = self.machine_id.split('_')[0]  # r1, ect
+        self.equipment_name = self.equipment_id.split('_')[0]  # r1, ect
         self.store_max = self.equipment_parameters[self.equipment_name]["smallbag_wrap_condition"]
 
     def _set_pack_event(self, delay: float):
