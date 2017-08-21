@@ -433,14 +433,12 @@ def get_equipment_store_dict():
     equipment_store_dict = dict()
 
     for idx, x in enumerate(u_table.groupby('equipment_port_last')['equipment_port_next'].apply(list), start=1):
-        if len(x) > 1:
-            for p in x:
-                equipment_store_dict[p] = f'U_{idx}'
+        for p in x:
+            equipment_store_dict[p] = f'U_{idx}'
 
     for idx, x in enumerate(j_table.groupby('equipment_port_last')['equipment_port_next'].apply(list), start=1):
-        if len(x) > 1:
-            for p in x:
-                equipment_store_dict[p] = f'J_{idx}'
+        for p in x:
+            equipment_store_dict[p] = f'J_{idx}'
 
     return equipment_store_dict
 
