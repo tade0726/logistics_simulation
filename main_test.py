@@ -71,10 +71,16 @@ def main():
         resource_dict[resource_id]["resource"] = simpy.PriorityResource(env=env, capacity=resource_max)
         resource_dict[resource_id]["process_time"] = process_time
 
-    # init share_store
+    # init share_store, init wait res
+
     share_store_dict = dict()
+    wait_resource_dict = dict()
+
     for x in set(equipment_store_dict.values()):
         share_store_dict[x] = simpy.Store(env)
+        wait_resource_dict[x] = simpy.PriorityResource(env, capacity=1)
+
+    unload_wait_res = simpy.PriorityResource(env, capacity=1)
 
     # init pipelines
     pipelines_dict = dict()
@@ -103,7 +109,10 @@ def main():
                                                           queue_id,
                                                           machine_type,
                                                           share_store_dict,
-                                                          equipment_store_dict)
+                                                          equipment_store_dict,
+                                                          wait_resource_dict,
+                                                          resource_dict,
+                                                          equipment_resource_dict)
         else:
             raise ValueError("Pipeline init error!!")
 
@@ -166,7 +175,8 @@ def main():
                    pipelines_dict=pipelines_dict,
                    resource_dict=resource_dict,
                    equipment_resource_dict=equipment_resource_dict,
-                   equipment_parameters=equipment_parameters)
+                   equipment_parameters=equipment_parameters,
+                   wait_res=unload_wait_res)
         )
 
     # init presort machines
