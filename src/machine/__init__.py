@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+from .base import BaseMachine
 from .unload import Unload
 from .presort import Presort
 from .secondary_sort import SecondarySort
@@ -8,7 +9,6 @@ from .security import Security
 from .reload import Reload
 from .hospital import Hospital
 from .cross import Cross
-from .base import BaseMachine
 
 
 __all__ = ["Unload", "Presort", "SecondarySort", "SmallPrimary", "SmallSecondary", "SmallReload",
