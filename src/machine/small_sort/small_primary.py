@@ -25,9 +25,10 @@ class SmallPrimary(object):
     def __init__(self,
                  env,
                  machine_id,
-                 pipelines_dict=None,
-                 resource_dict=None,
-                 equipment_resource_dict=None):
+                 pipelines_dict,
+                 resource_dict,
+                 equipment_resource_dict,
+                 ):
         """
         """
         self.env = env
@@ -111,4 +112,4 @@ class SmallPrimary(object):
         while True:
             small_bag = yield self.input_pip_line.get()
             # 有包裹就推送到资源模块
-            yield self.env.process(self.processing(small_bag))
+            self.env.process(self.processing(small_bag))

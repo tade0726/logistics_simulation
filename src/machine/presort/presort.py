@@ -98,4 +98,4 @@ class Presort(object):
         while True:
             package = yield self.input_pip_line.get()
             # 有包裹就推送到资源模块
-            yield self.env.process(self.processing(package))
+            self.env.process(self.processing(package))

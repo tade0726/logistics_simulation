@@ -30,7 +30,7 @@ class Unload:
                  resource_dict: defaultdict,
                  equipment_resource_dict: dict,
                  equipment_parameters: dict,
-                 unload_wait_res,  # 保证负载均衡
+                 wait_res,  # 保证负载均衡
                  ):
 
         self.env = env
@@ -43,7 +43,7 @@ class Unload:
         self.resource_dict = resource_dict
         self.equipment_resource_dict = equipment_resource_dict
         self.equipment_parameters = equipment_parameters
-        self.unload_wait_res = unload_wait_res
+        self.wait_res = wait_res
 
         # add machine switch
         self.machine_switch = self.env.event()
@@ -137,7 +137,7 @@ class Unload:
             # 现在牌排队的件数
             package_wait_counts = len(self.resource.queue)
             # 卸货负载均衡
-            with self.unload_wait_res.request(priority=package_wait_counts) as req:
+            with self.wait_res.request(priority=package_wait_counts) as req:
                 yield req
             # filter out the match truck(LL/LA/AL/AA)
             truck = yield self.trucks_q.get(lambda x: x.truck_type in self.truck_types)
