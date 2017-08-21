@@ -17,7 +17,7 @@ class BaseMachine:
         self.env = env
         self.switch_res = simpy.PriorityResource(self.env)
 
-    def set_off(self, start, end):
+    def _set_off_process(self, start, end):
         """进程占用开关资源，模拟关机状态
 
         start： 关机时间
@@ -29,6 +29,10 @@ class BaseMachine:
         with self.switch_res.request(priority=-1) as req:
             yield req
             yield self.env.timeout(end - start)
+
+    def set_off(self, start, end):
+        """API"""
+        self.env.process(self._set_off_process(start, end))
 
     def check_switch(self):
         """开关机的事件控制"""
