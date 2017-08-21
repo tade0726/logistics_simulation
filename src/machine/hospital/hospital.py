@@ -27,9 +27,10 @@ import simpy
 from src.vehicles.items import Package
 from src.utils import PackageRecordDict
 from src.config import LOG
+from src.machine import BaseMachine
 
 
-class Hospital(object):
+class Hospital(BaseMachine):
     """
     医院区机器的仿真
     """
@@ -39,10 +40,8 @@ class Hospital(object):
                  pipelines_dict=None,
                  resource_dict=None,
                  equipment_resource_dict=None):
-        """
 
-        """
-        self.env = env
+        super(Hospital, self).__init__(env)
         self.machine_id = machine_id
         # 队列字典
         self.pipelines_dict = pipelines_dict
@@ -96,6 +95,8 @@ class Hospital(object):
 
     def run(self):
         while True:
+            # 开关机的事件控制
+            yield self.env.process(self.check_switch())
             package = yield self.input_pip_line.get()
             # 有包裹就推送到资源模块
             self.env.process(self.processing(package))

@@ -24,9 +24,10 @@
 
 import simpy
 from src.config import LOG
+from src.machine import BaseMachine
 
 
-class SecondarySort(object):
+class SecondarySort(BaseMachine):
 
     def __init__(self,
                  env: simpy.Environment(),
@@ -34,7 +35,7 @@ class SecondarySort(object):
                  pipelines_dict: dict,
                  ):
 
-        self.env = env
+        super(SecondarySort, self).__init__(env)
         self.machine_id = machine_id
         self.pipelines_dict = pipelines_dict
 
@@ -48,6 +49,8 @@ class SecondarySort(object):
 
     def run(self):
         while True:
+            # 开关机的事件控制
+            yield self.env.process(self.check_switch())
             package = yield self.input_pip_line.get()
             try:
                 self.pipelines_dict[package.next_pipeline].put(package)

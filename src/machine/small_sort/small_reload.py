@@ -23,12 +23,12 @@
 from src.vehicles.items import SmallBag, SmallPackage
 from src.config import SmallCode, LOG
 from src.utils import PackageRecordDict
-
+from src.machine import BaseMachine
 
 BAG_NUM = 15
 
 
-class SmallReload(object):
+class SmallReload(BaseMachine):
 
     def __init__(self,
                  env,
@@ -37,7 +37,7 @@ class SmallReload(object):
                  equipment_process_time_dict: dict,
                  pack_time_list: list,
                  ):
-        self.env = env
+        super(SmallReload, self).__init__(env)
         self.machine_id = machine_id
         self.pipelines_dict = pipelines_dict
         self.equipment_process_time_dict = equipment_process_time_dict
@@ -137,5 +137,7 @@ class SmallReload(object):
 
     def run(self):
         while True:
+            # 开关机的事件控制
+            yield self.env.process(self.check_switch())
             small = yield self.last_pipeline.get()
             self.put_package(small)

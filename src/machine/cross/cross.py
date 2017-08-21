@@ -22,10 +22,10 @@
 
 from src.utils import PackageRecordDict
 from src.config import LOG
+from src.machine import BaseMachine
 
 
-
-class Cross(object):
+class Cross(BaseMachine):
     """
     Cross obj:
     sim one machine that have more than one input ports and one out put port.
@@ -58,7 +58,9 @@ class Cross(object):
             RuntimeError: An error occurred when input_dic
             not initialized before.
         """
-        self.env = env
+
+        super(Cross, self).__init__(env)
+
         self.machine_id = machine_id
         self.pipelines_dict = pipelines_dict
         self.equipment_resource_dict = equipment_resource_dict
@@ -80,6 +82,8 @@ class Cross(object):
 
         while True:
             # 请求货物
+            yield self.env.process(self.check_switch())
+
             package = yield self.input_pip_line.get()
             # 记录机器开始处理货物信息
             package.insert_data(

@@ -5,6 +5,7 @@ Base machine for closing
 """
 
 import simpy
+from src.config import LOG
 
 
 __all__ = ["BaseMachine"]
@@ -24,7 +25,16 @@ class BaseMachine:
 
         """
         yield self.env.timeout(start)
-        print(f"{self.env.now} - set off, until: {end}")
+        LOG.logger_font.debug(f"sim time: {self.env.now} - set off, until: {end}")
         with self.switch_res.request(priority=-1) as req:
             yield req
             yield self.env.timeout(end - start)
+
+    def check_switch(self):
+        """开关机的事件控制"""
+        t1 = self.env.now
+        with self.switch_res.request() as req:
+            yield req
+        t2 = self.env.now
+        LOG.logger_font.debug(f"sim time: {self.env.now} - machine: {self.equipment_id} - "
+                              f"do something - t1: {t1} - t2: {t2}")

@@ -12,12 +12,13 @@ unload modules
 import simpy
 
 from collections import defaultdict
+from src.machine import BaseMachine
 from src.vehicles import Package, Truck
 from src.config import LOG
 from src.utils import PackageRecordDict, TruckRecordDict
 
 
-class Unload:
+class Unload(BaseMachine):
 
     def __init__(self,
                  env: simpy.Environment,
@@ -32,7 +33,8 @@ class Unload:
                  equipment_parameters: dict
                  ):
 
-        self.env = env
+        super(Unload, self).__init__(env)
+
         self.machine_id = machine_id
         self.unload_setting_dict = unload_setting_dict
         self.reload_setting_dict = reload_setting_dict
@@ -52,8 +54,9 @@ class Unload:
     def _set_machine_resource(self):
         """"""
         if self.equipment_resource_dict:
-            self.equipment_id = self.machine_id   # pipeline id last value, for other machines (r1_1, etc)
-            self.equipment_name = self.machine_id.split('_')[0] # r1, ect
+            # pipeline id last value, for other machines (r1_1, etc)
+            self.equipment_id = self.machine_id
+            self.equipment_name = self.machine_id.split('_')[0]  # r1, ect
             self.resource_id = self.equipment_resource_dict[self.equipment_id]
             self.resource = self.resource_dict[self.resource_id]['resource']
             self.process_time = self.resource_dict[self.resource_id]['process_time']
@@ -64,14 +67,6 @@ class Unload:
             raise RuntimeError('unload machine',
                                self.machine_id,
                                'not initial equipment_resource_dict!')
-
-    def set_machine_open(self):
-        """设置为开机"""
-        self.machine_switch.succeed()
-
-    def set_machine_close(self):
-        """设置为关机"""
-        self.machine_switch = self.env.event()
 
     def process_package(self, package: Package):
         """处理单个包裹"""
@@ -125,14 +120,11 @@ class Unload:
         return truck
 
     def run(self):
-        # 保证 控制器先初始化
-        yield self.env.timeout(0)
         while True:
             # 开关机的事件控制
-            yield self.machine_switch
-            LOG.logger_font.debug(f"sim time: {self.env.now} - machine: {self.equipment_id} - do something")
+            yield self.env.process(self.check_switch())
 
-            # filter out the match truck(LL/LA/AL/AA)
+            # filter out the match truck(LL/LA/AL/AA)11
             truck = yield self.trucks_q.get(lambda x: x.truck_type in self.truck_types)
             # truck start
             truck.insert_data(

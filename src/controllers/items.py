@@ -161,16 +161,13 @@ class MachineController:
 
     def __init__(self,
                  env: simpy.Environment,
-                 pipelines_dict,
                  machines_dict):
 
         self.env = env
-        self.pipelines_dict = pipelines_dict
         self.machines_dict = machines_dict
 
         # loading data
         self._init_time_table()
-        self._load_pipelines()
         self._load_machines()
 
     def _init_time_table(self):
@@ -182,12 +179,6 @@ class MachineController:
         self.machine_list = list()
         for machines in self.machines_dict.values():
             self.machine_list.extend(machines)
-
-    def _load_pipelines(self):
-        """添加机器"""
-        pipeline_list = self.pipelines_dict.values()
-        # only the pipeline between machines
-        self.pipeline_list = list(filter(lambda x: isinstance(x, Pipeline), pipeline_list))
 
     def _set_on_off_machine(self, equipment_id: str, equipment_status: int, delay: float):
         """控制开关"""
@@ -211,28 +202,6 @@ class MachineController:
         # 强行变成 generator
         yield self.env.timeout(0)
 
-    def _set_on_off_pipeline(self, equipment_id: str, equipment_status: int, delay: float):
-        """控制开关"""
-        if delay:
-            yield self.env.timeout(delay)
-        pipelines = list(filter(lambda x: x.equipment_id == equipment_id, self.pipeline_list))
-        for pipeline in pipelines:
-            if equipment_status:
-                try:
-                    pipeline.set_open()
-                    LOG.logger_font.debug(f"sim time: {self.env.now} - machine: {equipment_id} - open")
-                except RuntimeError as exc:
-                    LOG.logger_font.debug(f"error: {exc}, {pipeline.equipment_id} already open.")
-                except Exception as exc:
-                    LOG.logger_font.error(f"error: {exc}, {pipeline.equipment_id}")
-                    LOG.logger_font.exception(exc)
-            else:
-                pipeline.set_close()
-                LOG.logger_font.debug(f"sim time: {self.env.now} - machine: {equipment_id} - close")
-
-        # 强行变成 generator
-        yield self.env.timeout(0)
-
     def controller(self):
         for _, row in self.timetable.iterrows():
             # load data
@@ -240,10 +209,8 @@ class MachineController:
             start_time =  row['start_time']
             equipment_status = row['equipment_status']
             # delay start
-            if equipment_id[0] in ['r', 'a']:
-                self.env.process(self._set_on_off_machine(equipment_id, equipment_status, delay=start_time))
-            else:
-                self.env.process(self._set_on_off_pipeline(equipment_id, equipment_status, delay=start_time))
+            self.env.process(self._set_on_off_machine(equipment_id, equipment_status, delay=start_time))
+
 
 if __name__ == '__main__':
     pass

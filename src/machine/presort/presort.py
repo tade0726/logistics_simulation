@@ -26,9 +26,10 @@ import simpy
 from src.vehicles.items import Package
 from src.config import LOG
 from src.utils import PackageRecordDict
+from src.machine import BaseMachine
 
 
-class Presort(object):
+class Presort(BaseMachine):
     """
     预分拣机器的仿真
     """
@@ -38,10 +39,7 @@ class Presort(object):
                  pipelines_dict=None,
                  resource_dict=None,
                  equipment_resource_dict=None):
-        """
-
-        """
-        self.env = env
+        super(Presort, self).__init__(env)
         self.machine_id = machine_id
         # 队列字典
         self.pipelines_dict = pipelines_dict
@@ -96,6 +94,8 @@ class Presort(object):
 
     def run(self):
         while True:
+            # 开关机的事件控制
+            yield self.env.process(self.check_switch())
             package = yield self.input_pip_line.get()
             # 有包裹就推送到资源模块
             self.env.process(self.processing(package))
