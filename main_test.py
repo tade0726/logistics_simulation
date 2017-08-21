@@ -66,7 +66,7 @@ def main():
         process_time = row['process_time']
         # 设置资源为理论最大值，以便进行动态修改
         resource_max = row['resource_number']
-        resource_dict[resource_id]["resource"] = simpy.PriorityResource(env=env, capacity=resource_max)
+        resource_dict[resource_id]["resource"] = simpy.PriorityResource(env=env, capacity=resource_max)  ## todo: 改变为监控资源
         resource_dict[resource_id]["process_time"] = process_time
 
     # init share_store, init wait res
