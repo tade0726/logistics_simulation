@@ -101,7 +101,7 @@ class TruckController:
         # LL/LA/AA/AA
         truck_type = src_type + package_dest_type
         truck = Truck(truck_id=truck_id, come_time=come_time,
-                      packages=packages, truck_type=truck_type, truck_data=self.data)
+                      packages=packages, truck_type=truck_type, )
         LOG.logger_font.debug(f"init truck: {truck_id}")
         self.env.process(self.latency(come_time, truck))
 
@@ -183,35 +183,34 @@ class MachineController:
         for machines in self.machines_dict.values():
             self.machine_list.extend(machines)
 
-    def _set_on_off_machine(self, equipment_id: str, equipment_status: int, delay: float):
-        """控制开关"""
-        yield self.env.timeout(delay)
+    def _set_on_off_machine(self, equipment_id, start, end):
+        """控制机器"""
         machines = list(filter(lambda x: x.equipment_id == equipment_id, self.machine_list))
         for machine in machines:
-            if equipment_status:
-                try:
-                    machine.set_machine_open()
-                    LOG.logger_font.debug(f"sim time: {self.env.now} - machine: {equipment_id} - open")
-                except RuntimeError as exc:
-                    LOG.logger_font.debug(f"error: {exc}, {machine.equipment_id} already open.")
-                except Exception as exc:
-                    LOG.logger_font.error(f"error: {exc}, {machine.equipment_id}")
-                    LOG.logger_font.exception(exc)
-            else:
-                machine.set_machine_close()
-                LOG.logger_font.debug(f"sim time: {self.env.now} - machine: {equipment_id} - close")
+            self.env.process(self._set_off(machine, start, end))
 
-        # 强行变成 generator
-        yield self.env.timeout(0)
+    def _set_off(self, machine, start, end):
+        """real set off process"""
+        yield self.env.timeout(start)
+        LOG.logger_font.debug(f"sim time: {self.env.now} - equipment: {machine.equipment_id} "
+                              f"- set off at: {start} - until: {end}")
+        with machine.switch_res.request(priority=-1) as req:
+            yield req
+
+            if end != np.inf:
+                yield self.env.timeout(end - start)
+            else:
+                yield self.env.timeout(1_000_000_000)
 
     def controller(self):
         for _, row in self.timetable.iterrows():
             # load data
             equipment_id = row['equipment_port']
-            start_time = row['start_time']
+            start_time =  row['start_time']
+            end_time = row['end_time']
             equipment_status = row['equipment_status']
-            # delay start
-            self.env.process(self._set_on_off_machine(equipment_id, equipment_status, delay=start_time))
+            if equipment_status == 0:
+                self._set_on_off_machine(equipment_id, start=start_time, end=end_time)
 
 
 if __name__ == '__main__':

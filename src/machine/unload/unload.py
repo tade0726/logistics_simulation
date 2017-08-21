@@ -45,6 +45,10 @@ class Unload(BaseMachine):
         self.equipment_resource_dict = equipment_resource_dict
         self.equipment_parameters = equipment_parameters
 
+        # add machine switch
+        self.machine_switch = self.env.event()
+        self.machine_switch.succeed()
+
         self.resource_set = self._set_machine_resource()
 
     def _set_machine_resource(self):
@@ -117,13 +121,11 @@ class Unload(BaseMachine):
 
     def run(self):
         while True:
+            # 开关机的事件控制
+            yield self.env.process(self.check_switch())
 
             # filter out the match truck(LL/LA/AL/AA)11
             truck = yield self.trucks_q.get(lambda x: x.truck_type in self.truck_types)
-
-            # 开关机的事件控制
-            yield self.switch_event
-
             # truck start
             truck.insert_data(
                 TruckRecordDict(
