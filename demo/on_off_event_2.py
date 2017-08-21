@@ -10,11 +10,7 @@ class Unload:
         self.switch_res = simpy.PreemptiveResource(self.env, capacity=1,)
 
     def set_off(self, start, end):
-        yield self.env.timeout(start)
-        print(f"{self.env.now} - set off, until: {end}")
-        with self.switch_res.request(priority=-1, preempt=True) as req:
-            yield req
-            yield self.env.timeout(end - start)
+
 
     def check(self):
         t1 = self.env.now
