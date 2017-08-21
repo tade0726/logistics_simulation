@@ -63,7 +63,7 @@ class TruckController:
         parcel_id = small_bag_record["parcel_id"]
         small_package_records = self.truck_small_dict[parcel_id]
         small_packages = [self._init_package(cls=SmallPackage, package_record=record) for _, record in small_package_records.iterrows()]
-        return SmallBag(small_packages=small_packages, data=self.data)
+        return SmallBag(small_packages=small_packages,)
 
     def latency(self, come_time, item: Truck):
         """模拟货车到达时间"""
