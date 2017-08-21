@@ -427,8 +427,10 @@ class PipelineReplace(Pipeline):
             yield self.machine_switch
             LOG.logger_font.debug(f"equipment: {self.equipment_id} working..")
 
+            wait_counts = len([x for x in self.resource.queue if x.priority != -1])
+
             # 机器排队低
-            with self.wait_resource.request() as req:
+            with self.wait_resource.request(priority=wait_counts) as req:
                 yield req
 
             item = yield self.store.get()

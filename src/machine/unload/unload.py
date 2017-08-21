@@ -134,8 +134,8 @@ class Unload:
             yield self.machine_switch
             LOG.logger_font.debug(f"sim time: {self.env.now} - machine: {self.equipment_id} - do something")
 
-            # 现在牌排队的件数
-            package_wait_counts = len(self.resource.queue)
+            # 现在牌排队的件数, 不包含修改资源的占位请求
+            package_wait_counts = len([x for x in self.resource.queue if x.priority != -1])
             # 卸货负载均衡
             with self.wait_res.request(priority=package_wait_counts) as req:
                 yield req
