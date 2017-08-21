@@ -52,9 +52,7 @@ def main():
     equipment_process_time_dict = get_equipment_process_time()
     equipment_parameters = get_parameters()
     equipment_store_dict = get_equipment_store_dict()
-
-    # pack_time_list = get_small_reload_pack_time()
-    pack_time_list = [14_400, 18_000, 25_200, 28_800, 42_600, 45_000,] # todo: 等待数据库
+    pack_time_list = get_small_reload_pack_time()
 
     # c_port list
     reload_c_list = list()
@@ -114,7 +112,7 @@ def main():
                                                           resource_dict,
                                                           equipment_resource_dict)
         else:
-            raise ValueError("Pipeline init error!!")
+            raise RuntimeError("Pipeline init error!!")
 
     # for reload collection
     for pipeline_id in reload_c_list:
@@ -259,7 +257,8 @@ def main():
                 machine_id=machine_id,
                 pipelines_dict=pipelines_dict,
                 equipment_process_time_dict=equipment_process_time_dict,
-                pack_time_list=pack_time_list,)
+                pack_time_list=pack_time_list,
+                equipment_parameters=equipment_parameters,)
         )
 
     # adding machines into processes

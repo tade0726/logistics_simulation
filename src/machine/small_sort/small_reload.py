@@ -25,9 +25,6 @@ from src.config import SmallCode, LOG
 from src.utils import PackageRecordDict
 
 
-BAG_NUM = 15
-
-
 class SmallReload(object):
 
     def __init__(self,
@@ -36,12 +33,14 @@ class SmallReload(object):
                  pipelines_dict: dict,
                  equipment_process_time_dict: dict,
                  pack_time_list: list,
+                 equipment_parameters: dict,
                  ):
         self.env = env
         self.machine_id = machine_id
         self.pipelines_dict = pipelines_dict
         self.equipment_process_time_dict = equipment_process_time_dict
         self.pack_time_list = pack_time_list
+        self.equipment_parameters=equipment_parameters
 
         self.store = list()
         self.small_bag_count = 0
@@ -58,7 +57,8 @@ class SmallReload(object):
         self.equipment_id = self.machine_id[1]
         self.process_time = self.equipment_process_time_dict[self.equipment_id]
         self.last_pipeline = self.pipelines_dict[self.machine_id]
-        self.store_max = BAG_NUM # todo: need to get from database
+        self.equipment_name = self.machine_id.split('_')[0]  # r1, ect
+        self.store_max = self.equipment_parameters[self.equipment_name]["smallbag_wrap_condition"]
 
     def _set_pack_event(self, delay: float):
         """setting pack event"""

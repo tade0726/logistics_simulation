@@ -465,6 +465,7 @@ def clean_end_time(x):
         x['end_time'] = np.inf
     return x
 
+
 def get_resource_timetable():
     """返回资源被占用改变的时间表， 资源被占用发生改变将生成 process 占用资源，模拟资源变化的情况
 
@@ -532,7 +533,14 @@ def get_small_reload_pack_time():
     sample:
     [ 1000, 20000, 20003, ..  ]
     """
-    pass
+    table_n = "i_equipment_parameter"
+    table = load_from_mysql(table_n)
+
+    pack_time_list = table[table.parameter_id.str.contains('smallbag_wrap_time')]['parameter_value'].unique()
+    pack_time_list = list(pack_time_list)
+
+    sorted(pack_time_list)
+    return pack_time_list
 
 
 if __name__ == "__main__":
