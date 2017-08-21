@@ -207,7 +207,13 @@ class SmallBag(Package):
 
 class Truck:
     """货车"""
-    def __init__(self, truck_id: str, come_time: int, truck_type: str, packages: list):
+    def __init__(self,
+                 truck_id: str,
+                 come_time: int,
+                 truck_type: str,
+                 truck_data: list,
+                 packages: list,
+                 ):
         """
         :param truck_id: self explain
         :param come_time: self explain
@@ -217,7 +223,7 @@ class Truck:
         self.come_time = come_time
         self.store = packages
         self.truck_type = truck_type
-        self.truck_data = list()
+        self.truck_data = truck_data
         self.store_size = len(self.store)
 
     def get_all_package(self):
