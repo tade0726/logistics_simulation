@@ -271,8 +271,8 @@ def main():
 
     # init machine controller
     machine_controller = MachineController(env,
-                                           pipelines_dict,
-                                           machines_dict)
+                                           machines_dict,
+                                           all_machine_process)
     machine_controller.controller()
 
     # init resource controller
@@ -308,13 +308,7 @@ def main():
 
     # machine and pipeline records
     for pipeline in pipelines_dict.values():
-
-        # 只有非 BasePipeline 存在 queue 和 store
-        if isinstance(pipeline, BasePipeline):
-            all_items = pipeline.queue.items
-        else:
-            all_items = pipeline.queue.items + pipeline.store.items
-
+        all_items = pipeline.queue.items
         for package in all_items:
             # parcel_type: {"parcel", "nc"}
             if isinstance(package, Parcel):
