@@ -49,9 +49,11 @@ class SecondarySort(BaseMachine):
 
     def run(self):
         while True:
-            # 开关机的事件控制
-            yield self.env.process(self.check_switch())
+
             package = yield self.input_pip_line.get()
+            # 开关机的事件控制
+            yield self.switch_event
+
             try:
                 self.pipelines_dict[package.next_pipeline].put(package)
             except Exception as exc:

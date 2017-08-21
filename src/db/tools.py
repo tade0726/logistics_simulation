@@ -510,8 +510,6 @@ def get_equipment_timetable():
             .apply(lambda x: x.total_seconds() if x.total_seconds() > 0 else 0)
     # clean end time
     table_equipment_change = table_equipment_change.groupby('equipment_port').apply(clean_end_time)
-    # 只返回关机的状态
-    table_equipment_change = table_equipment_change[table_equipment_change.equipment_status == 0]
     return table_equipment_change
 
 

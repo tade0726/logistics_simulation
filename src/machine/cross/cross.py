@@ -82,9 +82,11 @@ class Cross(BaseMachine):
 
         while True:
             # 请求货物
-            yield self.env.process(self.check_switch())
-
             package = yield self.input_pip_line.get()
+
+            # 开关机的事件控制
+            yield self.switch_event
+
             # 记录机器开始处理货物信息
             package.insert_data(
                 PackageRecordDict(
