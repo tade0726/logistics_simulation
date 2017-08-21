@@ -372,9 +372,6 @@ class PipelineReplace(Pipeline):
         self.share_store_id = self.equipment_store_dict[self.equipment_id]
         self.store = self.share_store_dict[self.share_store_id]
 
-    def put(self, item: Package):
-        self.store.put(item)
-
     def __str__(self):
         return f"<PipelineReplace: {self.pipeline_id}, delay: {self.delay}>"
 
