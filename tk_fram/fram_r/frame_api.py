@@ -13,7 +13,7 @@ from .db_api import Mysql, insert_package, update_on_off, save_to_past_run, \
 # from simpy_lib import main
 from .frame_r_view import Flag, ConfigFrame, CHECK_BTN_ENTRY_DIC, \
     LIST_VALUE_COMBOBOX, CURRENT_CANVAS_DICT, CURRENT_SHEET, \
-    CACHE_INSTANCE_DICT, DAY_TIME_DICT, NUM_TRANSLATE_DICT
+    CACHE_INSTANCE_DICT, DAY_TIME_DICT, NUM_TRANSLATE_DICT, R_J_DICT
 from .frame import CheckBtnEntryList, update_m_j
 
 import xlrd
@@ -228,7 +228,7 @@ def create_sheet(master, sheet: str, column: int, canvas_master):
     if sheet == 'R':
         ConfigFrame.SHEET_VAR_DICT[sheet].set(1)
         ConfigFrame.SHEET_LABEL_DICT[sheet]['state'] = DISABLED
-    return f'{sheet}标签初始化完成'
+    return
 
 
 def switch_sheet(sheet: str, canvas_master):
@@ -292,6 +292,19 @@ def create_canvas(master, sheet: str):
             bas_up[3]
         )
         bas_up[3] += 50/3
+    if sheet == 'J':
+        did_set = set()
+        for key, value in R_J_DICT.items():
+            if value not in did_set:
+                j_status_list = []
+                for j_id in value:
+                    if CHECK_BTN_ENTRY_DIC[j_id].var.get() == 1:
+                        j_status_list.append(j_id)
+                if len(j_status_list) == 1:
+                    CHECK_BTN_ENTRY_DIC[j_status_list[0]].check_btn[
+                        'state'] = DISABLED
+                did_set.add(value)
+
     return (canvas_up, scrollbar_up)
 
 def set_during_time(date_plan, time_plan):

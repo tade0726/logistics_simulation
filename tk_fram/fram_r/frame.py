@@ -4,7 +4,7 @@ from tkinter import Frame
 from tkinter.ttk import Combobox
 from tkinter import Checkbutton, Entry, Menu
 from tkinter import IntVar, StringVar, DISABLED, NORMAL
-from .frame_r_view import ConfigFrame, NUM_TRANSLATE_DICT, \
+from .frame_r_view import ConfigFrame, NUM_TRANSLATE_DICT, CHECK_BTN_ENTRY_DIC, \
     ENTRY_STATUS_DIC, M_R_DICT, CACHE_INSTANCE_DICT, R_J_DICT, CACHE_J_STATUS
 
 
@@ -288,12 +288,31 @@ class CheckBtnEntryList(object):
         if 'j' in self.w_id:
             if self.var.get() == 0:
                 CACHE_J_STATUS[self.w_id] = self.var.get()
+                j_status_list = self.create_status_list()
+                if len(j_status_list) == 1:
+                    CHECK_BTN_ENTRY_DIC[j_status_list[0]].check_btn[
+                        'state'] = DISABLED
             else:
+                j_status_list = self.create_status_list()
+                if len(j_status_list) == 2:
+                    j_status_list.remove(self.w_id)
+                    CHECK_BTN_ENTRY_DIC[j_status_list[0]].check_btn[
+                        'state'] = NORMAL
                 CACHE_J_STATUS.pop(self.w_id)
 
         self.string.set(ENTRY_STATUS_DIC[self.var.get()])
         self.change_color(self.entry)
         self.change_combobox_status(self)
+
+    def create_status_list(self):
+        j_status_list = []
+        CACHE_J_STATUS[self.w_id] = self.var.get()
+        for key, j_list in R_J_DICT.items():
+            if self.w_id in j_list:
+                for j_id in j_list:
+                    if CHECK_BTN_ENTRY_DIC[j_id].var.get() == 1:
+                        j_status_list.append(j_id)
+                return j_status_list
 
     # 返回勾选框的状态值 0 或 1
     @property
