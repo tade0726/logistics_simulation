@@ -174,9 +174,10 @@ class SmallBag(Package):
     """小件包"""
     def __init__(self,
                  small_packages,
-                 data: list):
+                 ):
         # random choice a small_packages as attr
         attr = random.choice(small_packages).attr
+        data = list()
         super(SmallBag, self).__init__(attr, data)
 
         # 存储小件包裹
