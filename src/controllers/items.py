@@ -101,7 +101,7 @@ class TruckController:
         # LL/LA/AA/AA
         truck_type = src_type + package_dest_type
         truck = Truck(truck_id=truck_id, come_time=come_time,
-                      packages=packages, truck_type=truck_type, )
+                      packages=packages, truck_type=truck_type, truck_data=self.data)
         LOG.logger_font.debug(f"init truck: {truck_id}")
         self.env.process(self.latency(come_time, truck))
 
