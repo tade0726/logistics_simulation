@@ -297,44 +297,21 @@ def main():
     machine_data = list()
     path_data = list()
 
-    small_bag_list = list()
-    small_package_list = list()
+    data = truck_controller.data
 
-    # truck record
-    for truck in done_trucks_queue.items:
-        truck_data.extend(truck.truck_data)
+    for record in data:
 
-    # machine and pipeline records
-    for pipeline in pipelines_dict.values():
-        all_items = pipeline.queue.items
-        for package in all_items:
-            # parcel_type: {"parcel", "nc"}
-            if isinstance(package, Parcel):
-                machine_data.extend(package.machine_data)
-                pipeline_data.extend(package.pipeline_data)
-            # small package
-            elif isinstance(package, SmallPackage):
-                small_package_list.append(package)
-            # small bag
-            elif isinstance(package, SmallBag):
-                small_bag_list.append(package)
-            # collect path data
-            path_data.extend(package.path_request_data)
+        if isinstance(record, TruckRecord):
+            truck_data.append(record)
 
-    small_package_counts = 0
-    # small package records
-    for small_package in small_package_list:
-        machine_data.extend(small_package.machine_data)
-        pipeline_data.extend(small_package.pipeline_data)
-        small_package_counts += 1
+        if isinstance(record, PipelineRecord):
+            pipeline_data.append(record)
 
-    for small_bag in small_bag_list:
-        for small_package in small_bag.store:
-            machine_data.extend(small_package.machine_data)
-            pipeline_data.extend(small_package.pipeline_data)
-            small_package_counts += 1
+        if isinstance(record, PackageRecord):
+            machine_data.append(record)
 
-    LOG.logger_font.info(f"small_package counts: {small_package_counts}")
+        if isinstance(record, PathRecord):
+            path_data.append(record)
 
     truck_table = pd.DataFrame.from_records(truck_data, columns=TruckRecord._fields,)
     pipeline_table = pd.DataFrame.from_records(pipeline_data, columns=PipelineRecord._fields,)
