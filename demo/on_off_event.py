@@ -16,14 +16,16 @@ class Unload:
             yield req
             yield self.env.timeout(end - start)
 
+    def check(self):
+        t1 = self.env.now
+        with self.switch_res.request() as req:
+            yield req
+        t2 = self.env.now
+        return t1, t2
 
     def run(self):
         while True:
-
-            t1 = self.env.now
-            with self.switch_res.request() as req:
-                yield req
-            t2 = self.env.now
+            t1, t2 = yield self.env.process(self.check())
             item = yield self.truck.get()
             print(f"{self.env.now} - do some thing - t1: {t1} - t2: {t2} - item: {item}")
 
