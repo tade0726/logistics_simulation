@@ -13,10 +13,11 @@ from .db_api import Mysql, insert_package, update_on_off, save_to_past_run, \
 # from simpy_lib import main
 from .frame_r_view import Flag, ConfigFrame, CHECK_BTN_ENTRY_DIC, \
     LIST_VALUE_COMBOBOX, CURRENT_CANVAS_DICT, CURRENT_SHEET, \
-    CACHE_INSTANCE_DICT, DAY_TIME_DICT, CACHE_J_STATUS, ENTRY_STATUS_DIC
+    CACHE_INSTANCE_DICT, DAY_TIME_DICT, NUM_TRANSLATE_DICT
 from .frame import CheckBtnEntryList, update_m_j
 
 import xlrd
+
 
 def save_data(package_num, date_plan, time_plan, root, txt_receipt):
     if not package_num.get():
@@ -129,7 +130,13 @@ def update_data(date_plan, time_plan, root, txt_receipt):
     # 将当前界面所有控件的状态与人数保存到 CACHE_INSTANCE_DICT，防止更新时被忽略
     for i in ConfigFrame.WIG_BTN_DICT[CURRENT_SHEET[0]]:
         CACHE_INSTANCE_DICT[i]['status'] = CHECK_BTN_ENTRY_DIC[i].var.get()
-        CACHE_INSTANCE_DICT[i]['num'] = CHECK_BTN_ENTRY_DIC[i].string_combobox.get()
+        if CURRENT_SHEET[0] in NUM_TRANSLATE_DICT:
+            CACHE_INSTANCE_DICT[i]['num'] = \
+                int(CHECK_BTN_ENTRY_DIC[i].string_combobox.get()) / \
+                NUM_TRANSLATE_DICT[CURRENT_SHEET[0]]
+        else:
+            CACHE_INSTANCE_DICT[i]['num'] = \
+                CHECK_BTN_ENTRY_DIC[i].string_combobox.get()
 
     update_m_j()
 
@@ -229,7 +236,13 @@ def switch_sheet(sheet: str, canvas_master):
     # 更新上一个界面的人数到 CACHE_COMBOBOX_DICT
     for i in ConfigFrame.WIG_BTN_DICT[CURRENT_SHEET[0]]:
         CACHE_INSTANCE_DICT[i]['status'] = CHECK_BTN_ENTRY_DIC[i].var.get()
-        CACHE_INSTANCE_DICT[i]['num'] = CHECK_BTN_ENTRY_DIC[i].string_combobox.get()
+        if CURRENT_SHEET[0] in NUM_TRANSLATE_DICT:
+            CACHE_INSTANCE_DICT[i]['num'] = \
+                int(CHECK_BTN_ENTRY_DIC[i].string_combobox.get()) / \
+                NUM_TRANSLATE_DICT[CURRENT_SHEET[0]]
+        else:
+            CACHE_INSTANCE_DICT[i]['num'] = \
+                CHECK_BTN_ENTRY_DIC[i].string_combobox.get()
     # ==============================================================
     sheet_btn = ConfigFrame.SHEET_LABEL_DICT[sheet]
     sheet_btn['state'] = DISABLED

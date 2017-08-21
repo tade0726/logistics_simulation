@@ -4,7 +4,7 @@ from tkinter import Frame
 from tkinter.ttk import Combobox
 from tkinter import Checkbutton, Entry, Menu
 from tkinter import IntVar, StringVar, DISABLED, NORMAL
-from .frame_r_view import ConfigFrame, \
+from .frame_r_view import ConfigFrame, NUM_TRANSLATE_DICT, \
     ENTRY_STATUS_DIC, M_R_DICT, CACHE_INSTANCE_DICT, M_J_DICT, CACHE_J_STATUS
 
 
@@ -217,6 +217,15 @@ class CheckBtnEntryList(object):
             return self.list_value[0]
         return self.list_value
 
+    @property
+    def _combobox_value(self):
+        key = self.w_id[0].upper()
+        if key in NUM_TRANSLATE_DICT:
+            return int(CACHE_INSTANCE_DICT[self.w_id]['num']) * \
+                   NUM_TRANSLATE_DICT[key]
+        else:
+            return CACHE_INSTANCE_DICT[self.w_id]['num']
+
     def init_list(self):
         return init_combobox_list(
             master=self.master,
@@ -247,7 +256,7 @@ class CheckBtnEntryList(object):
         if self.w_id == 'j41_1' or 'h' in self.w_id:
             self.var.set(1)
             self.string.set(ENTRY_STATUS_DIC[1])
-            self.string_combobox.set(CACHE_INSTANCE_DICT[self.w_id]['num'])
+            self.string_combobox.set(self._combobox_value)
             self.check_btn['state'] = DISABLED
             self.change_color(self.entry)
         elif 'm' in self.w_id or 'j' in self.w_id:
@@ -300,7 +309,7 @@ class CheckBtnEntryList(object):
 
     @staticmethod
     def change_combobox_status(instance):
-        instance.string_combobox.set(CACHE_INSTANCE_DICT[instance.w_id]['num'])
+        instance.string_combobox.set(instance._combobox_value)
         if instance.var.get() == 0:
             instance.init_list['state'] = DISABLED
         else:
