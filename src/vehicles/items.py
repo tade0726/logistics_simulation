@@ -146,9 +146,11 @@ class Parcel(Package):
     """包裹"""
 
     def __init__(self,
-                 attr: pd.Series,):
+                 attr: pd.Series,
+                 data: list,
+                 ):
         # add for Package class compatible
-        super(Parcel, self).__init__(attr)
+        super(Parcel, self).__init__(attr, data)
 
     def __str__(self):
         display_dct = dict(self.attr)
