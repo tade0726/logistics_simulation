@@ -308,7 +308,14 @@ def main():
 
     # machine and pipeline records
     for pipeline in pipelines_dict.values():
-        for package in pipeline.queue.items:
+
+        # 只有非 BasePipeline 存在 queue 和 store
+        if isinstance(pipeline, BasePipeline):
+            all_items = pipeline.queue.items
+        else:
+            all_items = pipeline.queue.items + pipeline.store.items
+
+        for package in all_items:
             # parcel_type: {"parcel", "nc"}
             if isinstance(package, Parcel):
                 machine_data.extend(package.machine_data)
