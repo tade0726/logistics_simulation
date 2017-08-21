@@ -387,6 +387,9 @@ class PipelineReplace(Pipeline):
                  machine_type: str,
                  share_store_dict: dict,
                  equipment_store_dict: dict,
+                 wait_resource_dict: dict,
+                 resource_dict: defaultdict,
+                 equipment_resource_dict: dict,
                  ):
 
         super(PipelineReplace, self).__init__(env,
@@ -398,12 +401,39 @@ class PipelineReplace(Pipeline):
         self.share_store_dict = share_store_dict
         self.equipment_store_dict = equipment_store_dict
 
+        self.wait_resource_dict = wait_resource_dict
+
+        self.resource_dict = resource_dict
+        self.equipment_resource_dict = equipment_resource_dict
+
         # replace self.store
         self._set_store()
+        # 得到设备的资源
+        self._set_machine_resource()
 
     def _set_store(self):
         self.share_store_id = self.equipment_store_dict[self.equipment_id]
         self.store = self.share_store_dict[self.share_store_id]
+        self.wait_resource = self.wait_resource_dict[self.share_store_id]
+
+    def _set_machine_resource(self):
+        self.resource_id = self.equipment_resource_dict[self.equipment_id]
+        self.resource = self.resource_dict[self.resource_id]['resource']
+
+    def run(self):
+        # 保证 控制器先初始化
+        yield self.env.timeout(0)
+        while True:
+            yield self.machine_switch
+            LOG.logger_font.debug(f"equipment: {self.equipment_id} working..")
+
+            # 机器排队低
+            with self.wait_resource.request() as req:
+                yield req
+
+            item = yield self.store.get()
+            self.env.process(self.latency(item))
+
 
     def __str__(self):
         return f"<PipelineReplace: {self.pipeline_id}, delay: {self.delay}>"
