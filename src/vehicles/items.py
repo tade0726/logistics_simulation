@@ -296,31 +296,11 @@ class Pipeline:
 
         self.env = env
         self.delay = delay_time
-
-        # store for put in the front
-        # queue for get in the end
-        self.store = simpy.Store(env)
         self.queue = simpy.Store(env)
-
         self.pipeline_id = pipeline_id
         self.queue_id = queue_id
         self.machine_type = machine_type
         self.equipment_id = self.pipeline_id[1]  # in Pipeline the equipment_id is equipment after this pipeline
-
-        # switch
-        self.machine_switch = self.env.event()
-        self.machine_switch.succeed()
-
-        # init run
-        self.env.process(self.run())
-
-    def set_open(self):
-        """control machine"""
-        self.machine_switch.succeed()
-
-    def set_close(self):
-        """control machine"""
-        self.machine_switch = self.env.event()
 
     def latency(self, item: Package):
         """模拟传送时间"""
@@ -355,29 +335,16 @@ class Pipeline:
         self.queue.put(item)
 
     def put(self, item: Package):
-        self.store.put(item)
+        self.env.process(self.latency(item))
 
     def get(self):
         return self.queue.get()
 
-    def run(self):
-        # 保证 控制器先初始化
-        yield self.env.timeout(0)
-        while True:
-            yield self.machine_switch
-            LOG.logger_font.debug(f"equipment: {self.equipment_id} working..")
-            item = yield self.store.get()
-            self.env.process(self.latency(item))
-
     def __str__(self):
         return f"<Pipeline: {self.pipeline_id}, delay: {self.delay}>"
 
-    __repr__ = __str__
-
 
 class PipelineReplace(Pipeline):
-
-    """共享队列的传送带"""
 
     def __init__(self,
                  env: simpy.Environment,
@@ -404,6 +371,9 @@ class PipelineReplace(Pipeline):
     def _set_store(self):
         self.share_store_id = self.equipment_store_dict[self.equipment_id]
         self.store = self.share_store_dict[self.share_store_id]
+
+    def put(self, item: Package):
+        self.store.put(item)
 
     def __str__(self):
         return f"<PipelineReplace: {self.pipeline_id}, delay: {self.delay}>"
