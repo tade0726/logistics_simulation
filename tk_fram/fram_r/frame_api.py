@@ -166,7 +166,7 @@ def update_data(date_plan, time_plan, root, txt_receipt):
     # ========================更改人员数量==============
     txt_receipt.insert(END, '开始设置人力资源数量......\n')
     with conn as cur:
-        update_person(cur, run_arg)
+        update_person(cur, start_time, run_arg)
     txt_receipt.insert(END, '人力资源设置完毕！\n')
     txt_receipt['state'] = DISABLED
 

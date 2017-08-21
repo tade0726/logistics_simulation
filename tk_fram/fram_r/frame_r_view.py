@@ -91,7 +91,7 @@ DATABASES_DIC = {
         'HOST': '10.0.149.62',
         'USER': 'root',
         'PASSWORD': 'root123',
-        'NAME': 'hangzhouhubqa',
+        'NAME': 'hangzhouhubqa_2',
         'CHARSET': 'utf8'
     },
     'PRODUCTION': {
@@ -100,7 +100,7 @@ DATABASES_DIC = {
 }
 DATABASES = DATABASES_DIC['TEST']
 # 可选时间点
-PACKAGE_NUM_LIST = ['50000', '100000', '200000', 'all']
+PACKAGE_NUM_LIST = ['1000', '50000', '100000', '200000', 'all']
 DAY_TIME_DICT = defaultdict(list)
 
 # M口与R口关联字典

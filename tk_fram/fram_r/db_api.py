@@ -22,6 +22,7 @@ def init_btn_entry_val_from_sql():
     with conn as cur:
         cur.execute(
             "select equipment_port, equipment_status from i_equipment_io "
+            "WHERE LEFT(equipment_port, 1) IN ('a', 'r', 'm', 'j', 'u', 'h')"
         )
         result = cur.fetchall()
     for item in result:
@@ -29,6 +30,7 @@ def init_btn_entry_val_from_sql():
     with conn as cur:
         cur.execute(
             "select resource_id, resource_limit from i_resource_limit "
+            "where resource_id like 'man_%' and resource_id not like 'man_x%'"
         )
         result = cur.fetchall()
     for item in result:
@@ -52,11 +54,11 @@ def init_day_time():
 
 def update_on_off(cursor, start_time, run_arg):
     # equipment_port 需要确定
-    for key, value in CHECK_BTN_ENTRY_DIC.items():
+    for key, value in CACHE_INSTANCE_DICT.items():
         cursor.execute(
             "update i_equipment_io set equipment_status=%s where "
             "equipment_port='%s' and start_time='%s'" %
-            (value.var.get(), key, start_time)
+            (value['status'], key, start_time)
         )
     cursor.execute("update i_equipment_io set inserted_on='%s'" % run_arg)
 
@@ -204,11 +206,12 @@ def insert_package(cursor, num: str, run_arg):
     cursor.execute("update i_od_small_airside set inserted_on='%s'" % run_arg)
 
 
-def update_person(cursor, run_arg):
+def update_person(cursor, start_time, run_arg):
     # 需要指定 resource_id 范围
     for key, value in CACHE_INSTANCE_DICT.items():
         cursor.execute("update i_resource_limit set resource_limit={} where "
-                       "resource_id='{}%' ".format(value['num'], key))
+                       "resource_id='man_{}' and "
+                       "start_time='{}'".format(value['num'], key, start_time))
     cursor.execute("update i_resource_limit set inserted_on='%s'" % run_arg)
 
 
