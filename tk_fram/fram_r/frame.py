@@ -5,7 +5,7 @@ from tkinter.ttk import Combobox
 from tkinter import Checkbutton, Entry, Menu
 from tkinter import IntVar, StringVar, DISABLED, NORMAL
 from .frame_r_view import ConfigFrame, NUM_TRANSLATE_DICT, \
-    ENTRY_STATUS_DIC, M_R_DICT, CACHE_INSTANCE_DICT, M_J_DICT, CACHE_J_STATUS
+    ENTRY_STATUS_DIC, M_R_DICT, CACHE_INSTANCE_DICT, R_J_DICT, CACHE_J_STATUS
 
 
 class App(Frame):
@@ -323,10 +323,9 @@ def _init_m_J(w_id):
         return status
     if 'j' in w_id and w_id != 'j41_1':
         j_status = 0
-        for key, j_list in M_J_DICT.items():
+        for key, j_list in R_J_DICT.items():
             if w_id in j_list:
-                for r_id in M_R_DICT[key]:
-                    j_status = CACHE_INSTANCE_DICT[r_id]['status'] or j_status
+                j_status = CACHE_INSTANCE_DICT[key]['status'] or j_status
         return j_status
 
 def update_m_j():
