@@ -15,7 +15,7 @@ class BaseMachine:
 
     def __init__(self, env: simpy.Environment):
         self.env = env
-        self.switch_res = simpy.PriorityResource(self.env)
+        self.switch_res = simpy.PriorityResource(self.env, capacity=1)
 
     def check_switch(self):
         """开关机的事件控制"""
