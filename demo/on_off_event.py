@@ -5,28 +5,27 @@ class Unload:
     def __init__(self, env: simpy.Environment):
 
         self.env = env
-        self.machine_switch = self.env.event()
-        self.machine_switch.succeed()
+        self.truck = simpy.Store(env)
 
+        self.switch_res = simpy.PriorityResource(self.env)
 
-    def set_on(self):
-        self.machine_switch.succeed()
+    def set_off(self, start, end):
+        yield self.env.timeout(start)
+        print(f"{self.env.now} - set off, until: {end}")
+        with self.switch_res.request(priority=-1) as req:
+            yield req
+            yield self.env.timeout(end - start)
 
-    def set_off(self):
-        self.machine_switch = self.env.event()
 
     def run(self):
         while True:
 
             t1 = self.env.now
-            yield self.machine_switch
+            with self.switch_res.request() as req:
+                yield req
             t2 = self.env.now
-            print(f"{self.env.now} - do some thing - t1: {t1} - t2: {t2}")
-
-            yield self.env.timeout(1)
-
-            if self.env.now >= 100:
-                self.env.exit()
+            item = yield self.truck.get()
+            print(f"{self.env.now} - do some thing - t1: {t1} - t2: {t2} - item: {item}")
 
 
 class Controller:
@@ -34,27 +33,16 @@ class Controller:
     def __init__(self, env: simpy.Environment):
         self.env = env
 
-    def change(self, machine, on_off, time):
-
-        if time:
-            yield self.env.timeout(time)
-
-        if on_off:
-            machine.set_on()
-            print(f"{self.env.now} - open machine")
-        else:
-            machine.set_off()
-            print(f"{self.env.now} - close machine")
-
-        yield self.env.timeout(0)
-
     def control(self, machine):
 
         for time in range(0, 100, 10):
             if time % 20:
-                self.env.process(self.change(machine, True, time))
-            else:
-                self.env.process(self.change(machine, False, time))
+                self.env.process(machine.set_off(start=time, end=time+10))
+
+
+def truck_come(truck, env, delay):
+    yield env.timeout(delay)
+    truck.put(f"t_{delay}")
 
 if __name__ == '__main__':
     env = simpy.Environment()
@@ -62,7 +50,11 @@ if __name__ == '__main__':
     machine = Unload(env)
 
     controller.control(machine)
+
     env.process(machine.run(), )
+
+    for t in range(10, 100, 2):
+        env.process(truck_come(machine.truck, env, t))
 
     env.run()
 
