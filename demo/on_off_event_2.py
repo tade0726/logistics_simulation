@@ -7,28 +7,29 @@ class Unload:
         self.env = env
         self.truck = simpy.Store(env)
 
-        self.switch_res = simpy.PreemptiveResource(self.env, capacity=1,)
+        self.switch_res = self.env.event()
+        self.switch_res.succeed()
 
-    def set_off(self, start, end):
+    def set_off(self, start):
+        yield self.env.timeout(start)
+        self.switch_res = self.env.event()
+        print(f"{self.env.now} - close")
 
+    def set_on(self, start):
+        yield self.env.timeout(start)
 
-    def check(self):
-        t1 = self.env.now
-        with self.switch_res.request(priority=1) as req:
-            yield req
-        t2 = self.env.now
-        return t1, t2
+        try:
+            self.switch_res.succeed()
+            print(f"{self.env.now} - open")
+        except RuntimeError as exc:
+            print(f"{self.env.now} - already open")
 
     def run(self):
         while True:
-            # t1, t2 = yield self.env.process(self.check())
-
             item = yield self.truck.get()
             t1 = self.env.now
-            with self.switch_res.request(priority=1) as req:
-                yield req
+            yield self.switch_res
             t2 = self.env.now
-
             print(f"{self.env.now} - do some thing - t1: {t1} - t2: {t2} - item: {item}")
 
 
@@ -41,7 +42,9 @@ class Controller:
 
         for time in range(0, 100, 10):
             if time % 20:
-                self.env.process(machine.set_off(start=time, end=time+10))
+                self.env.process(machine.set_off(start=time,))
+            else:
+                self.env.process(machine.set_on(start=time,))
 
 
 def truck_come(truck, env, delay):
