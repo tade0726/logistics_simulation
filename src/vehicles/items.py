@@ -33,7 +33,8 @@ path_g = PathGenerator()
 class Package:
     """包裹"""
     def __init__(self,
-                 attr: pd.Series,):
+                 attr: pd.Series,
+                 data: list):
 
         # 包裹的所有信息都在 attr
         self.attr = attr
@@ -41,9 +42,7 @@ class Package:
         self._parcel_id = self.attr["parcel_id"]
         self.small_id = self.attr.get("small_id", self._parcel_id)
         # data store
-        self.machine_data = list()
-        self.pipeline_data = list()
-        self.path_request_data = list()
+        self.data = data
         # path_generator
         self.path_g = path_g
         # paths
@@ -90,7 +89,7 @@ class Package:
                 parcel_type=self.parcel_type,
                 **data,
             )
-            self.machine_data.append(record)
+            self.data.append(record)
             LOG.logger_font.debug(msg=f"Package: {record.small_id} , action: {record.action}"
                                       f", equipment: {record.equipment_id}, timestamp: {record.time_stamp}")
 
@@ -101,7 +100,7 @@ class Package:
                 parcel_type=self.parcel_type,
                 **data,
             )
-            self.pipeline_data.append(record)
+            self.data.append(record)
             LOG.logger_font.debug(msg=f"Package: {record.small_id} , action: {record.action}"
                                       f", pipeline: {record.pipeline_id}, timestamp: {record.time_stamp}")
 
@@ -116,7 +115,7 @@ class Package:
                 **data,
             )
 
-            self.path_request_data.append(record)
+            self.data.append(record)
             LOG.logger_font.debug(msg=f"Package get path - parcel_id: {record.parcel_id}, small_id: {record.small_id}, "
                                       f", path: {record.ret_path}"
                                       f", parcel_type: {record.parcel_type}, ident_des_zno: {record.ident_des_zno}"
@@ -159,9 +158,10 @@ class Parcel(Package):
 class SmallPackage(Package):
     """小件包裹"""
     def __init__(self,
-                 attr: pd.Series,):
+                 attr: pd.Series,
+                 data: list):
         # add for Package class compatible
-        super(SmallPackage, self).__init__(attr)
+        super(SmallPackage, self).__init__(attr, data)
 
     def __str__(self):
         display_dct = dict(self.attr)
@@ -171,10 +171,11 @@ class SmallPackage(Package):
 class SmallBag(Package):
     """小件包"""
     def __init__(self,
-                 small_packages,):
+                 small_packages,
+                 data: list):
         # random choice a small_packages as attr
         attr = random.choice(small_packages).attr
-        super(SmallBag, self).__init__(attr)
+        super(SmallBag, self).__init__(attr, data)
 
         # 存储小件包裹
         self.store = small_packages
@@ -198,7 +199,6 @@ class SmallBag(Package):
         """给小件包裹添加记录"""
         if to_small:
             list(map(lambda x: x.insert_data(data), self.store))
-        return super(SmallBag, self).insert_data(data)
 
     def __str__(self):
         display_dct = dict(self.attr)
