@@ -271,14 +271,12 @@ def main():
 
     # init machine controller
     machine_controller = MachineController(env,
-                                           machines_dict,
-                                           all_machine_process)
+                                           machines_dict,)
     machine_controller.controller()
 
     # init resource controller
     resource_controller = ResourceController(env,
-                                             resource_dict,
-                                             all_machine_process)
+                                             resource_dict,)
     resource_controller.controller()
 
     LOG.logger_font.info("init resource machine controllers..")
