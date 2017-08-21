@@ -161,10 +161,13 @@ class MachineController:
 
     def __init__(self,
                  env: simpy.Environment,
-                 machines_dict):
+                 machines_dict,
+                 all_machine_process):
 
         self.env = env
         self.machines_dict = machines_dict
+        self.all_machine_process = all_machine_process
+
 
         # loading data
         self._init_time_table()
@@ -183,7 +186,19 @@ class MachineController:
     def _set_on_off_machine(self, equipment_id, start, end):
         """控制机器"""
         machines = list(filter(lambda x: x.equipment_id == equipment_id, self.machine_list))
-        list(map(lambda x: x.set_off(start, end), machines))
+        for machine in machines:
+            self.env.process(self._set_off(machine, start, end))
+
+    def _set_off(self, machine, start, end):
+        """real set off process"""
+        yield self.env.timeout(start)
+        with machine.switch_res.request(priority=-1) as req:
+            yield req
+
+            if end != np.inf:
+                yield self.env.timeout(end - start)
+            else:
+                yield self.env.all_of(self.all_machine_process)
 
     def controller(self):
         for _, row in self.timetable.iterrows():
