@@ -29,7 +29,8 @@ class Unload:
                  pipelines_dict: dict,
                  resource_dict: defaultdict,
                  equipment_resource_dict: dict,
-                 equipment_parameters: dict
+                 equipment_parameters: dict,
+                 unload_wait_res,  # 保证负载均衡
                  ):
 
         self.env = env
@@ -42,6 +43,7 @@ class Unload:
         self.resource_dict = resource_dict
         self.equipment_resource_dict = equipment_resource_dict
         self.equipment_parameters = equipment_parameters
+        self.unload_wait_res = unload_wait_res
 
         # add machine switch
         self.machine_switch = self.env.event()
@@ -132,6 +134,11 @@ class Unload:
             yield self.machine_switch
             LOG.logger_font.debug(f"sim time: {self.env.now} - machine: {self.equipment_id} - do something")
 
+            # 现在牌排队的件数
+            package_wait_counts = len(self.resource.queue)
+            # 卸货负载均衡
+            with self.unload_wait_res.request(priority=package_wait_counts) as req:
+                yield req
             # filter out the match truck(LL/LA/AL/AA)
             truck = yield self.trucks_q.get(lambda x: x.truck_type in self.truck_types)
             # truck start
