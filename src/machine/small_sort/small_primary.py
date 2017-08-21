@@ -111,4 +111,4 @@ class SmallPrimary(object):
         while True:
             small_bag = yield self.input_pip_line.get()
             # 有包裹就推送到资源模块
-            yield self.env.process(self.processing(small_bag))
+            self.env.process(self.processing(small_bag))
