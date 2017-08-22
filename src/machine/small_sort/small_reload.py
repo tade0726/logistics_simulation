@@ -137,5 +137,12 @@ class SmallReload(BaseMachine):
 
     def run(self):
         while True:
-            small = yield self.last_pipeline.get()
+            try:
+                small = yield self.last_pipeline.get()
+            except simpy.Interrupt:
+                self.close = True
+                LOG.logger_font.debug(f"sim time: {self.env.now} - equipment: {self.equipment_id} - close 1800s")
+                yield self.env.timeout(1800)
+                break
+
             self.put_package(small)

@@ -95,6 +95,13 @@ class Hospital(BaseMachine):
 
     def run(self):
         while True:
-            package = yield self.input_pip_line.get()
+            try:
+                package = yield self.input_pip_line.get()
+            except simpy.Interrupt:
+                self.close = True
+                LOG.logger_font.debug(f"sim time: {self.env.now} - equipment: {self.equipment_id} - close 1800s")
+                yield self.env.timeout(1800)
+                break
+
             # 有包裹就推送到资源模块
             self.env.process(self.processing(package))

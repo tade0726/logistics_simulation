@@ -15,3 +15,6 @@ class BaseMachine:
 
     def __init__(self, env: simpy.Environment):
         self.env = env
+
+        # 设备开启状态
+        self.close = False

@@ -45,8 +45,6 @@ class Unload(BaseMachine):
         self.equipment_resource_dict = equipment_resource_dict
         self.equipment_parameters = equipment_parameters
 
-        # 设备开启状态
-        self.close = False
         self.resource_set = self._set_machine_resource()
 
         # self hold process
@@ -140,6 +138,7 @@ class Unload(BaseMachine):
 
             except simpy.Interrupt:
                 self.close = True
+                LOG.logger_font.debug(f"sim time: {self.env.now} - equipment: {self.equipment_id} - close 1800s")
                 yield self.env.timeout(1800)
                 break
 

@@ -13,6 +13,8 @@
                                     代码整体功能描述：小件分拣机的拆包模块；
 ==================================================================================================================================================
 """
+import simpy
+
 from src.vehicles.items import SmallBag
 from src.config import LOG
 from src.utils import PackageRecordDict
@@ -108,6 +110,13 @@ class SmallPrimary(BaseMachine):
 
     def run(self):
         while True:
-            small_bag = yield self.input_pip_line.get()
+            try:
+                small_bag = yield self.input_pip_line.get()
+            except simpy.Interrupt:
+                self.close = True
+                LOG.logger_font.debug(f"sim time: {self.env.now} - equipment: {self.equipment_id} - close 1800s")
+                yield self.env.timeout(1800)
+                break
+
             # 有包裹就推送到资源模块
             self.env.process(self.processing(small_bag))

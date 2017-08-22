@@ -19,6 +19,7 @@
                                                       3、每个入口\出口无服务受限；
 =====================================================================================================
 """
+import simpy
 
 from src.utils import PackageRecordDict
 from src.config import LOG
@@ -81,20 +82,29 @@ class Cross(BaseMachine):
     def run(self):
 
         while True:
-            # 请求货物
-            package = yield self.input_pip_line.get()
-            # 记录机器开始处理货物信息
-            package.insert_data(
-                PackageRecordDict(
-                    equipment_id=self.equipment_id,
-                    time_stamp=self.env.now,
-                    action="start", ))
-            # 记录机器结束处理货物信息
-            package.insert_data(
-                PackageRecordDict(
-                    equipment_id=self.equipment_id,
-                    time_stamp=self.env.now,
-                    action="end", ))
+
+            try:
+                # 请求货物
+                package = yield self.input_pip_line.get()
+                # 记录机器开始处理货物信息
+                package.insert_data(
+                    PackageRecordDict(
+                        equipment_id=self.equipment_id,
+                        time_stamp=self.env.now,
+                        action="start", ))
+                # 记录机器结束处理货物信息
+                package.insert_data(
+                    PackageRecordDict(
+                        equipment_id=self.equipment_id,
+                        time_stamp=self.env.now,
+                        action="end", ))
+
+            except simpy.Interrupt:
+                self.close = True
+                LOG.logger_font.debug(f"sim time: {self.env.now} - equipment: {self.equipment_id} - close 1800s")
+                yield self.env.timeout(1800)
+                break
+
             # 放入下一步的传送带
             try:
                 self.pipelines_dict[package.next_pipeline].put(package)
