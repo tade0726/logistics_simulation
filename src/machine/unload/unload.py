@@ -45,9 +45,6 @@ class Unload(BaseMachine):
         self.equipment_resource_dict = equipment_resource_dict
         self.equipment_parameters = equipment_parameters
 
-        # self queue
-        self.queue = simpy.Store(self.env)
-
         # add machine switch
         self.machine_switch = self.env.event()
         self.machine_switch.succeed()
@@ -125,7 +122,7 @@ class Unload(BaseMachine):
     def run(self):
         while True:
             # 开关机的事件控制
-            truck = yield self.queue.get()
+            truck = yield self.trucks_q.get(lambda x: x.truck_type in self.truck_types)
             # truck start
             truck.insert_data(
                 TruckRecordDict(
