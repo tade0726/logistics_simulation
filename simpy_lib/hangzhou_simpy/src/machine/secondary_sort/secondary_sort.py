@@ -37,6 +37,7 @@ class SecondarySort(object):
         self.env = env
         self.machine_id = machine_id
         self.pipelines_dict = pipelines_dict
+
         self._set_machine()
 
     def _set_machine(self):

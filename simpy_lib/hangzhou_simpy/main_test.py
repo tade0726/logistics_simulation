@@ -15,22 +15,25 @@ import pandas as pd
 import os
 from collections import defaultdict
 
-from .src.db import *
-from .src.controllers import TruckController
-from .src.utils import PipelineRecord, TruckRecord, PackageRecord, OutputTableColumnType
-from .src.vehicles import Pipeline, PipelineRes, BasePipeline, SmallBag, SmallPackage, Parcel
-from .src.machine import *
-from .src.config import MainConfig, TimeConfig, LOG, SaveConfig
+import sys
+sys.path.extend(['.'])
+
+from simpy_lib.hangzhou_simpy.src.db import *
+from simpy_lib.hangzhou_simpy.src.controllers import TruckController, MachineController, ResourceController
+from simpy_lib.hangzhou_simpy.src.utils import \
+    (PipelineRecord, TruckRecord, PackageRecord, OutputTableColumnType, PathRecord)
+from simpy_lib.hangzhou_simpy.src.vehicles import Pipeline, PipelineRes, BasePipeline, SmallBag, SmallPackage, Parcel, PipelineReplace
+from simpy_lib.hangzhou_simpy.src.machine import *
+from simpy_lib.hangzhou_simpy.src.config import MainConfig, TimeConfig, LOG, SaveConfig
 
 
 __all__ = ["main"]
 
-# todo: add parameters
 
-def main(start_time):
+def main(run_arg):
 
     # start time
-    t_start = datetime.now()
+    t_start = run_arg
 
     # simpy env init
     env = simpy.Environment()
@@ -42,28 +45,16 @@ def main(start_time):
 
     # raw data prepare
     pipelines_table = get_pipelines()
-    unload_setting_dict_src = get_unload_setting()
+    unload_setting_dict = get_unload_setting()
     reload_setting_dict = get_reload_setting()
     resource_table = get_resource_limit()
     equipment_resource_dict = get_resource_equipment_dict()
     equipment_process_time_dict = get_equipment_process_time()
     equipment_parameters = get_parameters()
-    equipment_on_list, equipment_off_list = get_equipment_on_off()
+    equipment_store_dict = get_equipment_store_dict()
 
-    # init trucks controllers
-    LOG.logger_font.info("loading package data")
-    truck_controller = TruckController(env,
-                                       trucks=trucks_queue,
-                                       is_test=MainConfig.IS_TEST,
-                                       is_parcel_only=MainConfig.IS_PARCEL_ONLY,
-                                       is_land_only=MainConfig.IS_LAND_ONLY)
-    truck_controller.controller()
-
-    # equipment setting from unload
-    if not MainConfig.ALL_OPEN:
-        unload_setting_dict = {key: val for key, val in unload_setting_dict_src.items() if key not in equipment_off_list}
-    else:
-        unload_setting_dict = unload_setting_dict_src
+    # pack_time_list = get_small_reload_pack_time()
+    pack_time_list = [14_400, 18_000, 25_200, 28_800, 42_600, 45_000,] # todo: 等待数据库
 
     # c_port list
     reload_c_list = list()
@@ -75,10 +66,15 @@ def main(start_time):
     for _, row in resource_table.iterrows():
         resource_id = row['resource_id']
         process_time = row['process_time']
-        resource_limit = row['resource_limit']
-        # add info
-        resource_dict[resource_id]["resource"] = simpy.Resource(env=env, capacity=resource_limit)
+        # 设置资源为理论最大值，以便进行动态修改
+        resource_max = row['resource_number']
+        resource_dict[resource_id]["resource"] = simpy.PriorityResource(env=env, capacity=resource_max)
         resource_dict[resource_id]["process_time"] = process_time
+
+    # init share_store
+    share_store_dict = dict()
+    for x in set(equipment_store_dict.values()):
+        share_store_dict[x] = simpy.Store(env)
 
     # init pipelines
     pipelines_dict = dict()
@@ -100,6 +96,14 @@ def main(start_time):
                                                       queue_id,
                                                       machine_type,
                                                       equipment_process_time_dict)
+        elif pipeline_type == 'pipeline_replace':
+            pipelines_dict[pipeline_id] = PipelineReplace(env,
+                                                          delay_time,
+                                                          pipeline_id,
+                                                          queue_id,
+                                                          machine_type,
+                                                          share_store_dict,
+                                                          equipment_store_dict)
         else:
             raise ValueError("Pipeline init error!!")
 
@@ -142,8 +146,6 @@ def main(start_time):
                                                         equipment_id="small_reload_error",
                                                         machine_type="error",
                                                         is_record=True)  # data will be collected
-
-
 
     # prepare init machine dict
     machine_init_dict = defaultdict(list)
@@ -246,19 +248,47 @@ def main(start_time):
                 env,
                 machine_id=machine_id,
                 pipelines_dict=pipelines_dict,
-                equipment_process_time_dict=equipment_process_time_dict, )
+                equipment_process_time_dict=equipment_process_time_dict,
+                pack_time_list=pack_time_list,)
         )
 
     # adding machines into processes
+    all_machine_process = list()
+
     for machine_type, machines in machines_dict.items():
         LOG.logger_font.info(f"init {machine_type} machines")
         for machine in machines:
-            env.process(machine.run())
+            all_machine_process.append(env.process(machine.run()))
 
+    # init trucks controllers
+    LOG.logger_font.info("init controllers")
+    truck_controller = TruckController(env,
+                                       trucks=trucks_queue,
+                                       is_test=MainConfig.IS_TEST,
+                                       is_parcel_only=MainConfig.IS_PARCEL_ONLY,
+                                       is_land_only=MainConfig.IS_LAND_ONLY)
+    truck_controller.controller()
+
+    # init machine controller
+    machine_controller = MachineController(env,
+                                           pipelines_dict,
+                                           machines_dict)
+    machine_controller.controller()
+
+    # init resource controller
+    resource_controller = ResourceController(env,
+                                             resource_dict,
+                                             all_machine_process)
+    resource_controller.controller()
+
+    LOG.logger_font.info("init resource machine controllers..")
     LOG.logger_font.info("sim start..")
+
     env.run()
+
     num_of_trucks = len(trucks_queue.items)
     assert num_of_trucks == 0, ValueError("Truck queue should be empty!!")
+
     LOG.logger_font.info(f"{num_of_trucks} trucks leave in queue")
     LOG.logger_font.info("sim end..")
     LOG.logger_font.info("collecting data")
@@ -267,9 +297,7 @@ def main(start_time):
     truck_data = list()
     pipeline_data = list()
     machine_data = list()
-
-    small_package_machine_data = list()
-    small_package_pipeline_data = list()
+    path_data = list()
 
     small_bag_list = list()
     small_package_list = list()
@@ -280,7 +308,14 @@ def main(start_time):
 
     # machine and pipeline records
     for pipeline in pipelines_dict.values():
-        for package in pipeline.queue.items:
+
+        # 只有非 BasePipeline 存在 queue 和 store
+        if isinstance(pipeline, BasePipeline):
+            all_items = pipeline.queue.items
+        else:
+            all_items = pipeline.queue.items + pipeline.store.items
+
+        for package in all_items:
             # parcel_type: {"parcel", "nc"}
             if isinstance(package, Parcel):
                 machine_data.extend(package.machine_data)
@@ -291,6 +326,8 @@ def main(start_time):
             # small bag
             elif isinstance(package, SmallBag):
                 small_bag_list.append(package)
+            # collect path data
+            path_data.extend(package.path_request_data)
 
     small_package_counts = 0
     # small package records
@@ -310,6 +347,8 @@ def main(start_time):
     truck_table = pd.DataFrame.from_records(truck_data, columns=TruckRecord._fields,)
     pipeline_table = pd.DataFrame.from_records(pipeline_data, columns=PipelineRecord._fields,)
     machine_table = pd.DataFrame.from_records(machine_data, columns=PackageRecord._fields,)
+    path_table = pd.DataFrame.from_records(path_data, columns=PathRecord._fields,)
+
 
     if not os.path.isdir(SaveConfig.OUT_DIR):
         os.makedirs(SaveConfig.OUT_DIR)
@@ -317,7 +356,7 @@ def main(start_time):
     # process data
     LOG.logger_font.info(msg="processing data")
     # time stamp for db
-    db_insert_time = start_time
+    db_insert_time = t_start
 
     def add_time(table: pd.DataFrame):
         """添加仿真的时间戳， 以及运行的日期"""
@@ -328,6 +367,7 @@ def main(start_time):
     truck_table = add_time(truck_table)
     pipeline_table = add_time(pipeline_table)
     machine_table = add_time(machine_table)
+    path_table["run_time"] = db_insert_time
 
     # output data
     LOG.logger_font.info("output data")
@@ -336,10 +376,13 @@ def main(start_time):
         write_local('machine_table', machine_table)
         write_local('pipeline_table', pipeline_table)
         write_local('truck_table', truck_table)
+        write_local('path_table', path_table)
     else:
         write_mysql("machine_table", machine_table, OutputTableColumnType.package_columns)
         write_mysql("pipeline_table", pipeline_table, OutputTableColumnType.pipeline_columns)
         write_mysql("truck_table", truck_table, OutputTableColumnType.truck_columns)
+        write_mysql('path_table', path_table, OutputTableColumnType.path_columns)
+
 
     t_end = datetime.now()
     total_time = t_end - t_start

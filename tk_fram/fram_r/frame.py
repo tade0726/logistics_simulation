@@ -18,9 +18,11 @@ class App(Frame):
 
     def _init_frame(self):
         if self.pack_dic:
-            self.pack(self.pack_dic)
+            self.grid(self.pack_dic)
+            self.rowconfigure(0,weight=1)
+            self.columnconfigure(0,weight=1)
         else:
-            self.pack()
+            self.grid()
         if self.attr:
             self.config(self.attr)
 

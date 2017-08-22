@@ -33,6 +33,8 @@ from simpy_lib.hangzhou_simpy.src.db.tools import load_from_mysql, get_reload_se
 
 # 开关控制是否过滤不可用节点
 SWITCH = False
+# 路径文件名字
+PATH_DICT_PATH = os.path.join(SaveConfig.DATA_DIR, "path.pkl")
 
 
 def machine_pre():
@@ -150,6 +152,7 @@ def generate_all_paths():
                        node[0:3] in machine_pre_dict["air_unload"]]
     other_small_node = [node for node in all_nodes if
                         node[0:3] in machine_pre_dict["other_small"]]
+    security_node = machine_pre_dict["security"]
 
     print("Start generating base path...")
     parcel_graph = machine_graph.subgraph(
@@ -165,6 +168,11 @@ def generate_all_paths():
     base_path.update(
         generate_base_paths(parcel_graph, air_s_secondary_node, air_dest_node))
     print("Small secondary path added!")
+
+    print("Start generating security path...")
+    base_path.update(
+        generate_base_paths(parcel_graph, security_node, air_dest_node))
+    print("Security path added!")
 
     all_paths = add_cycle_paths(parcel_graph, base_path, cycle_node)
     print("Cycle added!")
@@ -185,10 +193,10 @@ def generate_all_paths():
         all_paths[key]["all"] = value
     print("Small sort paths added!")
 
-    path_file = os.path.join(SaveConfig.DATA_DIR, "path")
+    path_file = PATH_DICT_PATH
     try:
-        with open(path_file, "wb") as pickle_path:
-            pickle.dump(all_paths, pickle_path)
+        with open(path_file, "wb") as pickle_file:
+            pickle.dump(all_paths, pickle_file)
         print("Path file wrote!")
     except Exception as exc:
         print(exc)
@@ -205,11 +213,11 @@ class PathGenerator(object):
     def __init__(self):
         self.reload_setting = get_reload_setting()
         self.machine_pre_dict = machine_pre()
-        path_file = os.path.join(SaveConfig.DATA_DIR, "path")
+        path_file = PATH_DICT_PATH
         if os.path.isfile(path_file):
             try:
-                with open(path_file, "rb") as pickle_path:
-                    all_paths = pickle.load(pickle_path)
+                with open(path_file, "rb") as pickle_file:
+                    all_paths = pickle.load(pickle_file)
             except Exception as exc:
                 print(exc)
                 all_paths = generate_all_paths()
@@ -263,7 +271,7 @@ class PathGenerator(object):
                                c11="c8_1",
                                c12="c8_1")
 
-        if sort_type == "reload" or start_node.startswith("c"):
+        if sort_type == "reload" or start_node[0] in ["c", "j"]:
             position = 0
         else:
             if start_node.startswith("a") or start_node.startswith("r"):
@@ -315,10 +323,10 @@ class PathGenerator(object):
                     end_node = "c18_1"
             if start_node == "c8_1" or start_node == "c9_1":  # 小件垃圾滑槽直接送到终分拣
                 return [start_node, end_node]
-            if start_node[0:3] in self.machine_pre_dict[
-                "land_unload"] and end_node[0:3] in self.machine_pre_dict[
-                "air_secondary"]:
-                security_prob = random.random()  # 安检概率
+
+            if start_node[0:3] in self.machine_pre_dict["land_unload"] + self.machine_pre_dict[
+                    "air_small_secondary"] and end_node[0:3] in self.machine_pre_dict["air_secondary"]:
+                security_prob = random.random()
                 if security_prob <= 0.009:
                     path = random.choice(self.all_paths[(start_node, end_node)][
                                              "without hospital"])
@@ -328,9 +336,16 @@ class PathGenerator(object):
                         raise Exception(
                             "Error: There is no security check node in path!")
                     i = path.index(security_node[0])
-                    now = path[:i+1]
+                    now = path[:i + 1]
                     now.append("c3_14")
                     return now
+
+            # security to secondary
+            if start_node in self.machine_pre_dict["security"]:
+                security_prob = random.random()  # 安检概率
+                if security_prob <= 0.009:
+                    return [start_node, "c3_14"]
+
             if not self.all_paths[(start_node, end_node)]["without hospital"]:
                 if start_node[0:3] == "c11" or start_node[0:3] == "c12":
                     end_node = "c2_1"
@@ -396,17 +411,21 @@ if __name__ == "__main__":
     # 给定起终点单条路线
     print(",".join(Paths.path_generator("r3_2", "027", "reload", "A")))
     print(
-        ",".join(Paths.path_generator("a1_1", "752", "small_sort", "A")))  # 小件
+        ",".join(Paths.path_generator("r1_1", "991", "small_sort", "A")))  # 小件
     print(
-        ",".join(Paths.path_generator("u3_7", "752", "small_sort", "A")))  # 小件
+        ",".join(Paths.path_generator("u3_3", "991", "small_sort", "A")))  # 小件
     print(
-        ",".join(Paths.path_generator("c11_1", "571BEE", "small_sort", "L")))  # 小件
+        ",".join(
+            Paths.path_generator("c5_11", "991", "small_sort", "A")))  # 小件
+    print(
+        ",".join(
+            Paths.path_generator("j41_1", "752", "small_sort", "A")))  # 小件
+
 
     # 生成100000条路线，测试进入医院区的概率是否为5%
     land_start_node = ["r5_1", "r5_2", "r5_3", "r5_4"]
-    air_end_node_list = reload[
-        (reload["dest_type"] == "A") & (reload["sorter_type"] == "reload")]
-    air_end_node = list(set(air_end_node_list["ident_des_zno"].tolist()))
+    air_end_node = ["023", "592", "812", "594", "595", "028", "771", "431",
+                    "771", "770", "431", "772", "027", "731"]
 
     paths = {"hospital": [], "without hospital": [], "security": [], "us": []}
     num = 0

@@ -73,9 +73,9 @@ def insert_package(cursor, num: str, run_arg):
     cursor.execute('select count(1) from i_od_parcel_landside_day')
     land = int(cursor.fetchone()[0])
     cursor.execute('select count(1) from i_od_parcel_airside_day')
-    air = int(cursor.fetchone([0]))
+    air = int(cursor.fetchone()[0])
 
-    land_num = int(num) * land / (land + air)
+    land_num = int(int(num) * land / (land + air))
     land_parcel_num = int(land_num * 0.88)
     land_nc_num = int(land_num * 0.07)
     land_small_num = land_num - land_parcel_num - land_nc_num
@@ -219,7 +219,7 @@ def read_result(cursor):
     cursor.execute(
         "select min(cast(real_time_stamp as datetime)), "
         "max(cast(real_time_stamp as datetime)) from o_machine_table where "
-        "action='wait' and equipment_id like 'r%'")
+        "action='wait' and (equipment_id like 'r%' or equipment_id like 'a%')")
 
     fast_time, later_time = cursor.fetchone()
     cursor.execute(
@@ -275,34 +275,42 @@ def save_to_past_run(cursor):
 
     cursor.execute(
         "insert into o_truck_table_past_run "
-        "(equipment_id, truck_id, time_stamp, action, store_size, "
+        "(equipment_id, truck_id, truck_type, time_stamp, action, store_size, "
         "real_time_stamp, run_time) "
         "select "
-        "equipment_id, truck_id, time_stamp, action, store_size, "
+        "equipment_id, truck_id, truck_type, time_stamp, action, store_size, "
         "real_time_stamp, run_time "
         "from o_truck_table"
     )
 
     cursor.execute(
         "insert into o_pipeline_table_past_run "
-        "(pipeline_id, queue_id, package_id, time_stamp, action, "
-        "real_time_stamp, run_time)"
+        "(pipeline_id, queue_id, parcel_id, small_id, parcel_type, time_stamp, "
+        "action, real_time_stamp, run_time)"
         "select "
-        "pipeline_id, queue_id, package_id, time_stamp, action, "
-        "real_time_stamp, run_time "
+        "pipeline_id, queue_id, parcel_id, small_id, parcel_type, time_stamp, "
+        "action, real_time_stamp, run_time "
         "from o_pipeline_table"
     )
 
     cursor.execute(
         "insert into o_machine_table_past_run "
-        "(equipment_id, package_id, time_stamp, action, real_time_stamp, "
-        "run_time) "
+        "(equipment_id, parcel_id, small_id, parcel_type, time_stamp, action, "
+        "real_time_stamp, run_time) "
         "select "
-        "equipment_id, package_id, time_stamp, action, real_time_stamp, "
-        "run_time "
+        "equipment_id, parcel_id, small_id, parcel_type, time_stamp, action, "
+        "real_time_stamp, run_time "
         "from o_machine_table"
     )
-
+    cursor.execute(
+        "insert into o_path_table_past_run "
+        "(parcel_id, small_id, parcel_type, start_node, ident_des_zno, "
+        "sorter_type, dest_type, ret_path, run_time)"
+        "select "
+        "parcel_id, small_id, parcel_type, start_node, ident_des_zno, "
+        "sorter_type, dest_type, ret_path, run_time "
+        "from o_path_table"
+    )
 
 def delete_index(cursor):
     cursor.execute("drop index ix_o_machine_run_time_packageid on "

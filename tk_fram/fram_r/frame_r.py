@@ -13,7 +13,7 @@ from .frame_api import run_sim, save_data, update_data, q_exit, menu_file, \
 def init_app(master, wig):
     """"""
     return App(master=master,
-               pack=ConfigApp.RELOAD_FRAME[wig]['pack'],
+               pack=ConfigApp.RELOAD_FRAME[wig]['grid'],
                attr=ConfigApp.RELOAD_FRAME[wig]['attr'])
 
 
@@ -94,17 +94,19 @@ def init_r_frame(root: Tk):
         # width=15,
         anchor='w'
     )
-    lbl_package.grid(row=0, column=0)
+    lbl_package.grid(row=0, column=0
+                     , sticky='nswe'
+                     )
     package_num = Combobox(
         master=left_set_pad_package,
         # bd=8,
         # height=2,
         textvariable=StringVar(),
         values=PACKAGE_NUM_LIST
-
-
     )
-    package_num.grid(row=0, column=1)
+    package_num.grid(row=0, column=1
+                     , sticky='nswe'
+                     )
     # ============================班次时间配置=============================
     # -----------------------日期表标题
     lbl_date_plan = Label(
@@ -115,7 +117,9 @@ def init_r_frame(root: Tk):
         # height= 3,
         anchor='w'
     )
-    lbl_date_plan.grid(row=0, column=2)
+    lbl_date_plan.grid(row=0, column=2
+                       , sticky='nswe'
+                       )
     #
     date_list = list(DAY_TIME_DICT.keys())
     date_list.sort()
@@ -128,7 +132,9 @@ def init_r_frame(root: Tk):
         values=date_list,
         postcommand=lambda: clear_time(time_plan)
     )
-    date_plan.grid(row=0, column=3)
+    date_plan.grid(row=0, column=3
+                   , sticky='nswe'
+                   )
     # -----------------------时间表标题
     lbl_time = Label(
         master=left_set_pad_package,
@@ -138,7 +144,9 @@ def init_r_frame(root: Tk):
         # height= 3,
         anchor='w'
     )
-    lbl_time.grid(row=0, column=4)
+    lbl_time.grid(row=0, column=4
+                  , sticky='nswe'
+                  )
     #
     time_plan = Combobox(
         master=left_set_pad_package,
@@ -150,7 +158,9 @@ def init_r_frame(root: Tk):
         postcommand=lambda: set_during_time(date_plan, time_plan)
     )
 
-    time_plan.grid(row=0, column=5)
+    time_plan.grid(row=0, column=5
+                   , sticky='nswe'
+                   )
     # ===================  机器区域sheet      =====================
     for i in init_sheet(left_set_pad_sheet, left_set_pad_center_up):
         pass
@@ -166,7 +176,7 @@ def init_r_frame(root: Tk):
         # bd=2,
         anchor='w'
     )
-    lbl_info.grid(row=0, column=0)
+    lbl_info.grid(row=0, column=0, sticky='nswe')
     # ============================输出信息面板=========================
     txt_receipt = Text(
         right_output_pad_info,
@@ -177,7 +187,7 @@ def init_r_frame(root: Tk):
         bg="white",
         state=DISABLED
     )
-    txt_receipt.grid(row=1, column=0)
+    txt_receipt.grid(row=1, column=0, sticky='nswe')
     # ===========================Button===============================
     font_btn = 10
     width_btn = 5
@@ -192,7 +202,7 @@ def init_r_frame(root: Tk):
         command=lambda: update_data(
             date_plan, time_plan, root, txt_receipt
         )
-    ).grid(row=0, column=0)
+    ).grid(row=0, column=0, sticky='nswe')
     # 启动仿真按钮
     Button(
         master=right_output_pad_button,
@@ -201,7 +211,7 @@ def init_r_frame(root: Tk):
         width=width_btn,
         text="启动仿真",
         command=lambda: run_sim(package_num, date_plan, time_plan, root, txt_receipt)
-    ).grid(row=0, column=1)
+    ).grid(row=0, column=1, sticky='nswe')
     # btn-存储数据按钮
     Button(
         master=right_output_pad_button,
@@ -210,7 +220,7 @@ def init_r_frame(root: Tk):
         width=width_btn,
         text="存储数据",
         command=lambda: save_data(package_num, date_plan, time_plan, root, txt_receipt)
-    ).grid(row=0, column=2)
+    ).grid(row=0, column=2, sticky='nswe')
     # btn-退出按钮
     Button(
         master=right_output_pad_button,
@@ -219,5 +229,5 @@ def init_r_frame(root: Tk):
         width=width_btn,
         text="退出",
         command=lambda: q_exit(root)
-    ).grid(row=0, column=3)
+    ).grid(row=0, column=3, sticky='nswe')
     # ========================================================

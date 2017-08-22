@@ -12,6 +12,8 @@ FRAME_WIDTH_LEFT = 700  # 左侧界面的总计宽度
 FRAME_WIDTH_RIGHT = 400  # 右侧界面的总计宽度
 
 FRAME_WIDTH_LEFT_CANVAS = 700
+LEFT_SET_WIDTH_PACKAGE = 680
+FRAME_WIDTH_LEFT_SET_PAD_TITLE = 680
 
 FRAME_WIDTH_LEFT_ONE = 200  # 左侧界面的左宽度
 FRAME_WIDTH_LEFT_TOW = 500  # 左侧界面的右宽度
@@ -205,7 +207,7 @@ class ConfigApp(object):
                 'relief': 'raise',
                 # 'bg': '#A2B5CD'
             },
-            'pack': {'side': 'left'}
+            'grid': {'row': 0,'column': 0, 'sticky': 'nswe'}
         },
         'RIGHT_FRAME': {
             'attr': {
@@ -215,7 +217,7 @@ class ConfigApp(object):
                 'relief': 'raise',
                 # 'bg': '#A2B5CD'
             },
-            'pack': {'side': 'right'}
+            'grid': {'row': 0,'column': 1, 'sticky': 'nswe'}
         },
         'LEFT_SET_PAD_TOP_R': {
             'attr': {
@@ -223,17 +225,6 @@ class ConfigApp(object):
                 'height': FRAME_HEIGHT_LEFT_CENTER,
                 'bd': 8,
                 'relief': 'raise'
-            },
-            'pack': {
-                'side': 'top'}
-        },
-        'LEFT_SET_PAD_SHEET': {
-            'attr': {
-                'width': FRAME_WIDTH_LEFT,
-                'height': FRAME_HEIGHT_LEFT_SET_PAD_TITLE,
-                # 'bd': 2,
-                # 'relief': 'raise',
-                # 'bg': 'gray',
             },
             'pack': {
                 'side': 'top'}
@@ -260,12 +251,21 @@ class ConfigApp(object):
         },
         'LEFT_SET_PAD_TOP_PACKAGE': {
             'attr': {
-                'width': FRAME_WIDTH_LEFT,
+                'width': LEFT_SET_WIDTH_PACKAGE,
                 'height': FRAME_HEIGHT_LEFT_PACKAGE,
                 'bd': 8,
                 'relief': 'raise'
             },
-            'pack': {'side': 'top'}
+            'grid': {'row': 0,'column': 0,
+                     # 'sticky': 'nswe'
+                     }
+        },
+        'LEFT_SET_PAD_SHEET': {
+            'attr': {
+                'width': FRAME_WIDTH_LEFT_SET_PAD_TITLE,
+                'height': FRAME_HEIGHT_LEFT_SET_PAD_TITLE,
+            },
+            'grid': {'row': 1, 'column': 0, 'sticky': 'nswe'}
         },
         'LEFT_SET_PAD_CENTER_UP': {
             'attr': {
@@ -274,7 +274,7 @@ class ConfigApp(object):
                 'bd': 8,
                 'relief': 'raise'
             },
-            'pack': {'side': 'top'}
+            'grid': {'row': 2,'column': 0, 'sticky': 'nswe'}
         },
         'RIGHT_TITLE': {
             'attr': {
@@ -283,7 +283,9 @@ class ConfigApp(object):
                 # 'bd': 8,
                 # 'relief': 'raise'
             },
-            'pack': {'side': 'top'}
+            'grid': {'row': 0,'column': 0,
+                     'sticky': 'nswe'
+                     }
         },
         'RIGHT_OUTPUT_PAD_INFO': {
             'attr': {
@@ -293,7 +295,9 @@ class ConfigApp(object):
                 'relief': 'raise',
                 # 'bg': '#A2B5CD'
             },
-            'pack': {'side': 'left'}
+            'grid': {'row': 1,'column': 0,
+                     'sticky': 'nswe'
+                     }
         },
         'RIGHT_BUTTON': {
             'attr': {
@@ -302,7 +306,9 @@ class ConfigApp(object):
                 'bd': 8,
                 'relief': 'raise'
             },
-            'pack': {'side': 'bottom'}
+            'grid': {'row': 2,'column': 0,
+                     'sticky': 'nswe'
+                     }
         }
     }
 
@@ -499,7 +505,8 @@ class CheckBtnEntryView(ConfigFrame):
                 'attr': self.CHECK_BTN_ATTR,
                 'grid': {
                     'row': row_var,
-                    'column': columns_var*columns+0
+                    'column': columns_var*columns+0,
+                    # 'sticky': 'nswe'
                 }
             }
             #  entry 视图设置
@@ -507,7 +514,8 @@ class CheckBtnEntryView(ConfigFrame):
                 'attr': self.ENTRY_ATTR,
                 'grid': {
                     'row': row_var,
-                    'column': columns_var*columns+1
+                    'column': columns_var*columns+1,
+                    # 'sticky': 'nswe'
                 }
             }
             #  combobox list 视图设置
@@ -515,7 +523,8 @@ class CheckBtnEntryView(ConfigFrame):
                 'attr': self.COMBOBOX_LIST_ATTR,
                 'grid': {
                     'row': row_var,
-                    'column': columns_var*columns+2
+                    'column': columns_var*columns+2,
+                    # 'sticky': 'nswe'
                 }
             }
             columns_var += 1
