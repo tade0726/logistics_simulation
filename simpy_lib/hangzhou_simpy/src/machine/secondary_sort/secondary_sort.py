@@ -23,7 +23,7 @@
 
 
 import simpy
-from simpy_lib.hangzhou_simpy.src.config import LOG
+from src.config import LOG
 
 
 class SecondarySort(object):
@@ -37,7 +37,6 @@ class SecondarySort(object):
         self.env = env
         self.machine_id = machine_id
         self.pipelines_dict = pipelines_dict
-
         self._set_machine()
 
     def _set_machine(self):

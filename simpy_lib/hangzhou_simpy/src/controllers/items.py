@@ -11,14 +11,12 @@
 
 import simpy
 import pandas as pd
-import numpy as np
+from src.vehicles import Truck, Package, SmallPackage, SmallBag, Parcel
+from src.utils import TruckRecordDict
+from src.db import get_vehicles
+from src.config import LOG
 
-from simpy_lib.hangzhou_simpy.src.vehicles import Truck, SmallPackage, SmallBag, Parcel, Pipeline
-from simpy_lib.hangzhou_simpy.src.utils import TruckRecordDict
-from simpy_lib.hangzhou_simpy.src.db import get_vehicles, get_resource_timetable, get_equipment_timetable
-from simpy_lib.hangzhou_simpy.src.config import LOG
-
-__all__ = ["TruckController", "MachineController", "ResourceController"]
+__all__ = ["TruckController", ]
 
 
 class TruckController:
@@ -109,141 +107,6 @@ class TruckController:
         for keys, packages_record in self.trucks_dict.items():
             self.env.process(self._init_truck(keys, packages_record))
 
-
-class ResourceController:
-    """control resource change during simulation"""
-    def __init__(self,
-                 env: simpy.Environment,
-                 resource_dict,
-                 all_machine_process):
-
-        self.env = env
-        self.resource_dict = resource_dict
-        self.all_machine_process = all_machine_process
-
-        self._init_time_table()
-
-    def _init_time_table(self):
-        self.timetable = get_resource_timetable()
-
-    def _set_resource(self, resource: simpy.PriorityResource, start_time: float, end_time: float):
-        """占用资源，模拟资源减少的情况"""
-        yield self.env.timeout(start_time)
-
-        with resource.request(priority=-1) as req:
-            yield req
-
-            if end_time != np.inf:
-                duration = end_time - start_time
-                yield self.env.timeout(duration)
-            else:
-                # all machine finished
-                yield self.env.all_of(self.all_machine_process)
-
-    def controller(self):
-        for _, row in self.timetable.iterrows():
-
-            # load data
-            resource_id = row['resource_id']
-            start_time = row['start_time']
-            end_time = row['end_time']
-            resource_occupy = row['resource_occupy']
-            # 资源
-            resource = self.resource_dict[resource_id]["resource"]
-            # 占用进程
-            for _ in range(int(resource_occupy)):
-                self.env.process(self._set_resource(resource, start_time=start_time, end_time=end_time))
-
-
-class MachineController:
-    """control machine open/close change during simulation
-    """
-
-    def __init__(self,
-                 env: simpy.Environment,
-                 pipelines_dict,
-                 machines_dict):
-
-        self.env = env
-        self.pipelines_dict = pipelines_dict
-        self.machines_dict = machines_dict
-
-        # loading data
-        self._init_time_table()
-        self._load_pipelines()
-        self._load_machines()
-
-    def _init_time_table(self):
-        """读取开关时间表"""
-        self.timetable = get_equipment_timetable()
-
-    def _load_machines(self):
-        """添加机器"""
-        self.machine_list = list()
-        for machines in self.machines_dict.values():
-            self.machine_list.extend(machines)
-
-    def _load_pipelines(self):
-        """添加机器"""
-        pipeline_list = self.pipelines_dict.values()
-        # only the pipeline between machines
-        self.pipeline_list = list(filter(lambda x: isinstance(x, Pipeline), pipeline_list))
-
-    def _set_on_off_machine(self, equipment_id: str, equipment_status: int, delay: float):
-        """控制开关"""
-        if delay:
-            yield self.env.timeout(delay)
-        machines = list(filter(lambda x: x.equipment_id == equipment_id, self.machine_list))
-        for machine in machines:
-            if equipment_status:
-                try:
-                    machine.set_machine_open()
-                    LOG.logger_font.debug(f"sim time: {self.env.now} - machine: {equipment_id} - open")
-                except RuntimeError as exc:
-                    LOG.logger_font.debug(f"error: {exc}, {machine.equipment_id} already open.")
-                except Exception as exc:
-                    LOG.logger_font.error(f"error: {exc}, {machine.equipment_id}")
-                    LOG.logger_font.exception(exc)
-            else:
-                machine.set_machine_close()
-                LOG.logger_font.debug(f"sim time: {self.env.now} - machine: {equipment_id} - close")
-
-        # 强行变成 generator
-        yield self.env.timeout(0)
-
-    def _set_on_off_pipeline(self, equipment_id: str, equipment_status: int, delay: float):
-        """控制开关"""
-        if delay:
-            yield self.env.timeout(delay)
-        pipelines = list(filter(lambda x: x.equipment_id == equipment_id, self.pipeline_list))
-        for pipeline in pipelines:
-            if equipment_status:
-                try:
-                    pipeline.set_open()
-                    LOG.logger_font.debug(f"sim time: {self.env.now} - machine: {equipment_id} - open")
-                except RuntimeError as exc:
-                    LOG.logger_font.debug(f"error: {exc}, {pipeline.equipment_id} already open.")
-                except Exception as exc:
-                    LOG.logger_font.error(f"error: {exc}, {pipeline.equipment_id}")
-                    LOG.logger_font.exception(exc)
-            else:
-                pipeline.set_close()
-                LOG.logger_font.debug(f"sim time: {self.env.now} - machine: {equipment_id} - close")
-
-        # 强行变成 generator
-        yield self.env.timeout(0)
-
-    def controller(self):
-        for _, row in self.timetable.iterrows():
-            # load data
-            equipment_id = row['equipment_port']
-            start_time =  row['start_time']
-            equipment_status = row['equipment_status']
-            # delay start
-            if equipment_id[0] in ['r', 'a']:
-                self.env.process(self._set_on_off_machine(equipment_id, equipment_status, delay=start_time))
-            else:
-                self.env.process(self._set_on_off_pipeline(equipment_id, equipment_status, delay=start_time))
 
 if __name__ == '__main__':
     pass

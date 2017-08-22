@@ -13,8 +13,8 @@ sys.path.append('..')
 import pandas as pd
 import numpy as np
 from itertools import product
-from simpy_lib.hangzhou_simpy.src.db import *
-from simpy_lib.hangzhou_simpy.src.config import *
+from src.db import *
+from src.config import *
 
 
 def main():
