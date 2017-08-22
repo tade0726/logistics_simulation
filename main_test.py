@@ -252,13 +252,6 @@ def main():
                 pack_time_list=pack_time_list,)
         )
 
-    # adding machines into processes
-    all_machine_process = list()
-
-    for machine_type, machines in machines_dict.items():
-        LOG.logger_font.info(f"init {machine_type} machines")
-        for machine in machines:
-            all_machine_process.append(env.process(machine.run()))
 
     # init trucks controllers
     LOG.logger_font.info("init controllers")
