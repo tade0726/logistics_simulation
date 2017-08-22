@@ -121,7 +121,6 @@ class ResourceController:
 
         self.env = env
         self.resource_dict = resource_dict
-
         self._init_time_table()
 
     def _init_time_table(self):
@@ -143,7 +142,6 @@ class ResourceController:
 
     def controller(self):
         for _, row in self.timetable.iterrows():
-
             # load data
             resource_id = row['resource_id']
             start_time = row['start_time']
