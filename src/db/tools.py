@@ -465,9 +465,9 @@ def get_base_resource_limit():
 # helper for time table
 def clean_end_time(x):
     if x.shape[0] > 1:
-        x['end_time'] = list(x['start_time'])[1:] + [-1]
+        x['end_time'] = list(x['start_time'])[1:] + [np.inf]
     else:
-        x['end_time'] = -1
+        x['end_time'] = np.inf
     return x
 
 
@@ -495,11 +495,6 @@ def get_resource_timetable():
             .apply(lambda x: x.total_seconds() if x.total_seconds() > 0 else 0)
     # clean end time
     table_resource_occupy_change = table_resource_occupy_change.groupby('resource_id').apply(clean_end_time)
-
-    # int
-    table_resource_occupy_change["start_time"] = table_resource_occupy_change["start_time"].astype(int)
-    table_resource_occupy_change["end_time"] = table_resource_occupy_change["end_time"].astype(int)
-
     return table_resource_occupy_change
 
 
@@ -521,11 +516,6 @@ def get_equipment_timetable():
     table_equipment_change = table_equipment_change.groupby('equipment_port').apply(clean_end_time)
     # 只保留关机
     table_equipment_change = table_equipment_change[table_equipment_change['equipment_status'] == 0]
-
-    # int
-    table_equipment_change["start_time"] = table_equipment_change["start_time"].astype(int)
-    table_equipment_change["end_time"] = table_equipment_change["end_time"].astype(int)
-
     return table_equipment_change
 
 
