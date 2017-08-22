@@ -224,6 +224,9 @@ def get_vehicles(is_land: bool,
     table_small["arrive_time"] = (pd.to_datetime(table_small["arrive_time"]) - TimeConfig.ZERO_TIMESTAMP) \
         .apply(lambda x: x.total_seconds() if x.total_seconds() > 0 else 0)
 
+    table_parcel["arrive_time"] = table_parcel["arrive_time"].astype(int)
+    table_small["arrive_time"] = table_small["arrive_time"].astype(int)
+
     table_small = table_small[table_small["parcel_id"].isin(table_parcel.parcel_id)]
     parcel_counts = len(table_parcel['parcel_id'].unique())
     small_counts = len(table_small['small_id'].unique())
@@ -462,10 +465,11 @@ def get_base_resource_limit():
 # helper for time table
 def clean_end_time(x):
     if x.shape[0] > 1:
-        x['end_time'] = list(x['start_time'])[1:] + [np.inf]
+        x['end_time'] = list(x['start_time'])[1:] + [-1]
     else:
-        x['end_time'] = np.inf
+        x['end_time'] = -1
     return x
+
 
 def get_resource_timetable():
     """返回资源被占用改变的时间表， 资源被占用发生改变将生成 process 占用资源，模拟资源变化的情况
@@ -491,6 +495,11 @@ def get_resource_timetable():
             .apply(lambda x: x.total_seconds() if x.total_seconds() > 0 else 0)
     # clean end time
     table_resource_occupy_change = table_resource_occupy_change.groupby('resource_id').apply(clean_end_time)
+
+    # int
+    table_resource_occupy_change["start_time"] = table_resource_occupy_change["start_time"].astype(int)
+    table_resource_occupy_change["end_time"] = table_resource_occupy_change["end_time"].astype(int)
+
     return table_resource_occupy_change
 
 
@@ -510,6 +519,13 @@ def get_equipment_timetable():
             .apply(lambda x: x.total_seconds() if x.total_seconds() > 0 else 0)
     # clean end time
     table_equipment_change = table_equipment_change.groupby('equipment_port').apply(clean_end_time)
+    # 只保留关机
+    table_equipment_change = table_equipment_change[table_equipment_change['equipment_status'] == 0]
+
+    # int
+    table_equipment_change["start_time"] = table_equipment_change["start_time"].astype(int)
+    table_equipment_change["end_time"] = table_equipment_change["end_time"].astype(int)
+
     return table_equipment_change
 
 
