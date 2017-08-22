@@ -45,11 +45,13 @@ class Unload(BaseMachine):
         self.equipment_resource_dict = equipment_resource_dict
         self.equipment_parameters = equipment_parameters
 
-        # add machine switch
-        self.machine_switch = self.env.event()
-        self.machine_switch.succeed()
-
+        # 设备开启状态
+        self.close = False
         self.resource_set = self._set_machine_resource()
+
+        # self hold process
+        self.process = self.env.process(self.run())
+
 
     def _set_machine_resource(self):
         """"""
@@ -115,20 +117,32 @@ class Unload(BaseMachine):
                     action="wait", ))
 
             events_processes.append(self.env.process(self.process_package(package)))
+
+        # truck is out
+        self.done_trucks_q.put(truck)
         # all packages are processed
         yield self.env.all_of(events_processes)
         return truck
 
     def run(self):
+
         while True:
-            # 开关机的事件控制
-            truck = yield self.trucks_q.get(lambda x: x.truck_type in self.truck_types)
-            # truck start
-            truck.insert_data(
-                TruckRecordDict(
-                    equipment_id=self.equipment_id,
-                    time_stamp=self.env.now,
-                    action="start", ))
+            self.close = False
+
+            try:
+                truck = yield self.trucks_q.get(lambda x: x.truck_type in self.truck_types)
+                # truck start
+                truck.insert_data(
+                    TruckRecordDict(
+                        equipment_id=self.equipment_id,
+                        time_stamp=self.env.now,
+                        action="start", ))
+
+            except simpy.Interrupt:
+                self.close = True
+                yield self.env.timeout(1800)
+                break
+
             # 等待货车处理完
             truck = yield self.env.process(self.process_truck(truck))
             # truck end
@@ -137,8 +151,7 @@ class Unload(BaseMachine):
                     equipment_id=self.equipment_id,
                     time_stamp=self.env.now,
                     action="end", ))
-            # truck is out
-            self.done_trucks_q.put(truck)
+
             # vehicle turnaround time
             yield self.env.timeout(self.vehicle_turnaround_time)
 
