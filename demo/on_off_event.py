@@ -7,7 +7,7 @@ class Unload:
         self.env = env
         self.truck = simpy.Store(env)
 
-        self.switch_res = simpy.PreemptiveResource(self.env, capacity=1,)
+        self.switch_res = simpy.PriorityResource(self.env, capacity=1,)
 
     def set_off(self, start, end):
         yield self.env.timeout(start)
@@ -44,7 +44,7 @@ class Controller:
     def control(self, machine):
 
         for time in range(0, 100, 10):
-            if time % 20:
+            if not time % 20:
                 self.env.process(machine.set_off(start=time, end=time+10))
 
 
@@ -61,7 +61,7 @@ if __name__ == '__main__':
 
     env.process(machine.run(), )
 
-    for t in range(10, 100, 2):
+    for t in range(0, 100, 2):
         env.process(truck_come(machine.truck, env, t))
 
     env.run()
