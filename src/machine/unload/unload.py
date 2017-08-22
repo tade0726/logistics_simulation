@@ -126,7 +126,6 @@ class Unload:
 
     def run(self):
         # 保证 控制器先初始化
-        yield self.env.timeout(0)
         while True:
             # 开关机的事件控制
             yield self.machine_switch
