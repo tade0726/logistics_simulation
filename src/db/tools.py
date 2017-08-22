@@ -511,7 +511,7 @@ def get_equipment_timetable():
     # 最后机器全开
     table_append.start_time = table_append.start_time.apply(lambda x: x + timedelta(minutes=30))
     table_append.end_time = table_append.end_time.apply(lambda x: x + timedelta(minutes=30))
-
+    table_append.equipment_status = 1
     table = table.append(table_append)
 
     g_equipment = table.sort_values('start_time').groupby('equipment_port')
