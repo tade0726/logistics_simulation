@@ -45,8 +45,6 @@ class Unload:
 
         # add machine switch
         self.machine_switch = self.env.event()
-        self.machine_switch.succeed()
-
         self.resource_set = self._set_machine_resource()
 
     def _set_machine_resource(self):
