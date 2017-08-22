@@ -127,12 +127,16 @@ class Unload:
     def run(self):
         # 保证 控制器先初始化
         while True:
-            # 开关机的事件控制
-            yield self.machine_switch
-            LOG.logger_font.debug(f"sim time: {self.env.now} - machine: {self.equipment_id} - do something")
 
             # filter out the match truck(LL/LA/AL/AA)
-            truck = yield self.trucks_q.get(lambda x: x.truck_type in self.truck_types)
+            get_truck = self.trucks_q.get(lambda x: x.truck_type in self.truck_types)
+            # 开关机的事件控制
+            results = yield self.machine_switch & get_truck
+            LOG.logger_font.debug(f"sim time: {self.env.now} - machine: {self.equipment_id} - do something")
+
+            # get truck
+            truck = [x._value for x in results.events if x._value][0]
+
             # truck start
             truck.insert_data(
                 TruckRecordDict(

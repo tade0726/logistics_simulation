@@ -362,11 +362,12 @@ class Pipeline:
 
     def run(self):
         # 保证 控制器先初始化
-        yield self.env.timeout(0)
         while True:
-            yield self.machine_switch
+            get_item = self.store.get()
+            results = yield get_item & self.machine_switch
             LOG.logger_font.debug(f"equipment: {self.equipment_id} working..")
-            item = yield self.store.get()
+            # get truck
+            item = [x._value for x in results.events if x._value][0]
             self.env.process(self.latency(item))
 
     def __str__(self):

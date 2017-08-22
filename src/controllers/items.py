@@ -240,7 +240,9 @@ class MachineController:
             start_time =  row['start_time']
             equipment_status = row['equipment_status']
             # delay start
-            if equipment_id[0] in ['r', 'a']:
+            if equipment_id[0] == 'm': # 无视 m
+                pass
+            elif equipment_id[0] in ['r', 'a']:
                 self.env.process(self._set_on_off_machine(equipment_id, equipment_status, delay=start_time))
             else:
                 self.env.process(self._set_on_off_pipeline(equipment_id, equipment_status, delay=start_time))
