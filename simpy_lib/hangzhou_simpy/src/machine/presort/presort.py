@@ -23,9 +23,9 @@
 
 
 import simpy
-from simpy_lib.hangzhou_simpy.src.vehicles.items import Package
-from simpy_lib.hangzhou_simpy.src.config import LOG
-from simpy_lib.hangzhou_simpy.src.utils import PackageRecordDict
+from src.vehicles.items import Package
+from src.config import LOG
+from src.utils import PackageRecordDict
 
 
 class Presort(object):
@@ -49,7 +49,6 @@ class Presort(object):
         self.resource_dict = resource_dict
         # 机器资源id与机器id映射字典
         self.equipment_resource_dict = equipment_resource_dict
-
         # 初始化初分拣字典
         self.resource_set = self._set_machine_resource()
 
@@ -93,7 +92,6 @@ class Presort(object):
                 msg = f"error: {exc}, package: {package}, equipment_id: {self.equipment_id}"
                 LOG.logger_font.error(msg)
                 LOG.logger_font.exception(exc)
-
     def run(self):
         while True:
             package = yield self.input_pip_line.get()

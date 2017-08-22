@@ -28,13 +28,11 @@ import pickle
 import os.path
 import networkx as nx
 from functools import reduce
-from simpy_lib.hangzhou_simpy.src.db.tools import load_from_mysql, get_reload_setting, SaveConfig, get_equipment_on_off
+from src.db.tools import load_from_mysql, get_reload_setting, SaveConfig, get_equipment_on_off
 
 
 # 开关控制是否过滤不可用节点
 SWITCH = False
-# 路径文件名字
-PATH_DICT_PATH = os.path.join(SaveConfig.DATA_DIR, "path.pkl")
 
 
 def machine_pre():
@@ -193,10 +191,10 @@ def generate_all_paths():
         all_paths[key]["all"] = value
     print("Small sort paths added!")
 
-    path_file = PATH_DICT_PATH
+    path_file = os.path.join(SaveConfig.DATA_DIR, "path")
     try:
-        with open(path_file, "wb") as pickle_file:
-            pickle.dump(all_paths, pickle_file)
+        with open(path_file, "wb") as pickle_path:
+            pickle.dump(all_paths, pickle_path)
         print("Path file wrote!")
     except Exception as exc:
         print(exc)
@@ -213,11 +211,11 @@ class PathGenerator(object):
     def __init__(self):
         self.reload_setting = get_reload_setting()
         self.machine_pre_dict = machine_pre()
-        path_file = PATH_DICT_PATH
+        path_file = os.path.join(SaveConfig.DATA_DIR, "path")
         if os.path.isfile(path_file):
             try:
-                with open(path_file, "rb") as pickle_file:
-                    all_paths = pickle.load(pickle_file)
+                with open(path_file, "rb") as pickle_path:
+                    all_paths = pickle.load(pickle_path)
             except Exception as exc:
                 print(exc)
                 all_paths = generate_all_paths()

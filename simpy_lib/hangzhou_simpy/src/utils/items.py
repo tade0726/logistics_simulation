@@ -1,8 +1,8 @@
 from collections import namedtuple
-from sqlalchemy.types import String, Integer, Text
+from sqlalchemy.types import String, Integer
 
-__all__ = ["TruckRecord", "PackageRecord", "PipelineRecord", "PathRecord",
-           "TruckRecordDict", "PackageRecordDict", "PipelineRecordDict", "PathRecordDict",
+__all__ = ["TruckRecord", "PackageRecord", "PipelineRecord",
+           "TruckRecordDict", "PackageRecordDict", "PipelineRecordDict",
            "OutputTableColumnType"]
 
 TruckRecord = namedtuple("truck_record",
@@ -11,8 +11,6 @@ PackageRecord = namedtuple("package_record", ["equipment_id", "parcel_id", "smal
                                               "time_stamp", "action"])
 PipelineRecord = namedtuple("pipeline_record", ["pipeline_id", "queue_id", "parcel_id", "small_id", "parcel_type",
                                                 "time_stamp", "action"])
-PathRecord = namedtuple("path_record", ["parcel_id", "small_id", "parcel_type", "start_node", "ident_des_zno",
-                                        "sorter_type", "dest_type", "ret_path"])
 
 
 class TruckRecordDict(dict):
@@ -24,10 +22,6 @@ class PackageRecordDict(dict):
 
 
 class PipelineRecordDict(dict):
-    pass
-
-
-class PathRecordDict(dict):
     pass
 
 
@@ -57,15 +51,4 @@ class OutputTableColumnType:
         small_id=String(length=32, ),
         parcel_type=String(length=32, ),
         action=String(length=32, ),
-    )
-
-    path_columns = dict(
-        parcel_id=String(length=32, ),
-        small_id=String(length=32, ),
-        parcel_type=String(length=32,),
-        start_node=String(length=32, ),
-        ident_des_zno=String(length=32, ),
-        sorter_type=String(length=32, ),
-        dest_type=String(length=32, ),
-        ret_path=Text(),
     )

@@ -15,16 +15,11 @@ import pandas as pd
 from collections import defaultdict
 import random
 
-from simpy_lib.hangzhou_simpy.src.utils import \
+from src.utils import \
     (PackageRecord, PipelineRecord, TruckRecord, PathGenerator, TruckRecordDict, PackageRecordDict, PipelineRecordDict)
+from src.config import LOG
 
-from simpy_lib.hangzhou_simpy.src.utils import \
-    (PathRecordDict, PathRecord)
-
-from simpy_lib.hangzhou_simpy.src.config import LOG
-
-__all__ = ["Parcel", "Package", "Truck", "Uld", "SmallBag", "SmallPackage", "Pipeline", "PipelineRes", "BasePipeline",
-           "PipelineReplace",]
+__all__ = ["Parcel", "Package", "Truck", "Uld", "SmallBag", "SmallPackage", "Pipeline", "PipelineRes", "BasePipeline"]
 
 
 path_g = PathGenerator()
@@ -43,7 +38,6 @@ class Package:
         # data store
         self.machine_data = list()
         self.pipeline_data = list()
-        self.path_request_data = list()
         # path_generator
         self.path_g = path_g
         # paths
@@ -68,18 +62,10 @@ class Package:
 
     # use in unload machine
     def set_path(self, package_start):
-        ret_path = self.path_g.path_generator(package_start, self.ident_des_zno, self.sorter_type, self.dest_type)
-        self.planned_path = tuple(ret_path)
+        path = self.path_g.path_generator(package_start, self.ident_des_zno, self.sorter_type, self.dest_type)
+        self.planned_path = tuple(path)
         self.path = list(self.planned_path)
         self.next_pipeline = self.planned_path[:2]
-
-        # collection path data
-        data = PathRecordDict(
-            start_node=package_start,
-            ret_path=':'.join(ret_path),
-        )
-        # add data
-        self.insert_data(data)
 
     def insert_data(self, data: dict):
 
@@ -105,23 +91,6 @@ class Package:
             LOG.logger_font.debug(msg=f"Package: {record.small_id} , action: {record.action}"
                                       f", pipeline: {record.pipeline_id}, timestamp: {record.time_stamp}")
 
-        elif isinstance(data, PathRecordDict):
-            record = PathRecord(
-                parcel_id=self.parcel_id,
-                small_id=self.small_id,
-                parcel_type=self.parcel_type,
-                ident_des_zno=self.ident_des_zno,
-                sorter_type=self.sorter_type,
-                dest_type=self.dest_type,
-                **data,
-            )
-
-            self.path_request_data.append(record)
-            LOG.logger_font.debug(msg=f"Package get path - parcel_id: {record.parcel_id}, small_id: {record.small_id}, "
-                                      f", path: {record.ret_path}"
-                                      f", parcel_type: {record.parcel_type}, ident_des_zno: {record.ident_des_zno}"
-                                      f", sorter_type: {record.sorter_type}, dest_type: {record.dest_type}")
-
         else:
             raise ValueError("Wrong type of record")
 
@@ -135,12 +104,12 @@ class Package:
             self.next_pipeline = self.path[-1]
         else:
             raise ValueError('The path have been empty!')
+        # remove the now_loc
+        # 改变下一个 pipeline id
 
     def __str__(self):
         display_dct = dict(self.attr)
         return f"<Package attr:{dict(display_dct)}, path: {self.planned_path}>"
-
-    __repr__ = __str__
 
 
 class Parcel(Package):
@@ -236,8 +205,6 @@ class Truck:
     def __str__(self):
         return f"<Truck truck_id: {self.truck_id}, come_time: {self.come_time}, store_size:{self.store_size}>"
 
-    __repr__ = __str__
-
 
 class Uld(Truck):
     """航空箱"""
@@ -276,11 +243,6 @@ class BasePipeline:
 
         self.queue.put(item)
 
-    def __str__(self):
-        return f"<Pipeline: {self.pipeline_id}>"
-
-    __repr__ = __str__
-
 
 class Pipeline:
 
@@ -296,31 +258,11 @@ class Pipeline:
 
         self.env = env
         self.delay = delay_time
-
-        # store for put in the front
-        # queue for get in the end
-        self.store = simpy.Store(env)
         self.queue = simpy.Store(env)
-
         self.pipeline_id = pipeline_id
         self.queue_id = queue_id
         self.machine_type = machine_type
         self.equipment_id = self.pipeline_id[1]  # in Pipeline the equipment_id is equipment after this pipeline
-
-        # switch
-        self.machine_switch = self.env.event()
-        self.machine_switch.succeed()
-
-        # init run
-        self.env.process(self.run())
-
-    def set_open(self):
-        """control machine"""
-        self.machine_switch.succeed()
-
-    def set_close(self):
-        """control machine"""
-        self.machine_switch = self.env.event()
 
     def latency(self, item: Package):
         """模拟传送时间"""
@@ -355,58 +297,13 @@ class Pipeline:
         self.queue.put(item)
 
     def put(self, item: Package):
-        self.store.put(item)
+        self.env.process(self.latency(item))
 
     def get(self):
         return self.queue.get()
 
-    def run(self):
-        # 保证 控制器先初始化
-        yield self.env.timeout(0)
-        while True:
-            yield self.machine_switch
-            LOG.logger_font.debug(f"equipment: {self.equipment_id} working..")
-            item = yield self.store.get()
-            self.env.process(self.latency(item))
-
     def __str__(self):
         return f"<Pipeline: {self.pipeline_id}, delay: {self.delay}>"
-
-    __repr__ = __str__
-
-
-class PipelineReplace(Pipeline):
-
-    """共享队列的传送带"""
-
-    def __init__(self,
-                 env: simpy.Environment,
-                 delay_time: float,
-                 pipeline_id: tuple,
-                 queue_id: str,
-                 machine_type: str,
-                 share_store_dict: dict,
-                 equipment_store_dict: dict,
-                 ):
-
-        super(PipelineReplace, self).__init__(env,
-                                              delay_time,
-                                              pipeline_id,
-                                              queue_id,
-                                              machine_type,)
-
-        self.share_store_dict = share_store_dict
-        self.equipment_store_dict = equipment_store_dict
-
-        # replace self.store
-        self._set_store()
-
-    def _set_store(self):
-        self.share_store_id = self.equipment_store_dict[self.equipment_id]
-        self.store = self.share_store_dict[self.share_store_id]
-
-    def __str__(self):
-        return f"<PipelineReplace: {self.pipeline_id}, delay: {self.delay}>"
 
 
 class PipelineRes(Pipeline):
@@ -487,9 +384,6 @@ class PipelineRes(Pipeline):
             # cutting path, change item next_pipeline
             item.pop_mark()
             self.queue.put(item)
-
-    def __str__(self):
-        return f"<PipelineRes: {self.pipeline_id}, delay: {self.delay}>"
 
 
 if __name__ == '__main__':
