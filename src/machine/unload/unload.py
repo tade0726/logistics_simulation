@@ -126,7 +126,6 @@ class Unload(BaseMachine):
         while True:
             # 开关机的事件控制
             truck = yield self.queue.get()
-            yield self.env.process(self.check_switch())
             # truck start
             truck.insert_data(
                 TruckRecordDict(

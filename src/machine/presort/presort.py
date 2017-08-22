@@ -95,7 +95,5 @@ class Presort(BaseMachine):
     def run(self):
         while True:
             package = yield self.input_pip_line.get()
-            # 开关机的事件控制
-            yield self.env.process(self.check_switch())
             # 有包裹就推送到资源模块
             self.env.process(self.processing(package))

@@ -138,6 +138,4 @@ class SmallReload(BaseMachine):
     def run(self):
         while True:
             small = yield self.last_pipeline.get()
-            # 开关机的事件控制
-            yield self.env.process(self.check_switch())
             self.put_package(small)
