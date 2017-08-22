@@ -501,22 +501,18 @@ def get_resource_timetable():
 def get_equipment_timetable():
     """返回机器开关改变的时间表"""
     table = load_from_mysql('i_equipment_io')
-    g_equipment = table.sort_values('start_time').groupby('equipment_port')
-    table_equipment_change = g_equipment.apply(lambda x: x[x.equipment_status.diff() != 0]).reset_index(drop=True)
 
     # convert to seconds
-    table_equipment_change["start_time"] = \
-        (pd.to_datetime(table_equipment_change["start_time"]) - TimeConfig.ZERO_TIMESTAMP) \
+    table["start_time"] = \
+        (pd.to_datetime(table["start_time"]) - TimeConfig.ZERO_TIMESTAMP) \
             .apply(lambda x: x.total_seconds() if x.total_seconds() > 0 else 0)
 
-    table_equipment_change["end_time"] = \
-        (pd.to_datetime(table_equipment_change["end_time"]) - TimeConfig.ZERO_TIMESTAMP) \
+    table["end_time"] = \
+        (pd.to_datetime(table["end_time"]) - TimeConfig.ZERO_TIMESTAMP) \
             .apply(lambda x: x.total_seconds() if x.total_seconds() > 0 else 0)
-    # clean end time
-    table_equipment_change = table_equipment_change.groupby('equipment_port').apply(clean_end_time)
     # 只保留关机
-    table_equipment_change = table_equipment_change[table_equipment_change['equipment_status'] == 0]
-    return table_equipment_change
+    table = table[table['equipment_status'] == 0]
+    return table
 
 
 def get_equipment_on_off():
