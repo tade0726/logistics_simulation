@@ -182,7 +182,7 @@ class MachineController:
         for machines in self.machines_dict.values():
             self.machine_list.extend(machines)
 
-    def _set_on_off_machine(self, equipment_id, start):
+    def _set_off_machine(self, equipment_id, start):
         """控制机器"""
         yield self.env.timeout(start)
         machines = list(filter(lambda x: x.equipment_id == equipment_id, self.machine_list))
@@ -196,7 +196,7 @@ class MachineController:
             start_time =  row['start_time']
             equipment_status = row['equipment_status']
             if equipment_status == 0:
-                self._set_on_off_machine(equipment_id, start=start_time,)
+                self.env.process(self._set_off_machine(equipment_id, start=start_time, ))
 
 
 if __name__ == '__main__':
