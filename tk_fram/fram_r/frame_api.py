@@ -224,7 +224,7 @@ def create_sheet(master, sheet: str, column: int, canvas_master):
     )
     ConfigFrame.SHEET_LABEL_DICT[sheet].config(
         ConfigFrame.SHEET_ATTR_DICT[sheet])
-    ConfigFrame.SHEET_LABEL_DICT[sheet].grid({'row': 0, 'column': column})
+    ConfigFrame.SHEET_LABEL_DICT[sheet].grid({'row': 0, 'column': column, 'sticky': 'nswe'})
     if sheet == 'R':
         ConfigFrame.SHEET_VAR_DICT[sheet].set(1)
         ConfigFrame.SHEET_LABEL_DICT[sheet]['state'] = DISABLED

@@ -246,8 +246,9 @@ class ConfigApp(object):
                 'bd': 1,
                 # 'relief': 'raise'
             },
-            'pack': {
-                'side': 'top'}
+            'grid': {'row': 0,'column': 0,
+                     'sticky': 'nswe'
+                     }
         },
         'LEFT_SET_PAD_TOP_PACKAGE': {
             'attr': {
@@ -257,7 +258,7 @@ class ConfigApp(object):
                 'relief': 'raise'
             },
             'grid': {'row': 0,'column': 0,
-                     # 'sticky': 'nswe'
+                     'sticky': 'nswe'
                      }
         },
         'LEFT_SET_PAD_SHEET': {

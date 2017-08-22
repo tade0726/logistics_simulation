@@ -10,11 +10,14 @@ from .frame_api import run_sim, save_data, update_data, q_exit, menu_file, \
     create_canvas, init_sheet, set_during_time, clear_time
 
 
-def init_app(master, wig):
+def init_app(master, wig, xlayout=(0, ), ylayout=(0, )):
     """"""
     return App(master=master,
                pack=ConfigApp.RELOAD_FRAME[wig]['grid'],
-               attr=ConfigApp.RELOAD_FRAME[wig]['attr'])
+               attr=ConfigApp.RELOAD_FRAME[wig]['attr'],
+               xlayout=xlayout,
+               ylayout=ylayout
+               )
 
 
 def init_menu(root: Tk):
@@ -43,22 +46,25 @@ def init_r_frame(root: Tk):
     config_view.init_view()
     #  =================左侧设置基底面板===============
     left = init_app(
-        master=root, wig='LEFT_FRAME'
+        master=root, wig='LEFT_FRAME', ylayout=(0, 1, 2)
     )
     #  =================右侧输出基底面板===============
     right = init_app(
         master=root,
-        wig='RIGHT_FRAME'
+        wig='RIGHT_FRAME',
+        ylayout=(0 ,1, 2)
     )
     #  ================左侧包裹数，人力资源数 ==========
     left_set_pad_package = init_app(
         master=left,
-        wig='LEFT_SET_PAD_TOP_PACKAGE'
+        wig='LEFT_SET_PAD_TOP_PACKAGE',
+        xlayout=tuple(i for i in range(6))
     )
     #  ================左侧r 表头 ==========
     left_set_pad_sheet = init_app(
         master=left,
-        wig='LEFT_SET_PAD_SHEET'
+        wig='LEFT_SET_PAD_SHEET',
+        xlayout=tuple(i for i in range(6))
     )
     #  ==============左侧，设置面板==========
     left_set_pad_center_up = init_app(
@@ -73,7 +79,8 @@ def init_r_frame(root: Tk):
     # =============右侧下部按钮控件样式===============
     right_output_pad_button = init_app(
         master=right,
-        wig='RIGHT_BUTTON'
+        wig='RIGHT_BUTTON',
+        xlayout=(0, 1, 2, 3)
     )
     #  ==============右侧中部输出面板样式===============
     right_output_pad_info = init_app(
@@ -101,12 +108,11 @@ def init_r_frame(root: Tk):
         master=left_set_pad_package,
         # bd=8,
         # height=2,
+        width=15,
         textvariable=StringVar(),
         values=PACKAGE_NUM_LIST
     )
-    package_num.grid(row=0, column=1
-                     , sticky='nswe'
-                     )
+    package_num.grid(row=0, column=1)
     # ============================班次时间配置=============================
     # -----------------------日期表标题
     lbl_date_plan = Label(
@@ -132,9 +138,7 @@ def init_r_frame(root: Tk):
         values=date_list,
         postcommand=lambda: clear_time(time_plan)
     )
-    date_plan.grid(row=0, column=3
-                   , sticky='nswe'
-                   )
+    date_plan.grid(row=0, column=3)
     # -----------------------时间表标题
     lbl_time = Label(
         master=left_set_pad_package,
@@ -158,9 +162,7 @@ def init_r_frame(root: Tk):
         postcommand=lambda: set_during_time(date_plan, time_plan)
     )
 
-    time_plan.grid(row=0, column=5
-                   , sticky='nswe'
-                   )
+    time_plan.grid(row=0, column=5)
     # ===================  机器区域sheet      =====================
     for i in init_sheet(left_set_pad_sheet, left_set_pad_center_up):
         pass

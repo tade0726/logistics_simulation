@@ -10,17 +10,20 @@ from .frame_r_view import ConfigFrame, NUM_TRANSLATE_DICT, CHECK_BTN_ENTRY_DIC, 
 
 class App(Frame):
     """"""
-    def __init__(self, master=None, pack: dict=None, attr: dict=None):
+    def __init__(self, master=None, pack: dict=None, attr: dict=None,
+                 xlayout: tuple=(0, ), ylayout: tuple=(0, )):
         super().__init__(master=master)
         self.pack_dic = pack
         self.attr = attr
+        self.xlayout = xlayout
+        self.ylayout = ylayout
         self._init_frame()
 
     def _init_frame(self):
         if self.pack_dic:
             self.grid(self.pack_dic)
-            self.rowconfigure(0,weight=1)
-            self.columnconfigure(0,weight=1)
+            self.rowconfigure(self.ylayout, weight=1)
+            self.columnconfigure(self.xlayout, weight=1)
         else:
             self.grid()
         if self.attr:
