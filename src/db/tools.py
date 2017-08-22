@@ -170,7 +170,7 @@ def get_trucks(is_test: bool=False):
     # convert datetime to seconds
 
     table["arrive_time"] = (table["arrive_time"] - TimeConfig.ZERO_TIMESTAMP)\
-        .apply(lambda x: x.total_seconds() if x.total_seconds() > 0 else 0)
+        .apply(lambda x: x.total_seconds() if x.total_seconds() > 0 else 0.01)
     # 'plate_num' 是货车／飞机／的编号
     return dict(list(table.groupby(['plate_num', 'arrive_time', 'src_type'])))
 
