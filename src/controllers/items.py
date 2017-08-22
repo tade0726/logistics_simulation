@@ -168,14 +168,13 @@ class MachineController:
         self.env = env
         self.machines_dict = machines_dict
 
-
         # loading data
         self._init_time_table()
         self._load_machines()
 
     def _init_time_table(self):
-        """读取开关时间表"""
-        self.timetable = get_equipment_timetable()
+        """读取关机时间表"""
+        self.time_table = get_equipment_timetable()
 
     def _load_machines(self):
         """添加机器"""
@@ -183,34 +182,21 @@ class MachineController:
         for machines in self.machines_dict.values():
             self.machine_list.extend(machines)
 
-    def _set_on_off_machine(self, equipment_id, start, end):
+    def _set_on_off_machine(self, equipment_id, start):
         """控制机器"""
+        yield self.env.timeout(start)
         machines = list(filter(lambda x: x.equipment_id == equipment_id, self.machine_list))
         for machine in machines:
-            self.env.process(self._set_off(machine, start, end))
-
-    def _set_off(self, machine, start, end):
-        """real set off process"""
-        yield self.env.timeout(start)
-        LOG.logger_font.debug(f"sim time: {self.env.now} - equipment: {machine.equipment_id} "
-                              f"- set off at: {start} - until: {end}")
-        with machine.switch_res.request(priority=-1) as req:
-            yield req
-
-            if end != np.inf:
-                yield self.env.timeout(end - start)
-            else:
-                yield self.env.timeout(1_000_000_000)
+            machine.process.interrupt()
 
     def controller(self):
-        for _, row in self.timetable.iterrows():
+        for _, row in self.time_table.iterrows():
             # load data
             equipment_id = row['equipment_port']
             start_time =  row['start_time']
-            end_time = row['end_time']
             equipment_status = row['equipment_status']
             if equipment_status == 0:
-                self._set_on_off_machine(equipment_id, start=start_time, end=end_time)
+                self._set_on_off_machine(equipment_id, start=start_time,)
 
 
 if __name__ == '__main__':
