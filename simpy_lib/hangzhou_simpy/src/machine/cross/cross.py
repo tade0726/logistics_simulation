@@ -20,8 +20,8 @@
 =====================================================================================================
 """
 
-from src.utils import PackageRecordDict
-from src.config import LOG
+from simpy_lib.hangzhou_simpy.src.utils import PackageRecordDict
+from simpy_lib.hangzhou_simpy.src.config import LOG
 
 
 
@@ -63,6 +63,7 @@ class Cross(object):
         self.pipelines_dict = pipelines_dict
         self.equipment_resource_dict = equipment_resource_dict
         self.resource_dict = resource_dict
+
         self.resource_set = self._set_machine_resource()
 
     def _set_machine_resource(self):
@@ -78,6 +79,7 @@ class Cross(object):
     def run(self):
 
         while True:
+            # 请求货物
             package = yield self.input_pip_line.get()
             # 记录机器开始处理货物信息
             package.insert_data(

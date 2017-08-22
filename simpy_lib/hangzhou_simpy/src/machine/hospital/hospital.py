@@ -24,9 +24,9 @@
 """
 
 import simpy
-from src.vehicles.items import Package
-from src.utils import PackageRecordDict
-from src.config import LOG
+from simpy_lib.hangzhou_simpy.src.vehicles.items import Package
+from simpy_lib.hangzhou_simpy.src.utils import PackageRecordDict
+from simpy_lib.hangzhou_simpy.src.config import LOG
 
 
 class Hospital(object):
@@ -50,6 +50,7 @@ class Hospital(object):
         self.resource_dict = resource_dict
         # 机器资源id与机器id映射字典
         self.equipment_resource_dict = equipment_resource_dict
+
         # 初始化初分拣字典
         self.resource_set = self._set_machine_resource()
 
@@ -97,5 +98,4 @@ class Hospital(object):
         while True:
             package = yield self.input_pip_line.get()
             # 有包裹就推送到资源模块
-            if package:
-                self.env.process(self.processing(package))
+            self.env.process(self.processing(package))

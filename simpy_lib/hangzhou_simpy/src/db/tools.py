@@ -14,13 +14,16 @@ data will be store into dictionary
 from os.path import join, isfile
 from functools import wraps
 import pandas as pd
-from src.config import *
+import numpy as np
+
+from simpy_lib.hangzhou_simpy.src.config import *
 
 
 __all__ = ['write_redis', 'load_from_redis', 'write_mysql', 'write_local', 'load_from_local',
            'load_from_mysql', 'get_vehicles', 'get_unload_setting', 'get_reload_setting', 'get_resource_limit',
            'get_resource_equipment_dict', 'get_pipelines', 'get_queue_io', 'get_equipment_process_time',
-           'get_parameters', 'get_equipment_on_off']
+           'get_parameters', 'get_resource_timetable', 'get_equipment_timetable',
+           'get_equipment_store_dict', 'get_equipment_on_off', 'get_small_reload_pack_time']
 
 
 def checking_pickle_file(table_name):
@@ -201,7 +204,6 @@ def get_vehicles(is_land: bool,
         table_parcel = table_parcel[table_parcel.parcel_type != 'small']
 
     # take samples for test
-    #  fixme: 关于小件的抽样需要查表
     if is_test:
         # keep both LL/AA
         table_parcel1 = table_parcel[table_parcel.parcel_type == 'small'].sample(250)
@@ -210,8 +212,8 @@ def get_vehicles(is_land: bool,
         table_parcel = table_parcel1.append(table_parcel2).append(table_parcel3)
         # filter small
 
+    # fixme: using parcel_id as plate_num, cos lack of plate_num for uld
     if not is_land:
-        # fixme: using parcel_id as plate_num, cos lack of plate_num for uld
         table_parcel["plate_num"] = table_parcel["parcel_id"]
         table_small["plate_num"] = table_small["parcel_id"]
 
@@ -267,13 +269,12 @@ def get_reload_setting():
 
 def get_resource_limit():
     """返回资源表，包含了单个资源处理时间"""
-    table_name1 = "i_resource_limit_bak"
-    table_name2 = "i_equipment_resource"
-    table_name3 = "i_equipment_io_bak"
 
-    table1 = load_from_mysql(table_name1)
+    table_name2 = "i_equipment_resource"
+
+    table1 = get_base_resource_limit()
     table2 = load_from_mysql(table_name2)
-    table3 = load_from_mysql(table_name3)
+    table3 = get_base_equipment_io()
 
     table2 = table2[["resource_id", "equipment_id"]].drop_duplicates()
     table3 = table3[["equipment_id", "process_time"]].drop_duplicates()
@@ -313,7 +314,9 @@ def get_pipelines():
     tab_queue_io = load_from_mysql(tab_n_queue_io)
     line_count_ori = tab_queue_io.shape[0]
 
-    # fixme: need to add in database
+    equipment_store_dict = get_equipment_store_dict()
+    equipment_shared_store = equipment_store_dict.keys()
+
     # add machine_type
     # m: presort
     # i1 - i8: secondary_sort
@@ -349,6 +352,9 @@ def get_pipelines():
         (tab_queue_io.equipment_port_next.str.startswith('c') | tab_queue_io.equipment_port_next.str.startswith('i')\
         | tab_queue_io.equipment_port_next.str.startswith('e'))
 
+    ind_pipeline_replace = \
+        tab_queue_io.equipment_port_next.isin(equipment_shared_store)
+
     tab_queue_io.loc[ind_presort, "machine_type"] = "presort"
     tab_queue_io.loc[ind_secondary_sort, "machine_type"] = "secondary_sort"
 
@@ -362,6 +368,7 @@ def get_pipelines():
 
     tab_queue_io.loc[ind_pipeline_res, "pipeline_type"] = "pipeline_res"
     tab_queue_io.loc[~ind_pipeline_res, "pipeline_type"] = "pipeline"
+    tab_queue_io.loc[ind_pipeline_replace, "pipeline_type"] = "pipeline_replace"
 
     line_count_last = tab_queue_io.shape[0]
     assert line_count_ori == line_count_last
@@ -385,8 +392,7 @@ def get_equipment_process_time():
          'a1_2': 0.0,
          'a1_3': 0.0,}
     """
-    table_n = "i_equipment_io_bak"
-    table = load_from_mysql(table_n)
+    table = get_base_equipment_io()
     table_dict = table.groupby(["equipment_port"])["process_time"].apply(lambda x: list(x)[0]).to_dict()
 
     return table_dict
@@ -417,19 +423,118 @@ def get_parameters():
     return table_dict
 
 
+def get_equipment_store_dict():
+    """返回共享队列的设备和 store 代码的对应关系"""
+    table = load_from_mysql('i_queue_io')
+
+    u_table = table[table.equipment_port_next.str.startswith('u')]
+    j_table = table[table.equipment_port_next.str.startswith('j')]
+
+    equipment_store_dict = dict()
+
+    for idx, x in enumerate(u_table.groupby('equipment_port_last')['equipment_port_next'].apply(list), start=1):
+        if len(x) > 1:
+            for p in x:
+                equipment_store_dict[p] = f'U_{idx}'
+
+    for idx, x in enumerate(j_table.groupby('equipment_port_last')['equipment_port_next'].apply(list), start=1):
+        if len(x) > 1:
+            for p in x:
+                equipment_store_dict[p] = f'J_{idx}'
+
+    return equipment_store_dict
+
+
+def get_base_equipment_io():
+    """得到 i_equipment_io 基础表格"""
+    table = load_from_mysql("i_equipment_io")
+    base_table = table[table.start_time == table.start_time.min()]
+    return base_table
+
+
+def get_base_resource_limit():
+    """得到 i_resource_limit 基础表格"""
+    table = load_from_mysql("i_resource_limit")
+    base_table = table[table.start_time == table.start_time.min()]
+    return base_table
+
+
+# helper for time table
+def clean_end_time(x):
+    if x.shape[0] > 1:
+        x['end_time'] = list(x['start_time'])[1:] + [np.inf]
+    else:
+        x['end_time'] = np.inf
+    return x
+
+def get_resource_timetable():
+    """返回资源被占用改变的时间表， 资源被占用发生改变将生成 process 占用资源，模拟资源变化的情况
+
+    资源被占用 = 最大资源 - 目标资源数
+
+    """
+    table = load_from_mysql('i_resource_limit')
+    # clean resource_limit, no zero
+    table.resource_limit = table.resource_limit.mask(table.resource_limit == 0, table.resource_number)
+    table['resource_occupy'] = table['resource_number'] - table['resource_limit']
+
+    g_resource = table.sort_values('start_time').groupby('resource_id')
+    table_resource_occupy_change = g_resource.apply(lambda x: x[x.resource_occupy.diff() != 0]).reset_index(drop=True)
+
+    # convert to seconds
+    table_resource_occupy_change["start_time"] = \
+        (pd.to_datetime(table_resource_occupy_change["start_time"]) - TimeConfig.ZERO_TIMESTAMP) \
+            .apply(lambda x: x.total_seconds() if x.total_seconds() > 0 else 0)
+
+    table_resource_occupy_change["end_time"] = \
+        (pd.to_datetime(table_resource_occupy_change["end_time"]) - TimeConfig.ZERO_TIMESTAMP) \
+            .apply(lambda x: x.total_seconds() if x.total_seconds() > 0 else 0)
+    # clean end time
+    table_resource_occupy_change = table_resource_occupy_change.groupby('resource_id').apply(clean_end_time)
+    return table_resource_occupy_change
+
+
+def get_equipment_timetable():
+    """返回机器开关改变的时间表"""
+    table = load_from_mysql('i_equipment_io')
+    g_equipment = table.sort_values('start_time').groupby('equipment_port')
+    table_equipment_change = g_equipment.apply(lambda x: x[x.equipment_status.diff() != 0]).reset_index(drop=True)
+
+    # convert to seconds
+    table_equipment_change["start_time"] = \
+        (pd.to_datetime(table_equipment_change["start_time"]) - TimeConfig.ZERO_TIMESTAMP) \
+            .apply(lambda x: x.total_seconds() if x.total_seconds() > 0 else 0)
+
+    table_equipment_change["end_time"] = \
+        (pd.to_datetime(table_equipment_change["end_time"]) - TimeConfig.ZERO_TIMESTAMP) \
+            .apply(lambda x: x.total_seconds() if x.total_seconds() > 0 else 0)
+    # clean end time
+    table_equipment_change = table_equipment_change.groupby('equipment_port').apply(clean_end_time)
+    return table_equipment_change
+
+
 def get_equipment_on_off():
     """
-    返回设备的开关信息, 返回开的设备名
+    返回初始设备的开关信息, 返回开的设备名
 
     samples:
         on: ['r1_1', 'r1_2', ..]
         off: ['r2_1', 'r3_3', ..]
     """
-    tab_n = "i_equipment_io_bak"
-    table = load_from_mysql(tab_n)
+    table = get_base_equipment_io()
     equipment_on = table[table.equipment_status == 1]
     equipment_off = table[table.equipment_status == 0]
     return equipment_on.equipment_port.tolist(), equipment_off.equipment_port.tolist(),
+
+
+# todo: 等待数据
+def get_small_reload_pack_time():
+    """返回 小件包打包时间
+
+    sample:
+    [ 1000, 20000, 20003, ..  ]
+    """
+    pass
 
 
 if __name__ == "__main__":

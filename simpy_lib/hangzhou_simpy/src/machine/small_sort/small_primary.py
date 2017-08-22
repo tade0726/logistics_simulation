@@ -13,9 +13,9 @@
                                     代码整体功能描述：小件分拣机的拆包模块；
 ==================================================================================================================================================
 """
-from src.vehicles.items import SmallBag
-from src.config import LOG
-from src.utils import PackageRecordDict
+from simpy_lib.hangzhou_simpy.src.vehicles.items import SmallBag
+from simpy_lib.hangzhou_simpy.src.config import LOG
+from simpy_lib.hangzhou_simpy.src.utils import PackageRecordDict
 
 
 class SmallPrimary(object):
@@ -38,6 +38,7 @@ class SmallPrimary(object):
         self.resource_dict = resource_dict
         # 机器资源id与机器id映射字典
         self.equipment_resource_dict = equipment_resource_dict
+
         # 初始化初分拣字典
         self.resource_set = self._set_machine_resource()
 
