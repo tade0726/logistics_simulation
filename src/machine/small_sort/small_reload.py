@@ -19,6 +19,7 @@
 
 ==================================================================================================================================================
 """
+import simpy
 
 from src.vehicles.items import SmallBag, SmallPackage
 from src.config import SmallCode, LOG
