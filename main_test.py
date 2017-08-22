@@ -252,7 +252,6 @@ def main():
                 pack_time_list=pack_time_list,)
         )
 
-
     # init trucks controllers
     LOG.logger_font.info("init controllers")
     truck_controller = TruckController(env,
@@ -269,6 +268,11 @@ def main():
 
     LOG.logger_font.info("init resource machine controllers..")
     LOG.logger_font.info("sim start..")
+
+    # machine control
+    machine_controller = MachineController(env,
+                                           machines_dict,)
+    machine_controller.controller()
 
     env.run()
 
