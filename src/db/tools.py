@@ -15,6 +15,7 @@ from os.path import join, isfile
 from functools import wraps
 import pandas as pd
 import numpy as np
+from datetime import datetime, timedelta
 
 from src.config import *
 
@@ -23,7 +24,7 @@ __all__ = ['write_redis', 'load_from_redis', 'write_mysql', 'write_local', 'load
            'load_from_mysql', 'get_vehicles', 'get_unload_setting', 'get_reload_setting', 'get_resource_limit',
            'get_resource_equipment_dict', 'get_pipelines', 'get_queue_io', 'get_equipment_process_time',
            'get_parameters', 'get_resource_timetable', 'get_equipment_timetable',
-           'get_equipment_store_dict', 'get_equipment_on_off', 'get_small_reload_pack_time']
+           'get_equipment_store_dict', 'get_equipment_on_off', 'get_small_reload_pack_time', 'get_base_equipment_io_max']
 
 
 def checking_pickle_file(table_name):
@@ -445,6 +446,13 @@ def get_equipment_store_dict():
     return equipment_store_dict
 
 
+def get_base_equipment_io_max():
+    """得到 i_equipment_io 基础表格 开始时间最大"""
+    table = load_from_mysql("i_equipment_io")
+    base_table = table[table.start_time == table.start_time.max()]
+    return base_table
+
+
 def get_base_equipment_io():
     """得到 i_equipment_io 基础表格"""
     table = load_from_mysql("i_equipment_io")
@@ -466,6 +474,7 @@ def clean_end_time(x):
     else:
         x['end_time'] = np.inf
     return x
+
 
 def get_resource_timetable():
     """返回资源被占用改变的时间表， 资源被占用发生改变将生成 process 占用资源，模拟资源变化的情况
@@ -497,6 +506,14 @@ def get_resource_timetable():
 def get_equipment_timetable():
     """返回机器开关改变的时间表"""
     table = load_from_mysql('i_equipment_io')
+    table_append = get_base_equipment_io_max()
+
+    # 最后机器全开
+    table_append.start_time = table_append.start_time.apply(lambda x: x + timedelta(minutes=30))
+    table_append.end_time = table_append.end_time.apply(lambda x: x + timedelta(minutes=30))
+
+    table = table.append(table_append)
+
     g_equipment = table.sort_values('start_time').groupby('equipment_port')
     table_equipment_change = g_equipment.apply(lambda x: x[x.equipment_status.diff() != 0]).reset_index(drop=True)
 
