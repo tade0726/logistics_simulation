@@ -52,7 +52,7 @@ def main():
     equipment_process_time_dict = get_equipment_process_time()
     equipment_parameters = get_parameters()
     equipment_store_dict = get_equipment_store_dict()
-    open_time_dict, close_time_dict = get_equipment_timetable()
+    close_time_dict = get_equipment_timetable()
 
     # pack_time_list = get_small_reload_pack_time()
     pack_time_list = [14_400, 18_000, 25_200, 28_800, 42_600, 45_000,] # todo: 等待数据库
@@ -92,8 +92,7 @@ def main():
                                                    pipeline_id,
                                                    queue_id,
                                                    machine_type,
-                                                   close_time_dict,
-                                                   open_time_dict)
+                                                   close_time_dict,)
 
         elif pipeline_type == 'pipeline_res':
             pipelines_dict[pipeline_id] = PipelineRes(env,
@@ -104,8 +103,7 @@ def main():
                                                       queue_id,
                                                       machine_type,
                                                       equipment_process_time_dict,
-                                                      close_time_dict,
-                                                      open_time_dict)
+                                                      close_time_dict)
 
         elif pipeline_type == 'pipeline_replace':
             pipelines_dict[pipeline_id] = PipelineReplace(env,
@@ -115,8 +113,7 @@ def main():
                                                           machine_type,
                                                           share_store_dict,
                                                           equipment_store_dict,
-                                                          close_time_dict,
-                                                          open_time_dict)
+                                                          close_time_dict)
         else:
             raise ValueError("Pipeline init error!!")
 
@@ -180,8 +177,7 @@ def main():
                    resource_dict=resource_dict,
                    equipment_resource_dict=equipment_resource_dict,
                    equipment_parameters=equipment_parameters,
-                   close_time_dict=close_time_dict,
-                   open_time_dict=open_time_dict,)
+                   close_time_dict=close_time_dict,)
         )
 
     # init presort machines
