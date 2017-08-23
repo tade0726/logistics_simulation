@@ -17,6 +17,8 @@ import pandas as pd
 import numpy as np
 from datetime import datetime, timedelta
 
+from collections import defaultdict
+
 from src.config import *
 
 
@@ -467,8 +469,8 @@ def get_base_resource_limit():
     return base_table
 
 
-# helper for time table
 def clean_end_time(x):
+    """保持最后的状态直到共产主义消失为止"""
     if x.shape[0] > 1:
         x['end_time'] = list(x['start_time'])[1:] + [np.inf]
     else:
@@ -498,34 +500,41 @@ def get_resource_timetable():
     table_resource_occupy_change["end_time"] = \
         (pd.to_datetime(table_resource_occupy_change["end_time"]) - TimeConfig.ZERO_TIMESTAMP) \
             .apply(lambda x: x.total_seconds() if x.total_seconds() > 0 else 0)
-    # clean end time
+    # 保持最后的状态直到共产主义消失为止
     table_resource_occupy_change = table_resource_occupy_change.groupby('resource_id').apply(clean_end_time)
     return table_resource_occupy_change
 
 
 def get_equipment_timetable():
-    """返回机器开关改变的时间表
-    return: open_dict, close_dict
+    """返回机器开改变的时间表字典
     """
     table = load_from_mysql('i_equipment_io')
+    g_equipment = table.sort_values('start_time').groupby('equipment_port')
+    table_equipment_change = g_equipment.apply(lambda x: x[x.equipment_status.diff() != 0]).reset_index(drop=True)
+
     # convert to seconds
-    table["start_time"] = \
-        (pd.to_datetime(table["start_time"]) - TimeConfig.ZERO_TIMESTAMP) \
+    table_equipment_change["start_time"] = \
+        (pd.to_datetime(table_equipment_change["start_time"]) - TimeConfig.ZERO_TIMESTAMP) \
             .apply(lambda x: x.total_seconds() if x.total_seconds() > 0 else 0)
 
-    table["end_time"] = \
-        (pd.to_datetime(table["end_time"]) - TimeConfig.ZERO_TIMESTAMP) \
+    table_equipment_change["end_time"] = \
+        (pd.to_datetime(table_equipment_change["end_time"]) - TimeConfig.ZERO_TIMESTAMP) \
             .apply(lambda x: x.total_seconds() if x.total_seconds() > 0 else 0)
 
-    # only need open status
-    table = table[table.equipment_status == 1]
     # clear m
-    table = table[~table.equipment_port.str.startswith('m')]
+    table_equipment_change = table_equipment_change[~table_equipment_change.equipment_port.str.startswith('m')]
+    # 保持最后的状态直到共产主义消失为止
+    table_equipment_change = table_equipment_change.groupby('equipment_port').apply(clean_end_time)
 
-    open_dict = table.groupby('equipment_port')['start_time'].apply(lambda x: sorted(x)).to_dict()
-    close_dict = table.groupby('equipment_port')['end_time'].apply(lambda x: sorted(x)).to_dict()
+    # 只保留开机的状态
+    table_temp = table_equipment_change[table_equipment_change.equipment_status == 1]
 
-    return open_dict, close_dict
+    equipment_open_time = defaultdict(list)
+
+    for idx, row in table_temp.set_index('equipment_port').iterrows():
+        equipment_open_time[idx].append((row['start_time'], row['end_time']))
+
+    return equipment_open_time
 
 
 def get_equipment_on_off():
