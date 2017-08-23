@@ -29,7 +29,9 @@ class Unload:
                  pipelines_dict: dict,
                  resource_dict: defaultdict,
                  equipment_resource_dict: dict,
-                 equipment_parameters: dict
+                 equipment_parameters: dict,
+                 close_time_dict: dict,
+                 open_time_dict: dict,
                  ):
 
         self.env = env
@@ -49,6 +51,13 @@ class Unload:
         # machine open close time
         self.open_time = list()
         self.close_time = list()
+
+        # open close time table
+        self.close_time = close_time_dict.get(self.equipment_id, [])
+        self.open_time = open_time_dict.get(self.equipment_id, [])
+
+        self.close_time = sorted(self.close_time)
+        self.open_time = sorted(self.open_time)
 
     def _set_machine_resource(self):
         """"""
@@ -124,7 +133,7 @@ class Unload:
             # filter out the match truck(LL/LA/AL/AA)
             truck = yield self.trucks_q.get(lambda x: x.truck_type in self.truck_types)
 
-            if self.env.now >= self.close_time[0]:
+            if self.env.now > self.close_time[0]:
 
                 self.close_time.pop(0)
                 self.trucks_q.put(truck)
