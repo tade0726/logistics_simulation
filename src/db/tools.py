@@ -506,7 +506,7 @@ def get_resource_timetable():
 
 
 def get_equipment_timetable():
-    """返回机器开改变的时间表字典
+    """返回机器关机的时间表字典
     """
     table = load_from_mysql('i_equipment_io')
     g_equipment = table.sort_values('start_time').groupby('equipment_port')
@@ -526,9 +526,8 @@ def get_equipment_timetable():
     # 保持最后的状态直到共产主义消失为止
     table_equipment_change = table_equipment_change.groupby('equipment_port').apply(clean_end_time)
 
-    # 只保留开机的状态
-    table_temp = table_equipment_change[table_equipment_change.equipment_status == 1]
-
+    # 只保留关机的状态
+    table_temp = table_equipment_change[table_equipment_change.equipment_status == 0]
     equipment_open_time = defaultdict(list)
 
     for idx, row in table_temp.set_index('equipment_port').iterrows():

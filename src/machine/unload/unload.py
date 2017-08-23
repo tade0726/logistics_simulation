@@ -14,7 +14,7 @@ import simpy
 from collections import defaultdict
 from src.vehicles import Package, Truck
 from src.config import LOG
-from src.utils import PackageRecordDict, TruckRecordDict
+from src.utils import PackageRecordDict, TruckRecordDict, not_right_on_time
 
 
 class Unload:
@@ -31,7 +31,6 @@ class Unload:
                  equipment_resource_dict: dict,
                  equipment_parameters: dict,
                  close_time_dict: dict,
-                 open_time_dict: dict,
                  ):
 
         self.env = env
@@ -54,10 +53,9 @@ class Unload:
 
         # open close time table
         self.close_time = close_time_dict.get(self.equipment_id, [])
-        self.open_time = open_time_dict.get(self.equipment_id, [])
+        self.open_time_save = tuple(self.open_time)
 
-        self.close_time = sorted(self.close_time)
-        self.open_time = sorted(self.open_time)[1:]  # clear first open time
+        self.truck_done_event = self.env.event()
 
     def _set_machine_resource(self):
         """"""
@@ -109,7 +107,16 @@ class Unload:
                     self.pipelines_dict["unload_error"].put(package)
 
     def process_truck(self, truck: Truck):
+
         """process one truck"""
+
+        # truck start
+        truck.insert_data(
+            TruckRecordDict(
+                equipment_id=self.equipment_id,
+                time_stamp=self.env.now,
+                action="start", ))
+
         packages = truck.get_all_package()
 
         events_processes = list()
@@ -124,6 +131,19 @@ class Unload:
             events_processes.append(self.env.process(self.process_package(package)))
         # all packages are processed
         yield self.env.all_of(events_processes)
+
+        self.truck_done_event.succeed()
+        self.truck_done_event = self.env.event()
+
+        # truck end
+        truck.insert_data(
+            TruckRecordDict(
+                equipment_id=self.equipment_id,
+                time_stamp=self.env.now,
+                action="end", ))
+
+        # truck is out
+        self.done_trucks_q.put(truck)
         return truck
 
     def run(self):
@@ -132,46 +152,16 @@ class Unload:
 
             # filter out the match truck(LL/LA/AL/AA)
             truck = yield self.trucks_q.get(lambda x: x.truck_type in self.truck_types)
+            close_time_zone = not_right_on_time(self.env.now, self.close_time)
 
-            if self.close_time:
-
-                if self.env.now > self.close_time[0]:
-
-                    self.close_time.pop(0)
-                    self.trucks_q.put(truck)
-
-                    LOG.logger_font.debug(f"sim time: {self.env.now} - put back {truck}")
-                    open_time = self.open_time.pop(0)
-
-                    LOG.logger_font.debug(f"sim time: {self.env.now} - machine: {self.equipment_id} close")
-                    duration_time = open_time - self.env.now
-
-                    LOG.logger_font.debug(f"sim time: {self.env.now} - machine: {self.equipment_id} "
-                                          f"will reopen at {open_time}")
-
-                    yield self.env.timeout(duration_time)
-                    LOG.logger_font.debug(f"sim time: {self.env.now} - machine: {self.equipment_id} reopen")
-                    continue
-
-            # truck start
-            truck.insert_data(
-                TruckRecordDict(
-                    equipment_id=self.equipment_id,
-                    time_stamp=self.env.now,
-                    action="start", ))
-            # 等待货车处理完
-            truck = yield self.env.process(self.process_truck(truck))
-            # truck end
-            truck.insert_data(
-                TruckRecordDict(
-                    equipment_id=self.equipment_id,
-                    time_stamp=self.env.now,
-                    action="end", ))
-
-            # truck is out
-            self.done_trucks_q.put(truck)
-            # vehicle turnaround time
-            yield self.env.timeout(self.vehicle_turnaround_time)
+            if close_time_zone:
+                self.trucks_q.put(truck)
+                yield self.env.timeout(close_time_zone[1] - self.env.now) & self.truck_done_event
+            else:
+                # 等待货车处理完
+                yield self.env.process(self.process_truck(truck))
+                # vehicle turnaround time
+                yield self.env.timeout(self.vehicle_turnaround_time)
 
 
 
