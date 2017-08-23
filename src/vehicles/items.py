@@ -368,7 +368,7 @@ class Pipeline:
 
             if close_time_zone:
                 self.store.put(item)
-                yield self.env.timeout(close_time_zone[1] - self.env.now)
+                yield self.env.timeout(close_time_zone[0][1] - self.env.now)
             else:
                 self.env.process(self.latency(item))
 
