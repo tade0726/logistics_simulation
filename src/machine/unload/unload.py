@@ -15,7 +15,7 @@ import numpy as np
 from collections import defaultdict
 from src.vehicles import Package, Truck
 from src.config import LOG
-from src.utils import PackageRecordDict, TruckRecordDict, not_right_on_time
+from src.utils import PackageRecordDict, TruckRecordDict
 
 
 class Unload:

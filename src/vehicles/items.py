@@ -17,8 +17,7 @@ from collections import defaultdict
 import random
 
 from src.utils import \
-    (PackageRecord, PipelineRecord, TruckRecord, PathGenerator, TruckRecordDict, PackageRecordDict, PipelineRecordDict,
-     not_right_on_time)
+    (PackageRecord, PipelineRecord, TruckRecord, PathGenerator, TruckRecordDict, PackageRecordDict, PipelineRecordDict)
 
 from src.utils import \
     (PathRecordDict, PathRecord)
