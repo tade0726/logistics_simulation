@@ -150,15 +150,18 @@ class Unload:
 
             # filter out the match truck(LL/LA/AL/AA)
             truck = yield self.trucks_q.get(lambda x: x.truck_type in self.truck_types)
-
+            print(f"sim time: {self.env.now}, get truck {truck}, unload_port: {self.equipment_id}")
             close_time_zone = not_right_on_time(self.env.now, self.close_time)
 
             if close_time_zone:
                 self.trucks_q.put(truck)
+                print(f"sim time: {self.env.now}, put back truck {truck}, unload_port: {self.equipment_id}")
+
+                # close process
                 if close_time_zone[0][1] == np.inf:
                     self.env.exit()
-                else:
-                    yield self.env.timeout(close_time_zone[0][1] - self.env.now)
+
+                yield self.env.timeout(close_time_zone[0][1] - self.env.now)
             else:
                 # 等待货车处理完
                 yield self.env.process(self.process_truck(truck))

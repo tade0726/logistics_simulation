@@ -280,7 +280,7 @@ def main():
                 env.process(pipeline.run())
 
     # setup
-    setup_process()
+    setup_process(True)
 
     # init trucks controllers
     LOG.logger_font.info("init controllers")

@@ -364,18 +364,21 @@ class Pipeline:
         while True:
 
             item = yield self.store.get()
+            print(f"sim time: {self.env.now}, get item {item}")
+
             close_time_zone = not_right_on_time(self.env.now, self.close_time)
 
             if close_time_zone:
                 self.store.put(item)
+                print(f"sim time: {self.env.now}, put back item {item}")
+
+                # close process
                 if close_time_zone[0][1] == np.inf:
                     self.env.exit()
-                else:
-                    yield self.env.timeout(close_time_zone[0][1] - self.env.now)
+
+                yield self.env.timeout(close_time_zone[0][1] - self.env.now)
             else:
                 self.env.process(self.latency(item))
-
-
 
     def __str__(self):
         return f"<Pipeline: {self.pipeline_id}, delay: {self.delay}>"
