@@ -24,7 +24,7 @@ from src.utils import \
 from src.config import LOG
 
 __all__ = ["Parcel", "Package", "Truck", "Uld", "SmallBag", "SmallPackage", "Pipeline", "PipelineRes", "BasePipeline",
-           "PipelineReplace",]
+           "PipelineReplaceJ",]
 
 
 path_g = PathGenerator()
@@ -299,28 +299,12 @@ class Pipeline:
 
         # store for put in the front
         # queue for get in the end
-        self.store = simpy.Store(env)
         self.queue = simpy.Store(env)
 
         self.pipeline_id = pipeline_id
         self.queue_id = queue_id
         self.machine_type = machine_type
         self.equipment_id = self.pipeline_id[1]  # in Pipeline the equipment_id is equipment after this pipeline
-
-        # switch
-        self.machine_switch = self.env.event()
-        self.machine_switch.succeed()
-
-        # init run
-        self.env.process(self.run())
-
-    def set_open(self):
-        """control machine"""
-        self.machine_switch.succeed()
-
-    def set_close(self):
-        """control machine"""
-        self.machine_switch = self.env.event()
 
     def latency(self, item: Package):
         """模拟传送时间"""
@@ -355,20 +339,10 @@ class Pipeline:
         self.queue.put(item)
 
     def put(self, item: Package):
-        self.store.put(item)
+        self.env.process(self.latency(item))
 
     def get(self):
         return self.queue.get()
-
-    def run(self):
-        # 保证 控制器先初始化
-        while True:
-            get_item = self.store.get()
-            results = yield get_item & self.machine_switch
-            LOG.logger_font.debug(f"equipment: {self.equipment_id} working..")
-            # get truck
-            item = [x._value for x in results.events if x._value][0]
-            self.env.process(self.latency(item))
 
     def __str__(self):
         return f"<Pipeline: {self.pipeline_id}, delay: {self.delay}>"
@@ -376,7 +350,7 @@ class Pipeline:
     __repr__ = __str__
 
 
-class PipelineReplace(Pipeline):
+class PipelineReplaceJ(Pipeline):
 
     """共享队列的传送带"""
 
@@ -390,7 +364,7 @@ class PipelineReplace(Pipeline):
                  equipment_store_dict: dict,
                  ):
 
-        super(PipelineReplace, self).__init__(env,
+        super(PipelineReplaceJ, self).__init__(env,
                                               delay_time,
                                               pipeline_id,
                                               queue_id,
@@ -399,15 +373,12 @@ class PipelineReplace(Pipeline):
         self.share_store_dict = share_store_dict
         self.equipment_store_dict = equipment_store_dict
 
-        # replace self.store
-        self._set_store()
-
-    def _set_store(self):
+        # replace self.queue
         self.share_store_id = self.equipment_store_dict[self.equipment_id]
-        self.store = self.share_store_dict[self.share_store_id]
+        self.queue = self.share_store_dict[self.share_store_id]
 
     def __str__(self):
-        return f"<PipelineReplace: {self.pipeline_id}, delay: {self.delay}>"
+        return f"<PipelineReplaceJ: {self.pipeline_id}, delay: {self.delay}>"
 
 
 class PipelineRes(Pipeline):
