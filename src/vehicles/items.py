@@ -24,7 +24,7 @@ from src.utils import \
 from src.config import LOG
 
 __all__ = ["Parcel", "Package", "Truck", "Uld", "SmallBag", "SmallPackage", "Pipeline", "PipelineRes", "BasePipeline",
-           "PipelineReplaceJ",]
+           "PipelineReplace",]
 
 
 path_g = PathGenerator()
@@ -316,8 +316,7 @@ class Pipeline:
         self.close_time = sorted(self.close_time)
         self.open_time = sorted(self.open_time)
 
-
-    def latency(self, item: Package):
+    def latency(self, item: Package, duration_time:float):
 
         """模拟传送时间"""
         # pipeline start server
@@ -336,7 +335,7 @@ class Pipeline:
         item.insert_data(
             PackageRecordDict(
                 equipment_id=self.equipment_id,
-                time_stamp=self.env.now,
+                time_stamp=(self.env.now - duration_time),
                 action="wait", ))
 
         # pipeline end server
@@ -350,7 +349,7 @@ class Pipeline:
         self.queue.put(item)
 
     def put(self, item: Package):
-        self.env.process(self.latency(item))
+        self.store.put(item)
 
     def get(self):
         return self.queue.get()
@@ -358,6 +357,8 @@ class Pipeline:
     def run(self):
 
         while True:
+
+            duration_time = 0
 
             item = yield self.store.get()
 
@@ -381,7 +382,7 @@ class Pipeline:
                     LOG.logger_font.debug(f"sim time: {self.env.now} - machine: {self.equipment_id} reopen")
                     continue
 
-            self.put(item)
+            self.env.process(self.latency(item, duration_time))
 
     def __str__(self):
         return f"<Pipeline: {self.pipeline_id}, delay: {self.delay}>"
