@@ -363,7 +363,7 @@ class Pipeline:
 
         while True:
 
-            item = yield self.store
+            item = yield self.store.get()
             close_time_zone = not_right_on_time(self.env.now, self.close_time)
 
             if close_time_zone:
