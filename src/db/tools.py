@@ -521,19 +521,19 @@ def get_equipment_timetable():
         (pd.to_datetime(table_equipment_change["end_time"]) - TimeConfig.ZERO_TIMESTAMP) \
             .apply(lambda x: x.total_seconds() if x.total_seconds() > 0 else 0)
 
-    # clear m
-    table_equipment_change = table_equipment_change[~table_equipment_change.equipment_port.str.startswith('m')]
     # 保持最后的状态直到共产主义消失为止
     table_equipment_change = table_equipment_change.groupby('equipment_port').apply(clean_end_time)
 
     # 只保留关机的状态
     table_temp = table_equipment_change[table_equipment_change.equipment_status == 0]
-    equipment_open_time = defaultdict(list)
+    equipment_close_time = defaultdict(list)
 
     for idx, row in table_temp.set_index('equipment_port').iterrows():
-        equipment_open_time[idx].append((row['start_time'], row['end_time']))
+        equipment_close_time[idx].append((row['start_time'], row['end_time']))
 
-    return equipment_open_time
+    equipment_close_time = {k:v for k,v in equipment_open_time.items() if k[0] in ['r', 'a', 'j', 'u']}
+
+    return equipment_close_time
 
 
 def get_equipment_on_off():

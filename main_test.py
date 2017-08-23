@@ -264,12 +264,23 @@ def main():
         )
 
     # adding machines into processes
-    all_machine_process = list()
+    def setup_process(clear_unload_switch:bool = False):
 
-    for machine_type, machines in machines_dict.items():
-        LOG.logger_font.info(f"init {machine_type} machines")
-        for machine in machines:
-            all_machine_process.append(env.process(machine.run()))
+        for machine_type, machines in machines_dict.items():
+            LOG.logger_font.info(f"init {machine_type} machines")
+            for machine in machines:
+                if (machine_type == "unload") & clear_unload_switch:
+                    machine.close_time = []
+                env.process(machine.run())
+
+        for pipeline in pipelines_dict.values():
+            if isinstance(pipeline, Pipeline):
+                if clear_unload_switch:
+                    pipeline.close_time = []
+                env.process(pipeline.run())
+
+    # setup
+    setup_process()
 
     # init trucks controllers
     LOG.logger_font.info("init controllers")
@@ -282,8 +293,7 @@ def main():
 
     # init resource controller
     resource_controller = ResourceController(env,
-                                             resource_dict,
-                                             all_machine_process)
+                                             resource_dict,)
     resource_controller.controller()
 
     LOG.logger_font.info("init resource machine controllers..")
@@ -291,10 +301,17 @@ def main():
 
     env.run()
 
+    # fix later
+    clear_unload_switch =True
+    if clear_unload_switch:
+        setup_process(clear_unload_switch)
+
+    env.run()
+
     num_of_trucks = len(trucks_queue.items)
+    LOG.logger_font.info(f"{num_of_trucks} trucks leave in queue")
     assert num_of_trucks == 0, ValueError("Truck queue should be empty!!")
 
-    LOG.logger_font.info(f"{num_of_trucks} trucks leave in queue")
     LOG.logger_font.info("sim end..")
     LOG.logger_font.info("collecting data")
 

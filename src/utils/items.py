@@ -71,7 +71,7 @@ class OutputTableColumnType:
     )
 
 
-def not_right_on_time(now, close_time_zones: list):
+def not_right_on_time(now:float, close_time_zones: list):
     """判断是否在关机的时间区间"""
-    match_time_zone = [time_zone for time_zone in close_time_zones if (time_zone[0] < now <= time_zone[1])]
+    match_time_zone = [time_zone for time_zone in close_time_zones if (now >= time_zone[0] ) & (now <=time_zone[1])]
     return match_time_zone

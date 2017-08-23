@@ -12,6 +12,7 @@ Uld class
 """
 import simpy
 import pandas as pd
+import numpy as np
 from collections import defaultdict
 import random
 
@@ -232,6 +233,8 @@ class Truck:
                     store_size=self.store_size,
                     **data,)
 
+        LOG.logger_font.debug(msg=f"Truck: {record}")
+
         self.truck_data.append(record)
 
     def __str__(self):
@@ -313,9 +316,6 @@ class Pipeline:
         self.close_time = close_time_dict.get(self.equipment_id, [])
         self.close_time_cp = tuple(self.close_time)
 
-        # run pipeline process
-        self.env.process(self.run())
-
     def latency(self, item: Package):
 
         """模拟传送时间"""
@@ -368,7 +368,10 @@ class Pipeline:
 
             if close_time_zone:
                 self.store.put(item)
-                yield self.env.timeout(close_time_zone[0][1] - self.env.now)
+                if close_time_zone[0][1] == np.inf:
+                    self.env.exit()
+                else:
+                    yield self.env.timeout(close_time_zone[0][1] - self.env.now)
             else:
                 self.env.process(self.latency(item))
 

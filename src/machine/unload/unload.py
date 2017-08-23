@@ -10,6 +10,7 @@ unload modules
 """
 
 import simpy
+import numpy as np
 
 from collections import defaultdict
 from src.vehicles import Package, Truck
@@ -47,13 +48,9 @@ class Unload:
         # add machine switch
         self.resource_set = self._set_machine_resource()
 
-        # machine open close time
-        self.open_time = list()
-        self.close_time = list()
-
         # open close time table
         self.close_time = close_time_dict.get(self.equipment_id, [])
-        self.open_time_save = tuple(self.open_time)
+        self.close_time_save = tuple(self.close_time)
         self.truck_done_event = self.env.event()
 
     def _set_machine_resource(self):
@@ -119,7 +116,9 @@ class Unload:
         packages = truck.get_all_package()
 
         events_processes = list()
+
         for package in packages:
+
             # add package wait data
             package.insert_data(
                 PackageRecordDict(
@@ -128,6 +127,7 @@ class Unload:
                     action="wait", ))
 
             events_processes.append(self.env.process(self.process_package(package)))
+
         # all packages are processed
         yield self.env.all_of(events_processes)
 
@@ -143,7 +143,6 @@ class Unload:
 
         # truck is out
         self.done_trucks_q.put(truck)
-        return truck
 
     def run(self):
 
@@ -151,11 +150,15 @@ class Unload:
 
             # filter out the match truck(LL/LA/AL/AA)
             truck = yield self.trucks_q.get(lambda x: x.truck_type in self.truck_types)
+
             close_time_zone = not_right_on_time(self.env.now, self.close_time)
 
             if close_time_zone:
                 self.trucks_q.put(truck)
-                yield self.env.timeout(close_time_zone[0][1] - self.env.now) & self.truck_done_event
+                if close_time_zone[0][1] == np.inf:
+                    self.env.exit()
+                else:
+                    yield self.env.timeout(close_time_zone[0][1] - self.env.now)
             else:
                 # 等待货车处理完
                 yield self.env.process(self.process_truck(truck))

@@ -115,12 +115,11 @@ class ResourceController:
     """control resource change during simulation"""
     def __init__(self,
                  env: simpy.Environment,
-                 resource_dict,
-                 all_machine_process):
+                 resource_dict,):
 
         self.env = env
         self.resource_dict = resource_dict
-        self.all_machine_process = all_machine_process
+        self.until_death = self.env.timeout(10_000_000)
 
         self._init_time_table()
 
@@ -139,7 +138,7 @@ class ResourceController:
                 yield self.env.timeout(duration)
             else:
                 # all machine finished
-                yield self.env.all_of(self.all_machine_process)
+                yield self.until_death
 
     def controller(self):
         for _, row in self.timetable.iterrows():
