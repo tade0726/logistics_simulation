@@ -531,7 +531,7 @@ def get_equipment_timetable():
     for idx, row in table_temp.set_index('equipment_port').iterrows():
         equipment_close_time[idx].append((row['start_time'], row['end_time']))
 
-    equipment_close_time = {k:v for k,v in equipment_open_time.items() if k[0] in ['r', 'a', 'j', 'u']}
+    equipment_close_time = {k:v for k,v in equipment_close_time.items() if k[0] in ['r', 'a', 'j', 'u']}
 
     return equipment_close_time
 
