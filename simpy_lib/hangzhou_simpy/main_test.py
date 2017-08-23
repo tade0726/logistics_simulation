@@ -30,10 +30,10 @@ from simpy_lib.hangzhou_simpy.src.config import MainConfig, TimeConfig, LOG, Sav
 __all__ = ["main"]
 
 
-def main():
+def main(run_arg):
 
     # start time
-    t_start = datetime.now()
+    t_start = run_arg
 
     # simpy env init
     env = simpy.Environment()
