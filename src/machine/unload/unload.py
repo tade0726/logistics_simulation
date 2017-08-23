@@ -133,23 +133,25 @@ class Unload:
             # filter out the match truck(LL/LA/AL/AA)
             truck = yield self.trucks_q.get(lambda x: x.truck_type in self.truck_types)
 
-            if self.env.now > self.close_time[0]:
+            if self.close_time:
 
-                self.close_time.pop(0)
-                self.trucks_q.put(truck)
+                if self.env.now > self.close_time[0]:
 
-                LOG.logger_font.debug(f"sim time: {self.env.now} - put back {item}")
-                open_time = self.open_time.pop(0)
+                    self.close_time.pop(0)
+                    self.trucks_q.put(truck)
 
-                LOG.logger_font.debug(f"sim time: {self.env.now} - machine: {self.equipment_id} close")
-                duration_time = open_time - self.env.now
+                    LOG.logger_font.debug(f"sim time: {self.env.now} - put back {item}")
+                    open_time = self.open_time.pop(0)
 
-                LOG.logger_font.debug(f"sim time: {self.env.now} - machine: {self.equipment_id} "
-                                      f"will reopen at {open_time}")
+                    LOG.logger_font.debug(f"sim time: {self.env.now} - machine: {self.equipment_id} close")
+                    duration_time = open_time - self.env.now
 
-                yield self.env.timeout(duration_time)
-                LOG.logger_font.debug(f"sim time: {self.env.now} - machine: {self.equipment_id} reopen")
-                continue
+                    LOG.logger_font.debug(f"sim time: {self.env.now} - machine: {self.equipment_id} "
+                                          f"will reopen at {open_time}")
+
+                    yield self.env.timeout(duration_time)
+                    LOG.logger_font.debug(f"sim time: {self.env.now} - machine: {self.equipment_id} reopen")
+                    continue
 
             # truck start
             truck.insert_data(
