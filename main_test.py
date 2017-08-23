@@ -284,12 +284,6 @@ def main():
                                        is_land_only=MainConfig.IS_LAND_ONLY)
     truck_controller.controller()
 
-    # init machine controller
-    machine_controller = MachineController(env,
-                                           pipelines_dict,
-                                           machines_dict)
-    machine_controller.controller()
-
     # init resource controller
     resource_controller = ResourceController(env,
                                              resource_dict,
