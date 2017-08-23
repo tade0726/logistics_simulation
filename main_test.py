@@ -54,9 +54,6 @@ def main():
     equipment_store_dict = get_equipment_store_dict()
     close_time_dict = get_equipment_timetable()
 
-    # pack_time_list = get_small_reload_pack_time()
-    pack_time_list = [14_400, 18_000, 25_200, 28_800, 42_600, 45_000,] # todo: 等待数据库
-
     # c_port list
     reload_c_list = list()
     for _, c_list in reload_setting_dict.items():
@@ -260,7 +257,7 @@ def main():
                 machine_id=machine_id,
                 pipelines_dict=pipelines_dict,
                 equipment_process_time_dict=equipment_process_time_dict,
-                pack_time_list=pack_time_list,)
+                equipment_parameters=equipment_parameters,)
         )
 
     # adding machines into processes
