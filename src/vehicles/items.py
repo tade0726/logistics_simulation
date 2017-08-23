@@ -296,7 +296,8 @@ class Pipeline:
                  pipeline_id: tuple,
                  queue_id: str,
                  machine_type: str,
-                 close_time_dict: dict,
+                 open_time_dict: dict,
+                 all_keep_open: bool = False,
                  ):
 
         self.env = env
@@ -313,8 +314,10 @@ class Pipeline:
         self.equipment_id = self.pipeline_id[1]  # in Pipeline the equipment_id is equipment after this pipeline
 
         # open close time table
-        self.close_time = close_time_dict.get(self.equipment_id, [])
-        self.close_time_cp = tuple(self.close_time)
+        self.open_time = open_time_dict.get(self.equipment_id, [])
+        self.open_time_cp = tuple(self.open_time)
+
+        self.keep_open = all_keep_open
 
     def latency(self, item: Package):
 
@@ -360,25 +363,44 @@ class Pipeline:
         return self.queue.get()
 
     def run(self):
+        """setup process"""
+        yield self.env.timeout(0)
 
-        while True:
+        if self.keep_open:
+            self.env.process(self.all_run())
 
-            item = yield self.store.get()
-            print(f"sim time: {self.env.now}, get item {item}")
+        else:
+            if self.open_time:
+                for start, end in self.open_time:
 
-            close_time_zone = not_right_on_time(self.env.now, self.close_time)
+                    # 替代无穷大
+                    if end == np.inf:
+                        end = 10_000_000
 
-            if close_time_zone:
-                self.store.put(item)
-                print(f"sim time: {self.env.now}, put back item {item}")
-
-                # close process
-                if close_time_zone[0][1] == np.inf:
-                    self.env.exit()
-
-                yield self.env.timeout(close_time_zone[0][1] - self.env.now)
+                    self.env.process(self.real_run(start, end))
             else:
-                self.env.process(self.latency(item))
+                self.env.process(self.all_run())
+
+    def all_run(self):
+        while True:
+            item = yield self.store.get()
+            self.env.process(self.latency(item))
+
+    def real_run(self, start, end):
+
+        yield self.env.timeout(start)
+
+        item = yield self.store.get()
+        LOG.logger_font.debug(f"sim time: {self.env.now}, get item: {item}, equipment_id: {self.equipment_id}")
+
+        if self.env.now > end:
+            self.store.put(item)
+            LOG.logger_font.debug(f"sim time: {self.env.now}, put back item: {item}, equipment_id: {self.equipment_id}")
+            self.env.exit()
+
+        self.env.process(self.latency(item))
+
+
 
     def __str__(self):
         return f"<Pipeline: {self.pipeline_id}, delay: {self.delay}>"
@@ -398,7 +420,7 @@ class PipelineReplace(Pipeline):
                  machine_type: str,
                  share_store_dict: dict,
                  equipment_store_dict: dict,
-                 close_time_dict: dict,
+                 open_time_dict: dict,
                  ):
 
         super(PipelineReplace, self).__init__(env,
@@ -406,7 +428,7 @@ class PipelineReplace(Pipeline):
                                               pipeline_id,
                                               queue_id,
                                               machine_type,
-                                              close_time_dict, )
+                                              open_time_dict, )
 
         self.share_store_dict = share_store_dict
         self.equipment_store_dict = equipment_store_dict
@@ -430,7 +452,7 @@ class PipelineRes(Pipeline):
                  queue_id: str,
                  machine_type: str,
                  equipment_process_time_dict: dict,
-                 close_time_dict: dict,
+                 open_time_dict: dict,
                  ):
 
         super(PipelineRes, self).__init__(env,
@@ -438,7 +460,7 @@ class PipelineRes(Pipeline):
                                           pipeline_id,
                                           queue_id,
                                           machine_type,
-                                          close_time_dict, )
+                                          open_time_dict, )
 
         self.equipment_last = self.pipeline_id[0]  # in PipelineRes the equipment_id is equipment before this pipeline
         self.equipment_next = self.pipeline_id[1]  # in PipelineRes the equipment_id is equipment before this pipeline

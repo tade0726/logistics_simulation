@@ -177,7 +177,7 @@ def main():
                    resource_dict=resource_dict,
                    equipment_resource_dict=equipment_resource_dict,
                    equipment_parameters=equipment_parameters,
-                   close_time_dict=close_time_dict,)
+                   open_time_dict=close_time_dict, )
         )
 
     # init presort machines
@@ -264,23 +264,18 @@ def main():
         )
 
     # adding machines into processes
-    def setup_process(clear_unload_switch:bool = False):
+    def setup_process_start():
 
         for machine_type, machines in machines_dict.items():
             LOG.logger_font.info(f"init {machine_type} machines")
             for machine in machines:
-                if (machine_type == "unload") & clear_unload_switch:
-                    machine.close_time = []
                 env.process(machine.run())
 
         for pipeline in pipelines_dict.values():
             if isinstance(pipeline, Pipeline):
-                if clear_unload_switch:
-                    pipeline.close_time = []
                 env.process(pipeline.run())
 
-    # setup
-    setup_process(True)
+        env.run()
 
     # init trucks controllers
     LOG.logger_font.info("init controllers")
@@ -299,14 +294,8 @@ def main():
     LOG.logger_font.info("init resource machine controllers..")
     LOG.logger_font.info("sim start..")
 
-    env.run()
-
-    # fix later
-    clear_unload_switch =True
-    if clear_unload_switch:
-        setup_process(clear_unload_switch)
-
-    env.run()
+    # setup
+    setup_process_start()
 
     num_of_trucks = len(trucks_queue.items)
     LOG.logger_font.info(f"{num_of_trucks} trucks leave in queue")

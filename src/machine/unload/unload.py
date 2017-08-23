@@ -31,7 +31,8 @@ class Unload:
                  resource_dict: defaultdict,
                  equipment_resource_dict: dict,
                  equipment_parameters: dict,
-                 close_time_dict: dict,
+                 open_time_dict: dict,
+                 all_keep_open:bool = False,
                  ):
 
         self.env = env
@@ -49,9 +50,11 @@ class Unload:
         self.resource_set = self._set_machine_resource()
 
         # open close time table
-        self.close_time = close_time_dict.get(self.equipment_id, [])
-        self.close_time_save = tuple(self.close_time)
-        self.truck_done_event = self.env.event()
+        self.open_time = open_time_dict.get(self.equipment_id, [])
+        self.open_time_save = tuple(self.open_time)
+
+        # keep open all the time
+        self.keep_open = all_keep_open
 
     def _set_machine_resource(self):
         """"""
@@ -131,9 +134,6 @@ class Unload:
         # all packages are processed
         yield self.env.all_of(events_processes)
 
-        self.truck_done_event.succeed()
-        self.truck_done_event = self.env.event()
-
         # truck end
         truck.insert_data(
             TruckRecordDict(
@@ -145,28 +145,53 @@ class Unload:
         self.done_trucks_q.put(truck)
 
     def run(self):
+        yield self.env.timeout(0)
+
+        if self.keep_open:
+            self.env.process(self.all_run())
+
+        else:
+            for start, end in self.open_time:
+                # 替代无穷大
+                if end == np.inf:
+                    end = 10_000_000
+
+                self.env.process(self.real_run(start, end))
+
+    def all_run(self):
+        while True:
+            truck = yield self.trucks_q.get(lambda x: x.truck_type in self.truck_types)
+            self.trucks_q.put(truck)
+            # 等待货车处理完
+            yield self.env.process(self.process_truck(truck))
+            # vehicle turnaround time
+            yield self.env.timeout(self.vehicle_turnaround_time)
+
+
+    def real_run(self, start, end):
+
+        yield self.env.timeout(start)
 
         while True:
 
             # filter out the match truck(LL/LA/AL/AA)
             truck = yield self.trucks_q.get(lambda x: x.truck_type in self.truck_types)
-            print(f"sim time: {self.env.now}, get truck {truck}, unload_port: {self.equipment_id}")
-            close_time_zone = not_right_on_time(self.env.now, self.close_time)
+            LOG.logger_font.debug(f"sim time: {self.env.now}, get truck {truck}, unload_port: {self.equipment_id}")
 
-            if close_time_zone:
+            if self.env.now > end:
                 self.trucks_q.put(truck)
-                print(f"sim time: {self.env.now}, put back truck {truck}, unload_port: {self.equipment_id}")
+                LOG.logger_font.debug(f"sim time: {self.env.now}, put back truck {truck}, unload_port: {self.equipment_id}")
+                self.env.exit()
 
-                # close process
-                if close_time_zone[0][1] == np.inf:
-                    self.env.exit()
+            # 等待货车处理完
+            yield self.env.process(self.process_truck(truck))
+            # vehicle turnaround time
+            yield self.env.timeout(self.vehicle_turnaround_time)
 
-                yield self.env.timeout(close_time_zone[0][1] - self.env.now)
-            else:
-                # 等待货车处理完
-                yield self.env.process(self.process_truck(truck))
-                # vehicle turnaround time
-                yield self.env.timeout(self.vehicle_turnaround_time)
+
+
+
+
 
 
 

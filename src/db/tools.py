@@ -222,10 +222,10 @@ def get_vehicles(is_land: bool,
 
     # 转换时间
     table_parcel["arrive_time"] = (pd.to_datetime(table_parcel["arrive_time"]) - TimeConfig.ZERO_TIMESTAMP) \
-        .apply(lambda x: x.total_seconds() if x.total_seconds() > 0 else 0.01)
+        .apply(lambda x: x.total_seconds() if x.total_seconds() > 0 else 0)
 
     table_small["arrive_time"] = (pd.to_datetime(table_small["arrive_time"]) - TimeConfig.ZERO_TIMESTAMP) \
-        .apply(lambda x: x.total_seconds() if x.total_seconds() > 0 else 0.01)
+        .apply(lambda x: x.total_seconds() if x.total_seconds() > 0 else 0)
 
     table_small = table_small[table_small["parcel_id"].isin(table_parcel.parcel_id)]
     parcel_counts = len(table_parcel['parcel_id'].unique())
