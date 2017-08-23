@@ -313,6 +313,9 @@ class Pipeline:
         self.close_time = close_time_dict.get(self.equipment_id, [])
         self.close_time_cp = tuple(self.close_time)
 
+        # run pipeline process
+        self.env.process(self.run())
+
     def latency(self, item: Package):
 
         """模拟传送时间"""

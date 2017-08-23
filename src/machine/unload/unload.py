@@ -54,7 +54,6 @@ class Unload:
         # open close time table
         self.close_time = close_time_dict.get(self.equipment_id, [])
         self.open_time_save = tuple(self.open_time)
-
         self.truck_done_event = self.env.event()
 
     def _set_machine_resource(self):
