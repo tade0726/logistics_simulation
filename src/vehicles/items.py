@@ -292,6 +292,8 @@ class Pipeline:
                  pipeline_id: tuple,
                  queue_id: str,
                  machine_type: str,
+                 close_time_dict: dict,
+                 open_time_dict: dict,
                  ):
 
         self.env = env
@@ -299,6 +301,7 @@ class Pipeline:
 
         # store for put in the front
         # queue for get in the end
+        self.store = simpy.Store(env)
         self.queue = simpy.Store(env)
 
         self.pipeline_id = pipeline_id
@@ -306,9 +309,17 @@ class Pipeline:
         self.machine_type = machine_type
         self.equipment_id = self.pipeline_id[1]  # in Pipeline the equipment_id is equipment after this pipeline
 
-    def latency(self, item: Package):
-        """模拟传送时间"""
+        # open close time table
+        self.close_time = close_time_dict.get(self.equipment_id, [])
+        self.open_time = open_time_dict.get(self.equipment_id, [])
 
+        self.close_time = sorted(self.close_time)
+        self.open_time = sorted(self.open_time)
+
+
+    def latency(self, item: Package):
+
+        """模拟传送时间"""
         # pipeline start server
         item.insert_data(
             PipelineRecordDict(
@@ -344,13 +355,41 @@ class Pipeline:
     def get(self):
         return self.queue.get()
 
+    def run(self):
+
+        while True:
+
+            item = yield self.store.get()
+
+            if self.close_time:
+
+                if self.env.now > self.close_time[0]:
+
+                    self.close_time.pop(0)
+                    self.store.put(item) # put back to store
+
+                    LOG.logger_font.debug(f"sim time: {self.env.now} - put back {item}")
+                    open_time = self.open_time.pop(0)
+
+                    LOG.logger_font.debug(f"sim time: {self.env.now} - machine: {self.equipment_id} close")
+                    duration_time = open_time - self.env.now
+
+                    LOG.logger_font.debug(f"sim time: {self.env.now} - machine: {self.equipment_id} "
+                                          f"will reopen at {open_time}")
+
+                    yield self.env.timeout(duration_time)
+                    LOG.logger_font.debug(f"sim time: {self.env.now} - machine: {self.equipment_id} reopen")
+                    continue
+
+            self.put(item)
+
     def __str__(self):
         return f"<Pipeline: {self.pipeline_id}, delay: {self.delay}>"
 
     __repr__ = __str__
 
 
-class PipelineReplaceJ(Pipeline):
+class PipelineReplace(Pipeline):
 
     """共享队列的传送带"""
 
@@ -362,20 +401,24 @@ class PipelineReplaceJ(Pipeline):
                  machine_type: str,
                  share_store_dict: dict,
                  equipment_store_dict: dict,
+                 close_time_dict: dict,
+                 open_time_dict: dict,
                  ):
 
-        super(PipelineReplaceJ, self).__init__(env,
+        super(PipelineReplace, self).__init__(env,
                                               delay_time,
                                               pipeline_id,
                                               queue_id,
-                                              machine_type,)
+                                              machine_type,
+                                              close_time_dict,
+                                              open_time_dict)
 
         self.share_store_dict = share_store_dict
         self.equipment_store_dict = equipment_store_dict
 
         # replace self.queue
         self.share_store_id = self.equipment_store_dict[self.equipment_id]
-        self.queue = self.share_store_dict[self.share_store_id]
+        self.store = self.share_store_dict[self.share_store_id]
 
     def __str__(self):
         return f"<PipelineReplaceJ: {self.pipeline_id}, delay: {self.delay}>"
@@ -392,13 +435,17 @@ class PipelineRes(Pipeline):
                  queue_id: str,
                  machine_type: str,
                  equipment_process_time_dict: dict,
+                 close_time_dict: dict,
+                 open_time_dict: dict,
                  ):
 
         super(PipelineRes, self).__init__(env,
                                           delay_time,
                                           pipeline_id,
                                           queue_id,
-                                          machine_type,)
+                                          machine_type,
+                                          close_time_dict,
+                                          open_time_dict,)
 
         self.equipment_last = self.pipeline_id[0]  # in PipelineRes the equipment_id is equipment before this pipeline
         self.equipment_next = self.pipeline_id[1]  # in PipelineRes the equipment_id is equipment before this pipeline
