@@ -156,7 +156,7 @@ class Unload:
 
             if close_time_zone:
                 self.trucks_q.put(truck)
-                yield self.env.timeout(close_time_zone[1] - self.env.now) & self.truck_done_event
+                yield self.env.timeout(close_time_zone[1][1] - self.env.now) & self.truck_done_event
             else:
                 # 等待货车处理完
                 yield self.env.process(self.process_truck(truck))
