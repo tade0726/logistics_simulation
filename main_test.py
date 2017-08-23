@@ -19,7 +19,7 @@ import sys
 sys.path.extend(['.'])
 
 from src.db import *
-from src.controllers import TruckController, MachineController, ResourceController
+from src.controllers import TruckController, ResourceController
 from src.utils import \
     (PipelineRecord, TruckRecord, PackageRecord, OutputTableColumnType, PathRecord)
 from src.vehicles import Pipeline, PipelineRes, BasePipeline, SmallBag, SmallPackage, Parcel, PipelineReplace
@@ -52,6 +52,7 @@ def main():
     equipment_process_time_dict = get_equipment_process_time()
     equipment_parameters = get_parameters()
     equipment_store_dict = get_equipment_store_dict()
+    open_time_dict, close_time_dict = get_equipment_timetable()
 
     # pack_time_list = get_small_reload_pack_time()
     pack_time_list = [14_400, 18_000, 25_200, 28_800, 42_600, 45_000,] # todo: 等待数据库
@@ -86,7 +87,14 @@ def main():
         pipeline_id = row['equipment_port_last'], row['equipment_port_next']
 
         if pipeline_type == "pipeline":
-            pipelines_dict[pipeline_id] = Pipeline(env, delay_time, pipeline_id, queue_id, machine_type)
+            pipelines_dict[pipeline_id] = Pipeline(env,
+                                                   delay_time,
+                                                   pipeline_id,
+                                                   queue_id,
+                                                   machine_type,
+                                                   close_time_dict,
+                                                   open_time_dict)
+
         elif pipeline_type == 'pipeline_res':
             pipelines_dict[pipeline_id] = PipelineRes(env,
                                                       resource_dict,
@@ -95,7 +103,10 @@ def main():
                                                       pipeline_id,
                                                       queue_id,
                                                       machine_type,
-                                                      equipment_process_time_dict)
+                                                      equipment_process_time_dict,
+                                                      close_time_dict,
+                                                      open_time_dict)
+
         elif pipeline_type == 'pipeline_replace':
             pipelines_dict[pipeline_id] = PipelineReplace(env,
                                                           delay_time,
@@ -103,7 +114,9 @@ def main():
                                                           queue_id,
                                                           machine_type,
                                                           share_store_dict,
-                                                          equipment_store_dict)
+                                                          equipment_store_dict,
+                                                          close_time_dict,
+                                                          open_time_dict)
         else:
             raise ValueError("Pipeline init error!!")
 
@@ -166,7 +179,9 @@ def main():
                    pipelines_dict=pipelines_dict,
                    resource_dict=resource_dict,
                    equipment_resource_dict=equipment_resource_dict,
-                   equipment_parameters=equipment_parameters)
+                   equipment_parameters=equipment_parameters,
+                   close_time_dict=close_time_dict,
+                   open_time_dict=open_time_dict,)
         )
 
     # init presort machines
