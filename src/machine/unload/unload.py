@@ -57,7 +57,7 @@ class Unload:
         self.open_time = open_time_dict.get(self.equipment_id, [])
 
         self.close_time = sorted(self.close_time)
-        self.open_time = sorted(self.open_time)
+        self.open_time = sorted(self.open_time)[1:]  # clear first open time
 
     def _set_machine_resource(self):
         """"""

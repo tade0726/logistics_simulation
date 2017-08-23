@@ -24,7 +24,7 @@ class MainConfig:
     CACHE_TYPE = 'redis'  # {None, "redis", "pkl", "hdf5"}
     LOCAL_DB = True  # control which DB using
 
-    DEBUG_LEVEL = logging.INFO
+    DEBUG_LEVEL = logging.DEBUG
 
 
 class RedisConfig:
