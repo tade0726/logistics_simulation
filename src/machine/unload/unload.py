@@ -140,7 +140,7 @@ class Unload:
                     self.close_time.pop(0)
                     self.trucks_q.put(truck)
 
-                    LOG.logger_font.debug(f"sim time: {self.env.now} - put back {item}")
+                    LOG.logger_font.debug(f"sim time: {self.env.now} - put back {truck}")
                     open_time = self.open_time.pop(0)
 
                     LOG.logger_font.debug(f"sim time: {self.env.now} - machine: {self.equipment_id} close")
