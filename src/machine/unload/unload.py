@@ -44,8 +44,11 @@ class Unload:
         self.equipment_parameters = equipment_parameters
 
         # add machine switch
-        self.machine_switch = self.env.event()
         self.resource_set = self._set_machine_resource()
+
+        # machine open close time
+        self.open_time = list()
+        self.close_time = list()
 
     def _set_machine_resource(self):
         """"""
@@ -62,14 +65,6 @@ class Unload:
             raise RuntimeError('unload machine',
                                self.machine_id,
                                'not initial equipment_resource_dict!')
-
-    def set_machine_open(self):
-        """设置为开机"""
-        self.machine_switch.succeed()
-
-    def set_machine_close(self):
-        """设置为关机"""
-        self.machine_switch = self.env.event()
 
     def process_package(self, package: Package):
         """处理单个包裹"""
@@ -123,17 +118,29 @@ class Unload:
         return truck
 
     def run(self):
-        # 保证 控制器先初始化
+
         while True:
 
             # filter out the match truck(LL/LA/AL/AA)
-            get_truck = self.trucks_q.get(lambda x: x.truck_type in self.truck_types)
-            # 开关机的事件控制
-            results = yield self.machine_switch & get_truck
-            LOG.logger_font.debug(f"sim time: {self.env.now} - machine: {self.equipment_id} - do something")
+            truck = yield self.trucks_q.get(lambda x: x.truck_type in self.truck_types)
 
-            # get truck
-            truck = [x._value for x in results.events if x._value][0]
+            if self.env.now >= self.close_time[0]:
+
+                self.close_time.pop(0)
+                self.trucks_q.put(truck)
+
+                LOG.logger_font.debug(f"sim time: {self.env.now} - put back {item}")
+                open_time = self.open_time.pop(0)
+
+                LOG.logger_font.debug(f"sim time: {self.env.now} - machine: {self.equipment_id} close")
+                duration_time = open_time - self.env.now
+
+                LOG.logger_font.debug(f"sim time: {self.env.now} - machine: {self.equipment_id} "
+                                      f"will reopen at {open_time}")
+
+                yield self.env.timeout(duration_time)
+                LOG.logger_font.debug(f"sim time: {self.env.now} - machine: {self.equipment_id} reopen")
+                continue
 
             # truck start
             truck.insert_data(
@@ -149,6 +156,7 @@ class Unload:
                     equipment_id=self.equipment_id,
                     time_stamp=self.env.now,
                     action="end", ))
+
             # truck is out
             self.done_trucks_q.put(truck)
             # vehicle turnaround time
