@@ -222,7 +222,7 @@ class Truck:
         self.store_size = len(self.store)
 
     def get_all_package(self):
-        return [self.store.pop(0) for _ in range(self.store_size)]
+        return [self.store.pop(0) for _ in range(len(self.store))]
 
     def insert_data(self, data:dict):
         assert isinstance(data, TruckRecordDict), "Wrong data type"
