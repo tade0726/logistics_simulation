@@ -23,7 +23,12 @@ class MainConfig:
     IS_LAND_ONLY = False  # True 只有 landside, False landside airside
     CACHE_TYPE = None  # {None, "redis", "pkl", "hdf5"}
     LOCAL_DB = False  # control which DB using
+<<<<<<< HEAD
     ALL_OPEN = False  # no more equipment limit
+=======
+
+    DEBUG_LEVEL = logging.INFO
+>>>>>>> develop_land_next
 
 
 class RedisConfig:
@@ -68,7 +73,7 @@ class TimeConfig:
 def get_logger(logger_name: str):
 
     logger = logging.getLogger(logger_name)
-    logger.setLevel(level=logging.DEBUG)
+    logger.setLevel(level=MainConfig.DEBUG_LEVEL)
     # add handlers
     ch = logging.StreamHandler()
     fh = logging.FileHandler(filename=join(SaveConfig.PROJECT_DIR, f"{logger_name}.log"), mode='w')
@@ -85,7 +90,7 @@ def get_logger(logger_name: str):
 
 
 class LOG:
-    logger_font = get_logger("django")
+    logger_font = get_logger("simulation")
 
 
 def generator_digit(n):

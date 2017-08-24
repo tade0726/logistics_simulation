@@ -38,6 +38,7 @@ class SmallPrimary(object):
         self.resource_dict = resource_dict
         # 机器资源id与机器id映射字典
         self.equipment_resource_dict = equipment_resource_dict
+
         # 初始化初分拣字典
         self.resource_set = self._set_machine_resource()
 

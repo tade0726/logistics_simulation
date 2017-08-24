@@ -12,7 +12,11 @@ unload modules
 import simpy
 
 from collections import defaultdict
+<<<<<<< HEAD
 from simpy_lib.hangzhou_simpy.src.vehicles import Package
+=======
+from simpy_lib.hangzhou_simpy.src.vehicles import Package, Truck
+>>>>>>> develop_land_next
 from simpy_lib.hangzhou_simpy.src.config import LOG
 from simpy_lib.hangzhou_simpy.src.utils import PackageRecordDict, TruckRecordDict
 
@@ -43,10 +47,9 @@ class Unload:
         self.equipment_resource_dict = equipment_resource_dict
         self.equipment_parameters = equipment_parameters
 
-        self.packages_processed = dict()
-        # data store
-        self.truck_records = list()
-        self.package_records = list()
+        # add machine switch
+        self.machine_switch = self.env.event()
+        self.machine_switch.succeed()
 
         self.resource_set = self._set_machine_resource()
 
@@ -66,8 +69,16 @@ class Unload:
                                self.machine_id,
                                'not initial equipment_resource_dict!')
 
-    def process_package(self, process_idx, package: Package):
+    def set_machine_open(self):
+        """设置为开机"""
+        self.machine_switch.succeed()
 
+    def set_machine_close(self):
+        """设置为关机"""
+        self.machine_switch = self.env.event()
+
+    def process_package(self, package: Package):
+        """处理单个包裹"""
         with self.resource.request() as req:
             yield req
 
@@ -98,41 +109,44 @@ class Unload:
                     LOG.logger_font.error(msg)
                     LOG.logger_font.exception(exc)
                     self.pipelines_dict["unload_error"].put(package)
-            # keep this line in right indent
-            self.packages_processed[process_idx].succeed()
+
+    def process_truck(self, truck: Truck):
+        """process one truck"""
+        packages = truck.get_all_package()
+
+        events_processes = list()
+        for package in packages:
+            # add package wait data
+            package.insert_data(
+                PackageRecordDict(
+                    equipment_id=self.equipment_id,
+                    time_stamp=truck.come_time,
+                    action="wait", ))
+
+            events_processes.append(self.env.process(self.process_package(package)))
+        # all packages are processed
+        yield self.env.all_of(events_processes)
+        return truck
 
     def run(self):
-
+        # 保证 控制器先初始化
+        yield self.env.timeout(0)
         while True:
+            # 开关机的事件控制
+            yield self.machine_switch
+            LOG.logger_font.debug(f"sim time: {self.env.now} - machine: {self.equipment_id} - do something")
+
             # filter out the match truck(LL/LA/AL/AA)
             truck = yield self.trucks_q.get(lambda x: x.truck_type in self.truck_types)
-
+            # truck start
             truck.insert_data(
                 TruckRecordDict(
                     equipment_id=self.equipment_id,
                     time_stamp=self.env.now,
                     action="start", ))
-
-            packages = truck.get_all_package()
-            for process_idx, package in enumerate(packages):
-
-                # add package wait data
-                package.insert_data(
-                    PackageRecordDict(
-                        equipment_id=self.equipment_id,
-                        time_stamp=truck.come_time,
-                        action="wait", ))
-
-                # need request resource for processing
-                self.packages_processed[process_idx] = self.env.event()
-                self.env.process(self.process_package(process_idx, package))
-
-            # all the package are processed
-            yield self.env.all_of(self.packages_processed.values())
-            # init packages_processed empty
-            self.packages_processed = dict()
-
-            # insert data
+            # 等待货车处理完
+            truck = yield self.env.process(self.process_truck(truck))
+            # truck end
             truck.insert_data(
                 TruckRecordDict(
                     equipment_id=self.equipment_id,
