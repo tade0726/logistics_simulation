@@ -397,9 +397,6 @@ class Pipeline:
 
             self.env.process(self.latency(item))
 
-
-
-
     def __str__(self):
         return f"<Pipeline: {self.pipeline_id}, delay: {self.delay}>"
 
