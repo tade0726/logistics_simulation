@@ -12,12 +12,12 @@ Uld class
 """
 import simpy
 import pandas as pd
+import numpy as np
 from collections import defaultdict
 import random
 
 from simpy_lib.hangzhou_simpy.src.utils import \
     (PackageRecord, PipelineRecord, TruckRecord, PathGenerator, TruckRecordDict, PackageRecordDict, PipelineRecordDict)
-from simpy_lib.hangzhou_simpy.src.config import LOG
 
 from simpy_lib.hangzhou_simpy.src.utils import \
     (PathRecordDict, PathRecord)
@@ -232,6 +232,8 @@ class Truck:
                     store_size=self.store_size,
                     **data,)
 
+        LOG.logger_font.debug(msg=f"Truck: {record}")
+
         self.truck_data.append(record)
 
     def __str__(self):
@@ -293,6 +295,8 @@ class Pipeline:
                  pipeline_id: tuple,
                  queue_id: str,
                  machine_type: str,
+                 open_time_dict: dict,
+                 all_keep_open: bool = False,
                  ):
 
         self.env = env
@@ -308,24 +312,15 @@ class Pipeline:
         self.machine_type = machine_type
         self.equipment_id = self.pipeline_id[1]  # in Pipeline the equipment_id is equipment after this pipeline
 
-        # switch
-        self.machine_switch = self.env.event()
-        self.machine_switch.succeed()
+        # open close time table
+        self.open_time = open_time_dict.get(self.equipment_id, [])
+        self.open_time_cp = tuple(self.open_time)
 
-        # init run
-        self.env.process(self.run())
-
-    def set_open(self):
-        """control machine"""
-        self.machine_switch.succeed()
-
-    def set_close(self):
-        """control machine"""
-        self.machine_switch = self.env.event()
+        self.keep_open = all_keep_open
 
     def latency(self, item: Package):
-        """模拟传送时间"""
 
+        """模拟传送时间"""
         # pipeline start server
         item.insert_data(
             PipelineRecordDict(
@@ -333,6 +328,11 @@ class Pipeline:
                 queue_id=self.queue_id,
                 time_stamp=self.env.now,
                 action="start", ))
+
+        # re cal the wait time stamp
+        t_pipeline_start = self.env.now
+        item_last_end_time = item.machine_data[-1].time_stamp
+        wait_machine_open_gap = t_pipeline_start - item_last_end_time
 
         yield self.env.timeout(self.delay)
         # cutting path
@@ -342,7 +342,7 @@ class Pipeline:
         item.insert_data(
             PackageRecordDict(
                 equipment_id=self.equipment_id,
-                time_stamp=self.env.now,
+                time_stamp=(self.env.now - wait_machine_open_gap),
                 action="wait", ))
 
         # pipeline end server
@@ -362,13 +362,39 @@ class Pipeline:
         return self.queue.get()
 
     def run(self):
-        # 保证 控制器先初始化
+        """setup process"""
         yield self.env.timeout(0)
+
+        if self.keep_open:
+            self.env.process(self.all_run())
+
+        else:
+            if self.open_time:
+                for start, end in self.open_time:
+                    self.env.process(self.real_run(start, end))
+            else:
+                self.env.process(self.all_run())
+
+    def all_run(self):
         while True:
-            yield self.machine_switch
-            LOG.logger_font.debug(f"equipment: {self.equipment_id} working..")
             item = yield self.store.get()
             self.env.process(self.latency(item))
+
+    def real_run(self, start, end):
+
+        yield self.env.timeout(start)
+
+        item = yield self.store.get()
+        LOG.logger_font.debug(f"sim time: {self.env.now}, get item: {item}, equipment_id: {self.equipment_id}")
+
+        if self.env.now > end:
+            self.store.put(item)
+            LOG.logger_font.debug(f"sim time: {self.env.now}, put back item: {item}, equipment_id: {self.equipment_id}")
+            self.env.exit()
+
+        self.env.process(self.latency(item))
+
+
 
     def __str__(self):
         return f"<Pipeline: {self.pipeline_id}, delay: {self.delay}>"
@@ -388,26 +414,25 @@ class PipelineReplace(Pipeline):
                  machine_type: str,
                  share_store_dict: dict,
                  equipment_store_dict: dict,
+                 open_time_dict: dict,
                  ):
 
         super(PipelineReplace, self).__init__(env,
                                               delay_time,
                                               pipeline_id,
                                               queue_id,
-                                              machine_type,)
+                                              machine_type,
+                                              open_time_dict, )
 
         self.share_store_dict = share_store_dict
         self.equipment_store_dict = equipment_store_dict
 
-        # replace self.store
-        self._set_store()
-
-    def _set_store(self):
+        # replace self.queue
         self.share_store_id = self.equipment_store_dict[self.equipment_id]
         self.store = self.share_store_dict[self.share_store_id]
 
     def __str__(self):
-        return f"<PipelineReplace: {self.pipeline_id}, delay: {self.delay}>"
+        return f"<PipelineReplaceJ: {self.pipeline_id}, delay: {self.delay}>"
 
 
 class PipelineRes(Pipeline):
@@ -421,13 +446,15 @@ class PipelineRes(Pipeline):
                  queue_id: str,
                  machine_type: str,
                  equipment_process_time_dict: dict,
+                 open_time_dict: dict,
                  ):
 
         super(PipelineRes, self).__init__(env,
                                           delay_time,
                                           pipeline_id,
                                           queue_id,
-                                          machine_type,)
+                                          machine_type,
+                                          open_time_dict, )
 
         self.equipment_last = self.pipeline_id[0]  # in PipelineRes the equipment_id is equipment before this pipeline
         self.equipment_next = self.pipeline_id[1]  # in PipelineRes the equipment_id is equipment before this pipeline

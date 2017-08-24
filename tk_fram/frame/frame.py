@@ -4,7 +4,7 @@ from tkinter import Frame
 from tkinter.ttk import Combobox
 from tkinter import Checkbutton, Entry, Menu
 from tkinter import IntVar, StringVar, DISABLED, NORMAL
-from .frame_r_view import ConfigFrame, NUM_TRANSLATE_DICT, CHECK_BTN_ENTRY_DIC, \
+from .frame_view import ConfigFrame, NUM_TRANSLATE_DICT, CHECK_BTN_ENTRY_DIC, \
     ENTRY_STATUS_DIC, M_R_DICT, CACHE_INSTANCE_DICT, R_J_DICT, CACHE_J_STATUS
 
 

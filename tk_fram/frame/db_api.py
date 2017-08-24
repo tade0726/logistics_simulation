@@ -1,6 +1,7 @@
-from .frame_r_view import CHECK_BTN_ENTRY_DIC, DATABASES, \
-    CACHE_INSTANCE_DICT, DAY_TIME_DICT
 from pymysql import connect
+
+from tk_fram.frame_config import DATABASES
+from .frame_view import CACHE_INSTANCE_DICT, DAY_TIME_DICT
 
 
 class Mysql(object):

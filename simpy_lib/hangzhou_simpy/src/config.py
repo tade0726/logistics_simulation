@@ -23,12 +23,8 @@ class MainConfig:
     IS_LAND_ONLY = False  # True 只有 landside, False landside airside
     CACHE_TYPE = None  # {None, "redis", "pkl", "hdf5"}
     LOCAL_DB = False  # control which DB using
-<<<<<<< HEAD
-    ALL_OPEN = False  # no more equipment limit
-=======
 
     DEBUG_LEVEL = logging.INFO
->>>>>>> develop_land_next
 
 
 class RedisConfig:

@@ -1,12 +1,12 @@
 # -*- coding: utf-8 -*-
 
 from tkinter import Tk, Menu
-from .frame_r import init_r_frame, init_menu
+from .frame_app import init_r_frame, init_menu
 # from .frame_api import menu_file
-from .frame_r_view import FRAME_WIDTH, FRAME_HEIGHT
+from .frame_view import FRAME_WIDTH, FRAME_HEIGHT
 
 
-def create_r_frame():
+def create_frame():
     """"""
     #  =======================添加主视图====================
     root = Tk()

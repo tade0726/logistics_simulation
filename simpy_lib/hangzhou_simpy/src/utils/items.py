@@ -69,3 +69,5 @@ class OutputTableColumnType:
         dest_type=String(length=32, ),
         ret_path=Text(),
     )
+
+

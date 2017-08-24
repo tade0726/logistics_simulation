@@ -14,11 +14,11 @@ data will be store into dictionary
 from os.path import join, isfile
 from functools import wraps
 import pandas as pd
-<<<<<<< HEAD
-=======
 import numpy as np
+from datetime import datetime, timedelta
 
->>>>>>> develop_land_next
+from collections import defaultdict
+
 from simpy_lib.hangzhou_simpy.src.config import *
 
 
@@ -26,7 +26,7 @@ __all__ = ['write_redis', 'load_from_redis', 'write_mysql', 'write_local', 'load
            'load_from_mysql', 'get_vehicles', 'get_unload_setting', 'get_reload_setting', 'get_resource_limit',
            'get_resource_equipment_dict', 'get_pipelines', 'get_queue_io', 'get_equipment_process_time',
            'get_parameters', 'get_resource_timetable', 'get_equipment_timetable',
-           'get_equipment_store_dict', 'get_equipment_on_off', 'get_small_reload_pack_time']
+           'get_equipment_store_dict', 'get_equipment_on_off', 'get_small_reload_pack_time', 'get_base_equipment_io_max']
 
 
 def checking_pickle_file(table_name):
@@ -173,7 +173,7 @@ def get_trucks(is_test: bool=False):
     # convert datetime to seconds
 
     table["arrive_time"] = (table["arrive_time"] - TimeConfig.ZERO_TIMESTAMP)\
-        .apply(lambda x: x.total_seconds() if x.total_seconds() > 0 else 0)
+        .apply(lambda x: x.total_seconds() if x.total_seconds() > 0 else 0.01)
     # 'plate_num' 是货车／飞机／的编号
     return dict(list(table.groupby(['plate_num', 'arrive_time', 'src_type'])))
 
@@ -448,6 +448,13 @@ def get_equipment_store_dict():
     return equipment_store_dict
 
 
+def get_base_equipment_io_max():
+    """得到 i_equipment_io 基础表格 开始时间最大"""
+    table = load_from_mysql("i_equipment_io")
+    base_table = table[table.start_time == table.start_time.max()]
+    return base_table
+
+
 def get_base_equipment_io():
     """得到 i_equipment_io 基础表格"""
     table = load_from_mysql("i_equipment_io")
@@ -462,13 +469,14 @@ def get_base_resource_limit():
     return base_table
 
 
-# helper for time table
 def clean_end_time(x):
+    """保持最后的状态直到共产主义消失为止"""
     if x.shape[0] > 1:
         x['end_time'] = list(x['start_time'])[1:] + [np.inf]
     else:
         x['end_time'] = np.inf
     return x
+
 
 def get_resource_timetable():
     """返回资源被占用改变的时间表， 资源被占用发生改变将生成 process 占用资源，模拟资源变化的情况
@@ -492,13 +500,14 @@ def get_resource_timetable():
     table_resource_occupy_change["end_time"] = \
         (pd.to_datetime(table_resource_occupy_change["end_time"]) - TimeConfig.ZERO_TIMESTAMP) \
             .apply(lambda x: x.total_seconds() if x.total_seconds() > 0 else 0)
-    # clean end time
+    # 保持最后的状态直到共产主义消失为止
     table_resource_occupy_change = table_resource_occupy_change.groupby('resource_id').apply(clean_end_time)
     return table_resource_occupy_change
 
 
 def get_equipment_timetable():
-    """返回机器开关改变的时间表"""
+    """返回机器开机的时间表字典
+    """
     table = load_from_mysql('i_equipment_io')
     g_equipment = table.sort_values('start_time').groupby('equipment_port')
     table_equipment_change = g_equipment.apply(lambda x: x[x.equipment_status.diff() != 0]).reset_index(drop=True)
@@ -511,9 +520,20 @@ def get_equipment_timetable():
     table_equipment_change["end_time"] = \
         (pd.to_datetime(table_equipment_change["end_time"]) - TimeConfig.ZERO_TIMESTAMP) \
             .apply(lambda x: x.total_seconds() if x.total_seconds() > 0 else 0)
-    # clean end time
+
+    # 保持最后的状态直到共产主义消失为止
     table_equipment_change = table_equipment_change.groupby('equipment_port').apply(clean_end_time)
-    return table_equipment_change
+
+    # 只保留关机的状态
+    table_temp = table_equipment_change[table_equipment_change.equipment_status == 1]
+    equipment_open_time = defaultdict(list)
+
+    for idx, row in table_temp.set_index('equipment_port').iterrows():
+        equipment_open_time[idx].append((row['start_time'], row['end_time']))
+
+    equipment_open_time = {k:v for k,v in equipment_open_time.items() if k[0] in ['r', 'a', 'j', 'u']}
+
+    return equipment_open_time
 
 
 def get_equipment_on_off():

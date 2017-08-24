@@ -3,7 +3,7 @@
 from tkinter import Tk, Label, Button, Text, StringVar, Menu
 from tkinter.ttk import Combobox
 from .frame import App
-from .frame_r_view import *
+from .frame_view import *
 # import logging as lg
 from .db_api import init_btn_entry_val_from_sql, init_day_time
 from .frame_api import run_sim, save_data, update_data, q_exit, menu_file, \

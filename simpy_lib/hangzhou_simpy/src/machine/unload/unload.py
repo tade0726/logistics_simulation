@@ -10,13 +10,10 @@ unload modules
 """
 
 import simpy
+import numpy as np
 
 from collections import defaultdict
-<<<<<<< HEAD
-from simpy_lib.hangzhou_simpy.src.vehicles import Package
-=======
 from simpy_lib.hangzhou_simpy.src.vehicles import Package, Truck
->>>>>>> develop_land_next
 from simpy_lib.hangzhou_simpy.src.config import LOG
 from simpy_lib.hangzhou_simpy.src.utils import PackageRecordDict, TruckRecordDict
 
@@ -33,7 +30,9 @@ class Unload:
                  pipelines_dict: dict,
                  resource_dict: defaultdict,
                  equipment_resource_dict: dict,
-                 equipment_parameters: dict
+                 equipment_parameters: dict,
+                 open_time_dict: dict,
+                 all_keep_open:bool = False,
                  ):
 
         self.env = env
@@ -48,10 +47,14 @@ class Unload:
         self.equipment_parameters = equipment_parameters
 
         # add machine switch
-        self.machine_switch = self.env.event()
-        self.machine_switch.succeed()
-
         self.resource_set = self._set_machine_resource()
+
+        # open close time table
+        self.open_time = open_time_dict.get(self.equipment_id, [])
+        self.open_time_save = tuple(self.open_time)
+
+        # keep open all the time
+        self.keep_open = all_keep_open
 
     def _set_machine_resource(self):
         """"""
@@ -68,14 +71,6 @@ class Unload:
             raise RuntimeError('unload machine',
                                self.machine_id,
                                'not initial equipment_resource_dict!')
-
-    def set_machine_open(self):
-        """设置为开机"""
-        self.machine_switch.succeed()
-
-    def set_machine_close(self):
-        """设置为关机"""
-        self.machine_switch = self.env.event()
 
     def process_package(self, package: Package):
         """处理单个包裹"""
@@ -111,11 +106,22 @@ class Unload:
                     self.pipelines_dict["unload_error"].put(package)
 
     def process_truck(self, truck: Truck):
+
         """process one truck"""
+
+        # truck start
+        truck.insert_data(
+            TruckRecordDict(
+                equipment_id=self.equipment_id,
+                time_stamp=self.env.now,
+                action="start", ))
+
         packages = truck.get_all_package()
 
         events_processes = list()
+
         for package in packages:
+
             # add package wait data
             package.insert_data(
                 PackageRecordDict(
@@ -124,38 +130,67 @@ class Unload:
                     action="wait", ))
 
             events_processes.append(self.env.process(self.process_package(package)))
+
         # all packages are processed
         yield self.env.all_of(events_processes)
-        return truck
+
+        # truck end
+        truck.insert_data(
+            TruckRecordDict(
+                equipment_id=self.equipment_id,
+                time_stamp=self.env.now,
+                action="end", ))
+
+        # truck is out
+        self.done_trucks_q.put(truck)
 
     def run(self):
-        # 保证 控制器先初始化
         yield self.env.timeout(0)
+
+        if self.keep_open:
+            self.env.process(self.all_run())
+
+        else:
+            if self.open_time:
+                for start, end in self.open_time:
+                    self.env.process(self.real_run(start, end))
+            else:
+                self.env.process(self.all_run())
+
+    def all_run(self):
         while True:
-            # 开关机的事件控制
-            yield self.machine_switch
-            LOG.logger_font.debug(f"sim time: {self.env.now} - machine: {self.equipment_id} - do something")
+            truck = yield self.trucks_q.get(lambda x: x.truck_type in self.truck_types)
+            self.trucks_q.put(truck)
+            # 等待货车处理完
+            yield self.env.process(self.process_truck(truck))
+            # vehicle turnaround time
+            yield self.env.timeout(self.vehicle_turnaround_time)
+
+
+    def real_run(self, start, end):
+
+        yield self.env.timeout(start)
+
+        while True:
 
             # filter out the match truck(LL/LA/AL/AA)
             truck = yield self.trucks_q.get(lambda x: x.truck_type in self.truck_types)
-            # truck start
-            truck.insert_data(
-                TruckRecordDict(
-                    equipment_id=self.equipment_id,
-                    time_stamp=self.env.now,
-                    action="start", ))
+            LOG.logger_font.debug(f"sim time: {self.env.now}, get truck {truck}, unload_port: {self.equipment_id}")
+
+            if self.env.now > end:
+                self.trucks_q.put(truck)
+                LOG.logger_font.debug(f"sim time: {self.env.now}, put back truck {truck}, unload_port: {self.equipment_id}")
+                self.env.exit()
+
             # 等待货车处理完
-            truck = yield self.env.process(self.process_truck(truck))
-            # truck end
-            truck.insert_data(
-                TruckRecordDict(
-                    equipment_id=self.equipment_id,
-                    time_stamp=self.env.now,
-                    action="end", ))
-            # truck is out
-            self.done_trucks_q.put(truck)
+            yield self.env.process(self.process_truck(truck))
             # vehicle turnaround time
             yield self.env.timeout(self.vehicle_turnaround_time)
+
+
+
+
+
 
 
 

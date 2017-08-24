@@ -15,21 +15,14 @@ import pandas as pd
 import os
 from collections import defaultdict
 
-<<<<<<< HEAD
-from simpy_lib.hangzhou_simpy.src.db import *
-from simpy_lib.hangzhou_simpy.src.controllers import TruckController
-from simpy_lib.hangzhou_simpy.src.utils import PipelineRecord, TruckRecord, PackageRecord, OutputTableColumnType
-from simpy_lib.hangzhou_simpy.src.vehicles import Pipeline, PipelineRes, BasePipeline, SmallBag, SmallPackage, Parcel
-=======
 import sys
 sys.path.extend(['.'])
 
 from simpy_lib.hangzhou_simpy.src.db import *
-from simpy_lib.hangzhou_simpy.src.controllers import TruckController, MachineController, ResourceController
+from simpy_lib.hangzhou_simpy.src.controllers import TruckController, ResourceController
 from simpy_lib.hangzhou_simpy.src.utils import \
     (PipelineRecord, TruckRecord, PackageRecord, OutputTableColumnType, PathRecord)
 from simpy_lib.hangzhou_simpy.src.vehicles import Pipeline, PipelineRes, BasePipeline, SmallBag, SmallPackage, Parcel, PipelineReplace
->>>>>>> develop_land_next
 from simpy_lib.hangzhou_simpy.src.machine import *
 from simpy_lib.hangzhou_simpy.src.config import MainConfig, TimeConfig, LOG, SaveConfig
 
@@ -59,9 +52,7 @@ def main(run_arg):
     equipment_process_time_dict = get_equipment_process_time()
     equipment_parameters = get_parameters()
     equipment_store_dict = get_equipment_store_dict()
-
-    # pack_time_list = get_small_reload_pack_time()
-    pack_time_list = [14_400, 18_000, 25_200, 28_800, 42_600, 45_000,] # todo: 等待数据库
+    close_time_dict = get_equipment_timetable()
 
     # c_port list
     reload_c_list = list()
@@ -93,7 +84,13 @@ def main(run_arg):
         pipeline_id = row['equipment_port_last'], row['equipment_port_next']
 
         if pipeline_type == "pipeline":
-            pipelines_dict[pipeline_id] = Pipeline(env, delay_time, pipeline_id, queue_id, machine_type)
+            pipelines_dict[pipeline_id] = Pipeline(env,
+                                                   delay_time,
+                                                   pipeline_id,
+                                                   queue_id,
+                                                   machine_type,
+                                                   close_time_dict,)
+
         elif pipeline_type == 'pipeline_res':
             pipelines_dict[pipeline_id] = PipelineRes(env,
                                                       resource_dict,
@@ -102,7 +99,9 @@ def main(run_arg):
                                                       pipeline_id,
                                                       queue_id,
                                                       machine_type,
-                                                      equipment_process_time_dict)
+                                                      equipment_process_time_dict,
+                                                      close_time_dict)
+
         elif pipeline_type == 'pipeline_replace':
             pipelines_dict[pipeline_id] = PipelineReplace(env,
                                                           delay_time,
@@ -110,7 +109,8 @@ def main(run_arg):
                                                           queue_id,
                                                           machine_type,
                                                           share_store_dict,
-                                                          equipment_store_dict)
+                                                          equipment_store_dict,
+                                                          close_time_dict)
         else:
             raise ValueError("Pipeline init error!!")
 
@@ -173,7 +173,8 @@ def main(run_arg):
                    pipelines_dict=pipelines_dict,
                    resource_dict=resource_dict,
                    equipment_resource_dict=equipment_resource_dict,
-                   equipment_parameters=equipment_parameters)
+                   equipment_parameters=equipment_parameters,
+                   open_time_dict=close_time_dict, )
         )
 
     # init presort machines
@@ -256,16 +257,20 @@ def main(run_arg):
                 machine_id=machine_id,
                 pipelines_dict=pipelines_dict,
                 equipment_process_time_dict=equipment_process_time_dict,
-                pack_time_list=pack_time_list,)
+                equipment_parameters=equipment_parameters,)
         )
 
     # adding machines into processes
-    all_machine_process = list()
+    def setup_process_start():
 
-    for machine_type, machines in machines_dict.items():
-        LOG.logger_font.info(f"init {machine_type} machines")
-        for machine in machines:
-            all_machine_process.append(env.process(machine.run()))
+        for machine_type, machines in machines_dict.items():
+            LOG.logger_font.info(f"init {machine_type} machines")
+            for machine in machines:
+                env.process(machine.run())
+
+        for pipeline in pipelines_dict.values():
+            if isinstance(pipeline, Pipeline):
+                env.process(pipeline.run())
 
     # init trucks controllers
     LOG.logger_font.info("init controllers")
@@ -276,27 +281,22 @@ def main(run_arg):
                                        is_land_only=MainConfig.IS_LAND_ONLY)
     truck_controller.controller()
 
-    # init machine controller
-    machine_controller = MachineController(env,
-                                           pipelines_dict,
-                                           machines_dict)
-    machine_controller.controller()
-
     # init resource controller
     resource_controller = ResourceController(env,
-                                             resource_dict,
-                                             all_machine_process)
+                                             resource_dict,)
     resource_controller.controller()
 
     LOG.logger_font.info("init resource machine controllers..")
     LOG.logger_font.info("sim start..")
 
+    # setup
+    setup_process_start()
     env.run()
 
     num_of_trucks = len(trucks_queue.items)
+    LOG.logger_font.info(f"{num_of_trucks} trucks leave in queue")
     assert num_of_trucks == 0, ValueError("Truck queue should be empty!!")
 
-    LOG.logger_font.info(f"{num_of_trucks} trucks leave in queue")
     LOG.logger_font.info("sim end..")
     LOG.logger_font.info("collecting data")
 
