@@ -52,7 +52,7 @@ def main():
     equipment_process_time_dict = get_equipment_process_time()
     equipment_parameters = get_parameters()
     equipment_store_dict = get_equipment_store_dict()
-    close_time_dict = get_equipment_timetable()
+    open_time_dict, switch_machine_names = get_equipment_timetable()
 
     # c_port list
     reload_c_list = list()
@@ -83,13 +83,17 @@ def main():
         delay_time = row['process_time']
         pipeline_id = row['equipment_port_last'], row['equipment_port_next']
 
+        equipment_name = row['equipment_port_next'][0]
+        all_keep_open = True if equipment_name not in switch_machine_names else False
+
         if pipeline_type == "pipeline":
             pipelines_dict[pipeline_id] = Pipeline(env,
                                                    delay_time,
                                                    pipeline_id,
                                                    queue_id,
                                                    machine_type,
-                                                   close_time_dict,)
+                                                   open_time_dict,
+                                                   all_keep_open)
 
         elif pipeline_type == 'pipeline_res':
             pipelines_dict[pipeline_id] = PipelineRes(env,
@@ -100,7 +104,8 @@ def main():
                                                       queue_id,
                                                       machine_type,
                                                       equipment_process_time_dict,
-                                                      close_time_dict)
+                                                      open_time_dict,
+                                                      all_keep_open)
 
         elif pipeline_type == 'pipeline_replace':
             pipelines_dict[pipeline_id] = PipelineReplace(env,
@@ -110,7 +115,8 @@ def main():
                                                           machine_type,
                                                           share_store_dict,
                                                           equipment_store_dict,
-                                                          close_time_dict)
+                                                          open_time_dict,
+                                                          all_keep_open)
         else:
             raise ValueError("Pipeline init error!!")
 
@@ -174,7 +180,7 @@ def main():
                    resource_dict=resource_dict,
                    equipment_resource_dict=equipment_resource_dict,
                    equipment_parameters=equipment_parameters,
-                   open_time_dict=close_time_dict, )
+                   open_time_dict=open_time_dict, )
         )
 
     # init presort machines

@@ -531,9 +531,9 @@ def get_equipment_timetable():
     for idx, row in table_temp.set_index('equipment_port').iterrows():
         equipment_open_time[idx].append((row['start_time'], row['end_time']))
 
-    equipment_open_time = {k:v for k,v in equipment_open_time.items() if k[0] in ['r', 'a', 'j', 'u']}
+    switch_machine_names = ['r', 'a', 'u', 'j']
 
-    return equipment_open_time
+    return equipment_open_time, switch_machine_names
 
 
 def get_equipment_on_off():
