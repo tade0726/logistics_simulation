@@ -2,8 +2,8 @@ import simpy
 import pickle
 from os.path import join
 
-from src.vehicles import Pipeline, Package
-from src.db import SaveConfig
+from simpy_lib.hangzhou_simpy.src.vehicles import Pipeline, Package
+from simpy_lib.hangzhou_simpy.src.db import SaveConfig
 
 # fixme
 class Truck:

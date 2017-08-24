@@ -14,7 +14,7 @@ data will be store into dictionary
 from os.path import join, isfile
 from functools import wraps
 import pandas as pd
-from src.config import *
+from simpy_lib.hangzhou_simpy.src.config import *
 
 
 __all__ = ['write_redis', 'load_from_redis', 'write_mysql', 'write_local', 'load_from_local',

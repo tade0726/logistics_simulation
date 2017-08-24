@@ -24,9 +24,9 @@
 """
 
 import simpy
-from src.vehicles.items import Package
-from src.utils import PackageRecordDict
-from src.config import LOG
+from simpy_lib.hangzhou_simpy.src.vehicles.items import Package
+from simpy_lib.hangzhou_simpy.src.utils import PackageRecordDict
+from simpy_lib.hangzhou_simpy.src.config import LOG
 
 
 class Hospital(object):

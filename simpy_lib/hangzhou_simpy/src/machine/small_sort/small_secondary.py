@@ -21,7 +21,7 @@
 """
 
 
-from src.machine.secondary_sort import SecondarySort
+from simpy_lib.hangzhou_simpy.src.machine.secondary_sort import SecondarySort
 
 
 class SmallSecondary(SecondarySort):

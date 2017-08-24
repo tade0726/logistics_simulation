@@ -15,12 +15,12 @@ import pandas as pd
 import os
 from collections import defaultdict
 
-from src.db import *
-from src.controllers import TruckController
-from src.utils import PipelineRecord, TruckRecord, PackageRecord, OutputTableColumnType
-from src.vehicles import Pipeline, PipelineRes, BasePipeline, SmallBag, SmallPackage, Parcel
-from src.machine import *
-from src.config import MainConfig, TimeConfig, LOG, SaveConfig
+from simpy_lib.hangzhou_simpy.src.db import *
+from simpy_lib.hangzhou_simpy.src.controllers import TruckController
+from simpy_lib.hangzhou_simpy.src.utils import PipelineRecord, TruckRecord, PackageRecord, OutputTableColumnType
+from simpy_lib.hangzhou_simpy.src.vehicles import Pipeline, PipelineRes, BasePipeline, SmallBag, SmallPackage, Parcel
+from simpy_lib.hangzhou_simpy.src.machine import *
+from simpy_lib.hangzhou_simpy.src.config import MainConfig, TimeConfig, LOG, SaveConfig
 
 
 __all__ = ["main"]

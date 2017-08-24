@@ -10,8 +10,8 @@ build a queue table and insert to mysql
 import sys
 sys.path.append('..')
 
-from src.db import *
-from src.config import *
+from simpy_lib.hangzhou_simpy.src.db import *
+from simpy_lib.hangzhou_simpy.src.config import *
 
 def main():
     table = load_from_mysql('i_resource_limit')

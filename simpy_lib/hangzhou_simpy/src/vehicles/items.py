@@ -15,9 +15,9 @@ import pandas as pd
 from collections import defaultdict
 import random
 
-from src.utils import \
+from simpy_lib.hangzhou_simpy.src.utils import \
     (PackageRecord, PipelineRecord, TruckRecord, PathGenerator, TruckRecordDict, PackageRecordDict, PipelineRecordDict)
-from src.config import LOG
+from simpy_lib.hangzhou_simpy.src.config import LOG
 
 __all__ = ["Parcel", "Package", "Truck", "Uld", "SmallBag", "SmallPackage", "Pipeline", "PipelineRes", "BasePipeline"]
 

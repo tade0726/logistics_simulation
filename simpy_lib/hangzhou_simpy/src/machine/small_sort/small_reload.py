@@ -20,9 +20,9 @@
 ==================================================================================================================================================
 """
 
-from src.vehicles.items import SmallBag, SmallPackage
-from src.config import SmallCode, LOG
-from src.utils import PackageRecordDict
+from simpy_lib.hangzhou_simpy.src.vehicles.items import SmallBag, SmallPackage
+from simpy_lib.hangzhou_simpy.src.config import SmallCode, LOG
+from simpy_lib.hangzhou_simpy.src.utils import PackageRecordDict
 
 
 BAG_NUM = 15

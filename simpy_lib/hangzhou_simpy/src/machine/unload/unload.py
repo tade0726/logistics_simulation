@@ -12,9 +12,9 @@ unload modules
 import simpy
 
 from collections import defaultdict
-from src.vehicles import Package
-from src.config import LOG
-from src.utils import PackageRecordDict, TruckRecordDict
+from simpy_lib.hangzhou_simpy.src.vehicles import Package
+from simpy_lib.hangzhou_simpy.src.config import LOG
+from simpy_lib.hangzhou_simpy.src.utils import PackageRecordDict, TruckRecordDict
 
 
 class Unload:

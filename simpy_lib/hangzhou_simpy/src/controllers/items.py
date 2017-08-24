@@ -11,10 +11,10 @@
 
 import simpy
 import pandas as pd
-from src.vehicles import Truck, Package, SmallPackage, SmallBag, Parcel
-from src.utils import TruckRecordDict
-from src.db import get_vehicles
-from src.config import LOG
+from simpy_lib.hangzhou_simpy.src.vehicles import Truck, Package, SmallPackage, SmallBag, Parcel
+from simpy_lib.hangzhou_simpy.src.utils import TruckRecordDict
+from simpy_lib.hangzhou_simpy.src.db import get_vehicles
+from simpy_lib.hangzhou_simpy.src.config import LOG
 
 __all__ = ["TruckController", ]
 

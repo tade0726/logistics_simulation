@@ -23,7 +23,7 @@
 
 
 import simpy
-from src.config import LOG
+from simpy_lib.hangzhou_simpy.src.config import LOG
 
 
 class SecondarySort(object):
