@@ -20,19 +20,6 @@ import xlrd
 
 
 def save_data(package_num, date_plan, time_plan, root, txt_receipt):
-    if not package_num.get():
-        messagebox.showerror(
-            "Tkinter-数据更新错误", "运行错误，请输入仿真件量！"
-        )
-        return
-    if not date_plan.get():
-        messagebox.showerror("Tkinter-数据更新错误",
-                             "运行错误，请设置仿真日期！")
-        return
-    if not time_plan.get():
-        messagebox.showerror("Tkinter-数据更新错误",
-                             "运行错误，请设置仿真时段！")
-        return
     if Flag['save_data'] > 0:
         messagebox.showerror("Tkinter-数据保存错误",
                              "数据已经保存，请勿重复操作！")
@@ -58,18 +45,19 @@ def save_data(package_num, date_plan, time_plan, root, txt_receipt):
 def run_sim(package_num, date_plan, time_plan, root, txt_receipt):
     """"""
     if Flag['update_data'] == 0:
-        messagebox.showerror("Tkinter-仿真启动错误",
-                             "运行错误，请先执行数据更新！")
-        return
+        result = messagebox.askyesno("Tkmessage",
+                                     "数据还未更新， 是否继续执行仿真")
+        if result == 0:
+            return
     if not package_num.get():
         messagebox.showerror(
             "Tkinter-数据更新错误", "运行错误， 请输入仿真件量！"
         )
         return
     if Flag['run_sim'] > 0:
-        messagebox.showerror("Tkinter-仿真启动错误",
-                             "仿真已经运行完成，请勿重复操作！")
-        return
+        result = messagebox.askyesno("askyesno", "仿真已经运行完成，是否重新执行仿真")
+        if result == 0:
+            return
     conn = Mysql().connect
     run_arg = Flag['run_time']
     # ======================== 插入测试数据=============
@@ -144,7 +132,7 @@ def update_data(date_plan, time_plan, root, txt_receipt):
     run_arg = Flag['run_time']
     if not date_plan.get():
         messagebox.showerror("Tkinter-数据更新错误",
-                             "运行错误，请设置班次时间！")
+                             "运行错误，请选择日期与时段！")
         return
 
     # # #  显示结果
@@ -182,7 +170,7 @@ def check_time(out_time):
 
 
 def q_exit(root):
-    if_exit = messagebox.askyesno("tkmessage", "要退出了，确定？")
+    if_exit = messagebox.askyesno("Tkmessage", "要退出了，确定？")
     if if_exit > 0:
         root.destroy()
         return
