@@ -26,7 +26,7 @@ __all__ = ['write_redis', 'load_from_redis', 'write_mysql', 'write_local', 'load
            'load_from_mysql', 'get_vehicles', 'get_unload_setting', 'get_reload_setting', 'get_resource_limit',
            'get_resource_equipment_dict', 'get_pipelines', 'get_queue_io', 'get_equipment_process_time',
            'get_parameters', 'get_resource_timetable', 'get_equipment_timetable',
-           'get_equipment_store_dict', 'get_equipment_on_off', 'get_small_reload_pack_time', 'get_base_equipment_io_max']
+           'get_equipment_store_dict', 'get_equipment_on_off', 'get_base_equipment_io_max']
 
 
 def checking_pickle_file(table_name):

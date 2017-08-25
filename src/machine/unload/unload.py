@@ -152,10 +152,6 @@ class Unload:
 
         else:
             for start, end in self.open_time:
-                # 替代无穷大
-                if end == np.inf:
-                    end = 10_000_000
-
                 self.env.process(self.real_run(start, end))
 
     def all_run(self):
