@@ -17,12 +17,12 @@ import logging
 
 
 class MainConfig:
-    IS_TEST = True   # 使用全集数据，还是测试数据
-    SAVE_LOCAL = True  # 是否输出结果到本地csv， 还是 mysql
+    IS_TEST = False   # 使用全集数据，还是测试数据
+    SAVE_LOCAL = False  # 是否输出结果到本地csv， 还是 mysql
     IS_PARCEL_ONLY = False  # 只有 parcel 件
     IS_LAND_ONLY = False  # True 只有 landside, False landside airside
-    CACHE_TYPE = 'redis'  # {None, "redis", "pkl", "hdf5"}
-    LOCAL_DB = True  # control which DB using
+    CACHE_TYPE = None  # {None, "redis", "pkl", "hdf5"}
+    LOCAL_DB = False  # control which DB using
 
     DEBUG_LEVEL = logging.INFO
 
@@ -43,10 +43,10 @@ class RemoteMySQLConfig:
         CHARSET = 'utf8'
 
     else:
-        HOST = "10.0.149.36"
+        HOST = "10.0.149.30"
         USER = "developer"
         PASS = "developer"
-        DB = "hangzhouhubqa_2"
+        DB = "hangzhouhubqa_v3"
         CHARSET = 'utf8'
 
     engine = create_engine(
