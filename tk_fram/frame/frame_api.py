@@ -9,7 +9,7 @@ from tkinter.messagebox import *
 from tkinter.filedialog import askopenfilename
 
 from .db_api import Mysql, insert_package, update_on_off, save_to_past_run, \
-    read_result, update_person
+    read_result, update_person, average_time, success_percent, discharge
 from simpy_lib import main
 from .frame_view import Flag, ConfigFrame, CHECK_BTN_ENTRY_DIC, \
     LIST_VALUE_COMBOBOX, CURRENT_CANVAS_DICT, CURRENT_SHEET, \
@@ -107,6 +107,30 @@ def run_sim(package_num, date_plan, time_plan, root, txt_receipt):
         '总处理时间(小时):\t' + '%.2f' % result['total_solve_time'] + '\n')
     txt_receipt.insert(
         END, '仿真运行时间(秒):\t' + check_time(run_time) + '\n')
+    root.update_idletasks()
+    txt_receipt.insert(END, '*******************************\n')
+    txt_receipt.insert(END, '开始分析仿真结果......\n')
+    root.update_idletasks()
+    with conn as cur:
+        average = average_time(cur)
+    txt_receipt.insert(
+        END,
+        '票均时效(秒):\t' + '%.2f' % average + '\n'
+    )
+    root.update_idletasks()
+    with conn as cur:
+        percent = success_percent(cur)
+    txt_receipt.insert(
+        END,
+        '时效达成率:\t' + percent + '\n'
+    )
+    root.update_idletasks()
+    with conn as cur:
+        discharge_time = discharge(cur)
+    txt_receipt.insert(
+        END,
+        '卸货:\t' + discharge_time + '\n'
+    )
     txt_receipt['state'] = DISABLED
     root.update_idletasks()
     Flag['run_sim'] += 1

@@ -221,6 +221,31 @@ def read_result(cursor):
         'total_solve_time': total_solve_time
     }
 
+def average_time(cursor):
+    # 票均时间
+    cursor.execute(
+        "select max(time_stamp) - min(time_stamp) "
+        "from o_machine_table group by small_id"
+    )
+    result = cursor.fetchall()
+    time_sum = sum(float(i[0]) for i in result)
+    average = time_sum / len(result)
+    return average
+
+def success_percent(cursor):
+    # 时效达成率
+    cursor.execute(
+
+    )
+    result = cursor.fetchone()
+    return result
+
+def discharge(cursor):
+    cursor.execute(
+
+    )
+    result = cursor.fetchone()
+    return result
 
 def save_to_past_run(cursor):
     columns_equipment_io = create_columns(cursor, 'i_equipment_io')
