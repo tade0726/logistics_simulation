@@ -63,6 +63,11 @@ def update_on_off(cursor, start_time, run_arg):
         )
     cursor.execute("update i_equipment_io set inserted_on='%s'" % run_arg)
 
+def create_columns(cursor, table):
+    cursor.execute("show columns from %s" % table)
+    column_tuple = cursor.fetchall()
+    columns = ' ,'.join(i[0] for i in column_tuple)
+    return columns
 
 def insert_package(cursor, num: str, run_arg):
     if num == 'all':
@@ -85,56 +90,47 @@ def insert_package(cursor, num: str, run_arg):
     air_parcel_num = int(air_num * 0.88)
     air_nc_num = int(air_num * 0.07)
     air_small_num = air_num - air_parcel_num - air_nc_num
+
+    columns_parcel_landside = create_columns(cursor, 'i_od_parcel_landside')
+    columns_small_landside = create_columns(cursor, 'i_od_small_landside')
+
+    columns_parcel_airside = create_columns(cursor, 'i_od_parcel_airside')
+    columns_small_airside = create_columns(cursor, 'i_od_small_airside')
     cursor.execute(
         "insert into i_od_parcel_landside "
-        "(parcel_id, src_dist_code, src_type, dest_dist_code, dest_zone_code,"
-        " dest_type, plate_num, parcel_type, limit_type_code, arrive_time, "
-        "send_time, inserted_on, modified_on) "
+        "(%s) "
         "select "
-        "parcel_id, src_dist_code, src_type, dest_dist_code, dest_zone_code, "
-        "dest_type, plate_num, parcel_type, limit_type_code, arrive_time, "
-        "send_time, inserted_on, modified_on "
+        "%s "
         "from i_od_parcel_landside_day "
         "where parcel_type='parcel' "
-        "limit %s" % land_parcel_num
+        "limit %s" %
+        (columns_parcel_landside, columns_parcel_landside, land_parcel_num)
     )
     cursor.execute(
         "insert into i_od_parcel_landside "
-        "(parcel_id, src_dist_code, src_type, dest_dist_code, dest_zone_code,"
-        " dest_type, plate_num, parcel_type, limit_type_code, arrive_time, "
-        "send_time, inserted_on, modified_on) "
+        "(%s) "
         "select "
-        "parcel_id, src_dist_code, src_type, dest_dist_code, dest_zone_code, "
-        "dest_type, plate_num, parcel_type, limit_type_code, arrive_time, "
-        "send_time, inserted_on, modified_on "
+        "%s "
         "from i_od_parcel_landside_day "
         "where parcel_type='nc' "
-        "limit %s" % land_nc_num
+        "limit %s" %
+        (columns_parcel_landside, columns_parcel_landside, land_nc_num)
     )
     cursor.execute(
         "insert into i_od_parcel_landside "
-        "(parcel_id, src_dist_code, src_type, dest_dist_code, dest_zone_code,"
-        " dest_type, plate_num, parcel_type, limit_type_code, arrive_time, "
-        "send_time, inserted_on, modified_on) "
+        "(%s) "
         "select "
-        "parcel_id, src_dist_code, src_type, dest_dist_code, dest_zone_code, "
-        "dest_type, plate_num, parcel_type, limit_type_code, arrive_time, "
-        "send_time, inserted_on, modified_on "
+        "%s "
         "from i_od_parcel_landside_day "
         "where parcel_type='small' "
-        "limit %s" % land_small_num
+        "limit %s" %
+        (columns_parcel_landside, columns_parcel_landside, land_small_num)
     )
     cursor.execute(
         "INSERT into i_od_small_landside "
-        "(small_id, parcel_id, src_dist_code, src_type, dest_dist_code, "
-        "dest_zone_code, put_package_to_cage_tm, ident_des_zno, dest_type, "
-        "plate_num, parcel_type, limit_type_code, arrive_time, send_time, "
-        "inserted_on, modified_on) "
+        "(%s) "
         "SELECT "
-        "small_id, parcel_id, src_dist_code, src_type, dest_dist_code, "
-        "dest_zone_code, put_package_to_cage_tm, ident_des_zno, dest_type, "
-        "plate_num, parcel_type, limit_type_code, arrive_time, send_time, "
-        "inserted_on, modified_on "
+        "%s "
         "FROM `i_od_small_landside_day` AS s "
         "WHERE s.`parcel_id` IN "
         "( SELECT DISTINCT t.parcel_id "
@@ -142,66 +138,53 @@ def insert_package(cursor, num: str, run_arg):
         "( SELECT f.parcel_id "
         "FROM i_od_parcel_landside_day AS f "
         "WHERE f.`parcel_type`='small' "
-        "LIMIT %s) AS t)" % land_small_num
+        "LIMIT %s) AS t)" %
+        (columns_small_landside, columns_small_landside, land_small_num)
     )
     # ============================ 插入空侧数据 ===============================
     cursor.execute("truncate i_od_parcel_airside")
     cursor.execute("truncate i_od_small_airside")
     cursor.execute(
         "insert into i_od_parcel_airside "
-        "(parcel_id, src_dist_code, src_type, dest_dist_code, dest_zone_code,"
-        " dest_type, plate_num, parcel_type, limit_type_code, arrive_time, "
-        "send_time, inserted_on, modified_on) "
+        "(%s) "
         "select "
-        "parcel_id, src_dist_code, src_type, dest_dist_code, dest_zone_code, "
-        "dest_type, plate_num, parcel_type, limit_type_code, arrive_time, "
-        "send_time, inserted_on, modified_on "
+        "%s "
         "from i_od_parcel_airside_day "
         "where parcel_type='parcel' "
-        "limit %s" % air_parcel_num
+        "limit %s" %
+        (columns_parcel_airside, columns_parcel_airside, air_parcel_num)
     )
     cursor.execute(
         "insert into i_od_parcel_airside "
-        "(parcel_id, src_dist_code, src_type, dest_dist_code, dest_zone_code,"
-        " dest_type, plate_num, parcel_type, limit_type_code, arrive_time, "
-        "send_time, inserted_on, modified_on) "
+        "(%s) "
         "select "
-        "parcel_id, src_dist_code, src_type, dest_dist_code, dest_zone_code, "
-        "dest_type, plate_num, parcel_type, limit_type_code, arrive_time, "
-        "send_time, inserted_on, modified_on "
+        "%s "
         "from i_od_parcel_airside_day "
         "where parcel_type='nc' "
-        "limit %s" % air_nc_num
+        "limit %s" %
+        (columns_parcel_airside, columns_parcel_airside, air_nc_num)
     )
     cursor.execute(
         "insert into i_od_parcel_airside "
-        "(parcel_id, src_dist_code, src_type, dest_dist_code, dest_zone_code,"
-        " dest_type, plate_num, parcel_type, limit_type_code, arrive_time, "
-        "send_time, inserted_on, modified_on) "
+        "(%s) "
         "select "
-        "parcel_id, src_dist_code, src_type, dest_dist_code, dest_zone_code, "
-        "dest_type, plate_num, parcel_type, limit_type_code, arrive_time, "
-        "send_time, inserted_on, modified_on "
+        "%s "
         "from i_od_parcel_airside_day "
         "where parcel_type='small' "
-        "limit %s" % air_small_num
+        "limit %s" %
+        (columns_parcel_airside, columns_parcel_airside, air_small_num)
     )
     cursor.execute(
         "INSERT into i_od_small_airside "
-        "(small_id, parcel_id, src_dist_code, src_type, dest_dist_code, "
-        "dest_zone_code, put_package_to_cage_tm, ident_des_zno, dest_type, "
-        "uld_num, plate_num, parcel_type, limit_type_code, arrive_time, "
-        "send_time, inserted_on, modified_on) "
+        "(%s) "
         "SELECT "
-        "small_id, parcel_id, src_dist_code, src_type, dest_dist_code, "
-        "dest_zone_code, put_package_to_cage_tm, ident_des_zno, dest_type, "
-        "uld_num, plate_num, parcel_type, limit_type_code, arrive_time, "
-        "send_time, inserted_on, modified_on "
+        "%s "
         "FROM `i_od_small_airside_day` AS s "
         "WHERE s.`parcel_id` IN (SELECT DISTINCT t.parcel_id "
         "FROM(SELECT f.parcel_id FROM i_od_parcel_airside_day AS f "
         "WHERE f.`parcel_type`='small' "
-        "LIMIT %s) AS t)" % air_small_num
+        "LIMIT %s) AS t)" %
+        (columns_small_airside, columns_small_airside, air_small_num)
     )
     cursor.execute("update i_od_parcel_landside set inserted_on='%s'" % run_arg)
     cursor.execute("update i_od_small_airside set inserted_on='%s'" % run_arg)
@@ -240,78 +223,94 @@ def read_result(cursor):
 
 
 def save_to_past_run(cursor):
+    columns_equipment_io = create_columns(cursor, 'i_equipment_io')
+    columns_resource_limit = create_columns(cursor, 'i_resource_limit')
+    columns_parcel_landside = create_columns(cursor, 'i_od_parcel_landside')
+    columns_parcel_airside = create_columns(cursor, 'i_od_parcel_airside')
+    columns_small_landside = create_columns(cursor, 'i_od_small_landside')
+    columns_small_airside = create_columns(cursor, 'i_od_small_airside')
+    columns_truck = create_columns(cursor, 'o_truck_table')
+    columns_pipeline = create_columns(cursor, 'o_pipeline_table')
+    columns_machine = create_columns(cursor, 'o_machine_table')
+    columns_path = create_columns(cursor, 'o_path_table')
     cursor.execute(
         "insert into i_equipment_io_past_run "
-        "(run_time, equipment_port, equipment_id, process_time, "
-        "allocate_rule, equipment_status, inserted_on, modified_on) "
+        "(run_time, %s) "
         "select "
-        "inserted_on, equipment_port, equipment_id, process_time, "
-        "allocate_rule, equipment_status, inserted_on, modified_on "
+        "inserted_on, %s "
         "from i_equipment_io"
-    )
-
-    cursor.execute(
-        "insert into i_od_parcel_landside_past_run "
-        "(run_time, parcel_id, src_dist_code, src_type, dest_dist_code, "
-        "dest_zone_code, dest_type, plate_num, parcel_type, "
-        "limit_type_code, arrive_time, send_time, inserted_on, modified_on) "
-        "select "
-        "inserted_on, parcel_id, src_dist_code, src_type, dest_dist_code, "
-        "dest_zone_code, dest_type, plate_num, parcel_type, "
-        "limit_type_code, arrive_time, send_time, inserted_on, modified_on "
-        "from i_od_parcel_landside"
-    )
+    ) % (columns_equipment_io, columns_equipment_io)
 
     cursor.execute(
         "insert into i_resource_limit_past_run "
-        "(run_time, resource_id, resource_name, resource_limit, "
-        "capacity_per_resource, resource_on_number, resource_number, "
-        "inserted_on, modified_on) "
+        "(run_time, %s) "
         "select "
-        "inserted_on, resource_id, resource_name, resource_limit, "
-        "capacity_per_resource, resource_on_number, resource_number, "
-        "inserted_on, modified_on "
+        "inserted_on, %s "
         "from i_resource_limit"
-    )
+    ) % (columns_resource_limit, columns_resource_limit)
+
+    cursor.execute(
+        "insert into i_od_parcel_landside_past_run "
+        "(run_time, %s) "
+        "select "
+        "inserted_on, %s "
+        "from i_od_parcel_landside"
+    ) % (columns_parcel_landside, columns_parcel_landside)
+
+    cursor.execute(
+        "insert into i_od_small_landside_past_run "
+        "(run_time, %s) "
+        "select "
+        "inserted_on, %s "
+        "from i_od_small_landside"
+    ) % (columns_small_landside, columns_small_landside)
+
+    cursor.execute(
+        "insert into i_od_parcel_airside_past_run "
+        "(run_time, %s) "
+        "select "
+        "inserted_on, %s "
+        "from i_od_parcel_landside"
+    ) % (columns_parcel_airside, columns_parcel_airside)
+
+    cursor.execute(
+        "insert into i_od_small_airside_past_run "
+        "(run_time, %s) "
+        "select "
+        "inserted_on, %s "
+        "from i_od_small_airside"
+    ) % (columns_small_airside, columns_small_airside)
 
     cursor.execute(
         "insert into o_truck_table_past_run "
-        "(equipment_id, truck_id, truck_type, time_stamp, action, store_size, "
-        "real_time_stamp, run_time) "
+        "(%s) "
         "select "
-        "equipment_id, truck_id, truck_type, time_stamp, action, store_size, "
-        "real_time_stamp, run_time "
+        "%s "
         "from o_truck_table"
-    )
+    ) % (columns_truck, columns_truck)
 
     cursor.execute(
         "insert into o_pipeline_table_past_run "
-        "(pipeline_id, queue_id, parcel_id, small_id, parcel_type, time_stamp, "
-        "action, real_time_stamp, run_time)"
+        "(%s)"
         "select "
-        "pipeline_id, queue_id, parcel_id, small_id, parcel_type, time_stamp, "
-        "action, real_time_stamp, run_time "
+        "%s "
         "from o_pipeline_table"
-    )
+    ) % (columns_pipeline, columns_pipeline)
 
     cursor.execute(
         "insert into o_machine_table_past_run "
-        "(equipment_id, parcel_id, small_id, parcel_type, time_stamp, action, "
-        "real_time_stamp, run_time) "
+        "(%s) "
         "select "
-        "equipment_id, parcel_id, small_id, parcel_type, time_stamp, action, "
-        "real_time_stamp, run_time "
+        "%s "
         "from o_machine_table"
-    )
+    ) % (columns_machine, columns_machine)
     cursor.execute(
         "insert into o_path_table_past_run "
-        "(parcel_id, small_id, parcel_type, start_node, ident_des_zno, "
-        "sorter_type, dest_type, ret_path, run_time)"
+        "(%s)"
         "select "
-        "parcel_id, small_id, parcel_type, start_node, ident_des_zno, "
-        "sorter_type, dest_type, ret_path, run_time "
+        "%s "
         "from o_path_table"
-    )
+    ) % (columns_path, columns_path)
 
 def delete_index(cursor):
     cursor.execute("drop index ix_o_machine_run_time_packageid on "
