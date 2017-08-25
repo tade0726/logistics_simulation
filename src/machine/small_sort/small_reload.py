@@ -25,9 +25,6 @@ from src.config import SmallCode, LOG
 from src.utils import PackageRecordDict
 
 
-BAG_NUM = 15
-
-
 class SmallReload(object):
 
     def __init__(self,
