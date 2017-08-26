@@ -119,26 +119,21 @@ class ResourceController:
 
         self.env = env
         self.resource_dict = resource_dict
-        self.until_death = self.env.timeout(10_000_000)
-
         self._init_time_table()
 
     def _init_time_table(self):
         self.timetable = get_resource_timetable()
 
     def _set_resource(self, resource: simpy.PriorityResource, start_time: float, end_time: float):
-        """占用资源，模拟资源减少的情况"""
+        """占用资源，模拟资源减少的情况
+        end_time 会出现 np.inf 无穷大
+        simpy 只会用作为排序，可以放再 timeout 事件里
+        """
+        duration = end_time - start_time
         yield self.env.timeout(start_time)
-
         with resource.request(priority=-1) as req:
             yield req
-
-            if end_time != np.inf:
-                duration = end_time - start_time
-                yield self.env.timeout(duration)
-            else:
-                # all machine finished
-                yield self.until_death
+            yield self.env.timeout(duration)
 
     def controller(self):
         for _, row in self.timetable.iterrows():
