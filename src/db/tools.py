@@ -485,6 +485,9 @@ def get_resource_timetable():
 
     """
     table = load_from_mysql('i_resource_limit')
+
+    table.loc[(table.start_time == table.start_time.min()) & (table.resource_id.str.contains('r')), "resource_limit"] = 1
+
     # clean resource_limit, no zero
     table.resource_limit = table.resource_limit.mask(table.resource_limit == 0, table.resource_number)
     table['resource_occupy'] = table['resource_number'] - table['resource_limit']
