@@ -36,11 +36,9 @@ def process_thing(env):
 def process_thing2(env):
     name = "p2"
     for _ in range(10):
-
         with res.request(name=name, priority=-1) as req:
             yield req
             yield env.timeout(5)
-
         yield env.timeout(10)
 
 
