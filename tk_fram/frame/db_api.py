@@ -187,6 +187,8 @@ def insert_package(cursor, num: str, run_arg):
         (columns_small_airside, columns_small_airside, air_small_num)
     )
     cursor.execute("update i_od_parcel_landside set inserted_on='%s'" % run_arg)
+    cursor.execute("update i_od_small_landside set inserted_on='%s'" % run_arg)
+    cursor.execute("update i_od_parcel_airside set inserted_on='%s'" % run_arg)
     cursor.execute("update i_od_small_airside set inserted_on='%s'" % run_arg)
 
 
@@ -235,16 +237,30 @@ def average_time(cursor):
 def success_percent(cursor):
     # 时效达成率
     cursor.execute(
-
+    "select count(case when a.real_time_stamp<=b.plan_disallow_tm then "
+    "a.small_id else null end)/count(a.small_id) "
+    "from (select small_id,max(real_time_stamp) real_time_stamp "
+    "from hangzhouhubqa_v3.o_machine_table group by small_id) a "
+    "join (  select small_id ,plan_disallow_tm from i_od_small_airside "
+    "union all "
+    "select parcel_id,plan_disallow_tm "
+    "from i_od_parcel_airside union all "
+    "select small_id ,plan_disallow_tm "
+    "from i_od_small_landside union all "
+    "select parcel_id,plan_disallow_tm "
+    "from i_od_parcel_landside) b on a.small_id=b.small_id"
     )
-    result = cursor.fetchone()
+    result = cursor.fetchone()[0]
     return result
 
 def discharge(cursor):
     cursor.execute(
-
+    "select (sum(case when action='start' "
+    "then time_stamp else 0 end)-sum(case when action='wait' "
+    "then time_stamp else 0 end))/count(distinct small_id) "
+    "from o_machine_table where equipment_id like 'r%'"
     )
-    result = cursor.fetchone()
+    result = cursor.fetchone()[0]
     return result
 
 def save_to_past_run(cursor):

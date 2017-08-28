@@ -10,7 +10,6 @@ from tkinter.filedialog import askopenfilename
 
 from .db_api import Mysql, insert_package, update_on_off, save_to_past_run, \
     read_result, update_person, average_time, success_percent, discharge
-from simpy_lib import main
 from .frame_view import Flag, ConfigFrame, CHECK_BTN_ENTRY_DIC, \
     LIST_VALUE_COMBOBOX, CURRENT_CANVAS_DICT, CURRENT_SHEET, \
     CACHE_INSTANCE_DICT, DAY_TIME_DICT, NUM_TRANSLATE_DICT, R_J_DICT
@@ -59,7 +58,7 @@ def run_sim(package_num, date_plan, time_plan, root, txt_receipt):
         if result == 0:
             return
     conn = Mysql().connect
-    run_arg = Flag['run_time']
+    run_arg = Flag['run_time'] or datetime.now()
     # ======================== 插入测试数据=============
     txt_receipt['state'] = NORMAL
     txt_receipt.insert(END, '插入%s件包裹仿真数据......\n' % package_num.get())
@@ -81,6 +80,7 @@ def run_sim(package_num, date_plan, time_plan, root, txt_receipt):
     txt_receipt.insert(END, '开始调用仿真函数......\n')
     root.update_idletasks()
     start_time = time.time()
+    from simpy_lib import main
     main(run_arg)
     run_time = '%.2f' % (time.time() - start_time)
     txt_receipt.insert(END, '仿真执行完毕\n')
@@ -122,14 +122,14 @@ def run_sim(package_num, date_plan, time_plan, root, txt_receipt):
         percent = success_percent(cur)
     txt_receipt.insert(
         END,
-        '时效达成率:\t' + percent + '\n'
+        '时效达成率:\t' + '%.2f' % percent + '\n'
     )
     root.update_idletasks()
     with conn as cur:
         discharge_time = discharge(cur)
     txt_receipt.insert(
         END,
-        '卸货:\t' + discharge_time + '\n'
+        '卸货等待时间(秒):\t' + '%.2f' % discharge_time + '\n'
     )
     txt_receipt['state'] = DISABLED
     root.update_idletasks()
