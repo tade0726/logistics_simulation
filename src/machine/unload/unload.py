@@ -163,7 +163,6 @@ class Unload:
             # vehicle turnaround time
             yield self.env.timeout(self.vehicle_turnaround_time)
 
-
     def real_run(self, start, end):
 
         yield self.env.timeout(start)
@@ -183,12 +182,5 @@ class Unload:
             yield self.env.process(self.process_truck(truck))
             # vehicle turnaround time
             yield self.env.timeout(self.vehicle_turnaround_time)
-
-
-
-
-
-
-
 
 
