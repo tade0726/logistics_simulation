@@ -39,6 +39,7 @@ def save_data(package_num, date_plan, time_plan, root, txt_receipt):
                        )
     txt_receipt['state'] = DISABLED
     Flag['save_data'] += 1
+    Flag['run_time'] = None
 
 
 def run_sim(package_num, date_plan, time_plan, root, txt_receipt):
@@ -58,7 +59,8 @@ def run_sim(package_num, date_plan, time_plan, root, txt_receipt):
         if result == 0:
             return
     conn = Mysql().connect
-    run_arg = Flag['run_time'] or datetime.now()
+    Flag['run_time'] = Flag['run_time'] or datetime.now()
+    run_arg = Flag['run_time']
     # ======================== 插入测试数据=============
     txt_receipt['state'] = NORMAL
     txt_receipt.insert(END, '插入%s件包裹仿真数据......\n' % package_num.get())
@@ -137,7 +139,7 @@ def run_sim(package_num, date_plan, time_plan, root, txt_receipt):
     Flag['save_data'] = 0
 
 
-def update_data(date_plan, time_plan, root, txt_receipt):
+def update_data(date_plan, time_plan, root, txt_receipt, final=True):
     """"""
     # 将当前界面所有控件的状态与人数保存到 CACHE_INSTANCE_DICT，防止更新时被忽略
     for i in ConfigFrame.WIG_BTN_DICT[CURRENT_SHEET[0]]:
@@ -152,7 +154,7 @@ def update_data(date_plan, time_plan, root, txt_receipt):
 
     update_m_j()
 
-    Flag['run_time'] = datetime.now()
+    Flag['run_time'] = Flag['run_time'] or datetime.now()
     run_arg = Flag['run_time']
     if not date_plan.get():
         messagebox.showerror("Tkinter-数据更新错误",
@@ -160,7 +162,8 @@ def update_data(date_plan, time_plan, root, txt_receipt):
         return
 
     # # #  显示结果
-    txt_receipt['state'] = NORMAL
+    if final:
+        txt_receipt['state'] = NORMAL
     txt_receipt.delete('1.0', END)
     root.update_idletasks()
     # ========================更改开关状态==============
@@ -174,7 +177,6 @@ def update_data(date_plan, time_plan, root, txt_receipt):
 
     txt_receipt.insert(END, '机器开关状态更新成功！\n')
     root.update_idletasks()
-    time.sleep(0.5)
     # ========================更改人员数量==============
     txt_receipt.insert(END, '开始设置人力资源数量......\n')
     with conn as cur:
@@ -319,8 +321,11 @@ def create_canvas(master, sheet: str):
 
     return (canvas_up, scrollbar_up)
 
-def set_during_time(date_plan, time_plan):
+def set_during_time(date_plan, time_plan, root , txt_receipt):
     time_plan['values'] = DAY_TIME_DICT[date_plan.get()]
+    if time_plan.get():
+        final = False
+        update_data(date_plan, time_plan, root, txt_receipt, final)
 
 def clear_time(time_plan):
     time_plan.set('')

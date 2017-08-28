@@ -159,7 +159,9 @@ def init_r_frame(root: Tk):
         # height=2,
         textvariable=StringVar(),
         values=[],
-        postcommand=lambda: set_during_time(date_plan, time_plan)
+        postcommand=lambda: set_during_time(
+            date_plan, time_plan, root, txt_receipt
+        )
     )
 
     time_plan.grid(row=0, column=5)
