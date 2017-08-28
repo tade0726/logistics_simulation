@@ -26,7 +26,7 @@ __all__ = ['write_redis', 'load_from_redis', 'write_mysql', 'write_local', 'load
            'load_from_mysql', 'get_vehicles', 'get_unload_setting', 'get_reload_setting', 'get_resource_limit',
            'get_resource_equipment_dict', 'get_pipelines', 'get_queue_io', 'get_equipment_process_time',
            'get_parameters', 'get_resource_timetable', 'get_equipment_timetable',
-           'get_equipment_store_dict', 'get_equipment_on_off', 'get_small_reload_pack_time', 'get_base_equipment_io_max']
+           'get_equipment_store_dict', 'get_equipment_on_off', 'get_base_equipment_io_max']
 
 
 def checking_pickle_file(table_name):
@@ -531,9 +531,9 @@ def get_equipment_timetable():
     for idx, row in table_temp.set_index('equipment_port').iterrows():
         equipment_open_time[idx].append((row['start_time'], row['end_time']))
 
-    equipment_open_time = {k:v for k,v in equipment_open_time.items() if k[0] in ['r', 'a', 'j', 'u']}
+    switch_machine_names = ['r', 'a', 'u', 'j']
 
-    return equipment_open_time
+    return equipment_open_time, switch_machine_names
 
 
 def get_equipment_on_off():
@@ -548,16 +548,6 @@ def get_equipment_on_off():
     equipment_on = table[table.equipment_status == 1]
     equipment_off = table[table.equipment_status == 0]
     return equipment_on.equipment_port.tolist(), equipment_off.equipment_port.tolist(),
-
-
-# todo: 等待数据
-def get_small_reload_pack_time():
-    """返回 小件包打包时间
-
-    sample:
-    [ 1000, 20000, 20003, ..  ]
-    """
-    pass
 
 
 if __name__ == "__main__":

@@ -19,12 +19,17 @@ import sys
 sys.path.extend(['.'])
 
 from simpy_lib.hangzhou_simpy.src.db import *
-from simpy_lib.hangzhou_simpy.src.controllers import TruckController, ResourceController
+from simpy_lib.hangzhou_simpy.src.controllers import \
+    TruckController, ResourceController
 from simpy_lib.hangzhou_simpy.src.utils import \
-    (PipelineRecord, TruckRecord, PackageRecord, OutputTableColumnType, PathRecord)
-from simpy_lib.hangzhou_simpy.src.vehicles import Pipeline, PipelineRes, BasePipeline, SmallBag, SmallPackage, Parcel, PipelineReplace
+    (PipelineRecord, TruckRecord, PackageRecord,
+     OutputTableColumnType, PathRecord)
+from simpy_lib.hangzhou_simpy.src.vehicles import \
+    Pipeline, PipelineRes, BasePipeline, SmallBag, \
+    SmallPackage, Parcel, PipelineReplace
 from simpy_lib.hangzhou_simpy.src.machine import *
-from simpy_lib.hangzhou_simpy.src.config import MainConfig, TimeConfig, LOG, SaveConfig
+from simpy_lib.hangzhou_simpy.src.config import \
+    MainConfig, TimeConfig, LOG, SaveConfig
 
 
 __all__ = ["main"]
@@ -52,7 +57,7 @@ def main(run_arg):
     equipment_process_time_dict = get_equipment_process_time()
     equipment_parameters = get_parameters()
     equipment_store_dict = get_equipment_store_dict()
-    close_time_dict = get_equipment_timetable()
+    open_time_dict, switch_machine_names = get_equipment_timetable()
 
     # c_port list
     reload_c_list = list()
@@ -83,13 +88,17 @@ def main(run_arg):
         delay_time = row['process_time']
         pipeline_id = row['equipment_port_last'], row['equipment_port_next']
 
+        equipment_name = row['equipment_port_next'][0]
+        all_keep_open = True if equipment_name not in switch_machine_names else False
+
         if pipeline_type == "pipeline":
             pipelines_dict[pipeline_id] = Pipeline(env,
                                                    delay_time,
                                                    pipeline_id,
                                                    queue_id,
                                                    machine_type,
-                                                   close_time_dict,)
+                                                   open_time_dict,
+                                                   all_keep_open)
 
         elif pipeline_type == 'pipeline_res':
             pipelines_dict[pipeline_id] = PipelineRes(env,
@@ -100,7 +109,8 @@ def main(run_arg):
                                                       queue_id,
                                                       machine_type,
                                                       equipment_process_time_dict,
-                                                      close_time_dict)
+                                                      open_time_dict,
+                                                      all_keep_open)
 
         elif pipeline_type == 'pipeline_replace':
             pipelines_dict[pipeline_id] = PipelineReplace(env,
@@ -110,7 +120,8 @@ def main(run_arg):
                                                           machine_type,
                                                           share_store_dict,
                                                           equipment_store_dict,
-                                                          close_time_dict)
+                                                          open_time_dict,
+                                                          all_keep_open)
         else:
             raise ValueError("Pipeline init error!!")
 
@@ -174,7 +185,7 @@ def main(run_arg):
                    resource_dict=resource_dict,
                    equipment_resource_dict=equipment_resource_dict,
                    equipment_parameters=equipment_parameters,
-                   open_time_dict=close_time_dict, )
+                   open_time_dict=open_time_dict, )
         )
 
     # init presort machines
@@ -272,6 +283,8 @@ def main(run_arg):
             if isinstance(pipeline, Pipeline):
                 env.process(pipeline.run())
 
+        env.run()
+
     # init trucks controllers
     LOG.logger_font.info("init controllers")
     truck_controller = TruckController(env,
@@ -291,7 +304,6 @@ def main(run_arg):
 
     # setup
     setup_process_start()
-    env.run()
 
     num_of_trucks = len(trucks_queue.items)
     LOG.logger_font.info(f"{num_of_trucks} trucks leave in queue")

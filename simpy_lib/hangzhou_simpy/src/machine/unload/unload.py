@@ -15,7 +15,8 @@ import numpy as np
 from collections import defaultdict
 from simpy_lib.hangzhou_simpy.src.vehicles import Package, Truck
 from simpy_lib.hangzhou_simpy.src.config import LOG
-from simpy_lib.hangzhou_simpy.src.utils import PackageRecordDict, TruckRecordDict
+from simpy_lib.hangzhou_simpy.src.utils \
+    import PackageRecordDict, TruckRecordDict
 
 
 class Unload:
@@ -151,11 +152,8 @@ class Unload:
             self.env.process(self.all_run())
 
         else:
-            if self.open_time:
-                for start, end in self.open_time:
-                    self.env.process(self.real_run(start, end))
-            else:
-                self.env.process(self.all_run())
+            for start, end in self.open_time:
+                self.env.process(self.real_run(start, end))
 
     def all_run(self):
         while True:
@@ -165,7 +163,6 @@ class Unload:
             yield self.env.process(self.process_truck(truck))
             # vehicle turnaround time
             yield self.env.timeout(self.vehicle_turnaround_time)
-
 
     def real_run(self, start, end):
 
@@ -186,12 +183,5 @@ class Unload:
             yield self.env.process(self.process_truck(truck))
             # vehicle turnaround time
             yield self.env.timeout(self.vehicle_turnaround_time)
-
-
-
-
-
-
-
 
 

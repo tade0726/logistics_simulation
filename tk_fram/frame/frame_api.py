@@ -80,6 +80,7 @@ def run_sim(package_num, date_plan, time_plan, root, txt_receipt):
     txt_receipt.insert(END, '开始调用仿真函数......\n')
     root.update_idletasks()
     start_time = time.time()
+    # ================================
     from simpy_lib import main
     main(run_arg)
     run_time = '%.2f' % (time.time() - start_time)

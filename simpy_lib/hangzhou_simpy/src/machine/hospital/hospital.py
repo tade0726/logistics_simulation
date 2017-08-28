@@ -23,7 +23,7 @@
 ==================================================================================================================================================
 """
 
-import simpy
+
 from simpy_lib.hangzhou_simpy.src.vehicles.items import Package
 from simpy_lib.hangzhou_simpy.src.utils import PackageRecordDict
 from simpy_lib.hangzhou_simpy.src.config import LOG

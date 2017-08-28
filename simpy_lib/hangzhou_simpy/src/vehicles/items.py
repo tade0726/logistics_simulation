@@ -17,15 +17,16 @@ from collections import defaultdict
 import random
 
 from simpy_lib.hangzhou_simpy.src.utils import \
-    (PackageRecord, PipelineRecord, TruckRecord, PathGenerator, TruckRecordDict, PackageRecordDict, PipelineRecordDict)
+    (PackageRecord, PipelineRecord, TruckRecord, PathGenerator,
+     TruckRecordDict, PackageRecordDict, PipelineRecordDict)
 
 from simpy_lib.hangzhou_simpy.src.utils import \
     (PathRecordDict, PathRecord)
 
 from simpy_lib.hangzhou_simpy.src.config import LOG
 
-__all__ = ["Parcel", "Package", "Truck", "Uld", "SmallBag", "SmallPackage", "Pipeline", "PipelineRes", "BasePipeline",
-           "PipelineReplace",]
+__all__ = ["Parcel", "Package", "Truck", "Uld", "SmallBag", "SmallPackage",
+           "Pipeline", "PipelineRes", "BasePipeline", "PipelineReplace",]
 
 
 path_g = PathGenerator()
@@ -222,7 +223,7 @@ class Truck:
         self.store_size = len(self.store)
 
     def get_all_package(self):
-        return [self.store.pop(0) for _ in range(len(self.store))]
+        return [self.store.pop(0) for _ in range(self.store_size)]
 
     def insert_data(self, data:dict):
         assert isinstance(data, TruckRecordDict), "Wrong data type"
@@ -296,7 +297,7 @@ class Pipeline:
                  queue_id: str,
                  machine_type: str,
                  open_time_dict: dict,
-                 all_keep_open: bool = False,
+                 all_keep_open: bool,
                  ):
 
         self.env = env
@@ -369,11 +370,8 @@ class Pipeline:
             self.env.process(self.all_run())
 
         else:
-            if self.open_time:
-                for start, end in self.open_time:
-                    self.env.process(self.real_run(start, end))
-            else:
-                self.env.process(self.all_run())
+            for start, end in self.open_time:
+                self.env.process(self.real_run(start, end))
 
     def all_run(self):
         while True:
@@ -384,17 +382,16 @@ class Pipeline:
 
         yield self.env.timeout(start)
 
-        item = yield self.store.get()
-        LOG.logger_font.debug(f"sim time: {self.env.now}, get item: {item}, equipment_id: {self.equipment_id}")
+        while True:
+            item = yield self.store.get()
+            LOG.logger_font.debug(f"sim time: {self.env.now}, get item: {item}, equipment_id: {self.equipment_id}")
 
-        if self.env.now > end:
-            self.store.put(item)
-            LOG.logger_font.debug(f"sim time: {self.env.now}, put back item: {item}, equipment_id: {self.equipment_id}")
-            self.env.exit()
+            if self.env.now > end:
+                self.store.put(item)
+                LOG.logger_font.debug(f"sim time: {self.env.now}, put back item: {item}, equipment_id: {self.equipment_id}")
+                self.env.exit()
 
-        self.env.process(self.latency(item))
-
-
+            self.env.process(self.latency(item))
 
     def __str__(self):
         return f"<Pipeline: {self.pipeline_id}, delay: {self.delay}>"
@@ -415,6 +412,7 @@ class PipelineReplace(Pipeline):
                  share_store_dict: dict,
                  equipment_store_dict: dict,
                  open_time_dict: dict,
+                 all_keep_open: bool,
                  ):
 
         super(PipelineReplace, self).__init__(env,
@@ -422,7 +420,8 @@ class PipelineReplace(Pipeline):
                                               pipeline_id,
                                               queue_id,
                                               machine_type,
-                                              open_time_dict, )
+                                              open_time_dict,
+                                              all_keep_open,)
 
         self.share_store_dict = share_store_dict
         self.equipment_store_dict = equipment_store_dict
@@ -447,6 +446,7 @@ class PipelineRes(Pipeline):
                  machine_type: str,
                  equipment_process_time_dict: dict,
                  open_time_dict: dict,
+                 all_keep_open: bool,
                  ):
 
         super(PipelineRes, self).__init__(env,
@@ -454,7 +454,8 @@ class PipelineRes(Pipeline):
                                           pipeline_id,
                                           queue_id,
                                           machine_type,
-                                          open_time_dict, )
+                                          open_time_dict,
+                                          all_keep_open)
 
         self.equipment_last = self.pipeline_id[0]  # in PipelineRes the equipment_id is equipment before this pipeline
         self.equipment_next = self.pipeline_id[1]  # in PipelineRes the equipment_id is equipment before this pipeline
