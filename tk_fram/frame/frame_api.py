@@ -112,26 +112,26 @@ def run_sim(package_num, date_plan, time_plan, root, txt_receipt):
     txt_receipt.insert(END, '*******************************\n')
     txt_receipt.insert(END, '开始分析仿真结果......\n')
     root.update_idletasks()
-    with conn as cur:
-        average = average_time(cur)
-    txt_receipt.insert(
-        END,
-        '票均时效(秒):\t' + '%.2f' % average + '\n'
-    )
-    root.update_idletasks()
-    with conn as cur:
-        percent = success_percent(cur)
-    txt_receipt.insert(
-        END,
-        '时效达成率:\t' + '%.2f' % percent + '\n'
-    )
-    root.update_idletasks()
-    with conn as cur:
-        discharge_time = discharge(cur)
-    txt_receipt.insert(
-        END,
-        '卸货等待时间(秒):\t' + '%.2f' % discharge_time + '\n'
-    )
+    # with conn as cur:
+    #     average = average_time(cur)
+    # txt_receipt.insert(
+    #     END,
+    #     '票均时效(秒):\t' + '%.2f' % average + '\n'
+    # )
+    # root.update_idletasks()
+    # with conn as cur:
+    #     percent = success_percent(cur)
+    # txt_receipt.insert(
+    #     END,
+    #     '时效达成率:\t' + '%.2f' % percent + '\n'
+    # )
+    # root.update_idletasks()
+    # with conn as cur:
+    #     discharge_time = discharge(cur)
+    # txt_receipt.insert(
+    #     END,
+    #     '卸货等待时间(秒):\t' + '%.2f' % discharge_time + '\n'
+    # )
     txt_receipt['state'] = DISABLED
     root.update_idletasks()
     Flag['run_sim'] += 1
