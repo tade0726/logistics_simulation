@@ -49,7 +49,7 @@ def filter_get(env, out_q, item_type: str='a'):
     while True:
         item = yield out_q.get(lambda x: x.item_type == item_type)
         print(f"{env.now}: -get {item}")
-        yield env.timeout(1)
+        # yield env.timeout(1)
 
 
 if __name__ == '__main__':
