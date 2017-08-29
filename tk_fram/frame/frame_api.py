@@ -18,16 +18,7 @@ from .frame import CheckBtnEntryList, update_m_j
 import xlrd
 
 
-def save_data(package_num, date_plan, time_plan, root, txt_receipt):
-    if Flag['save_data'] > 0:
-        messagebox.showerror("Tkinter-数据保存错误",
-                             "数据已经保存，请勿重复操作！")
-        return
-    if Flag['run_sim'] == 0:
-        messagebox.showerror("Tkinter-数据保存错误",
-                             "运行错误，请先执行仿真！")
-        return
-    txt_receipt['state'] = NORMAL
+def save_data(root, txt_receipt):
     txt_receipt.insert(END, '*******************************\n')
     txt_receipt.insert(END, '开始储存数据......\n')
     root.update_idletasks()
@@ -37,8 +28,7 @@ def save_data(package_num, date_plan, time_plan, root, txt_receipt):
     txt_receipt.insert(END,
                        '数据存储完毕！\n*******************************\n'
                        )
-    txt_receipt['state'] = DISABLED
-    Flag['save_data'] += 1
+    root.update_idletasks()
     Flag['run_time'] = None
 
 
@@ -114,30 +104,30 @@ def run_sim(package_num, date_plan, time_plan, root, txt_receipt):
     txt_receipt.insert(END, '*******************************\n')
     txt_receipt.insert(END, '开始分析仿真结果......\n')
     root.update_idletasks()
-    # with conn as cur:
-    #     average = average_time(cur)
-    # txt_receipt.insert(
-    #     END,
-    #     '票均时效(秒):\t' + '%.2f' % average + '\n'
-    # )
-    # root.update_idletasks()
-    # with conn as cur:
-    #     percent = success_percent(cur)
-    # txt_receipt.insert(
-    #     END,
-    #     '时效达成率:\t' + '%.2f' % percent + '\n'
-    # )
-    # root.update_idletasks()
-    # with conn as cur:
-    #     discharge_time = discharge(cur)
-    # txt_receipt.insert(
-    #     END,
-    #     '卸货等待时间(秒):\t' + '%.2f' % discharge_time + '\n'
-    # )
+    with conn as cur:
+        average = average_time(cur)
+    txt_receipt.insert(
+        END,
+        '票均时效(秒):\t' + '%.2f' % average + '\n'
+    )
+    root.update_idletasks()
+    with conn as cur:
+        percent = success_percent(cur)
+    txt_receipt.insert(
+        END,
+        '时效达成率:\t' + '%.2f' % percent + '\n'
+    )
+    root.update_idletasks()
+    with conn as cur:
+        discharge_time = discharge(cur)
+    txt_receipt.insert(
+        END,
+        '卸货等待时间(秒):\t' + '%.2f' % discharge_time + '\n'
+    )
+    save_data(root, txt_receipt)
     txt_receipt['state'] = DISABLED
     root.update_idletasks()
     Flag['run_sim'] += 1
-    Flag['save_data'] = 0
 
 
 def update_data(date_plan, time_plan, root, txt_receipt, final=True):

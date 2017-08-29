@@ -280,79 +280,88 @@ def save_to_past_run(cursor):
         "(run_time, %s) "
         "select "
         "inserted_on, %s "
-        "from i_equipment_io"
-    ) % (columns_equipment_io, columns_equipment_io)
+        "from i_equipment_io" %
+        (columns_equipment_io, columns_equipment_io)
+    )
 
     cursor.execute(
         "insert into i_resource_limit_past_run "
         "(run_time, %s) "
         "select "
         "inserted_on, %s "
-        "from i_resource_limit"
-    ) % (columns_resource_limit, columns_resource_limit)
+        "from i_resource_limit" %
+        (columns_resource_limit, columns_resource_limit)
+    )
 
     cursor.execute(
         "insert into i_od_parcel_landside_past_run "
         "(run_time, %s) "
         "select "
         "inserted_on, %s "
-        "from i_od_parcel_landside"
-    ) % (columns_parcel_landside, columns_parcel_landside)
+        "from i_od_parcel_landside" %
+        (columns_parcel_landside, columns_parcel_landside)
+    )
 
     cursor.execute(
         "insert into i_od_small_landside_past_run "
         "(run_time, %s) "
         "select "
         "inserted_on, %s "
-        "from i_od_small_landside"
-    ) % (columns_small_landside, columns_small_landside)
+        "from i_od_small_landside" %
+        (columns_small_landside, columns_small_landside)
+    )
 
     cursor.execute(
         "insert into i_od_parcel_airside_past_run "
         "(run_time, %s) "
         "select "
         "inserted_on, %s "
-        "from i_od_parcel_landside"
-    ) % (columns_parcel_airside, columns_parcel_airside)
+        "from i_od_parcel_airside" %
+        (columns_parcel_airside, columns_parcel_airside)
+    )
 
     cursor.execute(
         "insert into i_od_small_airside_past_run "
         "(run_time, %s) "
         "select "
         "inserted_on, %s "
-        "from i_od_small_airside"
-    ) % (columns_small_airside, columns_small_airside)
+        "from i_od_small_airside" %
+        (columns_small_airside, columns_small_airside)
+    )
 
     cursor.execute(
         "insert into o_truck_table_past_run "
         "(%s) "
         "select "
         "%s "
-        "from o_truck_table"
-    ) % (columns_truck, columns_truck)
+        "from o_truck_table" %
+        (columns_truck, columns_truck)
+    )
 
     cursor.execute(
         "insert into o_pipeline_table_past_run "
         "(%s)"
         "select "
         "%s "
-        "from o_pipeline_table"
-    ) % (columns_pipeline, columns_pipeline)
+        "from o_pipeline_table" %
+        (columns_pipeline, columns_pipeline)
+    )
 
     cursor.execute(
         "insert into o_machine_table_past_run "
         "(%s) "
         "select "
         "%s "
-        "from o_machine_table"
-    ) % (columns_machine, columns_machine)
+        "from o_machine_table" %
+        (columns_machine, columns_machine)
+    )
     cursor.execute(
         "insert into o_path_table_past_run "
         "(%s)"
         "select "
         "%s "
-        "from o_path_table"
-    ) % (columns_path, columns_path)
+        "from o_path_table" % (columns_path, columns_path)
+    )
 
 def csv_into_mysql(cursor):
     project_path = os.path.dirname(

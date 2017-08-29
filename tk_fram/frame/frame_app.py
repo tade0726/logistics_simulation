@@ -217,14 +217,14 @@ def init_r_frame(root: Tk):
         command=lambda: run_sim(package_num, date_plan, time_plan, root, txt_receipt)
     ).grid(row=0, column=1, sticky='nswe')
     # btn-存储数据按钮
-    Button(
-        master=right_output_pad_button,
-        padx=btn_padx, pady=btn_pady, fg="black",
-        font=('Times', font_btn, 'bold'),
-        width=width_btn,
-        text="存储数据",
-        command=lambda: save_data(package_num, date_plan, time_plan, root, txt_receipt)
-    ).grid(row=0, column=2, sticky='nswe')
+    # Button(
+    #     master=right_output_pad_button,
+    #     padx=btn_padx, pady=btn_pady, fg="black",
+    #     font=('Times', font_btn, 'bold'),
+    #     width=width_btn,
+    #     text="存储数据",
+        # command=lambda: save_data(package_num, date_plan, time_plan, root, txt_receipt)
+    # ).grid(row=0, column=2, sticky='nswe')
     # btn-退出按钮
     Button(
         master=right_output_pad_button,
