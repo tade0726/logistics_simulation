@@ -1,4 +1,5 @@
 from pymysql import connect
+import time, csv, os
 
 from tk_fram.frame_config import DATABASES
 from .frame_view import CACHE_INSTANCE_DICT, DAY_TIME_DICT
@@ -352,6 +353,20 @@ def save_to_past_run(cursor):
         "%s "
         "from o_path_table"
     ) % (columns_path, columns_path)
+
+def csv_into_mysql(cursor):
+    project_path = os.path.dirname(
+        os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    )
+    file_path = os.path.join(project_path, r'simpy_lib\hangzhou_simpy\out\machine_table.csv')
+    files = csv.reader(open(file_path))
+    f = list(files)
+    columns = ', '.join(f[0])
+    c = time.time()
+    cursor.executemany(
+        "insert into o_machine_table_test ({}) values (%s".format(columns)
+        + ', %s' * (len(f[0]) - 1) + ')', f[1:])
+    print(time.time() - c)
 
 def delete_index(cursor):
     cursor.execute("drop index ix_o_machine_run_time_packageid on "
