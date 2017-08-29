@@ -363,6 +363,43 @@ def main():
     machine_table = pd.DataFrame.from_records(machine_data, columns=PackageRecord._fields,)
     path_table = pd.DataFrame.from_records(path_data, columns=PathRecord._fields,)
 
+    # ------释放已经使用的对象 --------
+    LOG.logger_font.info("clean memory..")
+    # out
+    del truck_data
+    del pipeline_data
+    del machine_data
+    del path_data
+
+    del small_bag_list
+    del small_package_list
+
+    # in
+    del pipelines_table
+    del unload_setting_dict
+    del reload_setting_dict
+    del resource_table
+    del equipment_resource_dict
+    del equipment_process_time_dict
+    del equipment_parameters
+    del equipment_store_dict
+    del open_time_dict
+    del switch_machine_names
+
+    # process data
+    del machine_init_dict
+    del machines_dict
+    del pipelines_dict
+    del resource_dict
+
+    del reload_c_list
+    del share_store_dict
+
+    # class instance
+    del truck_controller
+    del resource_controller
+
+    # ------释放已经使用的对象 --------
 
     if not os.path.isdir(SaveConfig.OUT_DIR):
         os.makedirs(SaveConfig.OUT_DIR)
@@ -386,17 +423,24 @@ def main():
     # output data
     LOG.logger_font.info("output data")
 
-    if MainConfig.SAVE_LOCAL:
-        write_local('machine_table', machine_table)
-        write_local('pipeline_table', pipeline_table)
-        write_local('truck_table', truck_table)
-        write_local('path_table', path_table)
-    else:
-        write_mysql("machine_table", machine_table, OutputTableColumnType.package_columns)
-        write_mysql("pipeline_table", pipeline_table, OutputTableColumnType.pipeline_columns)
-        write_mysql("truck_table", truck_table, OutputTableColumnType.truck_columns)
-        write_mysql('path_table', path_table, OutputTableColumnType.path_columns)
+    # output machine table only
+    if MainConfig.OUTPUT_MACHINE_TABLE_ONLY:
+        if MainConfig.SAVE_LOCAL:
+            write_local('machine_table', machine_table)
+        else:
+            write_mysql("machine_table", machine_table, OutputTableColumnType.package_columns)
 
+    else:
+        if MainConfig.SAVE_LOCAL:
+            write_local('machine_table', machine_table)
+            write_local('pipeline_table', pipeline_table)
+            write_local('truck_table', truck_table)
+            write_local('path_table', path_table)
+        else:
+            write_mysql("machine_table", machine_table, OutputTableColumnType.package_columns)
+            write_mysql("pipeline_table", pipeline_table, OutputTableColumnType.pipeline_columns)
+            write_mysql("truck_table", truck_table, OutputTableColumnType.truck_columns)
+            write_mysql('path_table', path_table, OutputTableColumnType.path_columns)
 
     t_end = datetime.now()
     total_time = t_end - t_start
