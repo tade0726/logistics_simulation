@@ -104,6 +104,7 @@ def insert_package(cursor, num: str, run_arg):
         "%s "
         "from i_od_parcel_landside_day "
         "where parcel_type='parcel' "
+        "order by arrive_time "
         "limit %s" %
         (columns_parcel_landside, columns_parcel_landside, land_parcel_num)
     )
@@ -114,6 +115,7 @@ def insert_package(cursor, num: str, run_arg):
         "%s "
         "from i_od_parcel_landside_day "
         "where parcel_type='nc' "
+        "order by arrive_time "
         "limit %s" %
         (columns_parcel_landside, columns_parcel_landside, land_nc_num)
     )
@@ -124,6 +126,7 @@ def insert_package(cursor, num: str, run_arg):
         "%s "
         "from i_od_parcel_landside_day "
         "where parcel_type='small' "
+        "order by arrive_time "
         "limit %s" %
         (columns_parcel_landside, columns_parcel_landside, land_small_num)
     )
@@ -139,6 +142,7 @@ def insert_package(cursor, num: str, run_arg):
         "( SELECT f.parcel_id "
         "FROM i_od_parcel_landside_day AS f "
         "WHERE f.`parcel_type`='small' "
+        "order by arrive_time "
         "LIMIT %s) AS t)" %
         (columns_small_landside, columns_small_landside, land_small_num)
     )
