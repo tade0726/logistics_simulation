@@ -25,9 +25,6 @@ from simpy_lib.hangzhou_simpy.src.config import SmallCode, LOG
 from simpy_lib.hangzhou_simpy.src.utils import PackageRecordDict
 
 
-BAG_NUM = 15
-
-
 class SmallReload(object):
 
     def __init__(self,
