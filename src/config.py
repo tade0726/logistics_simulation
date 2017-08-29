@@ -23,8 +23,8 @@ class MainConfig:
     IS_LAND_ONLY = False  # True 只有 landside, False landside airside
     CACHE_TYPE = None  # {None, "redis", "pkl", "hdf5"}
     LOCAL_DB = False  # control which DB using
-
-    DEBUG_LEVEL = logging.INFO
+    DEBUG_LEVEL = logging.INFO  # 输出日志信息的级别
+    OUTPUT_MACHINE_TABLE_ONLY = True  # 只输出 o_machine_table
 
 
 class RedisConfig:
@@ -41,7 +41,6 @@ class RemoteMySQLConfig:
         PASS = "zp913913"
         DB = "hangzhouhubqa"
         CHARSET = 'utf8'
-
     else:
         HOST = "10.0.149.30"
         USER = "developer"
