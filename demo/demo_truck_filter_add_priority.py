@@ -18,7 +18,7 @@ class Item:
     def __init__(self, item_type, i, j, p):
         self.item_type = item_type
         self.i = i  # generate at time i
-        self.j = j  # number j items in i seconds
+        self.j = j  # no j items in i seconds
         self.p = p  # priority
 
     def __str__(self):
@@ -49,7 +49,7 @@ def filter_get(env, out_q, item_type: str='a'):
     while True:
         item = yield out_q.get(lambda x: x.item_type == item_type)
         print(f"{env.now}: -get {item}")
-        # yield env.timeout(1)
+        yield env.timeout(1)
 
 
 if __name__ == '__main__':
