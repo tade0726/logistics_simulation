@@ -368,18 +368,48 @@ def save_to_past_run(cursor):
     )
 
 def csv_into_mysql(cursor):
+
+    def creat_generator(files):
+        # 读取 csv.reader 对象，返回指定内容长度的生成器，x 控制内容长度
+        while True:
+            line_list = []
+            x = 1
+            for i, v in enumerate(files):
+                line_list.append(v)
+                x += 1
+                if x == 1000000:
+                    break
+            yield line_list
+
     project_path = os.path.dirname(
         os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
     )
-    file_path = os.path.join(project_path, r'simpy_lib\hangzhou_simpy\out\machine_table.csv')
-    files = csv.reader(open(file_path))
-    f = list(files)
-    columns = ', '.join(f[0])
-    c = time.time()
-    cursor.executemany(
-        "insert into o_machine_table_test ({}) values (%s".format(columns)
-        + ', %s' * (len(f[0]) - 1) + ')', f[1:])
-    print(time.time() - c)
+    file_path_dict = {
+        'o_machine_table': os.path.join(
+            project_path, r'simpy_lib\hangzhou_simpy\out\machine_table.csv'),
+        'o_path_table': os.path.join(
+            project_path, r'simpy_lib\hangzhou_simpy\out\path_table.csv'),
+        'o_pipeline_table': os.path.join(
+            project_path, r'simpy_lib\hangzhou_simpy\out\pipeline_table.csv'),
+        'o_truck_table': os.path.join(
+            project_path, r'simpy_lib\hangzhou_simpy\out\truck_table.csv'),
+                      }
+    for table, file_path in file_path_dict.items():
+        files = csv.reader(open(file_path))
+        columns = ''
+        lenth = 0
+        for i, v in enumerate(files):
+            if i == 0:
+                columns = ', '.join(v)
+                lenth = len(v)
+                break
+        for item in creat_generator(files):
+            if item != []:
+                cursor.executemany(
+                    "insert into {} ({}) values "
+                    "(%s".format(table, columns) + ', %s' * (lenth - 1) + ')', item)
+            else:
+                break
 
 def delete_index(cursor):
     cursor.execute("drop index ix_o_machine_run_time_packageid on "

@@ -134,3 +134,10 @@ notebooks/*
 
 # 忽略bat文件
 # *.bat
+simpy_lib/hangzhou_simpy/out/truck_table\.csv
+
+simpy_lib/hangzhou_simpy/out/pipeline_table\.csv
+
+simpy_lib/hangzhou_simpy/out/path_table\.csv
+
+simpy_lib/hangzhou_simpy/out/machine_table\.csv
