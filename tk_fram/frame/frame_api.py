@@ -12,7 +12,8 @@ from .db_api import Mysql, insert_package, update_on_off, save_to_past_run, \
     read_result, update_person, average_time, success_percent, discharge, csv_into_mysql
 from .frame_view import Flag, ConfigFrame, CHECK_BTN_ENTRY_DIC, \
     LIST_VALUE_COMBOBOX, CURRENT_CANVAS_DICT, CURRENT_SHEET, \
-    CACHE_INSTANCE_DICT, DAY_TIME_DICT, NUM_TRANSLATE_DICT, R_J_DICT
+    CACHE_INSTANCE_DICT, DAY_TIME_DICT, NUM_TRANSLATE_DICT, R_J_DICT, \
+    CURRENT_TIME, ENTRY_STATUS_DIC
 from .frame import CheckBtnEntryList, update_m_j
 
 import xlrd
@@ -142,13 +143,14 @@ def update_data(date_plan, time_plan, root, txt_receipt, final=True):
     """"""
     # 将当前界面所有控件的状态与人数保存到 CACHE_INSTANCE_DICT，防止更新时被忽略
     for i in ConfigFrame.WIG_BTN_DICT[CURRENT_SHEET[0]]:
-        CACHE_INSTANCE_DICT[i]['status'] = CHECK_BTN_ENTRY_DIC[i].var.get()
+        CACHE_INSTANCE_DICT[CURRENT_TIME['start_time']][i]['status'] = \
+            CHECK_BTN_ENTRY_DIC[i].var.get()
         if CURRENT_SHEET[0] in NUM_TRANSLATE_DICT:
-            CACHE_INSTANCE_DICT[i]['num'] = \
+            CACHE_INSTANCE_DICT[CURRENT_TIME['start_time']][i]['num'] = \
                 int(CHECK_BTN_ENTRY_DIC[i].string_combobox.get()) / \
                 NUM_TRANSLATE_DICT[CURRENT_SHEET[0]]
         else:
-            CACHE_INSTANCE_DICT[i]['num'] = \
+            CACHE_INSTANCE_DICT[CURRENT_TIME['start_time']][i]['num'] = \
                 CHECK_BTN_ENTRY_DIC[i].string_combobox.get()
 
     update_m_j()
@@ -172,14 +174,16 @@ def update_data(date_plan, time_plan, root, txt_receipt, final=True):
     start_time = day + ' ' + start
     conn = Mysql().connect
     with conn as cur:
-        update_on_off(cur, start_time, run_arg)
+        for time, value in CACHE_INSTANCE_DICT.items():
+            update_on_off(cur, time, value, run_arg)
 
     txt_receipt.insert(END, '机器开关状态更新成功！\n')
     root.update_idletasks()
     # ========================更改人员数量==============
     txt_receipt.insert(END, '开始设置人力资源数量......\n')
     with conn as cur:
-        update_person(cur, start_time, run_arg)
+        for time, value in CACHE_INSTANCE_DICT.items():
+            update_person(cur, time, value, run_arg)
     txt_receipt.insert(END, '人力资源设置完毕！\n')
     txt_receipt['state'] = DISABLED
 
@@ -248,13 +252,13 @@ def switch_sheet(sheet: str, canvas_master):
     # 每次切换界面都会更新上一个界面的开关状态数据到 CACHE_BTN_ENTRY_DICT
     # 更新上一个界面的人数到 CACHE_COMBOBOX_DICT
     for i in ConfigFrame.WIG_BTN_DICT[CURRENT_SHEET[0]]:
-        CACHE_INSTANCE_DICT[i]['status'] = CHECK_BTN_ENTRY_DIC[i].var.get()
+        CACHE_INSTANCE_DICT[CURRENT_TIME['start_time']][i]['status'] = CHECK_BTN_ENTRY_DIC[i].var.get()
         if CURRENT_SHEET[0] in NUM_TRANSLATE_DICT:
-            CACHE_INSTANCE_DICT[i]['num'] = \
+            CACHE_INSTANCE_DICT[CURRENT_TIME['start_time']][i]['num'] = \
                 int(CHECK_BTN_ENTRY_DIC[i].string_combobox.get()) / \
                 NUM_TRANSLATE_DICT[CURRENT_SHEET[0]]
         else:
-            CACHE_INSTANCE_DICT[i]['num'] = \
+            CACHE_INSTANCE_DICT[CURRENT_TIME['start_time']][i]['num'] = \
                 CHECK_BTN_ENTRY_DIC[i].string_combobox.get()
     # ==============================================================
     sheet_btn = ConfigFrame.SHEET_LABEL_DICT[sheet]
@@ -320,11 +324,32 @@ def create_canvas(master, sheet: str):
 
     return (canvas_up, scrollbar_up)
 
-def set_during_time(date_plan, time_plan, root , txt_receipt):
-    time_plan['values'] = DAY_TIME_DICT[date_plan.get()]
-    if time_plan.get():
-        final = False
-        update_data(date_plan, time_plan, root, txt_receipt, final)
+def update_time_date(date_plan, time_plan):
+    day = date_plan.get()
+    period = time_plan.get()
+    start_time = day + ' ' + period.split('-')[0]
+    CURRENT_TIME ['start_time'] = start_time
+    for i in ConfigFrame.WIG_BTN_DICT[CURRENT_SHEET[0]]:
+        CHECK_BTN_ENTRY_DIC[i].var.set(
+            CACHE_INSTANCE_DICT[start_time][i]['status']
+        )
+        CHECK_BTN_ENTRY_DIC[i].string.set(
+            ENTRY_STATUS_DIC[CACHE_INSTANCE_DICT[start_time][i]['status']]
+        )
+        CHECK_BTN_ENTRY_DIC[i].change_color(CHECK_BTN_ENTRY_DIC[i].entry)
+        CHECK_BTN_ENTRY_DIC[i].string_combobox.set(
+            CACHE_INSTANCE_DICT[start_time][i]['num']
+        )
+        # CHECK_BTN_ENTRY_DIC[i].change_combobox_status(CHECK_BTN_ENTRY_DIC[i])
 
-def clear_time(time_plan):
+def update_to_cache():
+    for key, value in CHECK_BTN_ENTRY_DIC.items():
+        CACHE_INSTANCE_DICT[CURRENT_TIME['start_time']][key]['status'] = \
+            value.var.get()
+        CACHE_INSTANCE_DICT[CURRENT_TIME['start_time']][key]['num'] = \
+            value.string_combobox.get()
+
+
+def set_during_time(date_plan, time_plan):
     time_plan.set('')
+    time_plan['values'] = DAY_TIME_DICT[date_plan.get()]

@@ -5,7 +5,8 @@ from tkinter.ttk import Combobox
 from tkinter import Checkbutton, Entry, Menu
 from tkinter import IntVar, StringVar, DISABLED, NORMAL
 from .frame_view import ConfigFrame, NUM_TRANSLATE_DICT, CHECK_BTN_ENTRY_DIC, \
-    ENTRY_STATUS_DIC, M_R_DICT, CACHE_INSTANCE_DICT, R_J_DICT, CACHE_J_STATUS
+    ENTRY_STATUS_DIC, M_R_DICT, CACHE_INSTANCE_DICT, R_J_DICT, CACHE_J_STATUS, \
+    CURRENT_TIME
 
 
 class App(Frame):
@@ -226,10 +227,10 @@ class CheckBtnEntryList(object):
     def _combobox_value(self):
         key = self.w_id[0].upper()
         if key in NUM_TRANSLATE_DICT:
-            return int(CACHE_INSTANCE_DICT[self.w_id]['num']) * \
+            return int(CACHE_INSTANCE_DICT[CURRENT_TIME['start_time']][self.w_id]['num']) * \
                    NUM_TRANSLATE_DICT[key]
         else:
-            return CACHE_INSTANCE_DICT[self.w_id]['num']
+            return CACHE_INSTANCE_DICT[CURRENT_TIME['start_time']][self.w_id]['num']
 
     def init_list(self):
         return init_combobox_list(
@@ -283,7 +284,7 @@ class CheckBtnEntryList(object):
                 else:
                     self.check_btn['state'] = NORMAL
         else:
-            self.var.set(status_dict[self.w_id]['status'])
+            self.var.set(status_dict[CURRENT_TIME['start_time']][self.w_id]['status'])
             self.string.set(ENTRY_STATUS_DIC[self.var.get()])
             self.change_combobox_status(self)
             self.change_color(self.entry)
@@ -343,21 +344,21 @@ def _init_m_J(w_id):
     if 'm' in w_id:
         status = 0
         for i in M_R_DICT[w_id]:
-            status = CACHE_INSTANCE_DICT[i]['status'] or status
+            status = CACHE_INSTANCE_DICT[CURRENT_TIME['start_time']][i]['status'] or status
         return status
     if 'j' in w_id and w_id != 'j41_1':
         j_status = 0
         for key, j_list in R_J_DICT.items():
             if w_id in j_list:
-                j_status = CACHE_INSTANCE_DICT[key]['status'] or j_status
+                j_status = CACHE_INSTANCE_DICT[CURRENT_TIME['start_time']][key]['status'] or j_status
         return j_status
 
 def update_m_j():
     # 根据 R 的状态值，初始化 J 跟 M 的状态值，如果 J 有缓存，则取缓存值
     for j in ConfigFrame.WIG_BTN_DICT['J'][:-1]:
         if j in CACHE_J_STATUS:
-            CACHE_INSTANCE_DICT[j]['status'] = CACHE_J_STATUS[j]
+            CACHE_INSTANCE_DICT[CURRENT_TIME['start_time']][j]['status'] = CACHE_J_STATUS[j]
         else:
-            CACHE_INSTANCE_DICT[j]['status'] = _init_m_J(j)
+            CACHE_INSTANCE_DICT[CURRENT_TIME['start_time']][j]['status'] = _init_m_J(j)
     for m in ConfigFrame.WIG_BTN_DICT['M']:
-        CACHE_INSTANCE_DICT[m]['status'] = _init_m_J(m)
+        CACHE_INSTANCE_DICT[CURRENT_TIME['start_time']][m]['status'] = _init_m_J(m)

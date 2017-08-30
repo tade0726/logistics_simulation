@@ -68,13 +68,29 @@ ENTRY_STATUS_DIC = {0: 'OFF', 1: 'ON'}  # btn状态对应entry的显示值对应
 BTN_ENTRY_DICT = {}        # 初始化entry状态字典
 
 # -------------------------所有控件的信息缓存字典
+# time 表示时间段
 # {
-#   id: {
-#       status: value,
-#       num: value
-#   }
+#     time: {
+#         id: {
+#             status: value,
+#             num: value
+#         }
+#     }
 # }
-CACHE_INSTANCE_DICT = defaultdict(dict)
+CACHE_INSTANCE_DICT ={}
+
+# 默认显示时段
+DEFAULT_TIME = {
+    'date': '',
+    'time': '',
+    'start_time': ''
+}
+# 当前时间段
+CURRENT_TIME = {
+    'date': '',
+    'time': '',
+    'start_time': ''
+}
 
 CACHE_J_STATUS = {}        # J 状态的缓存字典，value 固定为 0
 

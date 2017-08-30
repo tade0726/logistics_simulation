@@ -7,7 +7,7 @@ from .frame_view import *
 # import logging as lg
 from .db_api import init_btn_entry_val_from_sql, init_day_time
 from .frame_api import run_sim, save_data, update_data, q_exit, menu_file, \
-    create_canvas, init_sheet, set_during_time, clear_time
+    create_canvas, init_sheet, set_during_time, update_time_date, update_to_cache
 
 
 def init_app(master, wig, xlayout=(0, ), ylayout=(0, )):
@@ -87,10 +87,10 @@ def init_r_frame(root: Tk):
         master=right,
         wig='RIGHT_OUTPUT_PAD_INFO'
     )
-    #  =============查询机器开关状态：from mysql 配置数据=============
-    init_btn_entry_val_from_sql()
     # ========================= 初始化时间参数 =======================
     init_day_time()
+    #  =============查询机器开关状态：from mysql 配置数据=============
+    init_btn_entry_val_from_sql()
     # ============================包裹设置参数========================
     lbl_package = Label(
         master=left_set_pad_package,
@@ -136,8 +136,10 @@ def init_r_frame(root: Tk):
         # height=2,
         textvariable=StringVar(),
         values=date_list,
-        postcommand=lambda: clear_time(time_plan)
     )
+    date_plan.set(CURRENT_TIME['date'])
+    date_plan.bind("<<ComboboxSelected>>",
+                   lambda x: set_during_time(date_plan, time_plan))
     date_plan.grid(row=0, column=3)
     # -----------------------时间表标题
     lbl_time = Label(
@@ -158,12 +160,12 @@ def init_r_frame(root: Tk):
         # bd=8,
         # height=2,
         textvariable=StringVar(),
-        values=[],
-        postcommand=lambda: set_during_time(
-            date_plan, time_plan, root, txt_receipt
-        )
+        values=DAY_TIME_DICT[CURRENT_TIME['date']],
+        postcommand=update_to_cache
     )
-
+    time_plan.set(CURRENT_TIME['time'])
+    time_plan.bind("<<ComboboxSelected>>",
+                   lambda x: update_time_date(date_plan, time_plan))
     time_plan.grid(row=0, column=5)
     # ===================  机器区域sheet      =====================
     for i in init_sheet(left_set_pad_sheet, left_set_pad_center_up):

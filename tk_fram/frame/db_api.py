@@ -1,8 +1,9 @@
 from pymysql import connect
 import time, csv, os
+from collections import defaultdict
 
 from tk_fram.frame_config import DATABASES
-from .frame_view import CACHE_INSTANCE_DICT, DAY_TIME_DICT
+from .frame_view import CACHE_INSTANCE_DICT, DAY_TIME_DICT, CURRENT_TIME
 
 
 class Mysql(object):
@@ -20,23 +21,28 @@ class Mysql(object):
 
 def init_btn_entry_val_from_sql():
     """"""
-    conn = Mysql().connect
-    with conn as cur:
-        cur.execute(
-            "select equipment_port, equipment_status from i_equipment_io "
-            "WHERE LEFT(equipment_port, 1) IN ('a', 'r', 'm', 'j', 'u', 'h')"
-        )
-        result = cur.fetchall()
-    for item in result:
-        CACHE_INSTANCE_DICT[item[0]]['status'] = item[1]
-    with conn as cur:
-        cur.execute(
-            "select resource_id, resource_limit from i_resource_limit "
-            "where resource_id like 'man_%' and resource_id not like 'man_x%'"
-        )
-        result = cur.fetchall()
-    for item in result:
-        CACHE_INSTANCE_DICT[item[0].replace('man_', '')]['num'] = int(item[1])
+    for date, times in DAY_TIME_DICT.items():
+        for time in times:
+            instance_status_num_dict = defaultdict(dict)
+            start_time = date + ' ' + time.split('-')[0]
+            conn = Mysql().connect
+            with conn as cur:
+                cur.execute(
+                    "select equipment_port, equipment_status from i_equipment_io "
+                    "WHERE start_time='{}' and LEFT(equipment_port, 1) IN ('a', 'r', 'm', 'j', 'u', 'h')".format(start_time)
+                )
+                result = cur.fetchall()
+            for item in result:
+                instance_status_num_dict[item[0]]['status'] = item[1]
+            with conn as cur:
+                cur.execute(
+                    "select resource_id, resource_limit from i_resource_limit "
+                    "where resource_id like 'man_%' and resource_id not like 'man_x%'"
+                )
+                result = cur.fetchall()
+            for item in result:
+                instance_status_num_dict[item[0].replace('man_', '')]['num'] = int(item[1])
+            CACHE_INSTANCE_DICT[start_time] = instance_status_num_dict
     return
 
 def init_day_time():
@@ -47,16 +53,20 @@ def init_day_time():
             "FROM `i_equipment_io` AS p GROUP BY p.`start_time`,p.`end_time`"
         )
         result = cur.fetchall()
-    for i in result:
-        start_time, end_time = i
+    for index, value in enumerate(result):
+        start_time, end_time = value
         day, start = str(start_time).split(' ')
         end = str(end_time).split(' ')[1]
-        during_time = start + '-' + end
-        DAY_TIME_DICT[day].append(during_time)
+        period = start + '-' + end
+        DAY_TIME_DICT[day].append(period)
+        if index == 0:
+            CURRENT_TIME['date'] = day
+            CURRENT_TIME['time'] = period
+            CURRENT_TIME['start_time'] = str(start_time)
 
-def update_on_off(cursor, start_time, run_arg):
+def update_on_off(cursor, start_time, instance_dict, run_arg):
     # equipment_port 需要确定
-    for key, value in CACHE_INSTANCE_DICT.items():
+    for key, value in instance_dict.items():
         cursor.execute(
             "update i_equipment_io set equipment_status=%s where "
             "equipment_port='%s' and start_time='%s'" %
@@ -197,9 +207,9 @@ def insert_package(cursor, num: str, run_arg):
     cursor.execute("update i_od_small_airside set inserted_on='%s'" % run_arg)
 
 
-def update_person(cursor, start_time, run_arg):
+def update_person(cursor, start_time, instance_dict, run_arg):
     # 需要指定 resource_id 范围
-    for key, value in CACHE_INSTANCE_DICT.items():
+    for key, value in instance_dict.items():
         cursor.execute("update i_resource_limit set resource_limit={} where "
                        "resource_id='man_{}' and "
                        "start_time='{}'".format(value['num'], key, start_time))
