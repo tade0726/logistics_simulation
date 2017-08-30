@@ -24,7 +24,7 @@ from src.utils import \
 from src.utils import \
     (PathRecordDict, PathRecord)
 
-from src.config import LOG
+from src.config import LOG, MainConfig
 
 __all__ = ["Parcel", "Package", "Truck", "Uld", "SmallBag", "SmallPackage", "Pipeline", "PipelineRes", "BasePipeline",
            "PipelineReplace",]
@@ -105,6 +105,9 @@ class Package:
             LOG.logger_font.debug(msg=f"Package: {record.small_id} , action: {record.action}"
                                       f", equipment: {record.equipment_id}, timestamp: {record.time_stamp}")
 
+        if MainConfig.OUTPUT_MACHINE_TABLE_ONLY:
+            # 只有保留 machine table
+            return
 
         elif isinstance(data, PipelineRecordDict):
             record = PipelineRecord(
@@ -245,6 +248,11 @@ class Truck:
         return [self.store.pop(0) for _ in range(self.store_size)]
 
     def insert_data(self, data:dict):
+
+        if MainConfig.OUTPUT_MACHINE_TABLE_ONLY:
+            # 只有保留 machine table
+            return
+
         assert isinstance(data, TruckRecordDict), "Wrong data type"
         record = TruckRecord(
                     truck_id=self.truck_id,

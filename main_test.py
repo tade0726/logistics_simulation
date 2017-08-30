@@ -36,10 +36,10 @@ __all__ = ["main"]
 RUN_TIME = datetime.now()
 
 
-def simulation(data_pipeline: Queue, run_time: datetime):
+def simulation(data_pipeline: Queue):
 
     # start time
-    t_start = run_time
+    t_start = RUN_TIME
 
     # simpy env init
     env = simpy.Environment()
@@ -418,7 +418,7 @@ def simulation(data_pipeline: Queue, run_time: datetime):
     # process data
     LOG.logger_font.info(msg="processing data")
     # time stamp for db
-    db_insert_time = run_time
+    db_insert_time = RUN_TIME
 
     truck_table = add_time(truck_table)
     pipeline_table = add_time(pipeline_table)
@@ -453,30 +453,56 @@ def simulation(data_pipeline: Queue, run_time: datetime):
     LOG.logger_font.info(f"total time: {total_time.total_seconds()} s")
 
 
-def pumper(data_pipeline: Queue, table_name: str, dtypes_dict: dict, record_type: namedtuple, write_rows: int=10_000,):
+def pumper(data_pipeline: Queue, write_rows: int=10_000,):
 
     while True:
-        data = list()
+
+        machine_data = list()
+        pipeline_data = list()
+        truck_data = list()
+        path_data = list()
 
         for _ in range(write_rows):
 
             record = data_pipeline.get()
 
-            if record is None:
-                break
-            elif isinstance(record, record_type):
-                data.append(record)
+            if isinstance(record, PackageRecord):
+                machine_data.append(record)
+            elif isinstance(record, PipelineRecord):
+                pipeline_data.append(record)
+            elif isinstance(record, TruckRecord):
+                truck_data.append(record)
+            elif isinstance(record, PathRecord):
+                path_data.append(record)
             else:
-                data_pipeline.put(record)
+                raise ValueError("Wrong record in data pipeline!!")
 
-        table = pd.DataFrame.from_records(data, columns=record_type._fields)
+        # process data
+        LOG.logger_font.info(msg="insert data to mysql ..")
+        # time stamp for db
+        db_insert_time = RUN_TIME
 
-        if record_type is not PackageRecord:
-            table = add_time(table)
+        # output machine table only
+        if MainConfig.OUTPUT_MACHINE_TABLE_ONLY:
+            machine_table = pd.DataFrame.from_records(machine_data, columns=PackageRecord._fields, )
+            machine_table = add_time(machine_table)
+            write_mysql("machine_table", machine_table, OutputTableColumnType.package_columns)
+
         else:
-            table["run_time"] = RUN_TIME
+            truck_table = pd.DataFrame.from_records(truck_data, columns=TruckRecord._fields, )
+            pipeline_table = pd.DataFrame.from_records(pipeline_data, columns=PipelineRecord._fields, )
+            machine_table = pd.DataFrame.from_records(machine_data, columns=PackageRecord._fields, )
+            path_table = pd.DataFrame.from_records(path_data, columns=PathRecord._fields, )
 
-        write_mysql(table_name=table_name, data=table, dtype=dtypes_dict)
+            truck_table = add_time(truck_table)
+            pipeline_table = add_time(pipeline_table)
+            machine_table = add_time(machine_table)
+            path_table["run_time"] = db_insert_time
+
+            write_mysql("machine_table", machine_table, OutputTableColumnType.package_columns)
+            write_mysql("pipeline_table", pipeline_table, OutputTableColumnType.pipeline_columns)
+            write_mysql("truck_table", truck_table, OutputTableColumnType.truck_columns)
+            write_mysql('path_table', path_table, OutputTableColumnType.path_columns)
 
 
 def add_time(table: pd.DataFrame):
