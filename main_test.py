@@ -13,7 +13,10 @@ import simpy
 from datetime import datetime, timedelta
 import pandas as pd
 import os
-from collections import defaultdict
+from collections import defaultdict, namedtuple
+
+from multiprocessing import Queue, Process
+from sqlalchemy import Table
 
 import sys
 sys.path.extend(['.'])
@@ -30,10 +33,13 @@ from src.config import MainConfig, TimeConfig, LOG, SaveConfig
 __all__ = ["main"]
 
 
-def main():
+RUN_TIME = datetime.now()
+
+
+def simulation(data_pipeline: Queue, run_time: datetime):
 
     # start time
-    t_start = datetime.now()
+    t_start = run_time
 
     # simpy env init
     env = simpy.Environment()
@@ -286,7 +292,8 @@ def main():
                                        trucks=trucks_queue,
                                        is_test=MainConfig.IS_TEST,
                                        is_parcel_only=MainConfig.IS_PARCEL_ONLY,
-                                       is_land_only=MainConfig.IS_LAND_ONLY)
+                                       is_land_only=MainConfig.IS_LAND_ONLY,
+                                       data_pipeline=data_pipeline)
     truck_controller.controller()
 
     # init resource controller
@@ -306,6 +313,10 @@ def main():
 
     LOG.logger_font.info("sim end..")
     LOG.logger_font.info("collecting data")
+
+    if MainConfig.USING_DATA_PIPELINE:
+        # 不再执行剩下的代码
+        return
 
     # collecting data
     truck_data = list()
@@ -407,13 +418,7 @@ def main():
     # process data
     LOG.logger_font.info(msg="processing data")
     # time stamp for db
-    db_insert_time = t_start
-
-    def add_time(table: pd.DataFrame):
-        """添加仿真的时间戳， 以及运行的日期"""
-        table["real_time_stamp"] = table["time_stamp"].apply(lambda x: TimeConfig.ZERO_TIMESTAMP + timedelta(seconds=x))
-        table["run_time"] = db_insert_time
-        return table
+    db_insert_time = run_time
 
     truck_table = add_time(truck_table)
     pipeline_table = add_time(pipeline_table)
@@ -448,5 +453,42 @@ def main():
     LOG.logger_font.info(f"total time: {total_time.total_seconds()} s")
 
 
+def pumper(data_pipeline: Queue, table_name: str, dtypes_dict: dict, record_type: namedtuple, write_rows: int=10_000,):
+
+    while True:
+        data = list()
+
+        for _ in range(write_rows):
+
+            record = data_pipeline.get()
+
+            if record is None:
+                break
+            elif isinstance(record, record_type):
+                data.append(record)
+            else:
+                data_pipeline.put(record)
+
+        table = pd.DataFrame.from_records(data, columns=record_type._fields)
+
+        if record_type is not PackageRecord:
+            table = add_time(table)
+        else:
+            table["run_time"] = RUN_TIME
+
+        write_mysql(table_name=table_name, data=table, dtype=dtypes_dict)
+
+
+def add_time(table: pd.DataFrame):
+    """添加仿真的时间戳， 以及运行的日期"""
+    table["real_time_stamp"] = table["time_stamp"].apply(lambda x: TimeConfig.ZERO_TIMESTAMP + timedelta(seconds=x))
+    table["run_time"] = RUN_TIME
+    return table
+
+
+def main():
+    pass
+
+
 if __name__ == '__main__':
-    main()
+    pass

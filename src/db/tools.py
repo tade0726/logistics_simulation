@@ -107,7 +107,7 @@ def load_from_redis(table_name: str):
     return pd.read_msgpack(data_seq)
 
 
-def write_mysql(table_name: str, data: pd.DataFrame, dtype: str=None):
+def write_mysql(table_name: str, data: pd.DataFrame, dtype: dict=None):
     """写入MySQl数据库, 表格如果存在, 则新增数据"""
     try:
         data.to_sql(name=f'o_{table_name}',

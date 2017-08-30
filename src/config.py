@@ -25,6 +25,7 @@ class MainConfig:
     LOCAL_DB = False  # control which DB using
     DEBUG_LEVEL = logging.INFO  # 输出日志信息的级别
     OUTPUT_MACHINE_TABLE_ONLY = True  # 只输出 o_machine_table
+    USING_DATA_PIPELINE = False
 
 
 class TimeConfig:
@@ -53,9 +54,11 @@ class RemoteMySQLConfig:
         DB = "hangzhouhubqa_v3"
         CHARSET = 'utf8'
 
-    engine = create_engine(
-        f'mysql+pymysql://{USER}:{PASS}@{HOST}/{DB}?charset={CHARSET}',
-        isolation_level="READ UNCOMMITTED", )
+    @staticmethod
+    def engine():
+        return create_engine(
+                f'mysql+pymysql://{USER}:{PASS}@{HOST}/{DB}?charset={CHARSET}',
+                isolation_level="READ UNCOMMITTED", )
 
 
 class SaveConfig:
