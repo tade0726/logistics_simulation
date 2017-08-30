@@ -370,10 +370,6 @@ class Pipeline:
 
         else:
             for start, end in self.open_time:
-                """为了保证件传送到达机器的时间点就是开关机器的时间点"""
-                if start >= self.delay:
-                    start = start - self.delay
-                    end = end - self.delay
                 self.env.process(self.real_run(start, end))
 
     def all_run(self):
