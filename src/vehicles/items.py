@@ -218,7 +218,6 @@ class SmallBag(Package):
         """给小件包裹添加记录"""
         if to_small:
             list(map(lambda x: x.insert_data(data), self.store))
-        return super(SmallBag, self).insert_data(data)
 
     def __str__(self):
         display_dct = dict(self.attr)
