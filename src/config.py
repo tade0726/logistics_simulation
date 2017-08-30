@@ -27,6 +27,11 @@ class MainConfig:
     OUTPUT_MACHINE_TABLE_ONLY = True  # 只输出 o_machine_table
 
 
+class TimeConfig:
+    """注意： od 数据改变需要相应的修改开机时间原点"""
+    ZERO_TIMESTAMP = datetime(2017, 8, 15, 21)
+
+
 class RedisConfig:
     HOST = 'localhost'
     PORT = 6379
@@ -59,10 +64,6 @@ class SaveConfig:
     OUT_DIR = join(PROJECT_DIR, 'out')
     LOG_DIR = join(PROJECT_DIR, 'log')
     HDF5_FILE = join(DATA_DIR, 'input_data.h5')
-
-
-class TimeConfig:
-    ZERO_TIMESTAMP = datetime(2017, 7, 25, 21)
 
 
 def get_logger(logger_name: str):
