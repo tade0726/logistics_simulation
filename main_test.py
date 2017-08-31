@@ -474,6 +474,7 @@ def pumper(data_pipeline: Queue, write_rows: int=10_000,):
             if record is None:
                 # leave for loop
                 QUEUE_DONE = True
+                data_pipeline.put(None)
                 break
 
             if isinstance(record, PackageRecord):
@@ -524,11 +525,6 @@ def add_time(table: pd.DataFrame):
     table["real_time_stamp"] = table["time_stamp"].apply(lambda x: TimeConfig.ZERO_TIMESTAMP + timedelta(seconds=x))
     table["run_time"] = run_time
     return table
-
-
-def main():
-    # todo: add multi process
-    pass
 
 
 if __name__ == '__main__':
