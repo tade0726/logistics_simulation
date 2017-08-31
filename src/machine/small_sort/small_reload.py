@@ -20,6 +20,7 @@
 ==================================================================================================================================================
 """
 
+from queue import Queue
 from src.vehicles.items import SmallBag, SmallPackage
 from src.config import SmallCode, LOG
 from src.utils import PackageRecordDict
@@ -33,12 +34,14 @@ class SmallReload(object):
                  pipelines_dict: dict,
                  equipment_process_time_dict: dict,
                  equipment_parameters: dict,
+                 data_pipeline: Queue,
                  ):
         self.env = env
         self.machine_id = machine_id
         self.pipelines_dict = pipelines_dict
         self.equipment_process_time_dict = equipment_process_time_dict
         self.equipment_parameters = equipment_parameters
+        self.data_pipeline = data_pipeline
 
         self.store = list()
         self.small_bag_count = 0
@@ -84,7 +87,7 @@ class SmallReload(object):
     def pack_send(self, wait_time_stamp: float):
         # init small_bag
         store = self._get_small_package()
-        small_bag = SmallBag(store)
+        small_bag = SmallBag(store, self.data_pipeline)
         small_bag.parcel_id = "98" + next(SmallCode.code_generator)  # "98" + "0000000000" ~ "98" + "9999999999"
 
         small_bag.insert_data(

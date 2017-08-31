@@ -12,7 +12,7 @@
 import simpy
 import pandas as pd
 import numpy as np
-from multiprocessing import Queue
+from queue import Queue
 
 
 from src.vehicles import Truck, SmallPackage, SmallBag, Parcel, Pipeline

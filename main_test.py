@@ -15,7 +15,8 @@ import pandas as pd
 import os
 from collections import defaultdict, namedtuple
 
-from multiprocessing import Queue, Process
+from queue import Queue
+import threading
 from sqlalchemy import Table
 
 import sys
@@ -266,7 +267,8 @@ def simulation(data_pipeline: Queue, run_time):
                 machine_id=machine_id,
                 pipelines_dict=pipelines_dict,
                 equipment_process_time_dict=equipment_process_time_dict,
-                equipment_parameters=equipment_parameters,)
+                equipment_parameters=equipment_parameters,
+                data_pipeline=data_pipeline,)
         )
 
     # adding machines into processes
@@ -304,8 +306,7 @@ def simulation(data_pipeline: Queue, run_time):
     # setup
     setup_process_start()
 
-    # queue end signal
-    data_pipeline_queue.put(None)
+    data_pipeline.put(None)
 
     num_of_trucks = len(trucks_queue.items)
     LOG.logger_font.info(f"{num_of_trucks} trucks leave in queue")
@@ -534,8 +535,19 @@ if __name__ == '__main__':
     run_time = datetime.now()
     data_pipeline_queue = Queue()
 
-    p1 = Process(target=simulation, args=(data_pipeline_queue, run_time))
-    p2 = Process(target=pumper, args=(data_pipeline_queue, 1_000_000))
+    threads = []
 
-    p1.start()
-    p2.start()
+    sim = threading.Thread(target=simulation, args=(data_pipeline_queue, run_time))
+
+    for _ in range(1):
+        p = threading.Thread(target=pumper, args=(data_pipeline_queue, 100_000))
+        threads.append(p)
+
+    sim.start()
+
+    for p in threads:
+        p.start()
+
+    data_pipeline_queue.join()
+
+

@@ -15,8 +15,7 @@ import pandas as pd
 import numpy as np
 from collections import defaultdict
 import random
-from multiprocessing import Queue
-
+from queue import Queue
 
 from src.utils import \
     (PackageRecord, PipelineRecord, TruckRecord, PathGenerator, TruckRecordDict, PackageRecordDict, PipelineRecordDict)
@@ -105,7 +104,6 @@ class Package:
                 pass
             else:
                 self.data_pipeline.put(record)
-
             LOG.logger_font.debug(msg=f"Package: {record.small_id} , action: {record.action}"
                                       f", equipment: {record.equipment_id}, timestamp: {record.time_stamp}")
 

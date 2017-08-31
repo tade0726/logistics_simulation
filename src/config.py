@@ -17,7 +17,7 @@ import logging
 
 
 class MainConfig:
-    IS_TEST = False   # 使用全集数据，还是测试数据
+    IS_TEST = True   # 使用全集数据，还是测试数据
     SAVE_LOCAL = False  # 是否输出结果到本地csv， 还是 mysql
     IS_PARCEL_ONLY = False  # 只有 parcel 件
     IS_LAND_ONLY = False  # True 只有 landside, False landside airside
@@ -54,12 +54,10 @@ class RemoteMySQLConfig:
         DB = "hangzhouhubqa_v3"
         CHARSET = 'utf8'
 
-    @staticmethod
-    def engine():
+    def engine(self):
         return create_engine(
-                f'mysql+pymysql://{USER}:{PASS}@{HOST}/{DB}?charset={CHARSET}',
+                f'mysql+pymysql://{self.USER}:{self.PASS}@{self.HOST}/{self.DB}?charset={self.CHARSET}',
                 isolation_level="READ UNCOMMITTED", )
-
 
 class SaveConfig:
     PROJECT_DIR = split(split(realpath(__file__))[0])[0]
