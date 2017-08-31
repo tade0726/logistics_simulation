@@ -430,12 +430,9 @@ class PipelineReplace(Pipeline):
         self.equipment_store_dict = equipment_store_dict
 
         # replace self.queue
-        self.share_store_id = self.equipment_store_dict[self.equipment_id]['store_id']
+        self.share_store_id = self.equipment_store_dict[self.pipeline_id]['store_id']
         self.store = self.share_store_dict[self.share_store_id]
-        self.max_delay = self.equipment_store_dict[self.equipment_id]['max_time']
-
-        # 保证 max delay 是最大的
-        self.max_delay = self.max_delay if self.max_delay >= self.delay else self.delay
+        self.max_delay = self.equipment_store_dict[self.pipeline_id]['max_time']
 
     def __str__(self):
         return f"<PipelineReplaceJ: {self.pipeline_id}, delay: {self.delay}>"

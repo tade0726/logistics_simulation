@@ -318,7 +318,7 @@ def get_pipelines():
     line_count_ori = tab_queue_io.shape[0]
 
     equipment_store_dict = get_equipment_store_dict()
-    equipment_shared_store = equipment_store_dict.keys()
+    equipment_shared_store = set([x[1]for x in equipment_store_dict.keys()])
 
     # add machine_type
     # m: presort
@@ -429,9 +429,12 @@ def get_parameters():
 def get_equipment_store_dict():
     """返回共享队列的设备和 store 代码的对应关系
 
-    {'j10_1': {'max_time': 141.63, 'store_id': 'J_214'},
-     'j11_1': {'max_time': 213.03999999999999, 'store_id': 'J_219'},
-     'j12_1': {'max_time': 141.63, 'store_id': 'J_214'},}
+    {('m2_1', 'j10_1'): {'max_time': 141.63, 'store_id': 'J_1'},
+     ('m2_1', 'j12_1'): {'max_time': 141.63, 'store_id': 'J_1'},
+     ('m2_1', 'j14_1'): {'max_time': 141.63, 'store_id': 'J_1'},
+     ('m2_1', 'j16_1'): {'max_time': 141.63, 'store_id': 'J_1'},
+     ('m2_1', 'j18_1'): {'max_time': 141.63, 'store_id': 'J_1'},
+     }
 
     """
     table = load_from_mysql('i_queue_io')
@@ -439,21 +442,28 @@ def get_equipment_store_dict():
     u_table = table[table.equipment_port_next.str.startswith('u')]
     j_table = table[table.equipment_port_next.str.startswith('j')]
 
-    equipment_store_dict = dict()
+    g_u_size = u_table.groupby('equipment_port_last').size()
+    g_j_size = j_table.groupby('equipment_port_last').size()
 
+    # 保证至少有2个替代的节点
+    equipment_ports_u = g_u_size[g_u_size > 1].index
+    equipment_ports_j = g_j_size[g_j_size > 1].index
+
+    u_table = u_table[u_table.equipment_port_last.isin(equipment_ports_u)]
+    j_table = j_table[j_table.equipment_port_last.isin(equipment_ports_j)]
+
+    equipment_store_dict = dict()
     names = ['equipment_port_next', 'process_time']
 
-    for idx, x in enumerate(u_table.groupby('equipment_port_last')[names].apply(dict), start=1):
-        if len(x['equipment_port_next']) > 1:
-            max_p_time = x['process_time'].max()
-            for p in x['equipment_port_next']:
-                equipment_store_dict[p] = dict(store_id=f'U_{idx}', max_time=max_p_time)
+    for idx, (k, v) in enumerate(u_table.groupby('equipment_port_last')[names].apply(dict).to_dict().items(), start=1):
+        max_p_time = v['process_time'].max()
+        for p in v['equipment_port_next']:
+            equipment_store_dict[(k, p)] = dict(store_id=f'U_{idx}', max_time=max_p_time)
 
-    for idx, x in enumerate(j_table.groupby('equipment_port_last')[names].apply(dict), start=1):
-        if len(x['equipment_port_next']) > 1:
-            max_p_time = x['process_time'].max()
-            for p in x['equipment_port_next']:
-                equipment_store_dict[p] = dict(store_id=f'J_{idx}', max_time=max_p_time)
+    for idx, (k, v) in enumerate(j_table.groupby('equipment_port_last')[names].apply(dict).to_dict().items(), start=1):
+        max_p_time = v['process_time'].max()
+        for p in v['equipment_port_next']:
+            equipment_store_dict[(k, p)] = dict(store_id=f'J_{idx}', max_time=max_p_time)
 
     return equipment_store_dict
 
