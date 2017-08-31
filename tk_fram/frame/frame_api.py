@@ -257,8 +257,8 @@ def switch_sheet(sheet: str, canvas_master):
             CHECK_BTN_ENTRY_DIC[i].var.get()
         if CURRENT['SHEET'] in NUM_TRANSLATE_DICT:
             CACHE_INSTANCE_DICT[CURRENT['TIME']['start_time']][i]['num'] = \
-                int(CHECK_BTN_ENTRY_DIC[i].string_combobox.get()) / \
-                NUM_TRANSLATE_DICT[CURRENT['SHEET']]
+                int(CHECK_BTN_ENTRY_DIC[i].string_combobox.get() / \
+                NUM_TRANSLATE_DICT[CURRENT['SHEET']])
         else:
             CACHE_INSTANCE_DICT[CURRENT['TIME']['start_time']][i]['num'] = \
                 CHECK_BTN_ENTRY_DIC[i].string_combobox.get()
@@ -311,18 +311,18 @@ def create_canvas(master, sheet: str):
             bas_up[3]
         )
         bas_up[3] += 50/3
-    if sheet == 'J':
-        did_set = set()
-        for key, value in R_J_DICT.items():
-            if value not in did_set:
-                j_status_list = []
-                for j_id in value:
-                    if CHECK_BTN_ENTRY_DIC[j_id].var.get() == 1:
-                        j_status_list.append(j_id)
-                if len(j_status_list) == 1:
-                    CHECK_BTN_ENTRY_DIC[j_status_list[0]].check_btn[
-                        'state'] = DISABLED
-                did_set.add(value)
+    # if sheet == 'J':
+    #     did_set = set()
+    #     for key, value in R_J_DICT.items():
+    #         if value not in did_set:
+    #             j_status_list = []
+    #             for j_id in value:
+    #                 if CHECK_BTN_ENTRY_DIC[j_id].var.get() == 1:
+    #                     j_status_list.append(j_id)
+    #             if len(j_status_list) == 1:
+    #                 CHECK_BTN_ENTRY_DIC[j_status_list[0]].check_btn[
+    #                     'state'] = DISABLED
+    #             did_set.add(value)
 
     return (canvas_up, scrollbar_up)
 
@@ -332,16 +332,25 @@ def update_time_date(date_plan, time_plan):
     start_time = day + ' ' + period.split('-')[0]
     CURRENT['TIME']['start_time'] = start_time
     for i in ConfigFrame.WIG_BTN_DICT[CURRENT['SHEET']]:
-        CHECK_BTN_ENTRY_DIC[i].var.set(
-            CACHE_INSTANCE_DICT[start_time][i]['status']
-        )
-        CHECK_BTN_ENTRY_DIC[i].string.set(
-            ENTRY_STATUS_DIC[CACHE_INSTANCE_DICT[start_time][i]['status']]
-        )
-        CHECK_BTN_ENTRY_DIC[i].change_color(CHECK_BTN_ENTRY_DIC[i].entry)
-        CHECK_BTN_ENTRY_DIC[i].string_combobox.set(
-            CACHE_INSTANCE_DICT[start_time][i]['num']
-        )
+        CACHE_INSTANCE_DICT[CURRENT['TIME']['start_time']][i]['num'] /= 2
+        CHECK_BTN_ENTRY_DIC[i].init_on_off_status()
+        # if i == 'j41_1' or 'h' in i:
+        #     CHECK_BTN_ENTRY_DIC[i].var.set(
+        #         1
+        #     )
+        # else:
+        #     CHECK_BTN_ENTRY_DIC[i].var.set(
+        #         CACHE_INSTANCE_DICT[start_time][i]['status']
+        #     )
+        #
+        #
+        # CHECK_BTN_ENTRY_DIC[i].string.set(
+        #     ENTRY_STATUS_DIC[CHECK_BTN_ENTRY_DIC[i].var.get()]
+        # )
+        # CHECK_BTN_ENTRY_DIC[i].change_color(CHECK_BTN_ENTRY_DIC[i].entry)
+        # CHECK_BTN_ENTRY_DIC[i].string_combobox.set(
+        #     CACHE_INSTANCE_DICT[start_time][i]['num']
+        # )
         # CHECK_BTN_ENTRY_DIC[i].change_combobox_status(CHECK_BTN_ENTRY_DIC[i])
 
 def update_to_cache():

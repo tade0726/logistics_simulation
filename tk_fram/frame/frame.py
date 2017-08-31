@@ -210,7 +210,7 @@ class CheckBtnEntryList(object):
         self.list_value = list_value
         self.var = IntVar()
         self.string = StringVar()
-        self.string_combobox = StringVar()
+        self.string_combobox = IntVar()
         self.init_list = self.init_list()
         self.entry = self.init_entry()
         self.check_btn = self.init_check_btn()
@@ -265,24 +265,26 @@ class CheckBtnEntryList(object):
             self.string_combobox.set(self._combobox_value)
             self.check_btn['state'] = DISABLED
             self.change_color(self.entry)
-        elif 'm' in self.w_id or 'j' in self.w_id:
+        # elif 'm' in self.w_id or 'j' in self.w_id:
+        elif 'm' in self.w_id:
             # 判定 J 是否有缓存值且缓存值是否有效，否则取初始值(M 默认不匹配)
-            if self.w_id in CACHE_J_STATUS and \
-                            CACHE_J_STATUS[self.w_id] != self.check_var:
-                self.var.set(CACHE_J_STATUS[self.w_id])
-            else:
-                self.var.set(self.check_var)
+            # if self.w_id in CACHE_J_STATUS and \
+            #                 CACHE_J_STATUS[self.w_id] != self.check_var:
+            #     self.var.set(CACHE_J_STATUS[self.w_id])
+            # else:
+            #     self.var.set(self.check_var)
+            self.var.set(self.check_var)
             self.string.set(ENTRY_STATUS_DIC[self.var.get()])
             self.change_combobox_status(self)
             self.change_color(self.entry)
-            if 'm' in self.w_id:
-                self.check_btn['state'] = DISABLED
-            if 'j' in self.w_id:
-                # 根据初始化的值判断是否为 DISABLED
-                if self.check_var == 0 :
-                    self.check_btn['state'] = DISABLED
-                else:
-                    self.check_btn['state'] = NORMAL
+            # if 'm' in self.w_id:
+            self.check_btn['state'] = DISABLED
+            # if 'j' in self.w_id:
+            #     # 根据初始化的值判断是否为 DISABLED
+            #     if self.check_var == 0 :
+            #         self.check_btn['state'] = DISABLED
+            #     else:
+            #         self.check_btn['state'] = NORMAL
         else:
             self.var.set(status_dict[CURRENT['TIME']['start_time']][self.w_id]['status'])
             self.string.set(ENTRY_STATUS_DIC[self.var.get()])
@@ -291,34 +293,34 @@ class CheckBtnEntryList(object):
 
     def chk_button_value(self):
         # j 由 ON 改为 OFF 时将会添加到 J的缓存字典里
-        if 'j' in self.w_id:
-            if self.var.get() == 0:
-                CACHE_J_STATUS[self.w_id] = self.var.get()
-                j_status_list = self.create_status_list()
-                if len(j_status_list) == 1:
-                    CHECK_BTN_ENTRY_DIC[j_status_list[0]].check_btn[
-                        'state'] = DISABLED
-            else:
-                j_status_list = self.create_status_list()
-                if len(j_status_list) == 2:
-                    j_status_list.remove(self.w_id)
-                    CHECK_BTN_ENTRY_DIC[j_status_list[0]].check_btn[
-                        'state'] = NORMAL
-                CACHE_J_STATUS.pop(self.w_id)
+        # if 'j' in self.w_id:
+        #     if self.var.get() == 0:
+        #         CACHE_J_STATUS[self.w_id] = self.var.get()
+        #         j_status_list = self.create_status_list()
+        #         if len(j_status_list) == 1:
+        #             CHECK_BTN_ENTRY_DIC[j_status_list[0]].check_btn[
+        #                 'state'] = DISABLED
+        #     else:
+        #         j_status_list = self.create_status_list()
+        #         if len(j_status_list) == 2:
+        #             j_status_list.remove(self.w_id)
+        #             CHECK_BTN_ENTRY_DIC[j_status_list[0]].check_btn[
+        #                 'state'] = NORMAL
+        #         CACHE_J_STATUS.pop(self.w_id)
 
         self.string.set(ENTRY_STATUS_DIC[self.var.get()])
         self.change_color(self.entry)
         self.change_combobox_status(self)
 
-    def create_status_list(self):
-        j_status_list = []
-        CACHE_J_STATUS[self.w_id] = self.var.get()
-        for key, j_list in R_J_DICT.items():
-            if self.w_id in j_list:
-                for j_id in j_list:
-                    if CHECK_BTN_ENTRY_DIC[j_id].var.get() == 1:
-                        j_status_list.append(j_id)
-                return j_status_list
+    # def create_status_list(self):
+    #     j_status_list = []
+    #     CACHE_J_STATUS[self.w_id] = self.var.get()
+    #     for key, j_list in R_J_DICT.items():
+    #         if self.w_id in j_list:
+    #             for j_id in j_list:
+    #                 if CHECK_BTN_ENTRY_DIC[j_id].var.get() == 1:
+    #                     j_status_list.append(j_id)
+    #             return j_status_list
 
     # 返回勾选框的状态值 0 或 1
     @property
@@ -346,19 +348,19 @@ def _init_m_J(w_id):
         for i in M_R_DICT[w_id]:
             status = CACHE_INSTANCE_DICT[CURRENT['TIME']['start_time']][i]['status'] or status
         return status
-    if 'j' in w_id and w_id != 'j41_1':
-        j_status = 0
-        for key, j_list in R_J_DICT.items():
-            if w_id in j_list:
-                j_status = CACHE_INSTANCE_DICT[CURRENT['TIME']['start_time']][key]['status'] or j_status
-        return j_status
+    # if 'j' in w_id and w_id != 'j41_1':
+    #     j_status = 0
+    #     for key, j_list in R_J_DICT.items():
+    #         if w_id in j_list:
+    #             j_status = CACHE_INSTANCE_DICT[CURRENT['TIME']['start_time']][key]['status'] or j_status
+    #     return j_status
 
 def update_m_j():
     # 根据 R 的状态值，初始化 J 跟 M 的状态值，如果 J 有缓存，则取缓存值
-    for j in ConfigFrame.WIG_BTN_DICT['J'][:-1]:
-        if j in CACHE_J_STATUS:
-            CACHE_INSTANCE_DICT[CURRENT['TIME']['start_time']][j]['status'] = CACHE_J_STATUS[j]
-        else:
-            CACHE_INSTANCE_DICT[CURRENT['TIME']['start_time']][j]['status'] = _init_m_J(j)
+    # for j in ConfigFrame.WIG_BTN_DICT['J'][:-1]:
+    #     if j in CACHE_J_STATUS:
+    #         CACHE_INSTANCE_DICT[CURRENT['TIME']['start_time']][j]['status'] = CACHE_J_STATUS[j]
+    #     else:
+    #         CACHE_INSTANCE_DICT[CURRENT['TIME']['start_time']][j]['status'] = _init_m_J(j)
     for m in ConfigFrame.WIG_BTN_DICT['M']:
         CACHE_INSTANCE_DICT[CURRENT['TIME']['start_time']][m]['status'] = _init_m_J(m)
