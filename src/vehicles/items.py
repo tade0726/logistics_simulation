@@ -399,6 +399,10 @@ class Pipeline:
 
         else:
             for start, end in self.open_time:
+                """为了保证件传送到达机器的时间点就是开关机器的时间点"""
+                if start >= self.delay:
+                    start = start - self.delay
+                    end = end - self.delay
                 self.env.process(self.real_run(start, end))
 
     def all_run(self):
@@ -455,11 +459,66 @@ class PipelineReplace(Pipeline):
         self.equipment_store_dict = equipment_store_dict
 
         # replace self.queue
-        self.share_store_id = self.equipment_store_dict[self.equipment_id]
+        self.share_store_id = self.equipment_store_dict[self.pipeline_id]['store_id']
         self.store = self.share_store_dict[self.share_store_id]
+        self.max_delay = self.equipment_store_dict[self.pipeline_id]['max_time']
 
     def __str__(self):
         return f"<PipelineReplaceJ: {self.pipeline_id}, delay: {self.delay}>"
+
+    def latency(self, item: Package):
+
+        """模拟传送时间"""
+        # pipeline start server
+        item.insert_data(
+            PipelineRecordDict(
+                pipeline_id=':'.join(self.pipeline_id),
+                queue_id=self.queue_id,
+                time_stamp=self.env.now,
+                action="start", ))
+
+        # re cal the wait time stamp
+        t_pipeline_start = self.env.now
+        item_last_end_time = item.machine_data[-1].time_stamp
+        wait_machine_open_gap = t_pipeline_start - item_last_end_time
+
+        yield self.env.timeout(self.delay)
+        # cutting path
+        item.pop_mark()
+
+        # package wait for next process
+        item.insert_data(
+            PackageRecordDict(
+                equipment_id=self.equipment_id,
+                time_stamp=(self.env.now - wait_machine_open_gap),
+                action="wait", ))
+
+        # pipeline end server
+        item.insert_data(
+            PipelineRecordDict(
+                pipeline_id=':'.join(self.pipeline_id),
+                queue_id=self.queue_id,
+                time_stamp=self.env.now,
+                action="end", ))
+
+        # 来早了，需要把多出的时间耗掉， 刚好也是下一个设备的开机时间，多出的时间算是等待时间
+        yield self.env.timeout(self.max_delay - self.delay)
+        self.queue.put(item)
+
+    def run(self):
+        """setup process"""
+        yield self.env.timeout(0)
+
+        if self.keep_open:
+            self.env.process(self.all_run())
+
+        else:
+            for start, end in self.open_time:
+                """为了保证件传送到达机器的时间点就是开关机器的时间点"""
+                if start >= self.max_delay:
+                    start = start - self.max_delay
+                    end = end - self.max_delay
+                self.env.process(self.real_run(start, end))
 
 
 class PipelineRes(Pipeline):
