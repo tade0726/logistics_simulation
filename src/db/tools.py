@@ -427,7 +427,13 @@ def get_parameters():
 
 
 def get_equipment_store_dict():
-    """返回共享队列的设备和 store 代码的对应关系"""
+    """返回共享队列的设备和 store 代码的对应关系
+
+    {'j10_1': {'max_time': 141.63, 'store_id': 'J_214'},
+     'j11_1': {'max_time': 213.03999999999999, 'store_id': 'J_219'},
+     'j12_1': {'max_time': 141.63, 'store_id': 'J_214'},}
+
+    """
     table = load_from_mysql('i_queue_io')
 
     u_table = table[table.equipment_port_next.str.startswith('u')]
@@ -435,15 +441,19 @@ def get_equipment_store_dict():
 
     equipment_store_dict = dict()
 
-    for idx, x in enumerate(u_table.groupby('equipment_port_last')['equipment_port_next'].apply(list), start=1):
-        if len(x) > 1:
-            for p in x:
-                equipment_store_dict[p] = f'U_{idx}'
+    names = ['equipment_port_next', 'process_time']
 
-    for idx, x in enumerate(j_table.groupby('equipment_port_last')['equipment_port_next'].apply(list), start=1):
-        if len(x) > 1:
-            for p in x:
-                equipment_store_dict[p] = f'J_{idx}'
+    for idx, x in enumerate(u_table.groupby('equipment_port_last')[names].apply(dict), start=1):
+        if len(x['equipment_port_next']) > 1:
+            max_p_time = x['process_time'].max()
+            for p in x['equipment_port_next']:
+                equipment_store_dict[p] = dict(store_id=f'U_{idx}', max_time=max_p_time)
+
+    for idx, x in enumerate(j_table.groupby('equipment_port_last')[names].apply(dict), start=1):
+        if len(x['equipment_port_next']) > 1:
+            max_p_time = x['process_time'].max()
+            for p in x['equipment_port_next']:
+                equipment_store_dict[p] = dict(store_id=f'J_{idx}', max_time=max_p_time)
 
     return equipment_store_dict
 

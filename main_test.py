@@ -71,7 +71,7 @@ def main():
 
     # init share_store
     share_store_dict = dict()
-    for x in set(equipment_store_dict.values()):
+    for x in set([ x['store_id'] for x in equipment_store_dict.values()]):
         share_store_dict[x] = simpy.Store(env)
 
     # init pipelines
