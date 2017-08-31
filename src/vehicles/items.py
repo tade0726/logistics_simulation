@@ -15,6 +15,8 @@ import pandas as pd
 import numpy as np
 from collections import defaultdict
 import random
+from multiprocessing import Queue
+
 
 from src.utils import \
     (PackageRecord, PipelineRecord, TruckRecord, PathGenerator, TruckRecordDict, PackageRecordDict, PipelineRecordDict)
@@ -22,7 +24,7 @@ from src.utils import \
 from src.utils import \
     (PathRecordDict, PathRecord)
 
-from src.config import LOG
+from src.config import LOG, MainConfig
 
 __all__ = ["Parcel", "Package", "Truck", "Uld", "SmallBag", "SmallPackage", "Pipeline", "PipelineRes", "BasePipeline",
            "PipelineReplace",]
@@ -34,7 +36,8 @@ path_g = PathGenerator()
 class Package:
     """包裹"""
     def __init__(self,
-                 attr: pd.Series,):
+                 attr: pd.Series,
+                 data_pipeline: Queue):
 
         # 包裹的所有信息都在 attr
         self.attr = attr
@@ -45,6 +48,10 @@ class Package:
         self.machine_data = list()
         self.pipeline_data = list()
         self.path_request_data = list()
+
+        # 数据队列，在仿真的过程中同时被消费
+        self.data_pipeline = data_pipeline
+
         # path_generator
         self.path_g = path_g
         # paths
@@ -91,9 +98,16 @@ class Package:
                 parcel_type=self.parcel_type,
                 **data,
             )
+
             self.machine_data.append(record)
+            self.data_pipeline.put(record)
+
             LOG.logger_font.debug(msg=f"Package: {record.small_id} , action: {record.action}"
                                       f", equipment: {record.equipment_id}, timestamp: {record.time_stamp}")
+
+        if MainConfig.OUTPUT_MACHINE_TABLE_ONLY:
+            # 只有保留 machine table
+            return
 
         elif isinstance(data, PipelineRecordDict):
             record = PipelineRecord(
@@ -102,7 +116,10 @@ class Package:
                 parcel_type=self.parcel_type,
                 **data,
             )
+
             self.pipeline_data.append(record)
+            self.data_pipeline.put(record)
+
             LOG.logger_font.debug(msg=f"Package: {record.small_id} , action: {record.action}"
                                       f", pipeline: {record.pipeline_id}, timestamp: {record.time_stamp}")
 
@@ -118,6 +135,8 @@ class Package:
             )
 
             self.path_request_data.append(record)
+            self.data_pipeline.put(record)
+
             LOG.logger_font.debug(msg=f"Package get path - parcel_id: {record.parcel_id}, small_id: {record.small_id}, "
                                       f", path: {record.ret_path}"
                                       f", parcel_type: {record.parcel_type}, ident_des_zno: {record.ident_des_zno}"
@@ -148,9 +167,10 @@ class Parcel(Package):
     """包裹"""
 
     def __init__(self,
-                 attr: pd.Series,):
+                 attr: pd.Series,
+                 data_pipeline: Queue):
         # add for Package class compatible
-        super(Parcel, self).__init__(attr)
+        super(Parcel, self).__init__(attr, data_pipeline)
 
     def __str__(self):
         display_dct = dict(self.attr)
@@ -160,9 +180,10 @@ class Parcel(Package):
 class SmallPackage(Package):
     """小件包裹"""
     def __init__(self,
-                 attr: pd.Series,):
+                 attr: pd.Series,
+                 data_pipeline: Queue):
         # add for Package class compatible
-        super(SmallPackage, self).__init__(attr)
+        super(SmallPackage, self).__init__(attr, data_pipeline)
 
     def __str__(self):
         display_dct = dict(self.attr)
@@ -172,10 +193,11 @@ class SmallPackage(Package):
 class SmallBag(Package):
     """小件包"""
     def __init__(self,
-                 small_packages,):
+                 small_packages,
+                 data_pipeline: Queue):
         # random choice a small_packages as attr
         attr = random.choice(small_packages).attr
-        super(SmallBag, self).__init__(attr)
+        super(SmallBag, self).__init__(attr, data_pipeline)
 
         # 存储小件包裹
         self.store = small_packages
@@ -199,7 +221,6 @@ class SmallBag(Package):
         """给小件包裹添加记录"""
         if to_small:
             list(map(lambda x: x.insert_data(data), self.store))
-        return super(SmallBag, self).insert_data(data)
 
     def __str__(self):
         display_dct = dict(self.attr)
@@ -208,7 +229,7 @@ class SmallBag(Package):
 
 class Truck:
     """货车"""
-    def __init__(self, truck_id: str, come_time: int, truck_type: str, packages: list):
+    def __init__(self, truck_id: str, come_time: int, truck_type: str, packages: list, data_pipeline: Queue):
         """
         :param truck_id: self explain
         :param come_time: self explain
@@ -219,12 +240,19 @@ class Truck:
         self.store = packages
         self.truck_type = truck_type
         self.truck_data = list()
+        # 仿真程序运行的同时，消费数据
+        self.data_pipeline = data_pipeline
         self.store_size = len(self.store)
 
     def get_all_package(self):
         return [self.store.pop(0) for _ in range(self.store_size)]
 
     def insert_data(self, data:dict):
+
+        if MainConfig.OUTPUT_MACHINE_TABLE_ONLY:
+            # 只有保留 machine table
+            return
+
         assert isinstance(data, TruckRecordDict), "Wrong data type"
         record = TruckRecord(
                     truck_id=self.truck_id,
@@ -235,6 +263,7 @@ class Truck:
         LOG.logger_font.debug(msg=f"Truck: {record}")
 
         self.truck_data.append(record)
+        self.data_pipeline.put(record)
 
     def __str__(self):
         return f"<Truck truck_id: {self.truck_id}, come_time: {self.come_time}, store_size:{self.store_size}>"
@@ -370,10 +399,6 @@ class Pipeline:
 
         else:
             for start, end in self.open_time:
-                """为了保证件传送到达机器的时间点就是开关机器的时间点"""
-                if start >= self.delay:
-                    start = start - self.delay
-                    end = end - self.delay
                 self.env.process(self.real_run(start, end))
 
     def all_run(self):
