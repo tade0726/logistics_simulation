@@ -21,11 +21,11 @@ class MainConfig:
     SAVE_LOCAL = False  # 是否输出结果到本地csv， 还是 mysql
     IS_PARCEL_ONLY = False  # 只有 parcel 件
     IS_LAND_ONLY = False  # True 只有 landside, False landside airside
-    CACHE_TYPE = None  # {None, "redis", "pkl", "hdf5"}
-    LOCAL_DB = False  # control which DB using
+    CACHE_TYPE = 'redis'  # {None, "redis", "pkl", "hdf5"}
+    LOCAL_DB = True  # control which DB using
     DEBUG_LEVEL = logging.INFO  # 输出日志信息的级别
     OUTPUT_MACHINE_TABLE_ONLY = True  # 只输出 o_machine_table
-    USING_DATA_PIPELINE = False
+    USING_DATA_PIPELINE = True
 
 
 class TimeConfig:

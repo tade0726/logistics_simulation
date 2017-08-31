@@ -33,13 +33,10 @@ from src.config import MainConfig, TimeConfig, LOG, SaveConfig
 __all__ = ["main"]
 
 
-RUN_TIME = datetime.now()
-
-
-def simulation(data_pipeline: Queue):
+def simulation(data_pipeline: Queue, run_time):
 
     # start time
-    t_start = RUN_TIME
+    t_start = run_time
 
     # simpy env init
     env = simpy.Environment()
@@ -77,7 +74,7 @@ def simulation(data_pipeline: Queue):
 
     # init share_store
     share_store_dict = dict()
-    for x in set(equipment_store_dict.values()):
+    for x in set([ x['store_id'] for x in equipment_store_dict.values()]):
         share_store_dict[x] = simpy.Store(env)
 
     # init pipelines
@@ -307,6 +304,9 @@ def simulation(data_pipeline: Queue):
     # setup
     setup_process_start()
 
+    # queue end signal
+    data_pipeline_queue.put(None)
+
     num_of_trucks = len(trucks_queue.items)
     LOG.logger_font.info(f"{num_of_trucks} trucks leave in queue")
     assert num_of_trucks == 0, ValueError("Truck queue should be empty!!")
@@ -315,6 +315,9 @@ def simulation(data_pipeline: Queue):
     LOG.logger_font.info("collecting data")
 
     if MainConfig.USING_DATA_PIPELINE:
+        t_end = datetime.now()
+        total_time = t_end - t_start
+        LOG.logger_font.info(f"total time: {total_time.total_seconds()} s")
         # 不再执行剩下的代码
         return
 
@@ -418,7 +421,7 @@ def simulation(data_pipeline: Queue):
     # process data
     LOG.logger_font.info(msg="processing data")
     # time stamp for db
-    db_insert_time = RUN_TIME
+    db_insert_time = run_time
 
     truck_table = add_time(truck_table)
     pipeline_table = add_time(pipeline_table)
@@ -449,11 +452,12 @@ def simulation(data_pipeline: Queue):
 
     t_end = datetime.now()
     total_time = t_end - t_start
-
     LOG.logger_font.info(f"total time: {total_time.total_seconds()} s")
 
 
 def pumper(data_pipeline: Queue, write_rows: int=10_000,):
+
+    QUEUE_DONE = False
 
     while True:
 
@@ -465,6 +469,11 @@ def pumper(data_pipeline: Queue, write_rows: int=10_000,):
         for _ in range(write_rows):
 
             record = data_pipeline.get()
+
+            if record is None:
+                # leave for loop
+                QUEUE_DONE = True
+                break
 
             if isinstance(record, PackageRecord):
                 machine_data.append(record)
@@ -480,7 +489,7 @@ def pumper(data_pipeline: Queue, write_rows: int=10_000,):
         # process data
         LOG.logger_font.info(msg="insert data to mysql ..")
         # time stamp for db
-        db_insert_time = RUN_TIME
+        db_insert_time = run_time
 
         # output machine table only
         if MainConfig.OUTPUT_MACHINE_TABLE_ONLY:
@@ -504,11 +513,14 @@ def pumper(data_pipeline: Queue, write_rows: int=10_000,):
             write_mysql("truck_table", truck_table, OutputTableColumnType.truck_columns)
             write_mysql('path_table', path_table, OutputTableColumnType.path_columns)
 
+        # 结束 while True
+        if QUEUE_DONE:
+            break
 
 def add_time(table: pd.DataFrame):
     """添加仿真的时间戳， 以及运行的日期"""
     table["real_time_stamp"] = table["time_stamp"].apply(lambda x: TimeConfig.ZERO_TIMESTAMP + timedelta(seconds=x))
-    table["run_time"] = RUN_TIME
+    table["run_time"] = run_time
     return table
 
 
@@ -518,4 +530,11 @@ def main():
 
 
 if __name__ == '__main__':
-    pass
+    run_time = datetime.now()
+    data_pipeline_queue = Queue()
+
+    p1 = Process(target=simulation, args=(data_pipeline_queue, run_time))
+    p2 = Process(target=pumper, args=(data_pipeline_queue, 1_000_000))
+
+    p1.start()
+    p2.start()
