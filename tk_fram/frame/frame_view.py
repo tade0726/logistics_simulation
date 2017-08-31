@@ -68,7 +68,7 @@ ENTRY_STATUS_DIC = {0: 'OFF', 1: 'ON'}  # btn状态对应entry的显示值对应
 BTN_ENTRY_DICT = {}        # 初始化entry状态字典
 
 # -------------------------所有控件的信息缓存字典
-# time 表示时间段
+# time 表示时间段，取值于 start_time 字段
 # num 的值永远与数据库里 resource_limit 的值相等
 # {
 #     time: {
