@@ -11,9 +11,8 @@ from tkinter.filedialog import askopenfilename
 from .db_api import Mysql, insert_package, update_on_off, save_to_past_run, \
     read_result, update_person, average_time, success_percent, discharge, csv_into_mysql
 from .frame_view import Flag, ConfigFrame, CHECK_BTN_ENTRY_DIC, \
-    LIST_VALUE_COMBOBOX, CURRENT_CANVAS_DICT, CURRENT_SHEET, \
-    CACHE_INSTANCE_DICT, DAY_TIME_DICT, NUM_TRANSLATE_DICT, R_J_DICT, \
-    CURRENT_TIME, ENTRY_STATUS_DIC
+    LIST_VALUE_COMBOBOX, CURRENT, CACHE_INSTANCE_DICT, DAY_TIME_DICT, \
+    NUM_TRANSLATE_DICT, R_J_DICT, ENTRY_STATUS_DIC
 from .frame import CheckBtnEntryList, update_m_j
 
 import xlrd
@@ -142,15 +141,15 @@ def run_sim(package_num, date_plan, time_plan, root, txt_receipt):
 def update_data(date_plan, time_plan, root, txt_receipt, final=True):
     """"""
     # 将当前界面所有控件的状态与人数保存到 CACHE_INSTANCE_DICT，防止更新时被忽略
-    for i in ConfigFrame.WIG_BTN_DICT[CURRENT_SHEET[0]]:
-        CACHE_INSTANCE_DICT[CURRENT_TIME['start_time']][i]['status'] = \
+    for i in ConfigFrame.WIG_BTN_DICT[CURRENT['SHEET']]:
+        CACHE_INSTANCE_DICT[CURRENT['TIME']['start_time']][i]['status'] = \
             CHECK_BTN_ENTRY_DIC[i].var.get()
-        if CURRENT_SHEET[0] in NUM_TRANSLATE_DICT:
-            CACHE_INSTANCE_DICT[CURRENT_TIME['start_time']][i]['num'] = \
+        if CURRENT['SHEET'] in NUM_TRANSLATE_DICT:
+            CACHE_INSTANCE_DICT[CURRENT['TIME']['start_time']][i]['num'] = \
                 int(CHECK_BTN_ENTRY_DIC[i].string_combobox.get()) / \
-                NUM_TRANSLATE_DICT[CURRENT_SHEET[0]]
+                NUM_TRANSLATE_DICT[CURRENT['SHEET']]
         else:
-            CACHE_INSTANCE_DICT[CURRENT_TIME['start_time']][i]['num'] = \
+            CACHE_INSTANCE_DICT[CURRENT['TIME']['start_time']][i]['num'] = \
                 CHECK_BTN_ENTRY_DIC[i].string_combobox.get()
 
     update_m_j()
@@ -218,7 +217,7 @@ def menu_file(root):
                     value = table.row_values(row)[column]
                     CACHE_INSTANCE_DICT[w_id][key] = int(value)
                     column += 1
-        for w_id in ConfigFrame.WIG_BTN_DICT[CURRENT_SHEET[0]]:
+        for w_id in ConfigFrame.WIG_BTN_DICT[CURRENT['SHEET']]:
             CHECK_BTN_ENTRY_DIC[w_id].init_on_off_status()
 
         update_m_j()
@@ -241,7 +240,9 @@ def create_sheet(master, sheet: str, column: int, canvas_master):
     )
     ConfigFrame.SHEET_LABEL_DICT[sheet].config(
         ConfigFrame.SHEET_ATTR_DICT[sheet])
-    ConfigFrame.SHEET_LABEL_DICT[sheet].grid({'row': 0, 'column': column, 'sticky': 'nswe'})
+    ConfigFrame.SHEET_LABEL_DICT[sheet].grid(
+        {'row': 0, 'column': column, 'sticky': 'nswe'}
+    )
     if sheet == 'R':
         ConfigFrame.SHEET_VAR_DICT[sheet].set(1)
         ConfigFrame.SHEET_LABEL_DICT[sheet]['state'] = DISABLED
@@ -251,26 +252,27 @@ def create_sheet(master, sheet: str, column: int, canvas_master):
 def switch_sheet(sheet: str, canvas_master):
     # 每次切换界面都会更新上一个界面的开关状态数据到 CACHE_BTN_ENTRY_DICT
     # 更新上一个界面的人数到 CACHE_COMBOBOX_DICT
-    for i in ConfigFrame.WIG_BTN_DICT[CURRENT_SHEET[0]]:
-        CACHE_INSTANCE_DICT[CURRENT_TIME['start_time']][i]['status'] = CHECK_BTN_ENTRY_DIC[i].var.get()
-        if CURRENT_SHEET[0] in NUM_TRANSLATE_DICT:
-            CACHE_INSTANCE_DICT[CURRENT_TIME['start_time']][i]['num'] = \
+    for i in ConfigFrame.WIG_BTN_DICT[CURRENT['SHEET']]:
+        CACHE_INSTANCE_DICT[CURRENT['TIME']['start_time']][i]['status'] = \
+            CHECK_BTN_ENTRY_DIC[i].var.get()
+        if CURRENT['SHEET'] in NUM_TRANSLATE_DICT:
+            CACHE_INSTANCE_DICT[CURRENT['TIME']['start_time']][i]['num'] = \
                 int(CHECK_BTN_ENTRY_DIC[i].string_combobox.get()) / \
-                NUM_TRANSLATE_DICT[CURRENT_SHEET[0]]
+                NUM_TRANSLATE_DICT[CURRENT['SHEET']]
         else:
-            CACHE_INSTANCE_DICT[CURRENT_TIME['start_time']][i]['num'] = \
+            CACHE_INSTANCE_DICT[CURRENT['TIME']['start_time']][i]['num'] = \
                 CHECK_BTN_ENTRY_DIC[i].string_combobox.get()
     # ==============================================================
     sheet_btn = ConfigFrame.SHEET_LABEL_DICT[sheet]
     sheet_btn['state'] = DISABLED
-    ConfigFrame.SHEET_VAR_DICT[CURRENT_SHEET[0]].set(0)
-    ConfigFrame.SHEET_LABEL_DICT[CURRENT_SHEET[0]]['state'] = NORMAL
-    CURRENT_CANVAS_DICT['canvas'].destroy()
-    CURRENT_CANVAS_DICT['scrollbar'].destroy()
-    CURRENT_CANVAS_DICT['canvas'], CURRENT_CANVAS_DICT['scrollbar'] = \
+    ConfigFrame.SHEET_VAR_DICT[CURRENT['SHEET']].set(0)
+    ConfigFrame.SHEET_LABEL_DICT[CURRENT['SHEET']]['state'] = NORMAL
+    CURRENT['CANVAS_DICT']['canvas'].destroy()
+    CURRENT['CANVAS_DICT']['scrollbar'].destroy()
+    CURRENT['CANVAS_DICT']['canvas'], CURRENT['CANVAS_DICT']['scrollbar'] = \
         create_canvas(canvas_master, sheet)
     # 更新当前选中标签至当前标签内存中
-    CURRENT_SHEET[0] = sheet
+    CURRENT['SHEET'] = sheet
     return
 
 
@@ -328,8 +330,8 @@ def update_time_date(date_plan, time_plan):
     day = date_plan.get()
     period = time_plan.get()
     start_time = day + ' ' + period.split('-')[0]
-    CURRENT_TIME ['start_time'] = start_time
-    for i in ConfigFrame.WIG_BTN_DICT[CURRENT_SHEET[0]]:
+    CURRENT['TIME']['start_time'] = start_time
+    for i in ConfigFrame.WIG_BTN_DICT[CURRENT['SHEET']]:
         CHECK_BTN_ENTRY_DIC[i].var.set(
             CACHE_INSTANCE_DICT[start_time][i]['status']
         )
@@ -344,9 +346,9 @@ def update_time_date(date_plan, time_plan):
 
 def update_to_cache():
     for key, value in CHECK_BTN_ENTRY_DIC.items():
-        CACHE_INSTANCE_DICT[CURRENT_TIME['start_time']][key]['status'] = \
+        CACHE_INSTANCE_DICT[CURRENT['TIME']['start_time']][key]['status'] = \
             value.var.get()
-        CACHE_INSTANCE_DICT[CURRENT_TIME['start_time']][key]['num'] = \
+        CACHE_INSTANCE_DICT[CURRENT['TIME']['start_time']][key]['num'] = \
             value.string_combobox.get()
 
 

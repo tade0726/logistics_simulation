@@ -137,7 +137,7 @@ def init_r_frame(root: Tk):
         textvariable=StringVar(),
         values=date_list,
     )
-    date_plan.set(CURRENT_TIME['date'])
+    date_plan.set(CURRENT['TIME']['date'])
     date_plan.bind("<<ComboboxSelected>>",
                    lambda x: set_during_time(date_plan, time_plan))
     date_plan.grid(row=0, column=3)
@@ -160,10 +160,10 @@ def init_r_frame(root: Tk):
         # bd=8,
         # height=2,
         textvariable=StringVar(),
-        values=DAY_TIME_DICT[CURRENT_TIME['date']],
+        values=DAY_TIME_DICT[CURRENT['TIME']['date']],
         postcommand=update_to_cache
     )
-    time_plan.set(CURRENT_TIME['time'])
+    time_plan.set(CURRENT['TIME']['time'])
     time_plan.bind("<<ComboboxSelected>>",
                    lambda x: update_time_date(date_plan, time_plan))
     time_plan.grid(row=0, column=5)
@@ -172,7 +172,7 @@ def init_r_frame(root: Tk):
         pass
 
     # ===================     卸货区数据      =====================
-    CURRENT_CANVAS_DICT['canvas'], CURRENT_CANVAS_DICT['scrollbar'] = \
+    CURRENT['CANVAS_DICT']['canvas'], CURRENT['CANVAS_DICT']['scrollbar'] = \
         create_canvas(left_set_pad_center_up, 'R')
     # ============================仿真结果输出面板======================
     lbl_info = Label(

@@ -79,17 +79,16 @@ BTN_ENTRY_DICT = {}        # 初始化entry状态字典
 # }
 CACHE_INSTANCE_DICT ={}
 
-# 默认显示时段
-DEFAULT_TIME = {
-    'date': '',
-    'time': '',
-    'start_time': ''
-}
-# 当前时间段
-CURRENT_TIME = {
-    'date': '',
-    'time': '',
-    'start_time': ''
+# 保存会随条件变动的全局变量
+# CANVAS_DICT : Canvas, Scrollbar 字典
+CURRENT = {
+    'TIME':{
+        'date': '',
+        'time': '',
+        'start_time': ''
+    },
+    'CANVAS_DICT': {},
+    'SHEET': 'R'
 }
 
 CACHE_J_STATUS = {}        # J 状态的缓存字典，value 固定为 0
@@ -171,13 +170,6 @@ R_J_DICT = {
     'r5_4': ('j25_1', 'j27_1', 'j29_1', 'j31_1', 'j33_1', 'j35_1', 'j37_1',
                  'j39_1'),
     }
-
-# 当前 Canvas, Scrollbar 字典
-CURRENT_CANVAS_DICT = {}
-
-
-# 当前界面 ID
-CURRENT_SHEET = ['R']
 
 
 class ConfigApp(object):

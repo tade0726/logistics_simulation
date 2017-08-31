@@ -29,7 +29,7 @@ def usr_sign_up():
     pass
 
 
-def a():
+def creaat_login():
     # 设置登陆窗口属性
     window = tk.Tk()
     window.title('杭州分拣中心仿真程序')

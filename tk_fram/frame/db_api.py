@@ -3,7 +3,7 @@ import time, csv, os
 from collections import defaultdict
 
 from tk_fram.frame_config import DATABASES
-from .frame_view import CACHE_INSTANCE_DICT, DAY_TIME_DICT, CURRENT_TIME
+from .frame_view import CACHE_INSTANCE_DICT, DAY_TIME_DICT, CURRENT
 
 
 class Mysql(object):
@@ -60,9 +60,9 @@ def init_day_time():
         period = start + '-' + end
         DAY_TIME_DICT[day].append(period)
         if index == 0:
-            CURRENT_TIME['date'] = day
-            CURRENT_TIME['time'] = period
-            CURRENT_TIME['start_time'] = str(start_time)
+            CURRENT['TIME']['date'] = day
+            CURRENT['TIME']['time'] = period
+            CURRENT['TIME']['start_time'] = str(start_time)
 
 def update_on_off(cursor, start_time, instance_dict, run_arg):
     # equipment_port 需要确定
