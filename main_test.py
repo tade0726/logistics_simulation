@@ -517,6 +517,7 @@ def pumper(data_pipeline: Queue, write_rows: int=10_000,):
         if QUEUE_DONE:
             break
 
+
 def add_time(table: pd.DataFrame):
     """添加仿真的时间戳， 以及运行的日期"""
     table["real_time_stamp"] = table["time_stamp"].apply(lambda x: TimeConfig.ZERO_TIMESTAMP + timedelta(seconds=x))

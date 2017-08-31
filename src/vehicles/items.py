@@ -100,7 +100,11 @@ class Package:
             )
 
             self.machine_data.append(record)
-            self.data_pipeline.put(record)
+
+            if (record.parcel_id == record.small_id) and (record.parcel_type == 'small'):
+                pass
+            else:
+                self.data_pipeline.put(record)
 
             LOG.logger_font.debug(msg=f"Package: {record.small_id} , action: {record.action}"
                                       f", equipment: {record.equipment_id}, timestamp: {record.time_stamp}")
@@ -221,6 +225,7 @@ class SmallBag(Package):
         """给小件包裹添加记录"""
         if to_small:
             list(map(lambda x: x.insert_data(data), self.store))
+        return super(SmallBag, self).insert_data(data)
 
     def __str__(self):
         display_dct = dict(self.attr)
