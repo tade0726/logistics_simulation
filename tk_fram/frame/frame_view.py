@@ -69,6 +69,7 @@ BTN_ENTRY_DICT = {}        # 初始化entry状态字典
 
 # -------------------------所有控件的信息缓存字典
 # time 表示时间段
+# num 的值永远与数据库里 resource_limit 的值相等
 # {
 #     time: {
 #         id: {
@@ -85,7 +86,8 @@ CURRENT = {
     'TIME':{
         'date': '',
         'time': '',
-        'start_time': ''
+        'start_time': '',
+        'last_run_time': ''
     },
     'CANVAS_DICT': {},
     'SHEET': 'R'

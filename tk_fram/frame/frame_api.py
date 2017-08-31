@@ -332,7 +332,6 @@ def update_time_date(date_plan, time_plan):
     start_time = day + ' ' + period.split('-')[0]
     CURRENT['TIME']['start_time'] = start_time
     for i in ConfigFrame.WIG_BTN_DICT[CURRENT['SHEET']]:
-        CACHE_INSTANCE_DICT[CURRENT['TIME']['start_time']][i]['num'] /= 2
         CHECK_BTN_ENTRY_DIC[i].init_on_off_status()
         # if i == 'j41_1' or 'h' in i:
         #     CHECK_BTN_ENTRY_DIC[i].var.set(
@@ -357,8 +356,12 @@ def update_to_cache():
     for key, value in CHECK_BTN_ENTRY_DIC.items():
         CACHE_INSTANCE_DICT[CURRENT['TIME']['start_time']][key]['status'] = \
             value.var.get()
-        CACHE_INSTANCE_DICT[CURRENT['TIME']['start_time']][key]['num'] = \
-            value.string_combobox.get()
+        if key[0].upper() in NUM_TRANSLATE_DICT:
+            CACHE_INSTANCE_DICT[CURRENT['TIME']['start_time']][key]['num'] = \
+                value.string_combobox.get() / NUM_TRANSLATE_DICT[key[0].upper()]
+        else:
+            CACHE_INSTANCE_DICT[CURRENT['TIME']['start_time']][key]['num'] = \
+                value.string_combobox.get()
 
 
 def set_during_time(date_plan, time_plan):

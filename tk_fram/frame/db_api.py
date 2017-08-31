@@ -28,16 +28,24 @@ def init_btn_entry_val_from_sql():
             conn = Mysql().connect
             with conn as cur:
                 cur.execute(
-                    "select equipment_port, equipment_status from i_equipment_io "
-                    "WHERE start_time='{}' and LEFT(equipment_port, 1) IN ('a', 'r', 'm', 'j', 'u', 'h')".format(start_time)
+                    "select equipment_port, equipment_status "
+                    "from i_equipment_io_past_run "
+                    "WHERE start_time='{}' and inserted_on='{}' "
+                    "and LEFT(equipment_port, 1) "
+                    "IN ('a', 'r', 'm', 'j', 'u', 'h')".format(
+                        start_time, CURRENT['TIME']['last_run_time'])
                 )
                 result = cur.fetchall()
             for item in result:
                 instance_status_num_dict[item[0]]['status'] = item[1]
             with conn as cur:
                 cur.execute(
-                    "select resource_id, resource_limit from i_resource_limit "
-                    "where resource_id like 'man_%' and resource_id not like 'man_x%'"
+                    "select resource_id, resource_limit "
+                    "from i_resource_limit_past_run "
+                    "where resource_id like 'man_%' "
+                    "and start_time='{}' and inserted_on='{}' "
+                    "and resource_id not like 'man_x%'".format(
+                        start_time, CURRENT['TIME']['last_run_time'])
                 )
                 result = cur.fetchall()
             for item in result:
@@ -63,6 +71,13 @@ def init_day_time():
             CURRENT['TIME']['date'] = day
             CURRENT['TIME']['time'] = period
             CURRENT['TIME']['start_time'] = str(start_time)
+    with conn as cur:
+        cur.execute(
+            "select inserted_on from i_equipment_io_past_run "
+            "ORDER BY inserted_on desc limit 1"
+        )
+        last_run_time = cur.fetchone()[0]
+    CURRENT['TIME']['last_run_time'] = str(last_run_time)
 
 def update_on_off(cursor, start_time, instance_dict, run_arg):
     # equipment_port 需要确定
