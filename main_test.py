@@ -470,7 +470,6 @@ def pumper(data_pipeline: Queue, write_rows: int=10_000,):
         for _ in range(write_rows):
 
             record = data_pipeline.get()
-
             if record is None:
                 # leave for loop
                 QUEUE_DONE = True
@@ -535,7 +534,7 @@ if __name__ == '__main__':
 
     sim = threading.Thread(target=simulation, args=(data_pipeline_queue, run_time))
 
-    for _ in range(1):
+    for _ in range(3):
         p = threading.Thread(target=pumper, args=(data_pipeline_queue, 100_000))
         threads.append(p)
 
