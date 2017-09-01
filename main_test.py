@@ -24,8 +24,7 @@ sys.path.extend(['.'])
 
 from src.db import *
 from src.controllers import TruckController, ResourceController
-from src.utils import \
-    (PipelineRecord, TruckRecord, PackageRecord, OutputTableColumnType, PathRecord)
+from src.utils import *
 from src.vehicles import Pipeline, PipelineRes, BasePipeline, SmallBag, SmallPackage, Parcel, PipelineReplace
 from src.machine import *
 from src.config import MainConfig, TimeConfig, LOG, SaveConfig
@@ -314,6 +313,14 @@ def simulation(data_pipeline: Queue, run_time):
 
     LOG.logger_font.info("sim end..")
     LOG.logger_font.info("collecting data")
+
+    # create table for output data
+    machine_table_sche.create(checkfirst=True)
+
+    if not MainConfig.OUTPUT_MACHINE_TABLE_ONLY:
+        truck_table_sche.create(checkfirst=True)
+        pipeline_table_sche.create(checkfirst=True)
+        path_table_sche.create(checkfirst=True)
 
     if MainConfig.USING_DATA_PIPELINE:
         t_end = datetime.now()

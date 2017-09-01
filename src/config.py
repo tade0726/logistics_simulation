@@ -24,7 +24,7 @@ class MainConfig:
     CACHE_TYPE = None  # {None, "redis", "pkl", "hdf5"}
     LOCAL_DB = True  # control which DB using
     DEBUG_LEVEL = logging.INFO  # 输出日志信息的级别
-    OUTPUT_MACHINE_TABLE_ONLY = True  # 只输出 o_machine_table
+    OUTPUT_MACHINE_TABLE_ONLY = False  # 只输出 o_machine_table
     USING_DATA_PIPELINE = True   # 使用 data pipeline 使得 save local 会失效
 
 

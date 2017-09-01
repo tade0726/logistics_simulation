@@ -1,9 +1,12 @@
 from collections import namedtuple
-from sqlalchemy.types import String, Integer, Text, VARCHAR
+from sqlalchemy.types import Integer, Text, DateTime, Float, VARCHAR
+from sqlalchemy import Table, MetaData, Column
+
+from src.config import RemoteMySQLConfig
 
 __all__ = ["TruckRecord", "PackageRecord", "PipelineRecord", "PathRecord",
            "TruckRecordDict", "PackageRecordDict", "PipelineRecordDict", "PathRecordDict",
-           "OutputTableColumnType"]
+           "OutputTableColumnType", "machine_table_sche", "truck_table_sche", "pipeline_table_sche", "path_table_sche"]
 
 TruckRecord = namedtuple("truck_record",
                          ["equipment_id", "truck_id", "truck_type", "time_stamp", "action", "store_size"])
@@ -71,3 +74,63 @@ class OutputTableColumnType:
     )
 
 
+# tables schema
+metadata = MetaData(bind=RemoteMySQLConfig.engine)
+
+machine_table_sche = \
+    Table(
+        "o_machine_table",
+        metadata,
+        Column("equipment_id", VARCHAR(length=32, )),
+        Column("parcel_id", VARCHAR(length=32, )),
+        Column("small_id", VARCHAR(length=32, )),
+        Column("parcel_type", VARCHAR(length=32, )),
+        Column("time_stamp", Float(precision=2)),
+        Column("action", VARCHAR(length=32, )),
+        Column("real_time_stamp", DateTime()),
+        Column("run_time", DateTime()),
+    )
+
+truck_table_sche = \
+    Table(
+        "o_truck_table",
+        metadata,
+        Column("equipment_id", VARCHAR(length=32, )),
+        Column("truck_id", VARCHAR(length=32, )),
+        Column("truck_type", VARCHAR(length=32, )),
+        Column("time_stamp", Float(precision=2)),
+        Column("action", VARCHAR(length=32, )),
+        Column("store_size", Integer()),
+        Column("real_time_stamp", DateTime()),
+        Column("run_time", DateTime()),
+    )
+
+pipeline_table_sche = \
+    Table(
+        "o_pipeline_table",
+        metadata,
+        Column("pipeline_id", VARCHAR(length=32, )),
+        Column("queue_id", VARCHAR(length=32, )),
+        Column("parcel_id", VARCHAR(length=32, )),
+        Column("small_id", VARCHAR(length=32, )),
+        Column("parcel_type", VARCHAR(length=32, )),
+        Column("time_stamp", Float(precision=2)),
+        Column("action", VARCHAR(length=32, )),
+        Column("real_time_stamp", DateTime()),
+        Column("run_time", DateTime()),
+    )
+
+path_table_sche = \
+    Table(
+        "o_path_table",
+        metadata,
+        Column("parcel_id", VARCHAR(length=32, )),
+        Column("small_id", VARCHAR(length=32, )),
+        Column("parcel_type", VARCHAR(length=32, )),
+        Column("start_node", VARCHAR(length=32, )),
+        Column("ident_des_zno", VARCHAR(length=32, )),
+        Column("sorter_type", VARCHAR(length=32, )),
+        Column("dest_type", VARCHAR(length=32, )),
+        Column("ret_path", Text()),
+        Column("run_time", DateTime()),
+    )
