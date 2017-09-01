@@ -559,7 +559,7 @@ class PipelineRes(Pipeline):
         self.process_time = self.equipment_process_time_dict[self.equipment_last]
         # join all the c into on queue
         self.share_queue_dict = share_queue_dict
-        self.queue = self.share_queue_dict.get(self.equipment_next, super(PipelineRes, self).queue)
+        self.queue = self.share_queue_dict.get(self.equipment_next, self.queue)
 
     def latency(self, item: Package):
 
