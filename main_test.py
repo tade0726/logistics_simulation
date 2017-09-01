@@ -321,7 +321,6 @@ def simulation(data_pipeline: Queue, run_time):
     assert num_of_trucks == 0, ValueError("Truck queue should be empty!!")
 
     LOG.logger_font.info("sim end..")
-    LOG.logger_font.info("collecting data")
 
     # create table for output data
     machine_table_sche.create(checkfirst=True)
@@ -337,6 +336,8 @@ def simulation(data_pipeline: Queue, run_time):
         LOG.logger_font.info(f"total time: {total_time.total_seconds()} s")
         # 不再执行剩下的代码
         return
+
+    LOG.logger_font.info("collecting data")
 
     # collecting data
     truck_data = list()
