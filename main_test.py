@@ -62,6 +62,9 @@ def simulation(data_pipeline: Queue, run_time):
     for _, c_list in reload_setting_dict.items():
         reload_c_list.extend(c_list)
 
+    # keep unique
+    reload_c_list = list(set(reload_c_list))
+
     # init resource
     resource_dict = defaultdict(dict)
     for _, row in resource_table.iterrows():
@@ -76,6 +79,11 @@ def simulation(data_pipeline: Queue, run_time):
     share_store_dict = dict()
     for x in set([ x['store_id'] for x in equipment_store_dict.values()]):
         share_store_dict[x] = simpy.Store(env)
+
+    # init share queue for reload/ small_reload
+    share_queue_dict = dict()
+    for x in reload_c_list:
+        share_queue_dict[x] = simpy.Store(env)
 
     # init pipelines
     pipelines_dict = dict()
@@ -108,7 +116,8 @@ def simulation(data_pipeline: Queue, run_time):
                                                       machine_type,
                                                       equipment_process_time_dict,
                                                       open_time_dict,
-                                                      all_keep_open)
+                                                      all_keep_open,
+                                                      share_queue_dict)
 
         elif pipeline_type == 'pipeline_replace':
             pipelines_dict[pipeline_id] = PipelineReplace(env,

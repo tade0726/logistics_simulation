@@ -539,6 +539,7 @@ class PipelineRes(Pipeline):
                  equipment_process_time_dict: dict,
                  open_time_dict: dict,
                  all_keep_open: bool,
+                 share_queue_dict: dict,
                  ):
 
         super(PipelineRes, self).__init__(env,
@@ -556,6 +557,9 @@ class PipelineRes(Pipeline):
         # add for equipment
         self.equipment_process_time_dict = equipment_process_time_dict
         self.process_time = self.equipment_process_time_dict[self.equipment_last]
+        # join all the c into on queue
+        self.share_queue_dict = share_queue_dict
+        self.queue = self.share_queue_dict.get(self.equipment_next, super(PipelineRes, self).queue)
 
     def latency(self, item: Package):
 
