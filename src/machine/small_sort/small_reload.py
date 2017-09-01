@@ -83,7 +83,7 @@ class SmallReload(object):
             pop_number = len(self.store)
         else:
             pop_number = self.store_max
-        store = [self.store.pop(0) for _ in range(pop_number)]
+        store = [self.store.pop(0) for _ in range(int(pop_number))]
         return store
 
     def pack_send(self, wait_time_stamp: float):
