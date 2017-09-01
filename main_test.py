@@ -61,7 +61,7 @@ def simulation(data_pipeline: Queue, run_time):
     # c_port list
     reload_c_list = list()
     for x in reload_port_dict.values():
-        reload_c_list = reload_c_list.extend(x)
+        reload_c_list.extend(x)
 
     # init resource
     resource_dict = defaultdict(dict)
