@@ -17,7 +17,7 @@ import logging
 
 
 class MainConfig:
-    IS_TEST = True   # 使用全集数据，还是测试数据
+    IS_TEST = False   # 使用全集数据，还是测试数据
     SAVE_LOCAL = False  # 是否输出结果到本地csv， 还是 mysql
     IS_PARCEL_ONLY = False  # 只有 parcel 件
     IS_LAND_ONLY = False  # True 只有 landside, False landside airside
