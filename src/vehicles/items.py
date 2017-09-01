@@ -107,10 +107,6 @@ class Package:
             LOG.logger_font.debug(msg=f"Package: {record.small_id} , action: {record.action}"
                                       f", equipment: {record.equipment_id}, timestamp: {record.time_stamp}")
 
-        if MainConfig.OUTPUT_MACHINE_TABLE_ONLY:
-            # 只有保留 machine table
-            return
-
         elif isinstance(data, PipelineRecordDict):
             record = PipelineRecord(
                 parcel_id=self.parcel_id,
@@ -145,7 +141,7 @@ class Package:
                                       f", sorter_type: {record.sorter_type}, dest_type: {record.dest_type}")
 
         else:
-            raise ValueError("Wrong type of record")
+            raise ValueError(f"Wrong type of record: {data}")
 
     def pop_mark(self):
         """删去第一个节点, 返回下一个 pipeline id: (now_loc, next_loc)"""

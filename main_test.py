@@ -533,16 +533,19 @@ if __name__ == '__main__':
     threads = []
 
     sim = threading.Thread(target=simulation, args=(data_pipeline_queue, run_time))
-
-    for _ in range(3):
-        p = threading.Thread(target=pumper, args=(data_pipeline_queue, 100_000))
-        threads.append(p)
-
     sim.start()
 
-    for p in threads:
-        p.start()
+    if MainConfig.USING_DATA_PIPELINE:
 
-    data_pipeline_queue.join()
+        for _ in range(3):
+            p = threading.Thread(target=pumper, args=(data_pipeline_queue, 100_000))
+            threads.append(p)
+
+        for p in threads:
+            p.start()
+
+        data_pipeline_queue.join()
+    else:
+        sim.join()
 
 
