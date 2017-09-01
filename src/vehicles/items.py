@@ -116,7 +116,9 @@ class Package:
             )
 
             self.pipeline_data.append(record)
-            self.data_pipeline.put(record)
+
+            if not MainConfig.OUTPUT_MACHINE_TABLE_ONLY:
+                self.data_pipeline.put(record)
 
             LOG.logger_font.debug(msg=f"Package: {record.small_id} , action: {record.action}"
                                       f", pipeline: {record.pipeline_id}, timestamp: {record.time_stamp}")
@@ -133,7 +135,9 @@ class Package:
             )
 
             self.path_request_data.append(record)
-            self.data_pipeline.put(record)
+
+            if not MainConfig.OUTPUT_MACHINE_TABLE_ONLY:
+                self.data_pipeline.put(record)
 
             LOG.logger_font.debug(msg=f"Package get path - parcel_id: {record.parcel_id}, small_id: {record.small_id}, "
                                       f", path: {record.ret_path}"
@@ -262,7 +266,9 @@ class Truck:
         LOG.logger_font.debug(msg=f"Truck: {record}")
 
         self.truck_data.append(record)
-        self.data_pipeline.put(record)
+
+        if not MainConfig.OUTPUT_MACHINE_TABLE_ONLY:
+            self.data_pipeline.put(record)
 
     def __str__(self):
         return f"<Truck truck_id: {self.truck_id}, come_time: {self.come_time}, store_size:{self.store_size}>"
