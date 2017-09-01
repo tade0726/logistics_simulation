@@ -56,14 +56,12 @@ def simulation(data_pipeline: Queue, run_time):
     equipment_parameters = get_parameters()
     equipment_store_dict = get_equipment_store_dict()
     open_time_dict, switch_machine_names = get_equipment_timetable()
+    reload_port_dict = get_reload_port()
 
     # c_port list
     reload_c_list = list()
-    for _, c_list in reload_setting_dict.items():
-        reload_c_list.extend(c_list)
-
-    # keep unique
-    reload_c_list = list(set(reload_c_list))
+    for x in reload_port_dict.values():
+        reload_c_list = reload_c_list.extend(x)
 
     # init resource
     resource_dict = defaultdict(dict)
@@ -268,7 +266,7 @@ def simulation(data_pipeline: Queue, run_time):
         )
 
     # init small_reload machines
-    for machine_id in machine_init_dict["small_reload"]:
+    for machine_id in reload_port_dict['small_sort']:
         machines_dict["small_reload"].append(
             SmallReload(
                 env,
@@ -276,7 +274,8 @@ def simulation(data_pipeline: Queue, run_time):
                 pipelines_dict=pipelines_dict,
                 equipment_process_time_dict=equipment_process_time_dict,
                 equipment_parameters=equipment_parameters,
-                data_pipeline=data_pipeline,)
+                data_pipeline=data_pipeline,
+                share_queue_dict=share_queue_dict,)
         )
 
     # adding machines into processes
@@ -417,6 +416,7 @@ def simulation(data_pipeline: Queue, run_time):
     del equipment_store_dict
     del open_time_dict
     del switch_machine_names
+    del reload_port_dict
 
     # process data
     del machine_init_dict

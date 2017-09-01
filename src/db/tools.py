@@ -26,7 +26,7 @@ __all__ = ['write_redis', 'load_from_redis', 'write_mysql', 'write_local', 'load
            'load_from_mysql', 'get_vehicles', 'get_unload_setting', 'get_reload_setting', 'get_resource_limit',
            'get_resource_equipment_dict', 'get_pipelines', 'get_queue_io', 'get_equipment_process_time',
            'get_parameters', 'get_resource_timetable', 'get_equipment_timetable',
-           'get_equipment_store_dict', 'get_equipment_on_off', 'get_base_equipment_io_max']
+           'get_equipment_store_dict', 'get_equipment_on_off', 'get_base_equipment_io_max', 'get_reload_port']
 
 
 def checking_pickle_file(table_name):
@@ -568,6 +568,15 @@ def get_equipment_on_off():
     equipment_on = table[table.equipment_status == 1]
     equipment_off = table[table.equipment_status == 0]
     return equipment_on.equipment_port.tolist(), equipment_off.equipment_port.tolist(),
+
+
+def get_reload_port():
+    """返回所有的reload口
+    {'reload': ['c14_22', 'c2_13',] ,
+      'small_sort': [c11_85', 'c11_55',],} """
+
+    table = load_from_mysql('i_reload_setting')
+    return table.groupby('sorter_type')['equipment_port'].apply(set).apply(list).to_dict()
 
 
 if __name__ == "__main__":
