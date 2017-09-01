@@ -2,11 +2,10 @@
 
 from tkinter import Frame
 from tkinter.ttk import Combobox
-from tkinter import Checkbutton, Entry, Menu
+from tkinter import Checkbutton, Entry
 from tkinter import IntVar, StringVar, DISABLED, NORMAL
-from .frame_view import ConfigFrame, NUM_TRANSLATE_DICT, CHECK_BTN_ENTRY_DIC, \
-    ENTRY_STATUS_DIC, M_R_DICT, CACHE_INSTANCE_DICT, R_J_DICT, CACHE_J_STATUS, \
-    CURRENT
+from .frame_view import ConfigFrame, NUM_TRANSLATE_DICT, ENTRY_STATUS_DIC, \
+    M_R_DICT, CACHE_INSTANCE_DICT, CURRENT
 
 
 class App(Frame):
@@ -110,7 +109,7 @@ class CheckBtnCreate(Checkbutton):
             master=None,
             grid_dic: dict=None,
             attr_dic: dict=None,
-            id: str='',
+            w_id: str='',
             var=None,
             command=None
     ):
@@ -118,7 +117,7 @@ class CheckBtnCreate(Checkbutton):
         super().__init__(master=master)
         self.grid_dic = grid_dic
         self.attr_dic = attr_dic
-        self.text = id
+        self.text = w_id
         self.var = var
         self.command = command
         self._update_config()
@@ -156,23 +155,23 @@ class CheckBtnCreate(Checkbutton):
         return return_cls
 
 
-def init_check_btn(master, id, var, command):
+def init_check_btn(master, w_id, var, command):
     """"""
     return CheckBtnCreate(
         master=master,
-        grid_dic=ConfigFrame.CHECK_BTN[id]['grid'],
-        attr_dic=ConfigFrame.CHECK_BTN[id]['attr'],
-        id=id,
+        grid_dic=ConfigFrame.CHECK_BTN[w_id]['grid'],
+        attr_dic=ConfigFrame.CHECK_BTN[w_id]['attr'],
+        w_id=w_id,
         var=var,
         command=command
     )
 
 
-def init_combobox_list(master, id, string_combobox, list_var):
+def init_combobox_list(master, w_id, string_combobox, list_var):
     """
 
     :param master:
-    :param id:
+    :param w_id:
     :param string_combobox:
     :param list_var:
     :return:
@@ -181,23 +180,23 @@ def init_combobox_list(master, id, string_combobox, list_var):
         master=master,
         string_combobox=string_combobox,
         list_var=list_var,
-        attr_dic=ConfigFrame.COMBOBOX_LIST[id]['attr'],
-        grid_dic=ConfigFrame.COMBOBOX_LIST[id]['grid']
+        attr_dic=ConfigFrame.COMBOBOX_LIST[w_id]['attr'],
+        grid_dic=ConfigFrame.COMBOBOX_LIST[w_id]['grid']
     )
 
 
-def init_entry(master, id, text_var):
+def init_entry(master, w_id, text_var):
     """
 
     :param master:
-    :param id:
+    :param w_id:
     :param text_var:
     :return:
     """
     return EntryCreate(
         master=master,
-        attr_dic=ConfigFrame.ENTRY[id]['attr'],
-        grid_dic=ConfigFrame.ENTRY[id]['grid'],
+        attr_dic=ConfigFrame.ENTRY[w_id]['attr'],
+        grid_dic=ConfigFrame.ENTRY[w_id]['grid'],
         text_var=text_var
     )
 
@@ -224,18 +223,21 @@ class CheckBtnEntryList(object):
         return self.list_value
 
     @property
-    def _combobox_value(self):
+    def combobox_value(self):
         key = self.w_id[0].upper()
         if key in NUM_TRANSLATE_DICT:
-            return int(CACHE_INSTANCE_DICT[CURRENT['TIME']['start_time']][self.w_id]['num']) * \
-                   NUM_TRANSLATE_DICT[key]
+            return int(CACHE_INSTANCE_DICT[
+                           CURRENT['TIME']['start_time']
+                       ][self.w_id]['num']) * NUM_TRANSLATE_DICT[key]
         else:
-            return CACHE_INSTANCE_DICT[CURRENT['TIME']['start_time']][self.w_id]['num']
+            return CACHE_INSTANCE_DICT[
+                CURRENT['TIME']['start_time']
+            ][self.w_id]['num']
 
     def init_list(self):
         return init_combobox_list(
             master=self.master,
-            id=self.w_id,
+            w_id=self.w_id,
             string_combobox=self.string_combobox,
             list_var=self._list_value
         )
@@ -243,14 +245,14 @@ class CheckBtnEntryList(object):
     def init_entry(self):
         return init_entry(
             master=self.master,
-            id=self.w_id,
+            w_id=self.w_id,
             text_var=self.string
         )
 
     def init_check_btn(self):
         return init_check_btn(
             master=self.master,
-            id=self.w_id,
+            w_id=self.w_id,
             var=self.var,
             command=self.chk_button_value
         )
@@ -262,7 +264,7 @@ class CheckBtnEntryList(object):
         if self.w_id == 'j41_1' or 'h' in self.w_id:
             self.var.set(1)
             self.string.set(ENTRY_STATUS_DIC[1])
-            self.string_combobox.set(self._combobox_value)
+            self.string_combobox.set(self.combobox_value)
             self.check_btn['state'] = DISABLED
             self.change_color(self.entry)
         # elif 'm' in self.w_id or 'j' in self.w_id:
@@ -286,7 +288,9 @@ class CheckBtnEntryList(object):
             #     else:
             #         self.check_btn['state'] = NORMAL
         else:
-            self.var.set(status_dict[CURRENT['TIME']['start_time']][self.w_id]['status'])
+            self.var.set(
+                status_dict[CURRENT['TIME']['start_time']][self.w_id]['status']
+            )
             self.string.set(ENTRY_STATUS_DIC[self.var.get()])
             self.change_combobox_status(self)
             self.change_color(self.entry)
@@ -325,7 +329,7 @@ class CheckBtnEntryList(object):
     # 返回勾选框的状态值 0 或 1
     @property
     def check_var(self):
-        return _init_m_J(self.w_id)
+        return _init_m_j(self.w_id)
 
     @staticmethod
     def change_color(entry):
@@ -336,31 +340,41 @@ class CheckBtnEntryList(object):
 
     @staticmethod
     def change_combobox_status(instance):
-        instance.string_combobox.set(instance._combobox_value)
+        instance.string_combobox.set(instance.combobox_value)
         if instance.var.get() == 0:
             instance.init_list['state'] = DISABLED
         else:
             instance.init_list['state'] = NORMAL
 
-def _init_m_J(w_id):
+
+def _init_m_j(w_id):
     if 'm' in w_id:
         status = 0
         for i in M_R_DICT[w_id]:
-            status = CACHE_INSTANCE_DICT[CURRENT['TIME']['start_time']][i]['status'] or status
+            status = CACHE_INSTANCE_DICT[
+                         CURRENT['TIME']['start_time']
+                     ][i]['status'] or status
         return status
     # if 'j' in w_id and w_id != 'j41_1':
     #     j_status = 0
     #     for key, j_list in R_J_DICT.items():
     #         if w_id in j_list:
-    #             j_status = CACHE_INSTANCE_DICT[CURRENT['TIME']['start_time']][key]['status'] or j_status
+    #             j_status  =  CACHE_INSTANCE_DICT[
+    #                              CURRENT['TIME']['start_time']
+    #                          ][key]['status'] or j_status
     #     return j_status
+
 
 def update_m_j():
     # 根据 R 的状态值，初始化 J 跟 M 的状态值，如果 J 有缓存，则取缓存值
     # for j in ConfigFrame.WIG_BTN_DICT['J'][:-1]:
     #     if j in CACHE_J_STATUS:
-    #         CACHE_INSTANCE_DICT[CURRENT['TIME']['start_time']][j]['status'] = CACHE_J_STATUS[j]
+    #         CACHE_INSTANCE_DICT[CURRENT['TIME']['start_time']][j]['status']\
+    #             = CACHE_J_STATUS[j]
     #     else:
-    #         CACHE_INSTANCE_DICT[CURRENT['TIME']['start_time']][j]['status'] = _init_m_J(j)
+    #         CACHE_INSTANCE_DICT[CURRENT['TIME']['start_time']][j]['status']\
+    #             = _init_m_J(j)
     for m in ConfigFrame.WIG_BTN_DICT['M']:
-        CACHE_INSTANCE_DICT[CURRENT['TIME']['start_time']][m]['status'] = _init_m_J(m)
+        CACHE_INSTANCE_DICT[
+            CURRENT['TIME']['start_time']
+        ][m]['status'] = _init_m_j(m)

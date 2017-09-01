@@ -1,5 +1,6 @@
 from pymysql import connect
-import time, csv, os
+import csv
+import os
 from collections import defaultdict
 
 from tk_fram.frame_config import DATABASES
@@ -49,9 +50,11 @@ def init_btn_entry_val_from_sql():
                 )
                 result = cur.fetchall()
             for item in result:
-                instance_status_num_dict[item[0].replace('man_', '')]['num'] = int(item[1])
+                instance_status_num_dict[item[0].replace('man_', '')]['num']\
+                    = int(item[1])
             CACHE_INSTANCE_DICT[start_time] = instance_status_num_dict
     return
+
 
 def init_day_time():
     conn = Mysql().connect
@@ -79,6 +82,7 @@ def init_day_time():
         last_run_time = cur.fetchone()[0]
     CURRENT['TIME']['last_run_time'] = str(last_run_time)
 
+
 def update_on_off(cursor, start_time, instance_dict, run_arg):
     # equipment_port 需要确定
     for key, value in instance_dict.items():
@@ -89,11 +93,13 @@ def update_on_off(cursor, start_time, instance_dict, run_arg):
         )
     cursor.execute("update i_equipment_io set inserted_on='%s'" % run_arg)
 
+
 def create_columns(cursor, table):
     cursor.execute("show columns from %s" % table)
     column_tuple = cursor.fetchall()
     columns = ' ,'.join(i[0] for i in column_tuple)
     return columns
+
 
 def insert_package(cursor, num: str, run_arg):
     if num == 'all':
@@ -253,6 +259,7 @@ def read_result(cursor):
         'total_solve_time': total_solve_time
     }
 
+
 def average_time(cursor):
     # 票均时间
     cursor.execute(
@@ -264,34 +271,37 @@ def average_time(cursor):
     average = time_sum / len(result)
     return average
 
+
 def success_percent(cursor):
     # 时效达成率
     cursor.execute(
-    "select count(case when a.real_time_stamp<=b.plan_disallow_tm then "
-    "a.small_id else null end)/count(a.small_id) "
-    "from (select small_id,max(real_time_stamp) real_time_stamp "
-    "from o_machine_table group by small_id) a "
-    "join (select small_id ,plan_disallow_tm from i_od_small_airside "
-    "union all "
-    "select parcel_id,plan_disallow_tm "
-    "from i_od_parcel_airside union all "
-    "select small_id ,plan_disallow_tm "
-    "from i_od_small_landside union all "
-    "select parcel_id,plan_disallow_tm "
-    "from i_od_parcel_landside) b on a.small_id=b.small_id"
+        "select count(case when a.real_time_stamp<=b.plan_disallow_tm then "
+        "a.small_id else null end)/count(a.small_id) "
+        "from (select small_id,max(real_time_stamp) real_time_stamp "
+        "from o_machine_table group by small_id) a "
+        "join (select small_id ,plan_disallow_tm from i_od_small_airside "
+        "union all "
+        "select parcel_id,plan_disallow_tm "
+        "from i_od_parcel_airside union all "
+        "select small_id ,plan_disallow_tm "
+        "from i_od_small_landside union all "
+        "select parcel_id,plan_disallow_tm "
+        "from i_od_parcel_landside) b on a.small_id=b.small_id"
     )
     result = cursor.fetchone()[0]
     return result
 
+
 def discharge(cursor):
     cursor.execute(
-    "select (sum(case when action='start' "
-    "then time_stamp else 0 end)-sum(case when action='wait' "
-    "then time_stamp else 0 end))/count(distinct small_id) "
-    "from o_machine_table where equipment_id like 'r%'"
+        "select (sum(case when action='start' "
+        "then time_stamp else 0 end)-sum(case when action='wait' "
+        "then time_stamp else 0 end))/count(distinct small_id) "
+        "from o_machine_table where equipment_id like 'r%'"
     )
     result = cursor.fetchone()[0]
     return result
+
 
 def save_to_past_run(cursor):
     columns_equipment_io = create_columns(cursor, 'i_equipment_io')
@@ -392,15 +402,16 @@ def save_to_past_run(cursor):
         "from o_path_table" % (columns_path, columns_path)
     )
 
+
 def csv_into_mysql(cursor):
 
-    def creat_generator(files):
+    def creat_generator(csv_reader):
         # 读取 csv.reader 对象，返回指定内容长度的生成器，x 控制内容长度
         while True:
             line_list = []
             x = 1
-            for i, v in enumerate(files):
-                line_list.append(v)
+            for value in csv_reader:
+                line_list.append(value)
                 x += 1
                 if x == 1000000:
                     break
@@ -412,12 +423,12 @@ def csv_into_mysql(cursor):
     file_path_dict = {
         'o_machine_table': os.path.join(
             project_path, r'simpy_lib\hangzhou_simpy\out\machine_table.csv'),
-        'o_path_table': os.path.join(
-            project_path, r'simpy_lib\hangzhou_simpy\out\path_table.csv'),
-        'o_pipeline_table': os.path.join(
-            project_path, r'simpy_lib\hangzhou_simpy\out\pipeline_table.csv'),
-        'o_truck_table': os.path.join(
-            project_path, r'simpy_lib\hangzhou_simpy\out\truck_table.csv'),
+        # 'o_path_table': os.path.join(
+        #     project_path, r'simpy_lib\hangzhou_simpy\out\path_table.csv'),
+        # 'o_pipeline_table': os.path.join(
+        #     project_path, r'simpy_lib\hangzhou_simpy\out\pipeline_table.csv'),
+        # 'o_truck_table': os.path.join(
+        #     project_path, r'simpy_lib\hangzhou_simpy\out\truck_table.csv'),
                       }
     for table, file_path in file_path_dict.items():
         files = csv.reader(open(file_path))
@@ -429,12 +440,14 @@ def csv_into_mysql(cursor):
                 lenth = len(v)
                 break
         for item in creat_generator(files):
-            if item != []:
+            if item:
                 cursor.executemany(
                     "insert into {} ({}) values "
-                    "(%s".format(table, columns) + ', %s' * (lenth - 1) + ')', item)
+                    "(%s".format(table, columns) + ', %s' * (lenth - 1) + ')',
+                    item)
             else:
                 break
+
 
 def delete_index(cursor):
     cursor.execute("drop index ix_o_machine_run_time_packageid on "

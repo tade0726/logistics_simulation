@@ -6,8 +6,9 @@ from .frame import App
 from .frame_view import *
 # import logging as lg
 from .db_api import init_btn_entry_val_from_sql, init_day_time
-from .frame_api import run_sim, save_data, update_data, q_exit, menu_file, \
-    create_canvas, init_sheet, set_during_time, update_time_date, update_to_cache
+from .frame_api import run_sim, update_data, q_exit, menu_file, \
+    create_canvas, init_sheet, set_during_time, update_time_date, \
+    update_to_cache
 
 
 def init_app(master, wig, xlayout=(0, ), ylayout=(0, )):
@@ -29,7 +30,7 @@ def init_menu(root: Tk):
     sim_set_menu = Menu(master=base_menu, tearoff=0)
     sim_set_menu.add_command(
         label='单时段批量设置',
-        command=lambda: menu_file(root)
+        command=menu_file
     )
     # sim_set_menu.add_command(
     #     label='全时段批量设置',
@@ -52,7 +53,7 @@ def init_r_frame(root: Tk):
     right = init_app(
         master=root,
         wig='RIGHT_FRAME',
-        ylayout=(0 ,1, 2)
+        ylayout=(0, 1, 2)
     )
     #  ================左侧包裹数，人力资源数 ==========
     left_set_pad_package = init_app(
@@ -101,9 +102,7 @@ def init_r_frame(root: Tk):
         # width=15,
         anchor='w'
     )
-    lbl_package.grid(row=0, column=0
-                     , sticky='nswe'
-                     )
+    lbl_package.grid(row=0, column=0, sticky='nswe')
     package_num = Combobox(
         master=left_set_pad_package,
         # bd=8,
@@ -123,10 +122,7 @@ def init_r_frame(root: Tk):
         # height= 3,
         anchor='w'
     )
-    lbl_date_plan.grid(row=0, column=2
-                       , sticky='nswe'
-                       )
-    #
+    lbl_date_plan.grid(row=0, column=2, sticky='nswe')
     date_list = list(DAY_TIME_DICT.keys())
     date_list.sort()
     date_plan = Combobox(
@@ -150,10 +146,7 @@ def init_r_frame(root: Tk):
         # height= 3,
         anchor='w'
     )
-    lbl_time.grid(row=0, column=4
-                  , sticky='nswe'
-                  )
-    #
+    lbl_time.grid(row=0, column=4, sticky='nswe')
     time_plan = Combobox(
         master=left_set_pad_package,
         width=15,
@@ -206,7 +199,7 @@ def init_r_frame(root: Tk):
         width=width_btn,
         text="数据更新",
         command=lambda: update_data(
-            date_plan, time_plan, root, txt_receipt
+            root, txt_receipt
         )
     ).grid(row=0, column=0, sticky='nswe')
     # 启动仿真按钮
@@ -216,7 +209,7 @@ def init_r_frame(root: Tk):
         font=('Times', font_btn, 'bold'),
         width=width_btn,
         text="启动仿真",
-        command=lambda: run_sim(package_num, date_plan, time_plan, root, txt_receipt)
+        command=lambda: run_sim(package_num, root, txt_receipt)
     ).grid(row=0, column=1, sticky='nswe')
     # btn-存储数据按钮
     # Button(
@@ -225,7 +218,9 @@ def init_r_frame(root: Tk):
     #     font=('Times', font_btn, 'bold'),
     #     width=width_btn,
     #     text="存储数据",
-        # command=lambda: save_data(package_num, date_plan, time_plan, root, txt_receipt)
+    #     command=lambda: save_data(
+    #         package_num, date_plan, time_plan, root, txt_receipt
+    #     )
     # ).grid(row=0, column=2, sticky='nswe')
     # btn-退出按钮
     Button(

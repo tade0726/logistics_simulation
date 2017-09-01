@@ -78,12 +78,12 @@ BTN_ENTRY_DICT = {}        # 初始化entry状态字典
 #         }
 #     }
 # }
-CACHE_INSTANCE_DICT ={}
+CACHE_INSTANCE_DICT = {}
 
 # 保存会随条件变动的全局变量
 # CANVAS_DICT : Canvas, Scrollbar 字典
 CURRENT = {
-    'TIME':{
+    'TIME': {
         'date': '',
         'time': '',
         'start_time': '',
@@ -148,7 +148,7 @@ R_J_DICT = {
     'r3_9': ('j26_1', 'j28_1', 'j30_1', 'j32_1', 'j34_1', 'j36_1', 'j38_1',
              'j40_1'),
     'r3_10': ('j26_1', 'j28_1', 'j30_1', 'j32_1', 'j34_1', 'j36_1', 'j38_1',
-             'j40_1'),
+              'j40_1'),
     'r4_1': ('j1_1', 'j2_1', 'j3_1', 'j4_1', 'j5_1', 'j6_1', 'j7_1', 'j8_1'),
     'r4_2': ('j1_1', 'j2_1', 'j3_1', 'j4_1', 'j5_1', 'j6_1', 'j7_1', 'j8_1'),
     'r4_3': ('j1_1', 'j2_1', 'j3_1', 'j4_1', 'j5_1', 'j6_1', 'j7_1', 'j8_1'),
@@ -158,19 +158,19 @@ R_J_DICT = {
     'r4_7': ('j9_1', 'j11_1', 'j13_1', 'j15_1', 'j17_1', 'j19_1', 'j21_1',
              'j23_1'),
     'r4_8': ('j9_1', 'j11_1', 'j13_1', 'j15_1', 'j17_1', 'j19_1', 'j21_1',
-                 'j23_1'),
+             'j23_1'),
     'r4_9': ('j9_1', 'j11_1', 'j13_1', 'j15_1', 'j17_1', 'j19_1', 'j21_1',
-                 'j23_1'),
+             'j23_1'),
     'r4_10': ('j9_1', 'j11_1', 'j13_1', 'j15_1', 'j17_1', 'j19_1', 'j21_1',
-                 'j23_1'),
+              'j23_1'),
     'r5_1': ('j9_1', 'j11_1', 'j13_1', 'j15_1', 'j17_1', 'j19_1', 'j21_1',
-                 'j23_1'),
+             'j23_1'),
     'r5_2': ('j9_1', 'j11_1', 'j13_1', 'j15_1', 'j17_1', 'j19_1', 'j21_1',
-                 'j23_1'),
+             'j23_1'),
     'r5_3': ('j25_1', 'j27_1', 'j29_1', 'j31_1', 'j33_1', 'j35_1', 'j37_1',
              'j39_1'),
     'r5_4': ('j25_1', 'j27_1', 'j29_1', 'j31_1', 'j33_1', 'j35_1', 'j37_1',
-                 'j39_1'),
+             'j39_1'),
     }
 
 
@@ -195,7 +195,7 @@ class ConfigApp(object):
                 'relief': 'raise',
                 # 'bg': '#A2B5CD'
             },
-            'grid': {'row': 0,'column': 0, 'sticky': 'nswe'}
+            'grid': {'row': 0, 'column': 0, 'sticky': 'nswe'}
         },
         'RIGHT_FRAME': {
             'attr': {
@@ -205,7 +205,7 @@ class ConfigApp(object):
                 'relief': 'raise',
                 # 'bg': '#A2B5CD'
             },
-            'grid': {'row': 0,'column': 1, 'sticky': 'nswe'}
+            'grid': {'row': 0, 'column': 1, 'sticky': 'nswe'}
         },
         'LEFT_SET_PAD_TOP_R': {
             'attr': {
@@ -234,7 +234,7 @@ class ConfigApp(object):
                 'bd': 1,
                 # 'relief': 'raise'
             },
-            'grid': {'row': 0,'column': 0,
+            'grid': {'row': 0, 'column': 0,
                      'sticky': 'nswe'
                      }
         },
@@ -245,7 +245,7 @@ class ConfigApp(object):
                 'bd': 8,
                 'relief': 'raise'
             },
-            'grid': {'row': 0,'column': 0,
+            'grid': {'row': 0, 'column': 0,
                      'sticky': 'nswe'
                      }
         },
@@ -263,7 +263,7 @@ class ConfigApp(object):
                 'bd': 8,
                 'relief': 'raise'
             },
-            'grid': {'row': 2,'column': 0, 'sticky': 'nswe'}
+            'grid': {'row': 2, 'column': 0, 'sticky': 'nswe'}
         },
         'RIGHT_TITLE': {
             'attr': {
@@ -272,7 +272,7 @@ class ConfigApp(object):
                 # 'bd': 8,
                 # 'relief': 'raise'
             },
-            'grid': {'row': 0,'column': 0,
+            'grid': {'row': 0, 'column': 0,
                      'sticky': 'nswe'
                      }
         },
@@ -284,7 +284,7 @@ class ConfigApp(object):
                 'relief': 'raise',
                 # 'bg': '#A2B5CD'
             },
-            'grid': {'row': 1,'column': 0,
+            'grid': {'row': 1, 'column': 0,
                      'sticky': 'nswe'
                      }
         },
@@ -295,7 +295,7 @@ class ConfigApp(object):
                 'bd': 8,
                 'relief': 'raise'
             },
-            'grid': {'row': 2,'column': 0,
+            'grid': {'row': 2, 'column': 0,
                      'sticky': 'nswe'
                      }
         }

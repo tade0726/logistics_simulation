@@ -9,10 +9,11 @@ from tkinter.messagebox import *
 from tkinter.filedialog import askopenfilename
 
 from .db_api import Mysql, insert_package, update_on_off, save_to_past_run, \
-    read_result, update_person, average_time, success_percent, discharge, csv_into_mysql
+    read_result, update_person, average_time, success_percent, discharge, \
+    csv_into_mysql
 from .frame_view import Flag, ConfigFrame, CHECK_BTN_ENTRY_DIC, \
     LIST_VALUE_COMBOBOX, CURRENT, CACHE_INSTANCE_DICT, DAY_TIME_DICT, \
-    NUM_TRANSLATE_DICT, R_J_DICT, ENTRY_STATUS_DIC
+    NUM_TRANSLATE_DICT
 from .frame import CheckBtnEntryList, update_m_j
 
 import xlrd
@@ -32,7 +33,7 @@ def save_data(root, txt_receipt):
     Flag['run_time'] = None
 
 
-def run_sim(package_num, date_plan, time_plan, root, txt_receipt):
+def run_sim(package_num, root, txt_receipt):
     """"""
     if Flag['update_data'] == 0:
         result = messagebox.askyesno("Tkmessage",
@@ -138,7 +139,7 @@ def run_sim(package_num, date_plan, time_plan, root, txt_receipt):
     Flag['run_sim'] += 1
 
 
-def update_data(date_plan, time_plan, root, txt_receipt, final=True):
+def update_data(root, txt_receipt):
     """"""
     # 将当前界面所有控件的状态与人数保存到 CACHE_INSTANCE_DICT，防止更新时被忽略
     for i in ConfigFrame.WIG_BTN_DICT[CURRENT['SHEET']]:
@@ -156,33 +157,25 @@ def update_data(date_plan, time_plan, root, txt_receipt, final=True):
 
     Flag['run_time'] = Flag['run_time'] or datetime.now()
     run_arg = Flag['run_time']
-    if not date_plan.get():
-        messagebox.showerror("Tkinter-数据更新错误",
-                             "运行错误，请选择日期与时段！")
-        return
 
     # # #  显示结果
-    if final:
-        txt_receipt['state'] = NORMAL
+    txt_receipt['state'] = NORMAL
     txt_receipt.delete('1.0', END)
     root.update_idletasks()
     # ========================更改开关状态==============
     txt_receipt.insert(END, '机器开关状态更新......\n')
-    day = date_plan.get()
-    start, end = time_plan.get().split('-')
-    start_time = day + ' ' + start
     conn = Mysql().connect
     with conn as cur:
-        for time, value in CACHE_INSTANCE_DICT.items():
-            update_on_off(cur, time, value, run_arg)
+        for start_time, value in CACHE_INSTANCE_DICT.items():
+            update_on_off(cur, start_time, value, run_arg)
 
     txt_receipt.insert(END, '机器开关状态更新成功！\n')
     root.update_idletasks()
     # ========================更改人员数量==============
     txt_receipt.insert(END, '开始设置人力资源数量......\n')
     with conn as cur:
-        for time, value in CACHE_INSTANCE_DICT.items():
-            update_person(cur, time, value, run_arg)
+        for start_time, value in CACHE_INSTANCE_DICT.items():
+            update_person(cur, start_time, value, run_arg)
     txt_receipt.insert(END, '人力资源设置完毕！\n')
     txt_receipt['state'] = DISABLED
 
@@ -204,7 +197,7 @@ def q_exit(root):
         return
 
 
-def menu_file(root):
+def menu_file():
     filename = askopenfilename()
     try:
         data = xlrd.open_workbook(filename)
@@ -223,6 +216,7 @@ def menu_file(root):
         update_m_j()
     except FileNotFoundError:
         pass
+
 
 def init_sheet(master, canvas_master):
     column = 0
@@ -257,8 +251,8 @@ def switch_sheet(sheet: str, canvas_master):
             CHECK_BTN_ENTRY_DIC[i].var.get()
         if CURRENT['SHEET'] in NUM_TRANSLATE_DICT:
             CACHE_INSTANCE_DICT[CURRENT['TIME']['start_time']][i]['num'] = \
-                int(CHECK_BTN_ENTRY_DIC[i].string_combobox.get() / \
-                NUM_TRANSLATE_DICT[CURRENT['SHEET']])
+                int(CHECK_BTN_ENTRY_DIC[i].string_combobox.get() /
+                    NUM_TRANSLATE_DICT[CURRENT['SHEET']])
         else:
             CACHE_INSTANCE_DICT[CURRENT['TIME']['start_time']][i]['num'] = \
                 CHECK_BTN_ENTRY_DIC[i].string_combobox.get()
@@ -324,15 +318,11 @@ def create_canvas(master, sheet: str):
     #                     'state'] = DISABLED
     #             did_set.add(value)
 
-    return (canvas_up, scrollbar_up)
+    return canvas_up, scrollbar_up
+
 
 def update_time_date(date_plan, time_plan):
-    '''
-    修改时间段的值，初始化当前界面的数据
-    :param date_plan:
-    :param time_plan:
-    :return:
-    '''
+    # 修改时间段的值，初始化当前界面的数据
     day = date_plan.get()
     period = time_plan.get()
     start_time = day + ' ' + period.split('-')[0]
@@ -342,10 +332,7 @@ def update_time_date(date_plan, time_plan):
 
 
 def update_to_cache():
-    '''
-    点击下拉框时执行，将当前时间段和界面的所有修改保存到缓存
-    :return:
-    '''
+    # 点击下拉框时执行，将当前时间段和界面的所有修改保存到缓存
     for w_id in ConfigFrame.WIG_BTN_DICT[CURRENT['SHEET']]:
         CACHE_INSTANCE_DICT[CURRENT['TIME']['start_time']][w_id]['status'] = \
             CHECK_BTN_ENTRY_DIC[w_id].var.get()

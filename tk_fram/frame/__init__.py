@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from tkinter import Tk, Menu
+from tkinter import Tk
 from .frame_app import init_r_frame, init_menu
 # from .frame_api import menu_file
 from .frame_view import FRAME_WIDTH, FRAME_HEIGHT
@@ -16,7 +16,7 @@ def create_frame():
     # =======================配置主视图尺寸=================
     root.geometry(f"{FRAME_WIDTH}x{FRAME_HEIGHT}+0+0")
     root.title('杭州分拣中心仿真程序')
-    root.rowconfigure(0,weight=1)
+    root.rowconfigure(0, weight=1)
     root.columnconfigure((0, 1), weight=1)
     # root.minsize(FRAME_WIDTH, FRAME_HEIGHT)
     # root.maxsize(FRAME_WIDTH, FRAME_HEIGHT)
