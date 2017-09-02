@@ -27,7 +27,7 @@ __all__ = ['write_redis', 'load_from_redis', 'write_mysql', 'write_local', 'load
            'get_resource_equipment_dict', 'get_pipelines', 'get_queue_io', 'get_equipment_process_time',
            'get_parameters', 'get_resource_timetable', 'get_equipment_timetable',
            'get_equipment_store_dict', 'get_equipment_on_off', 'get_base_equipment_io_max',
-           'get_equipment_port_type',]
+           'get_equipment_port_type', 'load_last_result_table']
 
 
 def checking_pickle_file(table_name):
@@ -158,6 +158,23 @@ def load_from_mysql(table_name: str):
     LOG.logger_font.info(msg=f"Reading mysql table {table_name}")
     table = pd.read_sql_table(con=RemoteMySQLConfig.engine, table_name=f"{table_name}")
     return table
+
+
+def load_last_result_table(table_name: str):
+    """读取远程mysql结果数据表"""
+    assert table_name in ["o_machine_table", "o_truck_table", "o_path_table", "o_pipeline_table"]
+    LOG.logger_font.info(msg=f"Reading mysql table {table_name}")
+
+    last_run_time = pd.read_sql_query(con=RemoteMySQLConfig.engine,
+                                      sql=f"SELECT max(run_time) FROM {table_name}")
+
+    last_run_time_str = last_run_time.values[0][0]
+    last_run_time_str = pd.to_datetime(last_run_time_str)
+    last_run_time_str = last_run_time_str.strftime(format="%Y-%m-%d %H:%M:%S")
+
+    result = pd.read_sql_query(con=RemoteMySQLConfig.engine,
+                               sql=f"SELECT * FROM {table_name} where run_time = '{last_run_time_str}'")
+    return result
 
 
 def get_trucks(is_test: bool=False):
