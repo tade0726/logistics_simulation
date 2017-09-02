@@ -331,23 +331,26 @@ class Pipeline:
                  machine_type: str,
                  open_time_dict: dict,
                  all_keep_open: bool,
+                 share_queue_dict: dict,
                  ):
 
         self.env = env
         self.delay = delay_time
 
-        # store for put in the front
-        # queue for get in the end
-        self.store = simpy.Store(env)
-        self.queue = simpy.Store(env)
-
         self.pipeline_id = pipeline_id
         self.queue_id = queue_id
         self.machine_type = machine_type
-        self.equipment_id = self.pipeline_id[1]  # in Pipeline the equipment_id is equipment after this pipeline
+        self.equipment_port = self.pipeline_id[1]  # in Pipeline the equipment_id is equipment after this pipeline
+
+        self.share_queue_dict = share_queue_dict
+
+        # store for put in the front
+        # queue for get in the end
+        self.store = simpy.Store(env)
+        self.queue = self.share_queue_dict[self.equipment_port]
 
         # open close time table
-        self.open_time = open_time_dict.get(self.equipment_id, [])
+        self.open_time = open_time_dict.get(self.equipment_port, [])
         self.open_time_cp = tuple(self.open_time)
 
         self.keep_open = all_keep_open
@@ -375,7 +378,7 @@ class Pipeline:
         # package wait for next process
         item.insert_data(
             PackageRecordDict(
-                equipment_id=self.equipment_id,
+                equipment_id=self.equipment_port,
                 time_stamp=(self.env.now - wait_machine_open_gap),
                 action="wait", ))
 
@@ -421,11 +424,12 @@ class Pipeline:
 
         while True:
             item = yield self.store.get()
-            LOG.logger_font.debug(f"sim time: {self.env.now}, get item: {item}, equipment_id: {self.equipment_id}")
+            LOG.logger_font.debug(f"sim time: {self.env.now}, get item: {item}, equipment_id: {self.equipment_port}")
 
             if self.env.now > end:
                 self.store.put(item)
-                LOG.logger_font.debug(f"sim time: {self.env.now}, put back item: {item}, equipment_id: {self.equipment_id}")
+                LOG.logger_font.debug(
+                    f"sim time: {self.env.now}, put back item: {item}, equipment_id: {self.equipment_port}")
                 self.env.exit()
 
             self.env.process(self.latency(item))
@@ -450,6 +454,7 @@ class PipelineReplace(Pipeline):
                  equipment_store_dict: dict,
                  open_time_dict: dict,
                  all_keep_open: bool,
+                 share_queue_dict: dict,
                  ):
 
         super(PipelineReplace, self).__init__(env,
@@ -458,7 +463,8 @@ class PipelineReplace(Pipeline):
                                               queue_id,
                                               machine_type,
                                               open_time_dict,
-                                              all_keep_open,)
+                                              all_keep_open,
+                                              share_queue_dict)
 
         self.share_store_dict = share_store_dict
         self.equipment_store_dict = equipment_store_dict
@@ -494,7 +500,7 @@ class PipelineReplace(Pipeline):
         # package wait for next process
         item.insert_data(
             PackageRecordDict(
-                equipment_id=self.equipment_id,
+                equipment_id=self.equipment_port,
                 time_stamp=(self.env.now - wait_machine_open_gap),
                 action="wait", ))
 
@@ -548,18 +554,16 @@ class PipelineRes(Pipeline):
                                           queue_id,
                                           machine_type,
                                           open_time_dict,
-                                          all_keep_open)
+                                          all_keep_open,
+                                          share_queue_dict)
 
-        self.equipment_last = self.pipeline_id[0]  # in PipelineRes the equipment_id is equipment before this pipeline
-        self.equipment_next = self.pipeline_id[1]  # in PipelineRes the equipment_id is equipment before this pipeline
-        self.resource_id = equipment_resource_dict[self.equipment_last]
+        self.equipment_port_last = self.pipeline_id[0]
+        self.equipment_port_next = self.pipeline_id[1]
+        self.resource_id = equipment_resource_dict[self.equipment_port_last]
         self.resource = resource_dict[self.resource_id]["resource"]
         # add for equipment
         self.equipment_process_time_dict = equipment_process_time_dict
-        self.process_time = self.equipment_process_time_dict[self.equipment_last]
-        # join all the c into on queue
-        self.share_queue_dict = share_queue_dict
-        self.queue = self.share_queue_dict.get(self.equipment_next, self.queue)
+        self.process_time = self.equipment_process_time_dict[self.equipment_port_last]
 
     def latency(self, item: Package):
 
@@ -571,7 +575,7 @@ class PipelineRes(Pipeline):
             # package start for process
             item.insert_data(
                 PackageRecordDict(
-                    equipment_id=self.equipment_last,
+                    equipment_id=self.equipment_port_last,
                     time_stamp=self.env.now,
                     action="start", ))
 
@@ -580,7 +584,7 @@ class PipelineRes(Pipeline):
             # package end for process
             item.insert_data(
                 PackageRecordDict(
-                    equipment_id=self.equipment_last,
+                    equipment_id=self.equipment_port_last,
                     time_stamp=self.env.now,
                     action="end", ))
 
@@ -597,7 +601,7 @@ class PipelineRes(Pipeline):
             # package start for process
             item.insert_data(
                 PackageRecordDict(
-                    equipment_id=self.equipment_next,
+                    equipment_id=self.equipment_port_next,
                     time_stamp=self.env.now,
                     action="wait", ))
 

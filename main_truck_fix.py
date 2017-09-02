@@ -89,7 +89,7 @@ machines_dict = defaultdict(list)
 for machine_id, truck_types in unload_setting_dict.items():
     machines_dict["unload"].append(
         Unload(env,
-               machine_id=machine_id,
+               equipment_port=machine_id,
                unload_setting_dict=unload_setting_dict,
                reload_setting_dict=reload_setting_dict,
                trucks_q=trucks_queue,

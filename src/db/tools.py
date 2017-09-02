@@ -26,7 +26,8 @@ __all__ = ['write_redis', 'load_from_redis', 'write_mysql', 'write_local', 'load
            'load_from_mysql', 'get_vehicles', 'get_unload_setting', 'get_reload_setting', 'get_resource_limit',
            'get_resource_equipment_dict', 'get_pipelines', 'get_queue_io', 'get_equipment_process_time',
            'get_parameters', 'get_resource_timetable', 'get_equipment_timetable',
-           'get_equipment_store_dict', 'get_equipment_on_off', 'get_base_equipment_io_max', 'get_reload_port']
+           'get_equipment_store_dict', 'get_equipment_on_off', 'get_base_equipment_io_max',
+           'get_equipment_port_type',]
 
 
 def checking_pickle_file(table_name):
@@ -570,14 +571,73 @@ def get_equipment_on_off():
     return equipment_on.equipment_port.tolist(), equipment_off.equipment_port.tolist(),
 
 
-def get_reload_port():
-    """返回所有的reload口
-    {'reload': ['c14_22', 'c2_13',] ,
-      'small_sort': [c11_85', 'c11_55',],} """
+def get_equipment_port_type():
+    """得到设备口的类型
 
-    table = load_from_mysql('i_reload_setting')
-    return table.groupby('sorter_type')['equipment_port'].apply(set).apply(list).to_dict()
+    # r, a: unload
+    # m: presort
+    # i1 - i8: secondary_sort
+    # i17 - i24: secondary_sort
+    # u1 - u8: small_primary
+    # i9 - i16: small_secondary
+    # c5 - c12: small_reload
+    # j: security
+    # h: hospital
+    # e, x: cross
+    # c1 - c4: reload
+    # c13 - c18: reload
+    
+    
+    {'cross': ['e1_1','e2_1','e3_1','e4_1','e5_1','e6_1','x10_1','x11_1','x12_1',
+               'x13_1','x14_1','x15_1','x16_1','x17_1','x1_1','x2_1','x3_1','x4_1',
+               'x5_1','x6_1','x7_1','x8_1','x9_1'],
+               
+     'hospital': ['h1_1', 'h2_1', 'h3_1'], ...}
+    
+    """
 
+    table = load_from_mysql('i_queue_io')
+
+    all_ports = set(list(table.equipment_port_next) + list(table.equipment_port_last))
+
+    filter_unload = lambda x: True if x[0] in ['r', 'a'] else False
+    filter_presort = lambda x: True if x[0] in ['m', ] else False
+
+    filter_secondary_sort = \
+        lambda x: True if x.split('_')[0] in [f'i{x}' for x in range(1, 9)] + [f'i{x}' for x in range(17, 25)] else False
+
+    filter_small_primary = lambda x: True if x.split('_')[0] in [f"u{x}" for x in range(1, 9)] else False
+    filter_small_secondary = lambda x: True if x.split('_')[0] in [f"i{x}" for x in range(9, 17)] else False
+    filter_small_reload = lambda x: True if x.split('_')[0] in [f"c{x}" for x in range(5, 13)] else False
+    filter_security = lambda x: True if x[0] in ['j'] else False
+    filter_hospital = lambda x: True if x[0] in ['h'] else False
+    filter_cross = lambda x: True if x[0] in ['e', 'x'] else False
+
+    filter_reload = \
+        lambda x: True if x.split('_')[0] in [f'c{x}' for x in range(1, 5)] + [f'c{x}' for x in
+                                                                               range(13, 19)] else False
+    filters = {"unload": filter_unload,
+               "presort": filter_presort,
+               "secondary_sort": filter_secondary_sort,
+               "small_primary": filter_small_primary,
+               "small_secondary": filter_small_secondary,
+               "small_reload": filter_small_reload,
+               "security": filter_security,
+               "hospital": filter_hospital,
+               "cross": filter_cross,
+               "reload": filter_reload, }
+
+    equipment_port_dict = dict()
+
+    for name, flter in filters.items():
+        equipment_port_dict[name] = sorted(list(filter(flter, all_ports)))
+
+    # checking
+    temp_list = list()
+    result = [temp_list.extend(x) for x in equipment_port_dict.values()]
+    assert bool(all_ports - set(temp_list)) == False, "Not all ports are classify!!"
+
+    return equipment_port_dict
 
 if __name__ == "__main__":
     test = get_queue_io()
