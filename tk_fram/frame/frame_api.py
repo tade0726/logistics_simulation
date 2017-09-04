@@ -1,5 +1,6 @@
 from datetime import datetime
 import time
+from threading import Thread
 
 from tkinter import END, NORMAL, DISABLED, Canvas, Scrollbar, Y, BOTH, Frame, \
     IntVar, Checkbutton
@@ -33,7 +34,7 @@ def save_data(root, txt_receipt):
     Flag['run_time'] = None
 
 
-def run_sim(package_num, root, txt_receipt):
+def _run_sim_thread(package_num, root, txt_receipt):
     """"""
     if Flag['update_data'] == 0:
         result = messagebox.askyesno("Tkmessage",
@@ -139,7 +140,7 @@ def run_sim(package_num, root, txt_receipt):
     Flag['run_sim'] += 1
 
 
-def update_data(root, txt_receipt):
+def _update_data_thread(root, txt_receipt):
     """"""
     # 将当前界面所有控件的状态与人数保存到 CACHE_INSTANCE_DICT，防止更新时被忽略
     for i in ConfigFrame.WIG_BTN_DICT[CURRENT['SHEET']]:
@@ -348,3 +349,17 @@ def update_to_cache():
 def set_during_time(date_plan, time_plan):
     time_plan.set('')
     time_plan['values'] = DAY_TIME_DICT[date_plan.get()]
+
+
+def run_sim(package_num, root, txt_receipt):
+    t = Thread(target=_run_sim_thread, args=(package_num, root, txt_receipt))
+    t.start()
+
+
+def update_data(root, txt_receipt):
+    t = Thread(target=_update_data_thread, args=(root, txt_receipt))
+    t.start()
+
+
+def reverse(root, txt_receipt):
+    pass

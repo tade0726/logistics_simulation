@@ -14,7 +14,7 @@ def window_info(window):
     return x, y
 
 
-def usr_login(window, user, passwd, message):
+def login(window, user, passwd, message):
     conn = pymysql.connect(host='10.0.149.62', user='root', passwd='root123',
                            db='hangzhouhubqa_bian_v3')
     with conn as cur:
@@ -54,14 +54,18 @@ def creaat_login():
     var_usr_pwd = tk.StringVar()
     # 设置输入密码后显示*号
     entry_usr_pwd = tk.Entry(window, textvariable=var_usr_pwd, show='*')
+    entry_usr_pwd.bind('<Return>', lambda x: login(
+        window, var_usr_name.get(), var_usr_pwd.get(), message
+    ))
     entry_usr_pwd.place(x=190, y=190)
 
     btn_login = tk.Button(
         window, text="登陆", width=16,
-        command=lambda: usr_login(
+        command=lambda: login(
             window, var_usr_name.get(), var_usr_pwd.get(), message
         ))
     btn_login.place(x=190, y=250)
+    entry_usr_name.focus_set()
     # btn_sign_up = tk.Button(window,text="注册",command=usr_sign_up)
     # btn_sign_up.place(x=270,y=230)
     window.mainloop()

@@ -9,10 +9,10 @@ DATABASES_DIC = {
         'CHARSET': 'utf8'
     },
     'TEST': {
-        'HOST': '10.0.149.62',
-        'USER': 'root',
-        'PASSWORD': 'root123',
-        'NAME': 'hangzhouhubqa_bian_v3',
+        'HOST': '10.0.149.36',
+        'USER': 'wenjing',
+        'PASSWORD': 'wenjing',
+        'NAME': 'hangzhouhubqa_v3_bianquan',
         'CHARSET': 'utf8'
     },
     'PRODUCTION': {

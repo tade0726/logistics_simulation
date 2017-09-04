@@ -43,10 +43,10 @@ class RemoteMySQLConfig:
         CHARSET = 'utf8'
 
     else:
-        HOST = "10.0.149.62"
-        USER = "root"
-        PASS = "root123"
-        DB = "hangzhouhubqa_v3"
+        HOST = "10.0.149.36"
+        USER = "wenjing"
+        PASS = "wenjing"
+        DB = "hangzhouhubqa_v3_bianquan"
         CHARSET = 'utf8'
 
     engine = create_engine(

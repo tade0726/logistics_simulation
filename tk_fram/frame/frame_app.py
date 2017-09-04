@@ -8,7 +8,7 @@ from .frame_view import *
 from .db_api import init_btn_entry_val_from_sql, init_day_time
 from .frame_api import run_sim, update_data, q_exit, menu_file, \
     create_canvas, init_sheet, set_during_time, update_time_date, \
-    update_to_cache
+    update_to_cache, reverse
 
 
 def init_app(master, wig, xlayout=(0, ), ylayout=(0, )):
@@ -211,17 +211,17 @@ def init_r_frame(root: Tk):
         text="启动仿真",
         command=lambda: run_sim(package_num, root, txt_receipt)
     ).grid(row=0, column=1, sticky='nswe')
-    # btn-存储数据按钮
-    # Button(
-    #     master=right_output_pad_button,
-    #     padx=btn_padx, pady=btn_pady, fg="black",
-    #     font=('Times', font_btn, 'bold'),
-    #     width=width_btn,
-    #     text="存储数据",
-    #     command=lambda: save_data(
-    #         package_num, date_plan, time_plan, root, txt_receipt
-    #     )
-    # ).grid(row=0, column=2, sticky='nswe')
+    # btn-重置数据
+    Button(
+        master=right_output_pad_button,
+        padx=btn_padx, pady=btn_pady, fg="black",
+        font=('Times', font_btn, 'bold'),
+        width=width_btn,
+        text="重置数据",
+        command=lambda: reverse(
+            root, txt_receipt
+        )
+    ).grid(row=0, column=2, sticky='nswe')
     # btn-退出按钮
     Button(
         master=right_output_pad_button,
