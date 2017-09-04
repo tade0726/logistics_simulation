@@ -32,11 +32,11 @@ def init_btn_entry_val_from_sql():
             with conn as cur:
                 cur.execute(
                     "select equipment_port, equipment_status "
-                    "from i_equipment_io_past_run "
-                    "WHERE start_time='{}' and inserted_on='{}' "
+                    "from i_equipment_io "
+                    "WHERE start_time='{}' "
                     "and LEFT(equipment_port, 1) "
                     "IN ('a', 'r', 'm', 'j', 'u', 'h')".format(
-                        start_time, CURRENT['TIME']['last_run_time'])
+                        start_time)
                 )
                 result = cur.fetchall()
             for item in result:
@@ -45,11 +45,11 @@ def init_btn_entry_val_from_sql():
             with conn as cur:
                 cur.execute(
                     "select resource_id, resource_limit "
-                    "from i_resource_limit_past_run "
+                    "from i_resource_limit "
                     "where resource_id like 'man_%' "
-                    "and start_time='{}' and inserted_on='{}' "
+                    "and start_time='{}' "
                     "and resource_id not like 'man_x%'".format(
-                        start_time, CURRENT['TIME']['last_run_time'])
+                        start_time)
                 )
                 result = cur.fetchall()
             for item in result:
@@ -97,6 +97,7 @@ def update_on_off(cursor, start_time, instance_dict, run_arg):
             "equipment_port='%s' and start_time='%s'" %
             (value['status'], key, start_time)
         )
+        INIT_INSTANCE_DICT[start_time][key]['status'] = value['status']
     cursor.execute("update i_equipment_io set inserted_on='%s'" % run_arg)
 
 
@@ -240,6 +241,7 @@ def update_person(cursor, start_time, instance_dict, run_arg):
         cursor.execute("update i_resource_limit set resource_limit={} where "
                        "resource_id='man_{}' and "
                        "start_time='{}'".format(value['num'], key, start_time))
+        INIT_INSTANCE_DICT[start_time][key]['num'] = value['num']
     cursor.execute("update i_resource_limit set inserted_on='%s'" % run_arg)
 
 
