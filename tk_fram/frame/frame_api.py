@@ -14,7 +14,7 @@ from .db_api import Mysql, insert_package, update_on_off, save_to_past_run, \
     csv_into_mysql
 from .frame_view import Flag, ConfigFrame, CHECK_BTN_ENTRY_DIC, \
     LIST_VALUE_COMBOBOX, CURRENT, CACHE_INSTANCE_DICT, DAY_TIME_DICT, \
-    NUM_TRANSLATE_DICT
+    NUM_TRANSLATE_DICT, INIT_INSTANCE_DICT
 from .frame import CheckBtnEntryList, update_m_j
 
 import xlrd
@@ -47,7 +47,7 @@ def _run_sim_thread(package_num, root, txt_receipt):
         )
         return
     if Flag['run_sim'] > 0:
-        result = messagebox.askyesno("askyesno", "仿真已经运行完成，是否重新执行仿真")
+        result = messagebox.askyesno("Tkmessage", "仿真已经运行完成，是否重新执行仿真")
         if result == 0:
             return
     conn = Mysql().connect
@@ -182,6 +182,16 @@ def _update_data_thread(root, txt_receipt):
 
     Flag['update_data'] += 1
     Flag['run_sim'] = 0
+
+
+def _reverse():
+
+    for time, instance in CACHE_INSTANCE_DICT.items():
+        for key, value in instance.items():
+            value['num'] = INIT_INSTANCE_DICT[time][key]['num']
+            value['status'] = INIT_INSTANCE_DICT[time][key]['status']
+    for i in ConfigFrame.WIG_BTN_DICT[CURRENT['SHEET']]:
+        CHECK_BTN_ENTRY_DIC[i].init_on_off_status()
 
 
 def check_time(out_time):
@@ -362,4 +372,8 @@ def update_data(root, txt_receipt):
 
 
 def reverse(root, txt_receipt):
-    pass
+    result = messagebox.askyesno('Tkmessage',
+                                 '重置数据将会清除当前所有更新，是否继续操作？')
+    if result != 0:
+        t = Thread(target=_reverse)
+        t.start()
