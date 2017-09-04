@@ -17,15 +17,15 @@ import logging
 
 
 class MainConfig:
-    IS_TEST = True   # 使用全集数据，还是测试数据
-    SAVE_LOCAL = False  # 是否输出结果到本地csv， 还是 mysql
+    IS_TEST = False   # 使用全集数据，还是测试数据
+    SAVE_LOCAL = True  # 是否输出结果到本地csv， 还是 mysql
     IS_PARCEL_ONLY = False  # 只有 parcel 件
     IS_LAND_ONLY = False  # True 只有 landside, False landside airside
     CACHE_TYPE = None  # {None, "redis", "pkl", "hdf5"}
     LOCAL_DB = True  # control which DB using
     DEBUG_LEVEL = logging.INFO  # 输出日志信息的级别
-    OUTPUT_MACHINE_TABLE_ONLY = False  # 只输出 o_machine_table
-    USING_DATA_PIPELINE = True   # 使用 data pipeline 使得 save local 会失效
+    OUTPUT_MACHINE_TABLE_ONLY = True  # 只输出 o_machine_table
+    USING_DATA_PIPELINE = False   # 使用 data pipeline 使得 save local 会失效
 
 
 class TimeConfig:
