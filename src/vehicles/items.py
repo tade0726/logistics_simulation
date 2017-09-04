@@ -17,9 +17,7 @@ from collections import defaultdict
 import random
 from queue import Queue
 
-from src.utils import \
-    (PackageRecord, PipelineRecord, TruckRecord, PathGenerator, TruckRecordDict, PackageRecordDict, PipelineRecordDict,
-     SmallBagRecordDict)
+from src.utils import *
 
 from src.utils import \
     (PathRecordDict, PathRecord)
@@ -91,7 +89,8 @@ class Package:
 
     def insert_data(self, data: dict):
 
-        if isinstance(data, PackageRecordDict) | isinstance(data, SmallBagRecordDict):
+        if isinstance(data, PackageRecordDict):
+
             record = PackageRecord(
                 parcel_id=self.parcel_id,
                 small_id=self.small_id,
@@ -101,7 +100,7 @@ class Package:
 
             self.machine_data.append(record)
 
-            if isinstance(data, PackageRecordDict):
+            if not isinstance(data, SmallPackageRecordDict):
                 self.data_pipeline.put(record)
 
             LOG.logger_font.debug(msg=f"Package: {record.small_id} , action: {record.action}"
@@ -118,7 +117,8 @@ class Package:
             self.pipeline_data.append(record)
 
             if not MainConfig.OUTPUT_MACHINE_TABLE_ONLY:
-                self.data_pipeline.put(record)
+                if not isinstance(data, SmallPipelineRecordDict):
+                    self.data_pipeline.put(record)
 
             LOG.logger_font.debug(msg=f"Package: {record.small_id} , action: {record.action}"
                                       f", pipeline: {record.pipeline_id}, timestamp: {record.time_stamp}")
@@ -137,7 +137,8 @@ class Package:
             self.path_request_data.append(record)
 
             if not MainConfig.OUTPUT_MACHINE_TABLE_ONLY:
-                self.data_pipeline.put(record)
+                if not isinstance(data, SmallPathRecordDict):
+                    self.data_pipeline.put(record)
 
             LOG.logger_font.debug(msg=f"Package get path - parcel_id: {record.parcel_id}, small_id: {record.small_id}, "
                                       f", path: {record.ret_path}"
@@ -223,8 +224,6 @@ class SmallBag(Package):
         """给小件包裹添加记录"""
         if to_small:
             list(map(lambda x: x.insert_data(data), self.store))
-        # small bag 的记录
-        data = SmallBagRecordDict(**data)
         return super(SmallBag, self).insert_data(data)
 
     def __str__(self):
