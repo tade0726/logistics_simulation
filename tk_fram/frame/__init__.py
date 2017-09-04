@@ -15,7 +15,7 @@ def create_frame():
     menu_bar = init_menu(root)
     # =======================配置主视图尺寸=================
     root.geometry(f"{FRAME_WIDTH}x{FRAME_HEIGHT}+0+0")
-    root.title('杭州分拣中心仿真程序')
+    root.title('云镜·杭v1.1功能界面')
     root.rowconfigure(0, weight=1)
     root.columnconfigure((0, 1), weight=1)
     # root.minsize(FRAME_WIDTH, FRAME_HEIGHT)
