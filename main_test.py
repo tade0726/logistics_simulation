@@ -6,6 +6,10 @@ Author: Ted
 Date: 2017-07-13
 des:
     main.py
+
+notes:
+    恢复到一个正常的版本号
+
 """
 
 

@@ -63,7 +63,6 @@ class SmallReload(object):
         self.store_max = self.parameters['smallbag_wrap_condition']
         self.pack_time_list = [self.parameters[f"smallbag_wrap_time_{i}"] for i in range(1, 7)]
 
-
     def _set_pack_event(self, delay: float):
         """setting pack event"""
         yield self.env.timeout(delay)
