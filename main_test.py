@@ -314,14 +314,6 @@ def simulation(data_pipeline: Queue, run_time):
     LOG.logger_font.info("sim end..")
     LOG.logger_font.info("collecting data")
 
-    # create table for output data
-    machine_table_sche.create(checkfirst=True)
-
-    if not MainConfig.OUTPUT_MACHINE_TABLE_ONLY:
-        truck_table_sche.create(checkfirst=True)
-        pipeline_table_sche.create(checkfirst=True)
-        path_table_sche.create(checkfirst=True)
-
     if MainConfig.USING_DATA_PIPELINE:
         t_end = datetime.now()
         total_time = t_end - t_start
@@ -533,7 +525,21 @@ def add_time(table: pd.DataFrame):
     return table
 
 
+def create_tables():
+    # create table for output data
+    machine_table_sche.create(checkfirst=True)
+
+    if not MainConfig.OUTPUT_MACHINE_TABLE_ONLY:
+        truck_table_sche.create(checkfirst=True)
+        pipeline_table_sche.create(checkfirst=True)
+        path_table_sche.create(checkfirst=True)
+
+
 if __name__ == '__main__':
+
+    if not MainConfig.IS_TEST:
+        create_tables()
+
     run_time = datetime.now()
     data_pipeline_queue = Queue()
 
