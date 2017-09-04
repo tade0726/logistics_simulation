@@ -18,7 +18,8 @@ import random
 from queue import Queue
 
 from src.utils import \
-    (PackageRecord, PipelineRecord, TruckRecord, PathGenerator, TruckRecordDict, PackageRecordDict, PipelineRecordDict)
+    (PackageRecord, PipelineRecord, TruckRecord, PathGenerator, TruckRecordDict, PackageRecordDict, PipelineRecordDict,
+     SmallBagRecordDict)
 
 from src.utils import \
     (PathRecordDict, PathRecord)
@@ -90,7 +91,7 @@ class Package:
 
     def insert_data(self, data: dict):
 
-        if isinstance(data, PackageRecordDict):
+        if isinstance(data, PackageRecordDict) | isinstance(data, SmallBagRecordDict):
             record = PackageRecord(
                 parcel_id=self.parcel_id,
                 small_id=self.small_id,
@@ -100,10 +101,9 @@ class Package:
 
             self.machine_data.append(record)
 
-            if (record.parcel_id == record.small_id) and (record.parcel_type == 'small'):
-                pass
-            else:
+            if isinstance(data, PackageRecordDict):
                 self.data_pipeline.put(record)
+
             LOG.logger_font.debug(msg=f"Package: {record.small_id} , action: {record.action}"
                                       f", equipment: {record.equipment_id}, timestamp: {record.time_stamp}")
 
@@ -223,6 +223,8 @@ class SmallBag(Package):
         """给小件包裹添加记录"""
         if to_small:
             list(map(lambda x: x.insert_data(data), self.store))
+        # small bag 的记录
+        data = SmallBagRecordDict(**data)
         return super(SmallBag, self).insert_data(data)
 
     def __str__(self):

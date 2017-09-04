@@ -5,7 +5,7 @@ from sqlalchemy import Table, MetaData, Column
 from src.config import RemoteMySQLConfig
 
 __all__ = ["TruckRecord", "PackageRecord", "PipelineRecord", "PathRecord",
-           "TruckRecordDict", "PackageRecordDict", "PipelineRecordDict", "PathRecordDict",
+           "TruckRecordDict", "PackageRecordDict", "PipelineRecordDict", "PathRecordDict", "SmallBagRecordDict",
            "OutputTableColumnType", "machine_table_sche", "truck_table_sche", "pipeline_table_sche", "path_table_sche"]
 
 TruckRecord = namedtuple("truck_record",
@@ -31,6 +31,10 @@ class PipelineRecordDict(dict):
 
 
 class PathRecordDict(dict):
+    pass
+
+
+class SmallBagRecordDict(dict):
     pass
 
 
