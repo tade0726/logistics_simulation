@@ -417,7 +417,5 @@ if __name__ == '__main__':
     for p in threads:
         p.start()
 
-    data_pipeline_queue.join()
-
 
 

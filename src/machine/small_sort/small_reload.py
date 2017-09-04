@@ -47,12 +47,10 @@ class SmallReload(object):
 
         self.store = list()
         self.small_bag_count = 0
-        # event for control
-        self.store_is_full = self.env.event()
-        # pack small package events
-        self.pack_time_is_up = self.env.event()
         # init data
         self._set_machine_resource()
+        # wait_time_stamp
+        self.wait_times_stamp = None
         # plan pack time
         self._plan_pack_time()
 
@@ -64,16 +62,16 @@ class SmallReload(object):
         self.store_max = int(self.parameters['smallbag_wrap_condition'])
         self.pack_time_list = [self.parameters[f"smallbag_wrap_time_{i}"] for i in range(1, 7)]
 
-    def _set_pack_event(self, delay: float):
-        """setting pack event"""
-        yield self.env.timeout(delay)
-        self.pack_time_is_up.succeed()
-        self.pack_time_is_up = self.env.event()
-
     def _plan_pack_time(self):
         """init plan for pack small package"""
         for delay in self.pack_time_list:
-            self.env.process(self._set_pack_event(delay))
+            self.env.process(self._time_to_pack(delay))
+
+    def _time_to_pack(self, delay: float):
+        """delay certain time and pack"""
+        yield self.env.timeout(delay)
+        if self.store:
+            self.env.process(self.pack_send())
 
     def _get_small_package(self):
         """pop out package"""
@@ -84,7 +82,7 @@ class SmallReload(object):
         store = [self.store.pop(0) for _ in range(pop_number)]
         return store
 
-    def pack_send(self, wait_time_stamp: float):
+    def pack_send(self):
         # init small_bag
         store = self._get_small_package()
         small_bag = SmallBag(store, self.data_pipeline)
@@ -93,7 +91,7 @@ class SmallReload(object):
         small_bag.insert_data(
             PackageRecordDict(
                 equipment_id=self.equipment_id,
-                time_stamp=wait_time_stamp,
+                time_stamp=self.wait_times_stamp,
                 action="wait", ), to_small=False)
 
         small_bag.insert_data(
@@ -122,22 +120,15 @@ class SmallReload(object):
 
         self.small_bag_count += 1
 
-    def _timer(self):
-        """decide when to pack a small bag"""
-        wait_time_stamp = self.env.now
-        yield self.store_is_full | self.pack_time_is_up
-        self.env.process(self.pack_send(wait_time_stamp))
-
     def put_package(self, small: SmallPackage):
         """put package into store"""
         self.store.append(small)
 
         if len(self.store) == 1:
-            self.env.process(self._timer())
+            self.wait_times_stamp = self.env.now
 
-        elif len(self.store) == self.store_max:
-            self.store_is_full.succeed()
-            self.store_is_full = self.env.event()
+        elif len(self.store) >= self.store_max:
+            self.env.process(self.pack_send())
 
     def run(self):
         while True:
