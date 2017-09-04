@@ -30,18 +30,20 @@ class SmallReload(object):
 
     def __init__(self,
                  env,
-                 machine_id,
+                 equipment_id,
                  pipelines_dict: dict,
                  equipment_process_time_dict: dict,
                  equipment_parameters: dict,
                  data_pipeline: Queue,
+                 share_queue_dict: dict,
                  ):
         self.env = env
-        self.machine_id = machine_id
+        self.equipment_id = equipment_id
         self.pipelines_dict = pipelines_dict
         self.equipment_process_time_dict = equipment_process_time_dict
         self.equipment_parameters = equipment_parameters
         self.data_pipeline = data_pipeline
+        self.share_queue_dict = share_queue_dict
 
         self.store = list()
         self.small_bag_count = 0
@@ -55,12 +57,11 @@ class SmallReload(object):
         self._plan_pack_time()
 
     def _set_machine_resource(self):
-        self.equipment_id = self.machine_id[1]
         self.process_time = self.equipment_process_time_dict[self.equipment_id]
-        self.last_pipeline = self.pipelines_dict[self.machine_id]
+        self.last_pipeline = self.share_queue_dict[self.equipment_id]
         self.equipment_name = self.equipment_id.split('_')[0]
         self.parameters =  self.equipment_parameters[self.equipment_name]
-        self.store_max = self.parameters['smallbag_wrap_condition']
+        self.store_max = int(self.parameters['smallbag_wrap_condition'])
         self.pack_time_list = [self.parameters[f"smallbag_wrap_time_{i}"] for i in range(1, 7)]
 
     def _set_pack_event(self, delay: float):

@@ -12,16 +12,13 @@ Uld class
 """
 import simpy
 import pandas as pd
-import numpy as np
 from collections import defaultdict
 import random
 from queue import Queue
 
 from src.utils import *
-
 from src.utils import \
     (PathRecordDict, PathRecord)
-
 from src.config import LOG, MainConfig
 
 __all__ = ["Parcel", "Package", "Truck", "Uld", "SmallBag", "SmallPackage", "Pipeline", "PipelineRes", "BasePipeline",
@@ -224,6 +221,15 @@ class SmallBag(Package):
         """给小件包裹添加记录"""
         if to_small:
             list(map(lambda x: x.insert_data(data), self.store))
+
+        if isinstance(data, PackageRecordDict):
+            data = SmallPackageRecordDict(data)
+        elif isinstance(data, PathRecordDict):
+            data = SmallPathRecordDict(data)
+        elif isinstance(data, PipelineRecordDict):
+            data = SmallPipelineRecordDict(data)
+        else:
+            raise ValueError(f"Wrong type of record: {data}")
         return super(SmallBag, self).insert_data(data)
 
     def __str__(self):
@@ -540,6 +546,7 @@ class PipelineRes(Pipeline):
                  equipment_process_time_dict: dict,
                  open_time_dict: dict,
                  all_keep_open: bool,
+                 share_queue_dict: dict,
                  ):
 
         super(PipelineRes, self).__init__(env,
@@ -550,13 +557,16 @@ class PipelineRes(Pipeline):
                                           open_time_dict,
                                           all_keep_open)
 
-        self.equipment_last = self.pipeline_id[0]  # in PipelineRes the equipment_id is equipment before this pipeline
-        self.equipment_next = self.pipeline_id[1]  # in PipelineRes the equipment_id is equipment before this pipeline
+        self.equipment_last = self.pipeline_id[0]
+        self.equipment_next = self.pipeline_id[1]
         self.resource_id = equipment_resource_dict[self.equipment_last]
         self.resource = resource_dict[self.resource_id]["resource"]
         # add for equipment
         self.equipment_process_time_dict = equipment_process_time_dict
         self.process_time = self.equipment_process_time_dict[self.equipment_last]
+        # set share queue
+        self.share_queue_dict = share_queue_dict
+        self.queue = self.share_queue_dict.get(self.equipment_next, self.queue)
 
     def latency(self, item: Package):
 

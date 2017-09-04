@@ -26,7 +26,8 @@ __all__ = ['write_redis', 'load_from_redis', 'write_mysql', 'write_local', 'load
            'load_from_mysql', 'get_vehicles', 'get_unload_setting', 'get_reload_setting', 'get_resource_limit',
            'get_resource_equipment_dict', 'get_pipelines', 'get_queue_io', 'get_equipment_process_time',
            'get_parameters', 'get_resource_timetable', 'get_equipment_timetable',
-           'get_equipment_store_dict', 'get_equipment_on_off', 'get_base_equipment_io_max']
+           'get_equipment_store_dict', 'get_equipment_on_off', 'get_base_equipment_io_max',
+           'get_reload_ports']
 
 
 def checking_pickle_file(table_name):
@@ -568,6 +569,24 @@ def get_equipment_on_off():
     equipment_on = table[table.equipment_status == 1]
     equipment_off = table[table.equipment_status == 0]
     return equipment_on.equipment_port.tolist(), equipment_off.equipment_port.tolist(),
+
+
+def get_reload_ports():
+    """
+    返回 c 设备口
+
+    return: {"small_sort": ['c10_57', ...], "reload": ['c15_1', ...]}
+    """
+    queue_io_table = load_from_mysql('i_queue_io')
+
+    c_ports = sorted(
+        queue_io_table[queue_io_table.equipment_port_next.str.startswith('c')].equipment_port_next.unique()
+    )
+
+    c_small_reload = [x for x in c_ports if x.split('_')[0] in [f"c{i}" for i in range(5, 13)]]
+    c_reload = sorted(list(set(c_ports) - set(c_small_reload)))
+
+    return dict(reload=c_reload, small_reload=c_small_reload)
 
 
 if __name__ == "__main__":
