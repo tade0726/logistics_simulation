@@ -11,20 +11,19 @@ from tkinter.filedialog import askopenfilename
 
 from .db_api import Mysql, insert_package, update_on_off, save_to_past_run, \
     read_result, update_person, average_time, success_percent, discharge, \
-    csv_into_mysql
+    csv_into_mysql, set_default
 from .frame_view import Flag, ConfigFrame, CHECK_BTN_ENTRY_DIC, \
     LIST_VALUE_COMBOBOX, CURRENT, CACHE_INSTANCE_DICT, DAY_TIME_DICT, \
-    NUM_TRANSLATE_DICT, INIT_INSTANCE_DICT
+    NUM_TRANSLATE_DICT
 from .frame import CheckBtnEntryList, update_m_j
 
 import xlrd
 
 
-def save_data(root, txt_receipt):
+def save_data(conn, root, txt_receipt):
     txt_receipt.insert(END, '*******************************\n')
     txt_receipt.insert(END, '开始储存数据......\n')
     root.update_idletasks()
-    conn = Mysql().connect
     with conn as cur:
         save_to_past_run(cur)
     txt_receipt.insert(END,
@@ -134,10 +133,11 @@ def _run_sim_thread(package_num, root, txt_receipt):
         END,
         '卸货等待时间(秒):\t' + '%.2f' % discharge_time + '\n'
     )
-    save_data(root, txt_receipt)
+    save_data(conn, root, txt_receipt)
     txt_receipt['state'] = DISABLED
     root.update_idletasks()
     Flag['run_sim'] += 1
+    conn.close()
 
 
 def _update_data_thread(root, txt_receipt):
@@ -182,16 +182,16 @@ def _update_data_thread(root, txt_receipt):
 
     Flag['update_data'] += 1
     Flag['run_sim'] = 0
+    conn.close()
 
 
 def _reverse():
-
-    for time, instance in CACHE_INSTANCE_DICT.items():
-        for key, value in instance.items():
-            value['num'] = INIT_INSTANCE_DICT[time][key]['num']
-            value['status'] = INIT_INSTANCE_DICT[time][key]['status']
+    conn = Mysql().connect
+    with conn as cur:
+        set_default(cur)
     for i in ConfigFrame.WIG_BTN_DICT[CURRENT['SHEET']]:
         CHECK_BTN_ENTRY_DIC[i].init_on_off_status()
+    conn.close()
 
 
 def check_time(out_time):

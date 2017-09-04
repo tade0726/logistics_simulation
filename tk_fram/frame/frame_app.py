@@ -217,7 +217,7 @@ def init_r_frame(root: Tk):
         padx=btn_padx, pady=btn_pady, fg="black",
         font=('Times', font_btn, 'bold'),
         width=width_btn,
-        text="重置数据",
+        text="恢复默认",
         command=lambda: reverse(
             root, txt_receipt
         )

@@ -80,9 +80,6 @@ BTN_ENTRY_DICT = {}        # 初始化entry状态字典
 # }
 CACHE_INSTANCE_DICT = {}
 
-# 结构与 CACHE_INSTANCE_DICT 一致，保存控件初始信息
-INIT_INSTANCE_DICT = {}
-
 # 保存会随条件变动的全局变量
 # CANVAS_DICT : Canvas, Scrollbar 字典
 CURRENT = {
