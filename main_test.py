@@ -16,12 +16,10 @@ notes:
 import simpy
 from datetime import datetime, timedelta
 import pandas as pd
-import os
-from collections import defaultdict, namedtuple
+from collections import defaultdict
 
 from queue import Queue
 import threading
-from sqlalchemy import Table
 
 import sys
 sys.path.extend(['.'])
