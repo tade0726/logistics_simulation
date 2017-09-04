@@ -116,7 +116,7 @@ def write_mysql(table_name: str, data: pd.DataFrame, dtype: dict=None):
                     index=0,
                     dtype=dtype)
 
-        LOG.logger_font.debug(f"mysql write table {table_name} succeed!")
+        LOG.logger_font.info(f"mysql write table {table_name} succeed!")
     except Exception as exc:
         LOG.logger_font.error(f"mysql write table {table_name} failed, error: {exc}.")
         raise Exception
