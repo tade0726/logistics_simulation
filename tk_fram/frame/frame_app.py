@@ -161,7 +161,7 @@ def init_r_frame(root: Tk):
                    lambda x: update_time_date(date_plan, time_plan))
     time_plan.grid(row=0, column=5)
     # ===================  机器区域sheet      =====================
-    for i in init_sheet(left_set_pad_sheet, left_set_pad_center_up):
+    for _ in init_sheet(left_set_pad_sheet, left_set_pad_center_up):
         pass
 
     # ===================     卸货区数据      =====================
