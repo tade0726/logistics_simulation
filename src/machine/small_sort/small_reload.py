@@ -50,7 +50,7 @@ class SmallReload(object):
         # init data
         self._set_machine_resource()
         # wait_time_stamp
-        self.wait_times_stamp = None
+        self.wait_time_stamp = None
         # plan pack time
         self._plan_pack_time()
 
@@ -91,7 +91,7 @@ class SmallReload(object):
         small_bag.insert_data(
             PackageRecordDict(
                 equipment_id=self.equipment_port,
-                time_stamp=wait_time_stamp,
+                time_stamp=self.wait_time_stamp,
                 action="wait", ), to_small=False)
 
         small_bag.insert_data(
@@ -125,7 +125,7 @@ class SmallReload(object):
         self.store.append(small)
 
         if len(self.store) == 1:
-            self.wait_times_stamp = self.env.now
+            self.wait_time_stamp = self.env.now
 
         elif len(self.store) >= self.store_max:
             self.env.process(self.pack_send())
