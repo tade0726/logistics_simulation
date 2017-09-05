@@ -2,7 +2,7 @@
 
 from tkinter import Tk
 from .frame_app import init_r_frame, init_menu
-# from .frame_api import menu_file
+from .frame_api import clear
 from .frame_view import FRAME_WIDTH, FRAME_HEIGHT
 
 
@@ -15,9 +15,10 @@ def create_frame():
     menu_bar = init_menu(root)
     # =======================配置主视图尺寸=================
     root.geometry(f"{FRAME_WIDTH}x{FRAME_HEIGHT}+0+0")
-    root.title('云镜·杭v1.1功能界面')
+    root.title('云镜·杭V1.1')
     root.rowconfigure(0, weight=1)
     root.columnconfigure((0, 1), weight=1)
+    root.protocol("WM_DELETE_WINDOW", clear)
     # root.minsize(FRAME_WIDTH, FRAME_HEIGHT)
     # root.maxsize(FRAME_WIDTH, FRAME_HEIGHT)
     #  =======================config主界面=================

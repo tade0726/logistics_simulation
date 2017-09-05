@@ -289,7 +289,7 @@ def average_time(cursor):
     # 票均时间
     cursor.execute(
         "select max(time_stamp) - min(time_stamp) "
-        "from o_machine_table group by small_id"
+        "from o_machine_table where parcel_type <> 'nc' group by small_id"
     )
     result = cursor.fetchall()
     time_sum = sum(float(i[0]) for i in result)

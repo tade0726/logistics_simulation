@@ -50,10 +50,14 @@ def _run_sim_thread(package_num, root, txt_receipt):
         if result == 0:
             return
     conn = Mysql().connect
-    Flag['run_time'] = Flag['run_time'] or datetime.now()
-    run_arg = Flag['run_time']
-    # ======================== 插入测试数据=============
     txt_receipt['state'] = NORMAL
+    run_arg = Flag['run_time'] or datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+    if not Flag['run_time']:
+        Flag['run_time'] = run_arg
+        txt_receipt.insert(END, '本次运行时间:\t' + str(run_arg) + '\n')
+        txt_receipt.insert(END, '*******************************\n')
+        root.update_idletasks()
+    # ======================== 插入测试数据=============
     txt_receipt.insert(END, '插入%s件包裹仿真数据......\n' % package_num.get())
     root.update_idletasks()
     with conn as cur:
@@ -156,7 +160,7 @@ def _update_data_thread(root, txt_receipt):
 
     update_m_j()
 
-    Flag['run_time'] = Flag['run_time'] or datetime.now()
+    Flag['run_time'] = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
     run_arg = Flag['run_time']
 
     # # #  显示结果
@@ -164,6 +168,9 @@ def _update_data_thread(root, txt_receipt):
     txt_receipt.delete('1.0', END)
     root.update_idletasks()
     # ========================更改开关状态==============
+    txt_receipt.insert(END, '本次运行时间:\t' + str(run_arg) + '\n')
+    root.update_idletasks()
+    txt_receipt.insert(END, '*******************************\n')
     txt_receipt.insert(END, '机器开关状态更新......\n')
     conn = Mysql().connect
     with conn as cur:
@@ -377,3 +384,7 @@ def reverse(root, txt_receipt):
     if result != 0:
         t = Thread(target=_reverse)
         t.start()
+
+
+def clear():
+    pass

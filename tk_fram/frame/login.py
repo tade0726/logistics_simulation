@@ -36,7 +36,7 @@ def usr_sign_up():
 def creaat_login():
     # 设置登陆窗口属性
     window = tk.Tk()
-    window.title('云镜·杭v1.1登陆界面')
+    window.title('云镜·杭V1.1')
     a, b = window_info(window)
     window.geometry("450x300+%d+%d" % (a, b))
     # 登陆界面的信息
