@@ -30,7 +30,7 @@ class SmallReload(object):
 
     def __init__(self,
                  env,
-                 equipment_id,
+                 equipment_port,
                  pipelines_dict: dict,
                  equipment_process_time_dict: dict,
                  equipment_parameters: dict,
@@ -38,7 +38,7 @@ class SmallReload(object):
                  share_queue_dict: dict,
                  ):
         self.env = env
-        self.equipment_id = equipment_id
+        self.equipment_port = equipment_port
         self.pipelines_dict = pipelines_dict
         self.equipment_process_time_dict = equipment_process_time_dict
         self.equipment_parameters = equipment_parameters
@@ -55,12 +55,12 @@ class SmallReload(object):
         self._plan_pack_time()
 
     def _set_machine_resource(self):
-        self.process_time = self.equipment_process_time_dict[self.equipment_id]
-        self.last_pipeline = self.share_queue_dict[self.equipment_id]
-        self.equipment_name = self.equipment_id.split('_')[0]
+        self.process_time = self.equipment_process_time_dict[self.equipment_port]
+        self.equipment_name = self.equipment_port.split('_')[0]
         self.parameters =  self.equipment_parameters[self.equipment_name]
-        self.store_max = int(self.parameters['smallbag_wrap_condition'])
+        self.store_max = self.parameters['smallbag_wrap_condition']
         self.pack_time_list = [self.parameters[f"smallbag_wrap_time_{i}"] for i in range(1, 7)]
+        self.input_pip_line = self.share_queue_dict[self.equipment_port]
 
     def _plan_pack_time(self):
         """init plan for pack small package"""
@@ -90,13 +90,13 @@ class SmallReload(object):
 
         small_bag.insert_data(
             PackageRecordDict(
-                equipment_id=self.equipment_id,
-                time_stamp=self.wait_times_stamp,
+                equipment_id=self.equipment_port,
+                time_stamp=wait_time_stamp,
                 action="wait", ), to_small=False)
 
         small_bag.insert_data(
             PackageRecordDict(
-                equipment_id=self.equipment_id,
+                equipment_id=self.equipment_port,
                 time_stamp=self.env.now,
                 action="start", ))
 
@@ -104,17 +104,17 @@ class SmallReload(object):
 
         small_bag.insert_data(
             PackageRecordDict(
-                equipment_id=self.equipment_id,
+                equipment_id=self.equipment_port,
                 time_stamp=self.env.now,
                 action="end", ))
 
         try:
-            small_bag.set_path(self.equipment_id)
+            small_bag.set_path(self.equipment_port)
             self.pipelines_dict[small_bag.next_pipeline].put(small_bag)
         except Exception as exc:
             # 收集错错误的小件包裹
             self.pipelines_dict["small_reload_error"].put(small_bag)
-            msg = f"error: {exc}, package: {small_bag}, equipment_id: {self.equipment_id}"
+            msg = f"error: {exc}, package: {small_bag}, equipment_id: {self.equipment_port}"
             LOG.logger_font.error(msg)
             LOG.logger_font.exception(exc)
 
@@ -132,5 +132,5 @@ class SmallReload(object):
 
     def run(self):
         while True:
-            small = yield self.last_pipeline.get()
+            small = yield self.input_pip_line.get()
             self.put_package(small)

@@ -338,6 +338,7 @@ class Pipeline:
                  machine_type: str,
                  open_time_dict: dict,
                  all_keep_open: bool,
+                 share_queue_dict: dict,
                  ):
 
         self.env = env
@@ -346,7 +347,6 @@ class Pipeline:
         # store for put in the front
         # queue for get in the end
         self.store = simpy.Store(env)
-        self.queue = simpy.Store(env)
 
         self.pipeline_id = pipeline_id
         self.queue_id = queue_id
@@ -358,6 +358,10 @@ class Pipeline:
         self.open_time_cp = tuple(self.open_time)
 
         self.keep_open = all_keep_open
+
+        # share queue
+        self.share_queue_dict = share_queue_dict
+        self.queue = self.share_queue_dict[self.equipment_id]
 
     def latency(self, item: Package):
 
@@ -457,6 +461,7 @@ class PipelineReplace(Pipeline):
                  equipment_store_dict: dict,
                  open_time_dict: dict,
                  all_keep_open: bool,
+                 share_queue_dict: dict,
                  ):
 
         super(PipelineReplace, self).__init__(env,
@@ -465,7 +470,9 @@ class PipelineReplace(Pipeline):
                                               queue_id,
                                               machine_type,
                                               open_time_dict,
-                                              all_keep_open,)
+                                              all_keep_open,
+                                              share_queue_dict,
+                                              )
 
         self.share_store_dict = share_store_dict
         self.equipment_store_dict = equipment_store_dict
@@ -555,7 +562,8 @@ class PipelineRes(Pipeline):
                                           queue_id,
                                           machine_type,
                                           open_time_dict,
-                                          all_keep_open)
+                                          all_keep_open,
+                                          share_queue_dict)
 
         self.equipment_last = self.pipeline_id[0]
         self.equipment_next = self.pipeline_id[1]
@@ -564,9 +572,6 @@ class PipelineRes(Pipeline):
         # add for equipment
         self.equipment_process_time_dict = equipment_process_time_dict
         self.process_time = self.equipment_process_time_dict[self.equipment_last]
-        # set share queue
-        self.share_queue_dict = share_queue_dict
-        self.queue = self.share_queue_dict.get(self.equipment_next, self.queue)
 
     def latency(self, item: Package):
 
