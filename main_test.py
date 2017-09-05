@@ -58,10 +58,15 @@ def simulation(data_pipeline: Queue, run_time):
     equipment_parameters = get_parameters()
     equipment_store_dict = get_equipment_store_dict()
     open_time_dict, switch_machine_names = get_equipment_timetable()
-    reload_ports_dict = get_reload_ports()
+    equipment_ports_type_dict = get_equipment_port_type()
 
     # c_port list
-    c_ports = reload_ports_dict['reload'] + reload_ports_dict['small_reload']
+    c_ports = equipment_ports_type_dict['reload'] + equipment_ports_type_dict['small_reload']
+
+    # all ports
+    all_ports = list()
+    for x in equipment_ports_type_dict.values():
+        all_ports.extend(x)
 
     # init resource
     resource_dict = defaultdict(dict)
@@ -80,7 +85,7 @@ def simulation(data_pipeline: Queue, run_time):
 
     # init share queue
     share_queue_dict = dict()
-    for x in c_ports:
+    for x in all_ports:
         share_queue_dict[x] = simpy.Store(env)
 
     # init pipelines
@@ -102,7 +107,8 @@ def simulation(data_pipeline: Queue, run_time):
                                                    queue_id,
                                                    machine_type,
                                                    open_time_dict,
-                                                   all_keep_open)
+                                                   all_keep_open,
+                                                   share_queue_dict)
 
         elif pipeline_type == 'pipeline_res':
             pipelines_dict[pipeline_id] = PipelineRes(env,
@@ -115,7 +121,7 @@ def simulation(data_pipeline: Queue, run_time):
                                                       equipment_process_time_dict,
                                                       open_time_dict,
                                                       all_keep_open,
-                                                      share_queue_dict,)
+                                                      share_queue_dict)
 
         elif pipeline_type == 'pipeline_replace':
             pipelines_dict[pipeline_id] = PipelineReplace(env,
@@ -126,7 +132,8 @@ def simulation(data_pipeline: Queue, run_time):
                                                           share_store_dict,
                                                           equipment_store_dict,
                                                           open_time_dict,
-                                                          all_keep_open)
+                                                          all_keep_open,
+                                                          share_queue_dict)
         else:
             raise ValueError("Pipeline init error!!")
 
@@ -171,10 +178,10 @@ def simulation(data_pipeline: Queue, run_time):
     # init unload machines
     machines_dict = defaultdict(list)
 
-    for machine_id, truck_types in unload_setting_dict.items():
+    for equipment_port, truck_types in unload_setting_dict.items():
         machines_dict["unload"].append(
             Unload(env,
-                   machine_id=machine_id,
+                   equipment_port=equipment_port,
                    unload_setting_dict=unload_setting_dict,
                    reload_setting_dict=reload_setting_dict,
                    trucks_q=trucks_queue,
@@ -187,88 +194,103 @@ def simulation(data_pipeline: Queue, run_time):
         )
 
     # init presort machines
-    for machine_id in machine_init_dict["presort"]:
+    for equipment_port in equipment_ports_dict["presort"]:
         machines_dict["presort"].append(
             Presort(env,
-                    machine_id=machine_id,
+                    equipment_port=equipment_port,
                     pipelines_dict=pipelines_dict,
                     resource_dict=resource_dict,
-                    equipment_resource_dict=equipment_resource_dict,)
+                    equipment_resource_dict=equipment_resource_dict,
+                    share_queue_dict=share_queue_dict,
+            )
         )
 
     # init cross machines
-    for machine_id in machine_init_dict["cross"]:
+    for equipment_port in equipment_ports_dict["cross"]:
         machines_dict["cross"].append(
             Cross(
                 env,
-                machine_id=machine_id,
+                equipment_port=equipment_port,
                 pipelines_dict=pipelines_dict,
                 resource_dict=resource_dict,
-                equipment_resource_dict=equipment_resource_dict,)
+                equipment_resource_dict=equipment_resource_dict,
+                share_queue_dict=share_queue_dict,
+            )
         )
 
     # init secondary_sort machines
-    for machine_id in machine_init_dict["secondary_sort"]:
+    for equipment_port in equipment_ports_dict["secondary_sort"]:
         machines_dict["secondary_sort"].append(
             SecondarySort(
                 env,
-                machine_id=machine_id,
-                pipelines_dict=pipelines_dict,)
+                equipment_port=equipment_port,
+                pipelines_dict=pipelines_dict,
+                share_queue_dict=share_queue_dict,
+            )
         )
 
     # init hospital machines
-    for machine_id in machine_init_dict["hospital"]:
+    for equipment_port in equipment_ports_dict["hospital"]:
         machines_dict["hospital"].append(
             Hospital(
                 env,
-                machine_id=machine_id,
+                equipment_port=equipment_port,
                 pipelines_dict=pipelines_dict,
                 resource_dict=resource_dict,
-                equipment_resource_dict=equipment_resource_dict,)
+                equipment_resource_dict=equipment_resource_dict,
+                share_queue_dict=share_queue_dict,
+            )
         )
 
     # init security machines
-    for machine_id in machine_init_dict["security"]:
+    for equipment_port in equipment_ports_dict["security"]:
         machines_dict["security"].append(
             Security(
                 env,
-                machine_id=machine_id,
+                equipment_port=equipment_port,
                 pipelines_dict=pipelines_dict,
                 resource_dict=resource_dict,
-                equipment_resource_dict=equipment_resource_dict,)
+                equipment_resource_dict=equipment_resource_dict,
+                share_queue_dict=share_queue_dict,
+            )
         )
 
     # init small_primary machines
-    for machine_id in machine_init_dict["small_primary"]:
+    for equipment_port in equipment_ports_dict["small_primary"]:
         machines_dict["small_primary"].append(
             SmallPrimary(
                 env,
-                machine_id=machine_id,
+                equipment_port=equipment_port,
                 pipelines_dict=pipelines_dict,
                 resource_dict=resource_dict,
-                equipment_resource_dict=equipment_resource_dict,)
+                equipment_resource_dict=equipment_resource_dict,
+                share_queue_dict=share_queue_dict,
+            )
         )
 
     # init small_secondary machines
-    for machine_id in machine_init_dict["small_secondary"]:
+    for equipment_port in equipment_ports_dict["small_secondary"]:
         machines_dict["small_secondary"].append(
             SecondarySort(
                 env,
-                machine_id=machine_id,
-                pipelines_dict=pipelines_dict,)
+                equipment_port=equipment_port,
+                pipelines_dict=pipelines_dict,
+                share_queue_dict=share_queue_dict,
+            )
         )
 
     # init small_reload machines
-    for equipment_id in reload_ports_dict["small_reload"]:
+    for equipment_port in equipment_ports_dict['small_reload']:
         machines_dict["small_reload"].append(
             SmallReload(
                 env,
-                equipment_id=equipment_id,
+                equipment_port=equipment_port,
                 pipelines_dict=pipelines_dict,
                 equipment_process_time_dict=equipment_process_time_dict,
                 equipment_parameters=equipment_parameters,
                 data_pipeline=data_pipeline,
-                share_queue_dict=share_queue_dict,)
+                share_queue_dict=share_queue_dict,
+            )
         )
 
     # adding machines into processes
