@@ -651,7 +651,7 @@ def get_equipment_port_type():
 
     # checking
     temp_list = list()
-    result = [temp_list.extend(x) for x in equipment_port_dict.values()]
+    _ = [temp_list.extend(x) for x in equipment_port_dict.values()]
     assert bool(all_ports - set(temp_list)) == False, "Not all ports are classify!!"
 
     return equipment_port_dict
