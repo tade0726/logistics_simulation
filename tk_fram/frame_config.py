@@ -12,7 +12,7 @@ DATABASES_DIC = {
         'HOST': '10.0.149.62',
         'USER': 'root',
         'PASSWORD': 'root123',
-        'NAME': 'cloud_mirror_v1',
+        'NAME': 'hangzhouhubqa_v3',
         'CHARSET': 'utf8'
     },
     'PRODUCTION': {

@@ -51,10 +51,11 @@ def _run_sim_thread(package_num, root, txt_receipt):
             return
     conn = Mysql().connect
     txt_receipt['state'] = NORMAL
-    run_arg = Flag['run_time'] or datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+    run_arg = Flag['run_time'] or datetime.now()
     if not Flag['run_time']:
         Flag['run_time'] = run_arg
-        txt_receipt.insert(END, '本次运行时间:\t' + str(run_arg) + '\n')
+        txt_receipt.insert(END, '本次运行时间:\t' +
+                           run_arg.strftime('%Y-%m-%d %H:%M:%S') + '\n')
         txt_receipt.insert(END, '*******************************\n')
         root.update_idletasks()
     # ======================== 插入测试数据=============
@@ -79,17 +80,20 @@ def _run_sim_thread(package_num, root, txt_receipt):
     start_time = time.time()
     # ================================
     from simpy_lib import main
+    from simpy_lib.hangzhou_simpy.src.config import MainConfig
+
     main(run_arg)
     run_time = '%.2f' % (time.time() - start_time)
     txt_receipt.insert(END, '仿真执行完毕\n')
     root.update_idletasks()
     time.sleep(0.5)
-    txt_receipt.insert(END, '开始插入仿真数据......\n')
-    root.update_idletasks()
-    with conn as cur:
-        csv_into_mysql(cur)
-    txt_receipt.insert(END, '插入数据结束\n')
-    root.update_idletasks()
+    if MainConfig.SAVE_LOCAL:
+        txt_receipt.insert(END, '开始插入仿真数据......\n')
+        root.update_idletasks()
+        with conn as cur:
+            csv_into_mysql(cur)
+        txt_receipt.insert(END, '插入数据结束\n')
+        root.update_idletasks()
     # ==============================================
     time.sleep(0.5)
     txt_receipt.insert(END, '开始读取仿真结果......\n')
@@ -160,7 +164,7 @@ def _update_data_thread(root, txt_receipt):
 
     update_m_j()
 
-    Flag['run_time'] = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+    Flag['run_time'] = datetime.now()
     run_arg = Flag['run_time']
 
     # # #  显示结果
@@ -168,7 +172,8 @@ def _update_data_thread(root, txt_receipt):
     txt_receipt.delete('1.0', END)
     root.update_idletasks()
     # ========================更改开关状态==============
-    txt_receipt.insert(END, '本次运行时间:\t' + str(run_arg) + '\n')
+    txt_receipt.insert(END, '本次运行时间:\t' +
+                       run_arg.strftime('%Y-%m-%d %H:%M:%S') + '\n')
     root.update_idletasks()
     txt_receipt.insert(END, '*******************************\n')
     txt_receipt.insert(END, '机器开关状态更新......\n')

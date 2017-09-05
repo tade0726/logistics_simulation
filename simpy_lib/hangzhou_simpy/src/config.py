@@ -46,7 +46,7 @@ class RemoteMySQLConfig:
         HOST = "10.0.149.62"
         USER = "root"
         PASS = "root123"
-        DB = "cloud_mirror_v1"
+        DB = "hangzhouhubqa_v3"
         CHARSET = 'utf8'
 
     engine = create_engine(
