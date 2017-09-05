@@ -79,8 +79,9 @@ def init_day_time():
             "select inserted_on from i_equipment_io_past_run "
             "ORDER BY inserted_on desc limit 1"
         )
-        last_run_time = cur.fetchone()[0]
-    CURRENT['TIME']['last_run_time'] = str(last_run_time)
+        last_run_time = cur.fetchone()
+    if last_run_time:
+        CURRENT['TIME']['last_run_time'] = str(last_run_time[0])
 
 
 def set_default(cursor):
