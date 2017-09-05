@@ -194,7 +194,7 @@ def simulation(data_pipeline: Queue, run_time):
         )
 
     # init presort machines
-    for equipment_port in equipment_ports_dict["presort"]:
+    for equipment_port in equipment_ports_type_dict["presort"]:
         machines_dict["presort"].append(
             Presort(env,
                     equipment_port=equipment_port,
@@ -206,7 +206,7 @@ def simulation(data_pipeline: Queue, run_time):
         )
 
     # init cross machines
-    for equipment_port in equipment_ports_dict["cross"]:
+    for equipment_port in equipment_ports_type_dict["cross"]:
         machines_dict["cross"].append(
             Cross(
                 env,
@@ -219,7 +219,7 @@ def simulation(data_pipeline: Queue, run_time):
         )
 
     # init secondary_sort machines
-    for equipment_port in equipment_ports_dict["secondary_sort"]:
+    for equipment_port in equipment_ports_type_dict["secondary_sort"]:
         machines_dict["secondary_sort"].append(
             SecondarySort(
                 env,
@@ -230,7 +230,7 @@ def simulation(data_pipeline: Queue, run_time):
         )
 
     # init hospital machines
-    for equipment_port in equipment_ports_dict["hospital"]:
+    for equipment_port in equipment_ports_type_dict["hospital"]:
         machines_dict["hospital"].append(
             Hospital(
                 env,
@@ -243,7 +243,7 @@ def simulation(data_pipeline: Queue, run_time):
         )
 
     # init security machines
-    for equipment_port in equipment_ports_dict["security"]:
+    for equipment_port in equipment_ports_type_dict["security"]:
         machines_dict["security"].append(
             Security(
                 env,
@@ -256,7 +256,7 @@ def simulation(data_pipeline: Queue, run_time):
         )
 
     # init small_primary machines
-    for equipment_port in equipment_ports_dict["small_primary"]:
+    for equipment_port in equipment_ports_type_dict["small_primary"]:
         machines_dict["small_primary"].append(
             SmallPrimary(
                 env,
@@ -269,7 +269,7 @@ def simulation(data_pipeline: Queue, run_time):
         )
 
     # init small_secondary machines
-    for equipment_port in equipment_ports_dict["small_secondary"]:
+    for equipment_port in equipment_ports_type_dict["small_secondary"]:
         machines_dict["small_secondary"].append(
             SecondarySort(
                 env,
@@ -280,7 +280,7 @@ def simulation(data_pipeline: Queue, run_time):
         )
 
     # init small_reload machines
-    for equipment_port in equipment_ports_dict['small_reload']:
+    for equipment_port in equipment_ports_type_dict['small_reload']:
         machines_dict["small_reload"].append(
             SmallReload(
                 env,
