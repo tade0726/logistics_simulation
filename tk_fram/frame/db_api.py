@@ -22,37 +22,66 @@ class Mysql(object):
 
 def init_btn_entry_val_from_sql():
     """"""
+    conn = Mysql().connect
     for date, times in DAY_TIME_DICT.items():
         for time in times:
             instance_status_num_dict = defaultdict(dict)
             start_time = date + ' ' + time.split('-')[0]
-            conn = Mysql().connect
-            with conn as cur:
-                cur.execute(
-                    "select equipment_port, equipment_status "
-                    "from i_equipment_io "
-                    "WHERE start_time='{}' "
-                    "and LEFT(equipment_port, 1) "
-                    "IN ('a', 'r', 'm', 'j', 'u', 'h')".format(
-                        start_time)
-                )
-                result = cur.fetchall()
-            for item in result:
+            if CURRENT['TIME']['last_run_time']:
+                with conn as cur:
+                    cur.execute(
+                        "select equipment_port, equipment_status "
+                        "from i_equipment_io_past_run "
+                        "WHERE start_time='{start}' "
+                        "and run_time='{last}' "
+                        "and LEFT(equipment_port, 1) "
+                        "IN ('a', 'r', 'm', 'j', 'u', 'h')".format(
+                            start=start_time,
+                            last=CURRENT['TIME']['last_run_time']
+                        )
+                    )
+                    result_status = cur.fetchall()
+                with conn as cur:
+                    cur.execute(
+                        "select resource_id, resource_limit "
+                        "from i_resource_limit_past_run "
+                        "where resource_id like 'man_%' "
+                        "and start_time='{start}' "
+                        "and run_time='{last}' "
+                        "and resource_id not like 'man_x%'".format(
+                            start=start_time,
+                            last=CURRENT['TIME']['last_run_time']
+                        )
+                    )
+                    result_num = cur.fetchall()
+            else:
+                with conn as cur:
+                    cur.execute(
+                        "select equipment_port, equipment_status "
+                        "from i_equipment_io_default "
+                        "WHERE start_time='{}' "
+                        "and LEFT(equipment_port, 1) "
+                        "IN ('a', 'r', 'm', 'j', 'u', 'h')".format(
+                            start_time)
+                    )
+                    result_status = cur.fetchall()
+                with conn as cur:
+                    cur.execute(
+                        "select resource_id, resource_limit "
+                        "from i_resource_limit_default "
+                        "where resource_id like 'man_%' "
+                        "and start_time='{}' "
+                        "and resource_id not like 'man_x%'".format(
+                            start_time)
+                    )
+                    result_num = cur.fetchall()
+            for item in result_status:
                 instance_status_num_dict[item[0]]['status'] = item[1]
-            with conn as cur:
-                cur.execute(
-                    "select resource_id, resource_limit "
-                    "from i_resource_limit "
-                    "where resource_id like 'man_%' "
-                    "and start_time='{}' "
-                    "and resource_id not like 'man_x%'".format(
-                        start_time)
-                )
-                result = cur.fetchall()
-            for item in result:
-                instance_status_num_dict[item[0].replace('man_', '')]['num']\
+            for item in result_num:
+                instance_status_num_dict[item[0].replace('man_', '')]['num'] \
                     = int(item[1])
             CACHE_INSTANCE_DICT[start_time] = instance_status_num_dict
+    conn.close()
     return
 
 
@@ -82,6 +111,7 @@ def init_day_time():
         last_run_time = cur.fetchone()
     if last_run_time:
         CURRENT['TIME']['last_run_time'] = str(last_run_time[0])
+    conn.close()
 
 
 def set_default(cursor):
