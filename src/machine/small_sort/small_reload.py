@@ -58,7 +58,7 @@ class SmallReload(object):
         self.process_time = self.equipment_process_time_dict[self.equipment_port]
         self.equipment_name = self.equipment_port.split('_')[0]
         self.parameters =  self.equipment_parameters[self.equipment_name]
-        self.store_max = self.parameters['smallbag_wrap_condition']
+        self.store_max = int(self.parameters['smallbag_wrap_condition'])
         self.pack_time_list = [self.parameters[f"smallbag_wrap_time_{i}"] for i in range(1, 7)]
         self.input_pip_line = self.share_queue_dict[self.equipment_port]
 

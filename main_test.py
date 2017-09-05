@@ -60,9 +60,6 @@ def simulation(data_pipeline: Queue, run_time):
     open_time_dict, switch_machine_names = get_equipment_timetable()
     equipment_ports_type_dict = get_equipment_port_type()
 
-    # c_port list
-    c_ports = equipment_ports_type_dict['reload'] + equipment_ports_type_dict['small_reload']
-
     # all ports
     all_ports = list()
     for x in equipment_ports_type_dict.values():

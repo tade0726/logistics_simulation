@@ -174,8 +174,7 @@ class Unload:
 
             if self.env.now > end:
                 self.trucks_q.put(truck)
-                LOG.logger_font.debug(
-                    f"sim time: {self.env.now}, put back truck {truck}, unload_port: {self.equipment_port}")
+                LOG.logger_font.debug(f"sim time: {self.env.now}, put back truck {truck}, unload_port: {self.equipment_port}")
                 self.env.exit()
 
             # 等待货车处理完
