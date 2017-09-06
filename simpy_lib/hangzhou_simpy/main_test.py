@@ -36,6 +36,7 @@ from simpy_lib.hangzhou_simpy.src.config import MainConfig, TimeConfig, LOG
 __all__ = ["main"]
 
 
+
 def simulation(data_pipeline: Queue, run_time):
 
     # start time
@@ -350,9 +351,7 @@ def pumper(
         data_pipeline: Queue,
         write_rows: int=10_000,
         run_time: datetime=datetime.now(),
-        thread_signal: str=None
 ):
-
     QUEUE_DONE = False
 
     while True:
@@ -426,7 +425,6 @@ def pumper(
 
         # 结束 while True
         if QUEUE_DONE:
-            thread_signal.set()
             break
 
 
@@ -447,7 +445,7 @@ def create_tables():
         pipeline_table_sche.create(checkfirst=True)
         path_table_sche.create(checkfirst=True)
 
-def main(run_arg, thread_signal):
+def main(run_arg):
 
     create_tables()
 
@@ -455,7 +453,6 @@ def main(run_arg, thread_signal):
     data_pipeline_queue = Queue()
 
     threads = []
-
     sim = threading.Thread(target=simulation,
                            args=(data_pipeline_queue, run_time))
     sim.start()
@@ -464,13 +461,15 @@ def main(run_arg, thread_signal):
     for _ in range(3):
         p = threading.Thread(
             target=pumper,
-            args=(data_pipeline_queue, row_write, run_time, thread_signal)
+            args=(data_pipeline_queue, row_write, run_time)
         )
         threads.append(p)
 
     for p in threads:
         p.start()
 
+    for p in threads:
+        p.join()
 
 if __name__ == '__main__':
     run_arg = datetime.now()

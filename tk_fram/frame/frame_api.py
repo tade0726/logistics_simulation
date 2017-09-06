@@ -33,7 +33,7 @@ def save_data(conn, root, txt_receipt):
     Flag['run_time'] = None
 
 
-def _run_sim_thread(package_num, root, txt_receipt, thread_signal):
+def _run_sim_thread(package_num, root, txt_receipt):
     """"""
     if Flag['update_data'] == 0:
         result = messagebox.askyesno("Tkmessage",
@@ -82,8 +82,7 @@ def _run_sim_thread(package_num, root, txt_receipt, thread_signal):
     from simpy_lib import main
     from simpy_lib.hangzhou_simpy.src.config import MainConfig
 
-    main(run_arg, thread_signal)
-    thread_signal.wait()
+    main(run_arg)
     run_time = '%.2f' % (time.time() - start_time)
     txt_receipt.insert(END, '仿真执行完毕\n')
     root.update_idletasks()
@@ -375,10 +374,8 @@ def set_during_time(date_plan, time_plan):
 
 
 def run_sim(package_num, root, txt_receipt):
-    thread_signal = Event()
-    thread_signal.clear()
     t = Thread(target=_run_sim_thread, args=(
-        package_num, root, txt_receipt, thread_signal
+        package_num, root, txt_receipt
     ))
     t.start()
 
@@ -400,4 +397,4 @@ def exit_x(root):
     if_exit = messagebox.askyesno("Tkmessage", "要退出了，确定？")
     if if_exit > 0:
         root.destroy()
-        return
+        exit()

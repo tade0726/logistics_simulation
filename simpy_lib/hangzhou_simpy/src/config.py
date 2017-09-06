@@ -48,9 +48,9 @@ class RemoteMySQLConfig:
         DB = "hangzhouhubqa"
         CHARSET = 'utf8'
     else:
-        HOST = "10.0.149.62"
-        USER = "root"
-        PASS = "root123"
+        HOST = "10.0.149.36"
+        USER = "wenjing"
+        PASS = "wenjing"
         DB = "hangzhouhubqa_v3"
         CHARSET = 'utf8'
 

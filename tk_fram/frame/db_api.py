@@ -230,8 +230,8 @@ def insert_package(cursor, num: str, run_arg):
         "FROM i_od_parcel_landside_day AS f "
         "WHERE f.`parcel_type`='small' "
         "order by arrive_time "
-        "LIMIT %s) AS t)" %
-        (columns_small_landside, columns_small_landside, land_small_num)
+        ") AS t)" %
+        (columns_small_landside, columns_small_landside)
     )
     # ============================ 插入空侧数据 ===============================
     cursor.execute("truncate i_od_parcel_airside")
@@ -275,8 +275,8 @@ def insert_package(cursor, num: str, run_arg):
         "WHERE s.`parcel_id` IN (SELECT DISTINCT t.parcel_id "
         "FROM(SELECT f.parcel_id FROM i_od_parcel_airside_day AS f "
         "WHERE f.`parcel_type`='small' "
-        "LIMIT %s) AS t)" %
-        (columns_small_airside, columns_small_airside, air_small_num)
+        ") AS t)" %
+        (columns_small_airside, columns_small_airside)
     )
     cursor.execute("update i_od_parcel_landside set inserted_on='%s'" % run_arg)
     cursor.execute("update i_od_small_landside set inserted_on='%s'" % run_arg)
@@ -331,18 +331,17 @@ def average_time(cursor):
 def success_percent(cursor):
     # 时效达成率
     cursor.execute(
-        "select count(case when a.real_time_stamp<=b.plan_disallow_tm then "
-        "a.small_id else null end)/count(a.small_id) "
-        "from (select small_id,max(real_time_stamp) real_time_stamp "
-        "from o_machine_table group by small_id) a "
-        "join (select small_id ,plan_disallow_tm from i_od_small_airside "
+        "select count(case when a.real_time_stamp<=b.plan_disallow_tm "
+        "then a.small_id else null end)/count(a.small_id) "
+        "from ( select small_id,max(real_time_stamp) real_time_stamp "
+        "from o_machine_table group by small_id ) a "
+        "join (select small_id ,plan_disallow_tm from i_od_small_airside  "
         "union all "
-        "select parcel_id,plan_disallow_tm "
-        "from i_od_parcel_airside union all "
-        "select small_id ,plan_disallow_tm "
-        "from i_od_small_landside union all "
-        "select parcel_id,plan_disallow_tm "
-        "from i_od_parcel_landside) b on a.small_id=b.small_id"
+        "select parcel_id,plan_disallow_tm from i_od_parcel_airside "
+        "where parcel_type<>'small' union all "
+        "select small_id ,plan_disallow_tm from i_od_small_landside union all "
+        "select parcel_id,plan_disallow_tm from i_od_parcel_landside "
+        "where parcel_type<>'small') b on a.small_id=b.small_id"
     )
     result = cursor.fetchone()[0]
     return result
