@@ -368,8 +368,7 @@ def pumper(data_pipeline: Queue, write_rows: int=10_000,):
             else:
                 raise ValueError("Wrong record in data pipeline!!")
 
-        # process data
-        LOG.logger_font.info(msg="insert data to mysql ..")
+
         # time stamp for db
         db_insert_time = run_time
 
@@ -394,6 +393,9 @@ def pumper(data_pipeline: Queue, write_rows: int=10_000,):
             write_mysql("pipeline_table", pipeline_table, OutputTableColumnType.pipeline_columns)
             write_mysql("truck_table", truck_table, OutputTableColumnType.truck_columns)
             write_mysql('path_table', path_table, OutputTableColumnType.path_columns)
+
+        # process data
+        LOG.logger_font.info(msg="inserted data to mysql ..")
 
         # 结束 while True
         if QUEUE_DONE:
