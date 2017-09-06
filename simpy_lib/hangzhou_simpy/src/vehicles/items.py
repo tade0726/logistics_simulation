@@ -12,21 +12,17 @@ Uld class
 """
 import simpy
 import pandas as pd
-import numpy as np
 from collections import defaultdict
 import random
+from queue import Queue
 
-from simpy_lib.hangzhou_simpy.src.utils import \
-    (PackageRecord, PipelineRecord, TruckRecord, PathGenerator,
-     TruckRecordDict, PackageRecordDict, PipelineRecordDict)
-
+from simpy_lib.hangzhou_simpy.src.utils import *
 from simpy_lib.hangzhou_simpy.src.utils import \
     (PathRecordDict, PathRecord)
+from simpy_lib.hangzhou_simpy.src.config import LOG, MainConfig
 
-from simpy_lib.hangzhou_simpy.src.config import LOG
-
-__all__ = ["Parcel", "Package", "Truck", "Uld", "SmallBag", "SmallPackage",
-           "Pipeline", "PipelineRes", "BasePipeline", "PipelineReplace",]
+__all__ = ["Parcel", "Package", "Truck", "Uld", "SmallBag", "SmallPackage", "Pipeline", "PipelineRes", "BasePipeline",
+           "PipelineReplace",]
 
 
 path_g = PathGenerator()
@@ -35,7 +31,8 @@ path_g = PathGenerator()
 class Package:
     """包裹"""
     def __init__(self,
-                 attr: pd.Series,):
+                 attr: pd.Series,
+                 data_pipeline: Queue):
 
         # 包裹的所有信息都在 attr
         self.attr = attr
@@ -46,6 +43,10 @@ class Package:
         self.machine_data = list()
         self.pipeline_data = list()
         self.path_request_data = list()
+
+        # 数据队列，在仿真的过程中同时被消费
+        self.data_pipeline = data_pipeline
+
         # path_generator
         self.path_g = path_g
         # paths
@@ -86,13 +87,19 @@ class Package:
     def insert_data(self, data: dict):
 
         if isinstance(data, PackageRecordDict):
+
             record = PackageRecord(
                 parcel_id=self.parcel_id,
                 small_id=self.small_id,
                 parcel_type=self.parcel_type,
                 **data,
             )
+
             self.machine_data.append(record)
+
+            if not isinstance(data, SmallPackageRecordDict):
+                self.data_pipeline.put(record)
+
             LOG.logger_font.debug(msg=f"Package: {record.small_id} , action: {record.action}"
                                       f", equipment: {record.equipment_id}, timestamp: {record.time_stamp}")
 
@@ -103,7 +110,13 @@ class Package:
                 parcel_type=self.parcel_type,
                 **data,
             )
+
             self.pipeline_data.append(record)
+
+            if not MainConfig.OUTPUT_MACHINE_TABLE_ONLY:
+                if not isinstance(data, SmallPipelineRecordDict):
+                    self.data_pipeline.put(record)
+
             LOG.logger_font.debug(msg=f"Package: {record.small_id} , action: {record.action}"
                                       f", pipeline: {record.pipeline_id}, timestamp: {record.time_stamp}")
 
@@ -119,13 +132,18 @@ class Package:
             )
 
             self.path_request_data.append(record)
+
+            if not MainConfig.OUTPUT_MACHINE_TABLE_ONLY:
+                if not isinstance(data, SmallPathRecordDict):
+                    self.data_pipeline.put(record)
+
             LOG.logger_font.debug(msg=f"Package get path - parcel_id: {record.parcel_id}, small_id: {record.small_id}, "
                                       f", path: {record.ret_path}"
                                       f", parcel_type: {record.parcel_type}, ident_des_zno: {record.ident_des_zno}"
                                       f", sorter_type: {record.sorter_type}, dest_type: {record.dest_type}")
 
         else:
-            raise ValueError("Wrong type of record")
+            raise ValueError(f"Wrong type of record: {data}")
 
     def pop_mark(self):
         """删去第一个节点, 返回下一个 pipeline id: (now_loc, next_loc)"""
@@ -149,9 +167,10 @@ class Parcel(Package):
     """包裹"""
 
     def __init__(self,
-                 attr: pd.Series,):
+                 attr: pd.Series,
+                 data_pipeline: Queue):
         # add for Package class compatible
-        super(Parcel, self).__init__(attr)
+        super(Parcel, self).__init__(attr, data_pipeline)
 
     def __str__(self):
         display_dct = dict(self.attr)
@@ -161,9 +180,10 @@ class Parcel(Package):
 class SmallPackage(Package):
     """小件包裹"""
     def __init__(self,
-                 attr: pd.Series,):
+                 attr: pd.Series,
+                 data_pipeline: Queue):
         # add for Package class compatible
-        super(SmallPackage, self).__init__(attr)
+        super(SmallPackage, self).__init__(attr, data_pipeline)
 
     def __str__(self):
         display_dct = dict(self.attr)
@@ -173,10 +193,11 @@ class SmallPackage(Package):
 class SmallBag(Package):
     """小件包"""
     def __init__(self,
-                 small_packages,):
+                 small_packages,
+                 data_pipeline: Queue):
         # random choice a small_packages as attr
         attr = random.choice(small_packages).attr
-        super(SmallBag, self).__init__(attr)
+        super(SmallBag, self).__init__(attr, data_pipeline)
 
         # 存储小件包裹
         self.store = small_packages
@@ -200,6 +221,15 @@ class SmallBag(Package):
         """给小件包裹添加记录"""
         if to_small:
             list(map(lambda x: x.insert_data(data), self.store))
+
+        if isinstance(data, PackageRecordDict):
+            data = SmallPackageRecordDict(data)
+        elif isinstance(data, PathRecordDict):
+            data = SmallPathRecordDict(data)
+        elif isinstance(data, PipelineRecordDict):
+            data = SmallPipelineRecordDict(data)
+        else:
+            raise ValueError(f"Wrong type of record: {data}")
         return super(SmallBag, self).insert_data(data)
 
     def __str__(self):
@@ -209,7 +239,7 @@ class SmallBag(Package):
 
 class Truck:
     """货车"""
-    def __init__(self, truck_id: str, come_time: int, truck_type: str, packages: list):
+    def __init__(self, truck_id: str, come_time: int, truck_type: str, packages: list, data_pipeline: Queue):
         """
         :param truck_id: self explain
         :param come_time: self explain
@@ -220,12 +250,19 @@ class Truck:
         self.store = packages
         self.truck_type = truck_type
         self.truck_data = list()
+        # 仿真程序运行的同时，消费数据
+        self.data_pipeline = data_pipeline
         self.store_size = len(self.store)
 
     def get_all_package(self):
         return [self.store.pop(0) for _ in range(self.store_size)]
 
     def insert_data(self, data:dict):
+
+        if MainConfig.OUTPUT_MACHINE_TABLE_ONLY:
+            # 只有保留 machine table
+            return
+
         assert isinstance(data, TruckRecordDict), "Wrong data type"
         record = TruckRecord(
                     truck_id=self.truck_id,
@@ -236,6 +273,9 @@ class Truck:
         LOG.logger_font.debug(msg=f"Truck: {record}")
 
         self.truck_data.append(record)
+
+        if not MainConfig.OUTPUT_MACHINE_TABLE_ONLY:
+            self.data_pipeline.put(record)
 
     def __str__(self):
         return f"<Truck truck_id: {self.truck_id}, come_time: {self.come_time}, store_size:{self.store_size}>"
@@ -298,6 +338,7 @@ class Pipeline:
                  machine_type: str,
                  open_time_dict: dict,
                  all_keep_open: bool,
+                 share_queue_dict: dict,
                  ):
 
         self.env = env
@@ -306,7 +347,6 @@ class Pipeline:
         # store for put in the front
         # queue for get in the end
         self.store = simpy.Store(env)
-        self.queue = simpy.Store(env)
 
         self.pipeline_id = pipeline_id
         self.queue_id = queue_id
@@ -318,6 +358,10 @@ class Pipeline:
         self.open_time_cp = tuple(self.open_time)
 
         self.keep_open = all_keep_open
+
+        # share queue
+        self.share_queue_dict = share_queue_dict
+        self.queue = self.share_queue_dict[self.equipment_id]
 
     def latency(self, item: Package):
 
@@ -371,6 +415,10 @@ class Pipeline:
 
         else:
             for start, end in self.open_time:
+                """为了保证件传送到达机器的时间点就是开关机器的时间点"""
+                if start >= self.delay:
+                    start = start - self.delay
+                    end = end - self.delay
                 self.env.process(self.real_run(start, end))
 
     def all_run(self):
@@ -413,6 +461,7 @@ class PipelineReplace(Pipeline):
                  equipment_store_dict: dict,
                  open_time_dict: dict,
                  all_keep_open: bool,
+                 share_queue_dict: dict,
                  ):
 
         super(PipelineReplace, self).__init__(env,
@@ -421,17 +470,74 @@ class PipelineReplace(Pipeline):
                                               queue_id,
                                               machine_type,
                                               open_time_dict,
-                                              all_keep_open,)
+                                              all_keep_open,
+                                              share_queue_dict,
+                                              )
 
         self.share_store_dict = share_store_dict
         self.equipment_store_dict = equipment_store_dict
 
         # replace self.queue
-        self.share_store_id = self.equipment_store_dict[self.equipment_id]
+        self.share_store_id = self.equipment_store_dict[self.pipeline_id]['store_id']
         self.store = self.share_store_dict[self.share_store_id]
+        self.max_delay = self.equipment_store_dict[self.pipeline_id]['max_time']
 
     def __str__(self):
         return f"<PipelineReplaceJ: {self.pipeline_id}, delay: {self.delay}>"
+
+    def latency(self, item: Package):
+
+        """模拟传送时间"""
+        # pipeline start server
+        item.insert_data(
+            PipelineRecordDict(
+                pipeline_id=':'.join(self.pipeline_id),
+                queue_id=self.queue_id,
+                time_stamp=self.env.now,
+                action="start", ))
+
+        # re cal the wait time stamp
+        t_pipeline_start = self.env.now
+        item_last_end_time = item.machine_data[-1].time_stamp
+        wait_machine_open_gap = t_pipeline_start - item_last_end_time
+
+        yield self.env.timeout(self.delay)
+        # cutting path
+        item.pop_mark()
+
+        # package wait for next process
+        item.insert_data(
+            PackageRecordDict(
+                equipment_id=self.equipment_id,
+                time_stamp=(self.env.now - wait_machine_open_gap),
+                action="wait", ))
+
+        # pipeline end server
+        item.insert_data(
+            PipelineRecordDict(
+                pipeline_id=':'.join(self.pipeline_id),
+                queue_id=self.queue_id,
+                time_stamp=self.env.now,
+                action="end", ))
+
+        # 来早了，需要把多出的时间耗掉， 刚好也是下一个设备的开机时间，多出的时间算是等待时间
+        yield self.env.timeout(self.max_delay - self.delay)
+        self.queue.put(item)
+
+    def run(self):
+        """setup process"""
+        yield self.env.timeout(0)
+
+        if self.keep_open:
+            self.env.process(self.all_run())
+
+        else:
+            for start, end in self.open_time:
+                """为了保证件传送到达机器的时间点就是开关机器的时间点"""
+                if start >= self.max_delay:
+                    start = start - self.max_delay
+                    end = end - self.max_delay
+                self.env.process(self.real_run(start, end))
 
 
 class PipelineRes(Pipeline):
@@ -447,6 +553,7 @@ class PipelineRes(Pipeline):
                  equipment_process_time_dict: dict,
                  open_time_dict: dict,
                  all_keep_open: bool,
+                 share_queue_dict: dict,
                  ):
 
         super(PipelineRes, self).__init__(env,
@@ -455,10 +562,11 @@ class PipelineRes(Pipeline):
                                           queue_id,
                                           machine_type,
                                           open_time_dict,
-                                          all_keep_open)
+                                          all_keep_open,
+                                          share_queue_dict)
 
-        self.equipment_last = self.pipeline_id[0]  # in PipelineRes the equipment_id is equipment before this pipeline
-        self.equipment_next = self.pipeline_id[1]  # in PipelineRes the equipment_id is equipment before this pipeline
+        self.equipment_last = self.pipeline_id[0]
+        self.equipment_next = self.pipeline_id[1]
         self.resource_id = equipment_resource_dict[self.equipment_last]
         self.resource = resource_dict[self.resource_id]["resource"]
         # add for equipment

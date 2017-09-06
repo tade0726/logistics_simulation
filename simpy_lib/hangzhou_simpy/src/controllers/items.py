@@ -12,12 +12,14 @@
 import simpy
 import pandas as pd
 import numpy as np
+from queue import Queue
+
 
 from simpy_lib.hangzhou_simpy.src.vehicles import \
     Truck, SmallPackage, SmallBag, Parcel
 from simpy_lib.hangzhou_simpy.src.utils import TruckRecordDict
 from simpy_lib.hangzhou_simpy.src.db import \
-    get_vehicles, get_resource_timetable
+    get_vehicles, get_resource_timetable, get_equipment_timetable
 from simpy_lib.hangzhou_simpy.src.config import LOG
 
 
@@ -31,13 +33,16 @@ class TruckController:
                  trucks: simpy.FilterStore,
                  is_test: bool,
                  is_parcel_only: bool,
-                 is_land_only:bool,):
+                 is_land_only:bool,
+                 data_pipeline: Queue):
 
         self.env = env
         self.trucks = trucks
         self.is_test = is_test
         self.is_parcel_only = is_parcel_only
         self.is_land_only = is_land_only
+        # 运行仿真的同时 消费数据
+        self.data_pipeline = data_pipeline
         self._init_truck_data()
 
     def _init_truck_data(self):
@@ -56,15 +61,14 @@ class TruckController:
         self.trucks_dict = trucks_dict
         self.truck_small_dict = truck_small_dict
 
-    @staticmethod
-    def _init_package(cls: type, package_record: pd.Series):
-        return cls(attr=package_record)
+    def _init_package(self, cls: type, package_record: pd.Series):
+        return cls(attr=package_record, data_pipeline=self.data_pipeline)
 
     def _init_small_bag(self, small_bag_record: pd.Series):
         parcel_id = small_bag_record["parcel_id"]
         small_package_records = self.truck_small_dict[parcel_id]
         small_packages = [self._init_package(cls=SmallPackage, package_record=record) for _, record in small_package_records.iterrows()]
-        return SmallBag(small_packages=small_packages)
+        return SmallBag(small_packages=small_packages, data_pipeline=self.data_pipeline)
 
     def latency(self, come_time, item: Truck):
         """模拟货车到达时间"""
@@ -102,7 +106,7 @@ class TruckController:
         # LL/LA/AA/AA
         truck_type = src_type + package_dest_type
         truck = Truck(truck_id=truck_id, come_time=come_time,
-                      packages=packages, truck_type=truck_type, )
+                      packages=packages, truck_type=truck_type, data_pipeline=self.data_pipeline)
         LOG.logger_font.debug(f"init truck: {truck_id}")
         self.env.process(self.latency(come_time, truck))
 

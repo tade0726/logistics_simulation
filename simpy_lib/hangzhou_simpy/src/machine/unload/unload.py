@@ -15,15 +15,15 @@ import numpy as np
 from collections import defaultdict
 from simpy_lib.hangzhou_simpy.src.vehicles import Package, Truck
 from simpy_lib.hangzhou_simpy.src.config import LOG
-from simpy_lib.hangzhou_simpy.src.utils \
-    import PackageRecordDict, TruckRecordDict
+from simpy_lib.hangzhou_simpy.src.utils import \
+    PackageRecordDict, TruckRecordDict
 
 
 class Unload:
 
     def __init__(self,
                  env: simpy.Environment,
-                 machine_id: str,
+                 equipment_port: str,
                  unload_setting_dict: dict,
                  reload_setting_dict: dict,
                  trucks_q: simpy.FilterStore,
@@ -37,7 +37,7 @@ class Unload:
                  ):
 
         self.env = env
-        self.machine_id = machine_id
+        self.equipment_port = equipment_port
         self.unload_setting_dict = unload_setting_dict
         self.reload_setting_dict = reload_setting_dict
         self.trucks_q = trucks_q
@@ -51,7 +51,7 @@ class Unload:
         self.resource_set = self._set_machine_resource()
 
         # open close time table
-        self.open_time = open_time_dict.get(self.equipment_id, [])
+        self.open_time = open_time_dict.get(self.equipment_port, [])
         self.open_time_save = tuple(self.open_time)
 
         # keep open all the time
@@ -60,17 +60,16 @@ class Unload:
     def _set_machine_resource(self):
         """"""
         if self.equipment_resource_dict:
-            self.equipment_id = self.machine_id   # pipeline id last value, for other machines (r1_1, etc)
-            self.equipment_name = self.machine_id.split('_')[0] # r1, ect
-            self.resource_id = self.equipment_resource_dict[self.equipment_id]
+            self.equipment_name = self.equipment_port.split('_')[0] # r1, ect
+            self.resource_id = self.equipment_resource_dict[self.equipment_port]
             self.resource = self.resource_dict[self.resource_id]['resource']
             self.process_time = self.resource_dict[self.resource_id]['process_time']
-            self.truck_types = self.unload_setting_dict[self.equipment_id]
+            self.truck_types = self.unload_setting_dict[self.equipment_port]
             self.vehicle_turnaround_time = self.equipment_parameters[self.equipment_name]["vehicle_turnaround_time"]
 
         else:
             raise RuntimeError('unload machine',
-                               self.machine_id,
+                               self.equipment_port,
                                'not initial equipment_resource_dict!')
 
     def process_package(self, package: Package):
@@ -80,7 +79,7 @@ class Unload:
 
             package.insert_data(
                 PackageRecordDict(
-                    equipment_id=self.equipment_id,
+                    equipment_id=self.equipment_port,
                     time_stamp=self.env.now,
                     action="start", ))
 
@@ -88,7 +87,7 @@ class Unload:
 
             package.insert_data(
                 PackageRecordDict(
-                    equipment_id=self.equipment_id,
+                    equipment_id=self.equipment_port,
                     time_stamp=self.env.now,
                     action="end", ))
 
@@ -98,10 +97,10 @@ class Unload:
             else:
                 # error package store in
                 try:
-                    package.set_path(package_start=self.machine_id)
+                    package.set_path(package_start=self.equipment_port)
                     self.pipelines_dict[package.next_pipeline].put(package)
                 except Exception as exc:
-                    msg = f"error: {exc}, package: {package}, reload_port: {self.equipment_id}"
+                    msg = f"error: {exc}, package: {package}, reload_port: {self.equipment_port}"
                     LOG.logger_font.error(msg)
                     LOG.logger_font.exception(exc)
                     self.pipelines_dict["unload_error"].put(package)
@@ -113,7 +112,7 @@ class Unload:
         # truck start
         truck.insert_data(
             TruckRecordDict(
-                equipment_id=self.equipment_id,
+                equipment_id=self.equipment_port,
                 time_stamp=self.env.now,
                 action="start", ))
 
@@ -126,7 +125,7 @@ class Unload:
             # add package wait data
             package.insert_data(
                 PackageRecordDict(
-                    equipment_id=self.equipment_id,
+                    equipment_id=self.equipment_port,
                     time_stamp=truck.come_time,
                     action="wait", ))
 
@@ -138,7 +137,7 @@ class Unload:
         # truck end
         truck.insert_data(
             TruckRecordDict(
-                equipment_id=self.equipment_id,
+                equipment_id=self.equipment_port,
                 time_stamp=self.env.now,
                 action="end", ))
 
@@ -172,11 +171,11 @@ class Unload:
 
             # filter out the match truck(LL/LA/AL/AA)
             truck = yield self.trucks_q.get(lambda x: x.truck_type in self.truck_types)
-            LOG.logger_font.debug(f"sim time: {self.env.now}, get truck {truck}, unload_port: {self.equipment_id}")
+            LOG.logger_font.debug(f"sim time: {self.env.now}, get truck {truck}, unload_port: {self.equipment_port}")
 
             if self.env.now > end:
                 self.trucks_q.put(truck)
-                LOG.logger_font.debug(f"sim time: {self.env.now}, put back truck {truck}, unload_port: {self.equipment_id}")
+                LOG.logger_font.debug(f"sim time: {self.env.now}, put back truck {truck}, unload_port: {self.equipment_port}")
                 self.env.exit()
 
             # 等待货车处理完

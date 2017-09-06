@@ -26,7 +26,8 @@ __all__ = ['write_redis', 'load_from_redis', 'write_mysql', 'write_local', 'load
            'load_from_mysql', 'get_vehicles', 'get_unload_setting', 'get_reload_setting', 'get_resource_limit',
            'get_resource_equipment_dict', 'get_pipelines', 'get_queue_io', 'get_equipment_process_time',
            'get_parameters', 'get_resource_timetable', 'get_equipment_timetable',
-           'get_equipment_store_dict', 'get_equipment_on_off', 'get_base_equipment_io_max']
+           'get_equipment_store_dict', 'get_equipment_on_off', 'get_base_equipment_io_max',
+           'get_equipment_port_type', 'load_last_result_table']
 
 
 def checking_pickle_file(table_name):
@@ -107,7 +108,7 @@ def load_from_redis(table_name: str):
     return pd.read_msgpack(data_seq)
 
 
-def write_mysql(table_name: str, data: pd.DataFrame, dtype: str=None):
+def write_mysql(table_name: str, data: pd.DataFrame, dtype: dict=None):
     """写入MySQl数据库, 表格如果存在, 则新增数据"""
     try:
         data.to_sql(name=f'o_{table_name}',
@@ -116,7 +117,7 @@ def write_mysql(table_name: str, data: pd.DataFrame, dtype: str=None):
                     index=0,
                     dtype=dtype)
 
-        LOG.logger_font.info(f"mysql write table {table_name} succeed!")
+        LOG.logger_font.debug(f"mysql write table {table_name} succeed!")
     except Exception as exc:
         LOG.logger_font.error(f"mysql write table {table_name} failed, error: {exc}.")
         raise Exception
@@ -157,6 +158,23 @@ def load_from_mysql(table_name: str):
     LOG.logger_font.info(msg=f"Reading mysql table {table_name}")
     table = pd.read_sql_table(con=RemoteMySQLConfig.engine, table_name=f"{table_name}")
     return table
+
+
+def load_last_result_table(table_name: str):
+    """读取远程mysql结果数据表"""
+    assert table_name in ["o_machine_table", "o_truck_table", "o_path_table", "o_pipeline_table"]
+    LOG.logger_font.info(msg=f"Reading mysql table {table_name}")
+
+    last_run_time = pd.read_sql_query(con=RemoteMySQLConfig.engine,
+                                      sql=f"SELECT max(run_time) FROM {table_name}")
+
+    last_run_time_str = last_run_time.values[0][0]
+    last_run_time_str = pd.to_datetime(last_run_time_str)
+    last_run_time_str = last_run_time_str.strftime(format="%Y-%m-%d %H:%M:%S")
+
+    result = pd.read_sql_query(con=RemoteMySQLConfig.engine,
+                               sql=f"SELECT * FROM {table_name} where run_time = '{last_run_time_str}'")
+    return result
 
 
 def get_trucks(is_test: bool=False):
@@ -318,7 +336,7 @@ def get_pipelines():
     line_count_ori = tab_queue_io.shape[0]
 
     equipment_store_dict = get_equipment_store_dict()
-    equipment_shared_store = equipment_store_dict.keys()
+    equipment_shared_store = set([x[1]for x in equipment_store_dict.keys()])
 
     # add machine_type
     # m: presort
@@ -427,23 +445,43 @@ def get_parameters():
 
 
 def get_equipment_store_dict():
-    """返回共享队列的设备和 store 代码的对应关系"""
+    """返回共享队列的设备和 store 代码的对应关系
+
+    {('m2_1', 'j10_1'): {'max_time': 141.63, 'store_id': 'J_1'},
+     ('m2_1', 'j12_1'): {'max_time': 141.63, 'store_id': 'J_1'},
+     ('m2_1', 'j14_1'): {'max_time': 141.63, 'store_id': 'J_1'},
+     ('m2_1', 'j16_1'): {'max_time': 141.63, 'store_id': 'J_1'},
+     ('m2_1', 'j18_1'): {'max_time': 141.63, 'store_id': 'J_1'},
+     }
+
+    """
     table = load_from_mysql('i_queue_io')
 
     u_table = table[table.equipment_port_next.str.startswith('u')]
     j_table = table[table.equipment_port_next.str.startswith('j')]
 
+    g_u_size = u_table.groupby('equipment_port_last').size()
+    g_j_size = j_table.groupby('equipment_port_last').size()
+
+    # 保证至少有2个替代的节点
+    equipment_ports_u = g_u_size[g_u_size > 1].index
+    equipment_ports_j = g_j_size[g_j_size > 1].index
+
+    u_table = u_table[u_table.equipment_port_last.isin(equipment_ports_u)]
+    j_table = j_table[j_table.equipment_port_last.isin(equipment_ports_j)]
+
     equipment_store_dict = dict()
+    names = ['equipment_port_next', 'process_time']
 
-    for idx, x in enumerate(u_table.groupby('equipment_port_last')['equipment_port_next'].apply(list), start=1):
-        if len(x) > 1:
-            for p in x:
-                equipment_store_dict[p] = f'U_{idx}'
+    for idx, (k, v) in enumerate(u_table.groupby('equipment_port_last')[names].apply(dict).to_dict().items(), start=1):
+        max_p_time = v['process_time'].max()
+        for p in v['equipment_port_next']:
+            equipment_store_dict[(k, p)] = dict(store_id=f'U_{idx}', max_time=max_p_time)
 
-    for idx, x in enumerate(j_table.groupby('equipment_port_last')['equipment_port_next'].apply(list), start=1):
-        if len(x) > 1:
-            for p in x:
-                equipment_store_dict[p] = f'J_{idx}'
+    for idx, (k, v) in enumerate(j_table.groupby('equipment_port_last')[names].apply(dict).to_dict().items(), start=1):
+        max_p_time = v['process_time'].max()
+        for p in v['equipment_port_next']:
+            equipment_store_dict[(k, p)] = dict(store_id=f'J_{idx}', max_time=max_p_time)
 
     return equipment_store_dict
 
@@ -549,6 +587,74 @@ def get_equipment_on_off():
     equipment_off = table[table.equipment_status == 0]
     return equipment_on.equipment_port.tolist(), equipment_off.equipment_port.tolist(),
 
+
+def get_equipment_port_type():
+    """得到设备口的类型
+
+    # r, a: unload
+    # m: presort
+    # i1 - i8: secondary_sort
+    # i17 - i24: secondary_sort
+    # u1 - u8: small_primary
+    # i9 - i16: small_secondary
+    # c5 - c12: small_reload
+    # j: security
+    # h: hospital
+    # e, x: cross
+    # c1 - c4: reload
+    # c13 - c18: reload
+
+
+    {'cross': ['e1_1','e2_1','e3_1','e4_1','e5_1','e6_1','x10_1','x11_1','x12_1',
+               'x13_1','x14_1','x15_1','x16_1','x17_1','x1_1','x2_1','x3_1','x4_1',
+               'x5_1','x6_1','x7_1','x8_1','x9_1'],
+
+     'hospital': ['h1_1', 'h2_1', 'h3_1'], ...}
+
+    """
+
+    table = load_from_mysql('i_queue_io')
+
+    all_ports = set(list(table.equipment_port_next) + list(table.equipment_port_last))
+
+    filter_unload = lambda x: True if x[0] in ['r', 'a'] else False
+    filter_presort = lambda x: True if x[0] in ['m', ] else False
+
+    filter_secondary_sort = \
+        lambda x: True if x.split('_')[0] in [f'i{x}' for x in range(1, 9)] + [f'i{x}' for x in range(17, 25)] else False
+
+    filter_small_primary = lambda x: True if x.split('_')[0] in [f"u{x}" for x in range(1, 9)] else False
+    filter_small_secondary = lambda x: True if x.split('_')[0] in [f"i{x}" for x in range(9, 17)] else False
+    filter_small_reload = lambda x: True if x.split('_')[0] in [f"c{x}" for x in range(5, 13)] else False
+    filter_security = lambda x: True if x[0] in ['j'] else False
+    filter_hospital = lambda x: True if x[0] in ['h'] else False
+    filter_cross = lambda x: True if x[0] in ['e', 'x'] else False
+
+    filter_reload = \
+        lambda x: True if x.split('_')[0] in [f'c{x}' for x in range(1, 5)] + \
+                                             [f'c{x}' for x in range(13, 19)] else False
+    filters = {"unload": filter_unload,
+               "presort": filter_presort,
+               "secondary_sort": filter_secondary_sort,
+               "small_primary": filter_small_primary,
+               "small_secondary": filter_small_secondary,
+               "small_reload": filter_small_reload,
+               "security": filter_security,
+               "hospital": filter_hospital,
+               "cross": filter_cross,
+               "reload": filter_reload, }
+
+    equipment_port_dict = dict()
+
+    for name, flter in filters.items():
+        equipment_port_dict[name] = sorted(list(filter(flter, all_ports)))
+
+    # checking
+    temp_list = list()
+    _ = [temp_list.extend(x) for x in equipment_port_dict.values()]
+    assert bool(all_ports - set(temp_list)) == False, "Not all ports are classify!!"
+
+    return equipment_port_dict
 
 if __name__ == "__main__":
     test = get_queue_io()

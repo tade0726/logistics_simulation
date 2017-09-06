@@ -18,13 +18,18 @@ import logging
 
 class MainConfig:
     IS_TEST = False   # 使用全集数据，还是测试数据
-    SAVE_LOCAL = False  # 是否输出结果到本地csv， 还是 mysql
     IS_PARCEL_ONLY = False  # 只有 parcel 件
     IS_LAND_ONLY = False  # True 只有 landside, False landside airside
     CACHE_TYPE = None  # {None, "redis", "pkl", "hdf5"}
     LOCAL_DB = False  # control which DB using
+    DEBUG_LEVEL = logging.INFO  # 输出日志信息的级别
+    OUTPUT_MACHINE_TABLE_ONLY = False  # 只输出 o_machine_table
+    SAVE_LOCAL = False
 
-    DEBUG_LEVEL = logging.INFO
+
+class TimeConfig:
+    """注意： od 数据改变需要相应的修改开机时间原点"""
+    ZERO_TIMESTAMP = datetime(2017, 8, 15, 21)
 
 
 class RedisConfig:
@@ -35,13 +40,13 @@ class RedisConfig:
 
 
 class RemoteMySQLConfig:
+
     if MainConfig.LOCAL_DB:
         HOST = "localhost"
         USER = "root"
-        PASS = "root123"
-        DB = "hangzhouhubqa_v3"
+        PASS = "zp913913"
+        DB = "hangzhouhubqa"
         CHARSET = 'utf8'
-
     else:
         HOST = "10.0.149.62"
         USER = "root"
@@ -50,9 +55,8 @@ class RemoteMySQLConfig:
         CHARSET = 'utf8'
 
     engine = create_engine(
-        f'mysql+pymysql://{USER}:{PASS}@{HOST}/{DB}?charset={CHARSET}',
-        isolation_level="READ UNCOMMITTED", )
-
+                f'mysql+pymysql://{USER}:{PASS}@{HOST}/{DB}?charset={CHARSET}',
+                isolation_level="READ UNCOMMITTED", )
 
 class SaveConfig:
     PROJECT_DIR = split(split(realpath(__file__))[0])[0]
@@ -60,10 +64,6 @@ class SaveConfig:
     OUT_DIR = join(PROJECT_DIR, 'out')
     LOG_DIR = join(PROJECT_DIR, 'log')
     HDF5_FILE = join(DATA_DIR, 'input_data.h5')
-
-
-class TimeConfig:
-    ZERO_TIMESTAMP = datetime(2017, 7, 25, 21)
 
 
 def get_logger(logger_name: str):

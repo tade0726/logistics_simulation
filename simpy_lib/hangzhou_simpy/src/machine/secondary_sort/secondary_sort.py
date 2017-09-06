@@ -29,22 +29,23 @@ from simpy_lib.hangzhou_simpy.src.config import LOG
 class SecondarySort(object):
 
     def __init__(self,
-                 env: simpy.Environment(),
-                 machine_id: tuple,
+                 env: simpy.Environment,
+                 equipment_port: tuple,
                  pipelines_dict: dict,
+                 share_queue_dict: dict,
                  ):
 
         self.env = env
-        self.machine_id = machine_id
+        self.equipment_port = equipment_port
         self.pipelines_dict = pipelines_dict
+        self.share_queue_dict = share_queue_dict
 
         self._set_machine()
 
     def _set_machine(self):
         """
         """
-        self.equipment_id = self.machine_id[1]  # pipeline id last value, for other machines
-        self.input_pip_line = self.pipelines_dict[self.machine_id]
+        self.input_pip_line = self.share_queue_dict[self.equipment_port]
 
     def run(self):
         while True:
@@ -53,6 +54,6 @@ class SecondarySort(object):
                 self.pipelines_dict[package.next_pipeline].put(package)
             except Exception as exc:
                 self.pipelines_dict['error'].put(package)
-                msg = f"error: {exc}, package: {package}, equipment_id: {self.equipment_id}"
+                msg = f"error: {exc}, package: {package}, equipment_id: {self.equipment_port}"
                 LOG.logger_font.error(msg)
                 LOG.logger_font.exception(exc)

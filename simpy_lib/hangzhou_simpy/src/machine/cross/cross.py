@@ -42,15 +42,16 @@ class Cross(object):
     """
     def __init__(self,
                  env,
-                 machine_id,
-                 pipelines_dict=None,
-                 resource_dict=None,
-                 equipment_resource_dict=None):
+                 equipment_port,
+                 pipelines_dict: dict,
+                 resource_dict: dict,
+                 equipment_resource_dict: dict,
+                 share_queue_dict: dict):
         """
         init class self args:
         Args:
             env: A simpy.Environment instance.
-            machine_id: Cross machine id.
+            equipment_port: Cross machine id.
             pipelines_dict: pip line 字典
             resource_dict: 资源查询字典
             equipment_resource_dict: 机器资源id映射字典
@@ -59,21 +60,21 @@ class Cross(object):
             not initialized before.
         """
         self.env = env
-        self.machine_id = machine_id
+        self.equipment_port = equipment_port
         self.pipelines_dict = pipelines_dict
         self.equipment_resource_dict = equipment_resource_dict
         self.resource_dict = resource_dict
+        self.share_queue_dict = share_queue_dict
 
         self.resource_set = self._set_machine_resource()
 
     def _set_machine_resource(self):
         """"""
         if self.equipment_resource_dict:
-            self.equipment_id = self.machine_id[1]
-            self.input_pip_line = self.pipelines_dict[self.machine_id]
+            self.input_pip_line = self.share_queue_dict[self.equipment_port]
         else:
             raise RuntimeError('cross machine',
-                               self.machine_id,
+                               self.equipment_port,
                                'not initial equipment_resource_dict!')
 
     def run(self):
@@ -84,13 +85,13 @@ class Cross(object):
             # 记录机器开始处理货物信息
             package.insert_data(
                 PackageRecordDict(
-                    equipment_id=self.equipment_id,
+                    equipment_id=self.equipment_port,
                     time_stamp=self.env.now,
                     action="start", ))
             # 记录机器结束处理货物信息
             package.insert_data(
                 PackageRecordDict(
-                    equipment_id=self.equipment_id,
+                    equipment_id=self.equipment_port,
                     time_stamp=self.env.now,
                     action="end", ))
             # 放入下一步的传送带
@@ -98,6 +99,6 @@ class Cross(object):
                 self.pipelines_dict[package.next_pipeline].put(package)
             except Exception as exc:
                 self.pipelines_dict['error'].put(package)
-                msg = f"error: {exc}, package: {package}, equipment_id: {self.equipment_id}"
+                msg = f"error: {exc}, package: {package}, equipment_id: {self.equipment_port}"
                 LOG.logger_font.error(msg)
                 LOG.logger_font.exception(exc)
