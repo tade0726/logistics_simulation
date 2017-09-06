@@ -368,7 +368,6 @@ def pumper(data_pipeline: Queue, write_rows: int=10_000,):
             else:
                 raise ValueError("Wrong record in data pipeline!!")
 
-
         # time stamp for db
         db_insert_time = run_time
 
