@@ -436,5 +436,9 @@ if __name__ == '__main__':
     for p in threads:
         p.start()
 
+    for p in threads:
+        p.join()
+
+    LOG.logger_font.info(f"All Done.")
 
 
