@@ -391,5 +391,8 @@ def reverse(root, txt_receipt):
         t.start()
 
 
-def clear():
-    pass
+def exit_x(root):
+    if_exit = messagebox.askyesno("Tkmessage", "要退出了，确定？")
+    if if_exit > 0:
+        root.destroy()
+        return
