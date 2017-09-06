@@ -419,11 +419,9 @@ def create_tables():
         path_table_sche.create(checkfirst=True)
 
 
-if __name__ == '__main__':
+def main(run_time):
 
     create_tables()
-
-    run_time = datetime.now()
     data_pipeline_queue = Queue()
 
     threads = []
@@ -442,5 +440,12 @@ if __name__ == '__main__':
         p.join()
 
     LOG.logger_font.info(f"All Done.")
+
+
+if __name__ == '__main__':
+
+    run_time = datetime.now()
+    main(run_time)
+
 
 
