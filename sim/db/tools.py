@@ -479,10 +479,11 @@ def get_equipment_store_dict():
             equipment_store_dict[(k, p)] = dict(store_id=f'U_{idx}', max_time=max_p_time)
 
     # 所有 j 安检机提前一样的时间出发，使用最大的值
+    # 所有安检机队列头部合并
     max_j_p_time = j_table['process_time'].max()
-    for idx, (k, v) in enumerate(j_table.groupby('equipment_port_last')[names].apply(dict).to_dict().items(), start=1):
+    for _, (k, v) in enumerate(j_table.groupby('equipment_port_last')[names].apply(dict).to_dict().items(), start=1):
         for p in v['equipment_port_next']:
-            equipment_store_dict[(k, p)] = dict(store_id=f'J_{idx}', max_time=max_j_p_time)
+            equipment_store_dict[(k, p)] = dict(store_id=f'J_1', max_time=max_j_p_time)
 
     return equipment_store_dict
 
