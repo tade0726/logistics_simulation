@@ -80,8 +80,6 @@ def _run_sim_thread(package_num, root, txt_receipt):
     start_time = time.time()
     # ================================
     from sim import main
-    from sim.config import MainConfig
-
     main(run_arg)
     run_time = '%.2f' % (time.time() - start_time)
     txt_receipt.insert(END, '仿真执行完毕\n')
