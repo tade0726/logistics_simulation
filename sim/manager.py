@@ -368,13 +368,10 @@ def pumper(data_pipeline: Queue,
             else:
                 raise ValueError("Wrong record in data pipeline!!")
 
-        # time stamp for db
-        db_insert_time = run_time
-
         # output machine table only
         if MainConfig.OUTPUT_MACHINE_TABLE_ONLY:
             machine_table = pd.DataFrame.from_records(machine_data, columns=PackageRecord._fields, )
-            machine_table = add_time(machine_table)
+            machine_table = add_time(machine_table, run_arg)
             write_mysql("machine_table", machine_table, OutputTableColumnType.package_columns)
 
         else:
@@ -386,7 +383,7 @@ def pumper(data_pipeline: Queue,
             truck_table = add_time(truck_table, run_arg)
             pipeline_table = add_time(pipeline_table, run_arg)
             machine_table = add_time(machine_table, run_arg)
-            path_table["run_time"] = db_insert_time
+            path_table["run_time"] = run_arg
 
             write_mysql("machine_table", machine_table, OutputTableColumnType.package_columns)
             write_mysql("pipeline_table", pipeline_table, OutputTableColumnType.pipeline_columns)

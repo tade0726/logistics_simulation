@@ -9,9 +9,9 @@ DATABASES_DIC = {
         'CHARSET': 'utf8'
     },
     'TEST': {
-        'HOST': '10.0.149.36',
-        'USER': 'wenjing',
-        'PASSWORD': 'wenjing',
+        'HOST': '10.0.149.62',
+        'USER': 'root',
+        'PASSWORD': 'root123',
         'NAME': 'hangzhouhubqa_v3',
         'CHARSET': 'utf8'
     },

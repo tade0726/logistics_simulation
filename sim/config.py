@@ -17,11 +17,11 @@ import logging
 
 
 class MainConfig:
-    IS_TEST = True   # 使用全集数据，还是测试数据
+    IS_TEST = False   # 使用全集数据，还是测试数据
     IS_PARCEL_ONLY = False  # 只有 parcel 件
     IS_LAND_ONLY = False  # True 只有 landside, False landside airside
     CACHE_TYPE = None  # {None, "redis", "pkl", "hdf5"}
-    LOCAL_DB = True  # control which DB using
+    LOCAL_DB = False  # control which DB using
     DEBUG_LEVEL = logging.INFO  # 输出日志信息的级别
     OUTPUT_MACHINE_TABLE_ONLY = False  # 只输出 o_machine_table
 
@@ -47,9 +47,9 @@ class RemoteMySQLConfig:
         DB = "hangzhouhubqa"
         CHARSET = 'utf8'
     else:
-        HOST = "10.0.149.30"
-        USER = "developer"
-        PASS = "developer"
+        HOST = "10.0.149.62"
+        USER = "root"
+        PASS = "root123"
         DB = "hangzhouhubqa_v3"
         CHARSET = 'utf8'
 
