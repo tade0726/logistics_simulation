@@ -334,7 +334,9 @@ def simulation(data_pipeline: Queue, run_arg):
     LOG.logger_font.info(f"total time: {total_time.total_seconds()} s")
 
 
-def pumper(data_pipeline: Queue, write_rows: int=10_000,):
+def pumper(data_pipeline: Queue,
+           write_rows: int=10_000,
+           run_arg: datetime=datetime.now()):
 
     QUEUE_DONE = False
 
@@ -380,9 +382,9 @@ def pumper(data_pipeline: Queue, write_rows: int=10_000,):
             machine_table = pd.DataFrame.from_records(machine_data, columns=PackageRecord._fields, )
             path_table = pd.DataFrame.from_records(path_data, columns=PathRecord._fields, )
 
-            truck_table = add_time(truck_table)
-            pipeline_table = add_time(pipeline_table)
-            machine_table = add_time(machine_table)
+            truck_table = add_time(truck_table, run_arg)
+            pipeline_table = add_time(pipeline_table, run_arg)
+            machine_table = add_time(machine_table, run_arg)
             path_table["run_time"] = db_insert_time
 
             write_mysql("machine_table", machine_table, OutputTableColumnType.package_columns)
@@ -398,10 +400,10 @@ def pumper(data_pipeline: Queue, write_rows: int=10_000,):
             break
 
 
-def add_time(table: pd.DataFrame):
+def add_time(table: pd.DataFrame, run_arg):
     """添加仿真的时间戳， 以及运行的日期"""
     table["real_time_stamp"] = table["time_stamp"].apply(lambda x: TimeConfig.ZERO_TIMESTAMP + timedelta(seconds=x))
-    table["run_time"] = run_time
+    table["run_time"] = run_arg
     return table
 
 
@@ -426,7 +428,7 @@ def main(run_arg):
     sim.start()
 
     for _ in range(3):
-        p = threading.Thread(target=pumper, args=(data_pipeline_queue, 100_000))
+        p = threading.Thread(target=pumper, args=(data_pipeline_queue, 100_000, run_arg))
         threads.append(p)
 
     for p in threads:
