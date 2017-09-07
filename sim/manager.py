@@ -32,10 +32,10 @@ from sim.config import MainConfig, TimeConfig, LOG
 __all__ = ["main"]
 
 
-def simulation(data_pipeline: Queue, run_time):
+def simulation(data_pipeline: Queue, run_arg):
 
     # start time
-    t_start = run_time
+    t_start = run_arg
 
     # simpy env init
     env = simpy.Environment()
@@ -415,14 +415,14 @@ def create_tables():
         path_table_sche.create(checkfirst=True)
 
 
-def main(run_time):
+def main(run_arg):
 
     create_tables()
     data_pipeline_queue = Queue()
 
     threads = []
 
-    sim = threading.Thread(target=simulation, args=(data_pipeline_queue, run_time))
+    sim = threading.Thread(target=simulation, args=(data_pipeline_queue, run_arg))
     sim.start()
 
     for _ in range(3):
@@ -435,7 +435,7 @@ def main(run_time):
     for p in threads:
         p.join()
 
-    LOG.logger_font.info(f"All Done.")
+    LOG.logger_font.info(f"Simulation and data insert are all done.")
 
 
 if __name__ == '__main__':
