@@ -17,8 +17,6 @@ import random
 from queue import Queue
 
 from sim.utils import *
-from sim.utils import \
-    (PathRecordDict, PathRecord)
 from sim.config import LOG, MainConfig
 
 __all__ = ["Parcel", "Package", "Truck", "Uld", "SmallBag", "SmallPackage", "Pipeline", "PipelineRes", "BasePipeline",
