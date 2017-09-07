@@ -87,13 +87,6 @@ def _run_sim_thread(package_num, root, txt_receipt):
     txt_receipt.insert(END, '仿真执行完毕\n')
     root.update_idletasks()
     time.sleep(0.5)
-    if MainConfig.SAVE_LOCAL:
-        txt_receipt.insert(END, '开始插入仿真数据......\n')
-        root.update_idletasks()
-        with conn as cur:
-            csv_into_mysql(cur)
-        txt_receipt.insert(END, '插入数据结束\n')
-        root.update_idletasks()
     # ==============================================
     time.sleep(0.5)
     txt_receipt.insert(END, '开始读取仿真结果......\n')
