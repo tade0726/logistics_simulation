@@ -57,6 +57,7 @@ class RemoteMySQLConfig:
                 f'mysql+pymysql://{USER}:{PASS}@{HOST}/{DB}?charset={CHARSET}',
                 isolation_level="READ UNCOMMITTED", )
 
+
 class SaveConfig:
     PROJECT_DIR = split(split(realpath(__file__))[0])[0]
     DATA_DIR = join(PROJECT_DIR , 'data')
