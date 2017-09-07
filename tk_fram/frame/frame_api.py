@@ -79,8 +79,8 @@ def _run_sim_thread(package_num, root, txt_receipt):
     root.update_idletasks()
     start_time = time.time()
     # ================================
-    from simpy_lib import main
-    from simpy_lib.hangzhou_simpy.sim.config import MainConfig
+    from sim import main
+    from sim.config import MainConfig
 
     main(run_arg)
     run_time = '%.2f' % (time.time() - start_time)
