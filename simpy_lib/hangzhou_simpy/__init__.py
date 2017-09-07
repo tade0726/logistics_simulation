@@ -1,2 +1,1 @@
-#
-from .main_test import main
+from .sim import main
