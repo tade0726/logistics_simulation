@@ -32,7 +32,7 @@ from sim.config import MainConfig, TimeConfig, LOG
 __all__ = ["main"]
 
 
-def simulation(data_pipeline: Queue, run_arg):
+def simulation(data_pipeline: Queue, run_arg: datetime):
 
     # start time
     t_start = run_arg
@@ -335,8 +335,9 @@ def simulation(data_pipeline: Queue, run_arg):
 
 
 def pumper(data_pipeline: Queue,
+           run_arg: datetime,
            write_rows: int=10_000,
-           run_arg: datetime=datetime.now()):
+           ):
 
     QUEUE_DONE = False
 
@@ -425,11 +426,13 @@ def main(run_arg):
     threads = []
 
     sim = threading.Thread(target=simulation, args=(data_pipeline_queue, run_arg))
-    sim.start()
 
     for _ in range(3):
-        p = threading.Thread(target=pumper, args=(data_pipeline_queue, 100_000, run_arg))
+        p = threading.Thread(target=pumper, args=(data_pipeline_queue, run_arg, 100_000))
         threads.append(p)
+
+    # start threads
+    sim.start()
 
     for p in threads:
         p.start()
@@ -437,6 +440,7 @@ def main(run_arg):
     for p in threads:
         p.join()
 
+    sim.join()
     LOG.logger_font.info(f"Simulation and data insert are all done.")
 
 
