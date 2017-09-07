@@ -1,6 +1,6 @@
 import simpy
 import random
-from src.config import SmallCode
+from sim.config import SmallCode
 
 
 class Item:

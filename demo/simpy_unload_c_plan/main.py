@@ -6,16 +6,16 @@ author: Ted
 date: 2017-06-22
 des:
 
-main for whole simulation
+main for whole sim
 """
 
 import simpy
 from simpy import AllOf
-from src.config.io_rule import r_dock_unload
-from src.config.queues import env
-from src.simpy_demo_machine import UnloadR, truck_come_controller, check_truck_empty
-from src.tools.db import get_trucks
-from src.tools.loggers import get_logger
+from sim.config.io_rule import r_dock_unload
+from sim.config.queues import env
+from sim.simpy_demo_machine import UnloadR, truck_come_controller, check_truck_empty
+from sim.tools.db import get_trucks
+from sim.tools.loggers import get_logger
 
 from datetime import datetime
 

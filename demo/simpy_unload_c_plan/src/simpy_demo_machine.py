@@ -20,17 +20,17 @@ import pandas as pd
 
 # for machine 
 import re
-from src.config.io_rule import choiceW
-from src.config.io_rule import (r_dock_s_road_rule, r_dock_unload, )
-from src.config.queues import (s_road_q, s_int_q, s_domestic_q)
-from src.config.io_rule import (city_apt, apt_reload,r_dock_r_presort_infeed_rule, r_presort_infeed_rule)
+from sim.config.io_rule import choiceW
+from sim.config.io_rule import (r_dock_s_road_rule, r_dock_unload, )
+from sim.config.queues import (s_road_q, s_int_q, s_domestic_q)
+from sim.config.io_rule import (city_apt, apt_reload, r_dock_r_presort_infeed_rule, r_presort_infeed_rule)
 
 # init queue
-from src.config.queues import (r_presort_infeed_q, i_presort_infeed_q, d_presort_infeed_q)
-from src.config.queues import (r_reload_q, i_reload_q, d_reload_q)
+from sim.config.queues import (r_presort_infeed_q, i_presort_infeed_q, d_presort_infeed_q)
+from sim.config.queues import (r_reload_q, i_reload_q, d_reload_q)
 
 # dist
-from src.config.dist import (nc_dist, irregular_dist, r_dock_dist, r_dock_r_presort_dist,)
+from sim.config.dist import (nc_dist, irregular_dist, r_dock_dist, r_dock_r_presort_dist, )
 
 def check_truck_empty(env, trucks: simpy.PriorityStore, truck_empty: simpy.Event):
     while True:
