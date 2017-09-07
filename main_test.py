@@ -21,15 +21,12 @@ from collections import defaultdict
 from queue import Queue
 import threading
 
-import sys
-sys.path.extend(['.'])
-
-from src.db import *
-from src.controllers import TruckController, ResourceController
-from src.utils import *
-from src.vehicles import Pipeline, PipelineRes, BasePipeline, SmallBag, SmallPackage, Parcel, PipelineReplace
-from src.machine import *
-from src.config import MainConfig, TimeConfig, LOG, SaveConfig
+from .src.db import *
+from .src.controllers import TruckController, ResourceController
+from .src.utils import *
+from .src.vehicles import Pipeline, PipelineRes, BasePipeline, SmallBag, SmallPackage, Parcel, PipelineReplace
+from .src.machine import *
+from .src.config import MainConfig, TimeConfig, LOG, SaveConfig
 
 
 __all__ = ["main"]
