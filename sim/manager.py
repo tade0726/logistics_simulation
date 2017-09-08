@@ -21,6 +21,10 @@ from collections import defaultdict
 from queue import Queue
 import threading
 
+import sys
+
+sys.path.extend(['.'])
+
 from sim.db import *
 from sim.controllers import TruckController, ResourceController
 from sim.utils import *
