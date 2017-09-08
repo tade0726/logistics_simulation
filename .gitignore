@@ -121,10 +121,8 @@ data/path
 data/*.txt
 docs/
 *.txt
-<<<<<<< HEAD
-data/
-=======
->>>>>>> develop_cm_v1.1.2
+data/*.pkl
+data/*.csv
 
 
 # mac folder file
