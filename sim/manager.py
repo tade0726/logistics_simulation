@@ -33,7 +33,11 @@ __all__ = ["main"]
 
 
 def simulation(data_pipeline: Queue, run_arg: datetime):
-
+    """
+    :param data_pipeline: 线程之间沟通的队列
+    :param run_arg: 程序启动的时间，作为标识
+    :return:
+    """
     # start time
     t_start = run_arg
 
@@ -339,7 +343,12 @@ def pumper(data_pipeline: Queue,
            run_arg: datetime,
            write_rows: int=10_000,
            ):
-
+    """
+    :param data_pipeline: 线程之间沟通的队列
+    :param run_arg: 程序启动的时间，作为标识
+    :param write_rows: 每个pumper线程单次处理的数据量
+    :return:
+    """
     QUEUE_DONE = False
 
     while True:
@@ -417,7 +426,7 @@ def create_tables():
 
 
 def main(run_arg):
-
+    """main function for simulation and pumper start up"""
     create_tables()
     data_pipeline_queue = Queue()
 
