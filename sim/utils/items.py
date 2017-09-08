@@ -144,6 +144,6 @@ path_table_sche = \
         Column("ident_des_zno", VARCHAR(length=32, )),
         Column("sorter_type", VARCHAR(length=32, )),
         Column("dest_type", VARCHAR(length=32, )),
-        Column("ret_path", Text()),
+        Column("ret_path", VARCHAR(length=150, )),
         Column("run_time", DateTime()),
     )
