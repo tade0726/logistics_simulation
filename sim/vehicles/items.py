@@ -15,6 +15,8 @@ import pandas as pd
 from collections import defaultdict
 import random
 from queue import Queue
+from collections import deque
+
 
 from sim.utils import *
 from sim.config import LOG, MainConfig
@@ -37,10 +39,10 @@ class Package:
         # id
         self._parcel_id = self.attr["parcel_id"]
         self.small_id = self.attr.get("small_id", self._parcel_id)
-        # data store
-        self.machine_data = list()
-        self.pipeline_data = list()
-        self.path_request_data = list()
+        # data store, 只保留最后一条数据
+        self.machine_data = deque(maxlen=1)
+        self.pipeline_data = deque(maxlen=1)
+        self.path_request_data = deque(maxlen=1)
 
         # 数据队列，在仿真的过程中同时被消费
         self.data_pipeline = data_pipeline
@@ -247,7 +249,7 @@ class Truck:
         self.come_time = come_time
         self.store = packages
         self.truck_type = truck_type
-        self.truck_data = list()
+        self.truck_data = deque(maxlen=1)   # 只保留最后一条数据
         # 仿真程序运行的同时，消费数据
         self.data_pipeline = data_pipeline
         self.store_size = len(self.store)
