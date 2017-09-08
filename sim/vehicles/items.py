@@ -12,11 +12,9 @@ Uld class
 """
 import simpy
 import pandas as pd
-from collections import defaultdict
+from collections import defaultdict, deque
 import random
 from queue import Queue
-from collections import deque
-
 
 from sim.utils import *
 from sim.config import LOG, MainConfig
