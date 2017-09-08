@@ -57,11 +57,11 @@ class SmallReload(object):
     def _set_machine_resource(self):
         self.process_time = self.equipment_process_time_dict[self.equipment_port]
         self.equipment_name = self.equipment_port.split('_')[0]
-        self.parameters =  self.equipment_parameters[self.equipment_name]
+        self.parameters = self.equipment_parameters[self.equipment_name]
         self.store_max = int(self.parameters['smallbag_wrap_condition'])
 
         # 获取扎包时间的变量名
-        self.pack_time_list = sorted([v for k,v in self.parameters.items() if "smallbag_wrap_time" in k])
+        self.pack_time_list = sorted([v for k, v in self.parameters.items() if "smallbag_wrap_time" in k])
         self.input_pip_line = self.share_queue_dict[self.equipment_port]
 
     def _plan_pack_time(self):
