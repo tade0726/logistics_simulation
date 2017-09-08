@@ -119,7 +119,6 @@ log/
 data/path
 #data/*.csv
 data/*.txt
-docs/
 *.txt
 data/*.pkl
 data/*.csv
