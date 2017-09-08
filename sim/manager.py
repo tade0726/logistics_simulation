@@ -184,7 +184,8 @@ def simulation(data_pipeline: Queue, run_arg: datetime):
                    resource_dict=resource_dict,
                    equipment_resource_dict=equipment_resource_dict,
                    equipment_parameters=equipment_parameters,
-                   open_time_dict=open_time_dict, )
+                   open_time_dict=open_time_dict,
+                   )
         )
 
     # init presort machines
