@@ -1,10 +1,17 @@
-├─data: 开发过程中的样例数据
-├─demo: 使用 simpy 的 c-plan demo
-├─docs: 开发文档, 如流程图, 抽象 class 的说明
-├─logs: 日志文件
+# A simulation of a conveying-transport system for parcel redistribution
+
+
+A simple demo how to simulation a conveying-transport for logistics business, for example (https://www.ssi-schaefer.com/en-au/products/conveying-transport)
+
+
+## The codes structure
+├─data: demo data
+├─demo: a demo from simpy C-plan
+├─docs: dev docs, process diagram, explantion of each CLASS
+├─logs: logs
 └─src
-    ├─controllers: 仿真中的控制器及监视器
-    ├─db: 处理与数据库的交互
-    ├─machine: 机器 class
-    ├─utils: 一些辅助函数
-    └─vehicles: 包裹, 货车, Uld class
+    ├─controllers: a control and monitoring module for the simulation
+    ├─db: function related to database operation
+    ├─machine: python CLASS wrriten to reflex the logic of a facotry machine
+    ├─utils: helper function
+    └─vehicles: python CLASS describing vehicles 
