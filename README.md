@@ -9,13 +9,13 @@ A simple demo how to simulation a conveying-transport for logistics business, fo
 
 ## The codes structure
 
-├─data: demo data
-├─demo: a demo from simpy C-plan
-├─docs: dev docs, process diagram, explantion of each CLASS
-├─logs: logs
-└─src
-    ├─controllers: a control and monitoring module for the simulation
-    ├─db: function related to database operation
-    ├─machine: python CLASS wrriten to reflex the logic of a facotry machine
-    ├─utils: helper function
-    └─vehicles: python CLASS describing vehicles 
+data: demo data
+demo: a demo from simpy C-plan
+docs: dev docs, process diagram, explantion of each CLASS
+logs: logs
+src: 
+- controllers: a control and monitoring module for the simulation
+- db: function related to database operation
+─ machine: python CLASS wrriten to reflex the logic of a facotry machine
+- utils: helper function
+- vehicles: python CLASS describing vehicles 
