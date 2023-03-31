@@ -1,21 +1,18 @@
-# A simulation of a conveying-transport system for parcel redistribution
+# Conveying-Transport System Simulation for Parcel Redistribution
 
-
-A simple demo how to simulation a conveying-transport for logistics business, for example (https://www.ssi-schaefer.com/en-au/products/conveying-transport)
-
+This repository contains a simple demonstration of simulating a conveying-transport system for logistics businesses, such as the one found at [SSI Schaefer](https://www.ssi-schaefer.com/en-au/products/conveying-transport).
 
 ![conveying](container-and-carton-conveyor-system-dam-image-en-1029-.png)
 
+## Repository Structure
 
-## The codes structure
-
-- data: demo data
-- demo: a demo from simpy C-plan
-- docs: dev docs, process diagram, explantion of each CLASS
-- logs: logs
-- src: 
-  - controllers: a control and monitoring module for the simulation
-  - db: function related to database operation
-  ─ machine: python CLASS wrriten to reflex the logic of a facotry machine
-  - utils: helper function
-  - vehicles: python CLASS describing vehicles 
+- `data`: Demo data
+- `demo`: A demo from SimPy's C-plan
+- `docs`: Development documentation, process diagrams, and explanations of each class
+- `logs`: Log files
+- `src`: 
+  - `controllers`: A control and monitoring module for the simulation
+  - `db`: Functions related to database operations
+  - `machine`: Python classes written to reflect the logic of factory machines
+  - `utils`: Helper functions
+  - `vehicles`: Python classes describing vehicles
